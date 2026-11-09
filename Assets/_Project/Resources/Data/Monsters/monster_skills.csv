@@ -1,0 +1,12 @@
+id,name,dice,power,floor,kind,target,aim,delay,effect,text
+gob_stab,찌르기,2,9,0,physical,one,random,100,,녹슨 칼로 찌른다.
+gob_arrow,화살,2,10,0,physical,one,weakest,100,,가장 약한 쪽을 노린다.
+wolf_bite,물어뜯기,3,8,0,physical,one,random,100,,
+wolf_howl,울부짖기,0,0,0,buff,self,random,60,howl,다음 공격의 위력 +3.
+bandit_slash,베기,2,11,0,physical,one,random,100,,
+bandit_heavy,내려찍기,3,16,0,physical,one,strongest,120,,힘을 모아 가장 튼튼한 쪽을 내려찍는다.
+cut_throw,단검 던지기,2,10,0,physical,one,weakest,90,,
+warden_strike,돌주먹,3,15,0,physical,one,random,100,,
+warden_sweep,휩쓸기,2,10,0,physical,all,random,110,,모두를 휩쓴다.
+warden_ember,잿불 폭발,3,10,0,magic,all,random,120,burn,잿불이 터진다. 화상.
+warden_crush,짓누르기,4,20,0,physical,one,strongest,130,,

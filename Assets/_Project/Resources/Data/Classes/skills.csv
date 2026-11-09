@@ -1,0 +1,22 @@
+id,class,name,stat,dice,power,floor,kind,target,delay,cooldown,element,effect,perfect,text
+knight_slash,knight,베기,str,3,8,0,physical,enemy,100,0,,,crit150,검으로 벤다.
+knight_bash,knight,방패 치기,str,2,5,0,physical,enemy,90,2,,,stun,방패로 친다. 완벽하면 기절시킨다.
+knight_guard,knight,수호,,0,0,0,support,other_ally,60,2,,guard,,다음 차례까지 아군 하나를 대신 맞아 준다. 지키는 동안 방어도 +2.
+knight_taunt,knight,도발,wil,2,0,0,support,self,80,3,,taunt,armor1,모든 적이 기사를 노린다. 성공 수만큼 방어도 +.
+bers_chop,berserker,도끼질,str,3,9,0,physical,enemy,100,0,,,crit150,도끼를 내리찍는다.
+bers_frenzy,berserker,난도질,str,5,15,0,physical,enemy,130,2,,,crit150,정신없이 휘두른다. 다음 차례가 늦다.
+bers_thirst,berserker,피의 갈증,str,3,8,0,physical,enemy,100,2,,lifesteal,crit150,준 피해의 절반만큼 회복한다.
+hunt_shot,hunter,사격,per,3,8,0,physical,enemy,100,0,,,crit150,화살을 쏜다.
+hunt_mark,hunter,표식,,0,0,0,support,enemy,50,2,,mark,,적에게 표식을 남긴다. 그 적을 치는 모두에게 확정 성공 +1(그 적의 차례 3번).
+hunt_aimed,hunter,조준 사격,per,4,11,0,physical,enemy,120,2,,,crit200,숨을 고르고 쏜다. 완벽하면 두 배.
+elem_bolt,elementalist,마력탄,int,2,6,25,magic,enemy,100,0,,,crit150,마력을 뭉쳐 던진다.
+elem_fire,elementalist,화염구,int,3,10,25,magic,enemy,100,1,fire,burn,crit150,불덩이. 성공하면 화상(차례마다 3 피해 2번).
+elem_frost,elementalist,서리 창,int,3,8,25,magic,enemy,100,1,frost,chill,crit150,얼음 창. 성공하면 냉기(다음 차례가 늦다).
+elem_chain,elementalist,연쇄 번개,int,3,6,25,magic,all_enemies,110,2,lightning,,crit150,모든 적에게 번개가 튄다.
+cler_smite,cleric,성스러운 일격,wil,2,5,0,magic,enemy,100,0,,,crit150,빛으로 내려친다.
+cler_heal,cleric,치유의 빛,wil,3,14,50,heal,ally,100,1,,,crit150,아군 하나를 회복한다. 기도는 헛되지 않다(바닥 50%).
+cler_bless,cleric,축복,,0,0,0,support,ally,60,2,,bless,,아군 하나의 다음 판정에 확정 성공 +1. 화상과 약화를 걷는다.
+cler_revive,cleric,부활 기도,wil,3,40,30,revive,downed_ally,120,3,,,,쓰러진 아군을 일으킨다(최대 생명력의 %로).
+gamb_card,gambler,카드 던지기,fixed50,4,10,0,physical,enemy,100,0,,,crit300,날 선 카드를 던진다. 완벽하면 세 배.
+gamb_allin,gambler,올인,fixed50,7,20,0,physical,enemy,120,3,,backfire,crit200,전부 건다. 성공이 2개 이하면 도박사가 4 피해.
+gamb_coin,gambler,행운의 동전,,0,0,0,support,ally,60,2,,lucky,,아군 하나의 다음 판정에 확정 성공 +2.

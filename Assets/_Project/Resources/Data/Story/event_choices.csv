@@ -1,0 +1,23 @@
+event,label,class,stat,dice,need,success,fail,success_text,fail_text
+pilgrim,치료한다,,wil,2,1,heal_all 4;flag pilgrim_saved;bless_all,hurt 3,순례자가 눈을 뜬다. 고마워하며 모두에게 축복을 빌어 준다. (모두 생명력 +4. 다음 판정 확정 +1),치료하다 잿가루를 들이마셨다. (생명력 −3)
+pilgrim,기도로 일으킨다,cleric,,,,heal_all 8;flag pilgrim_saved;resolve_all 1,,순례자가 일어나 기도에 답한다. 모두의 마음이 단단해진다. (모두 생명력 +8. 결의 +1),
+pilgrim,돈주머니만 챙긴다,,,,,gold 15;flag robbed_pilgrim,,금화 15를 챙겼다. 순례자는 아직 쓰러져 있다.,
+pilgrim,지나친다,,,,,,,너희는 발걸음을 재촉한다.,
+crossroads,지름길로 간다,,per,2,1,gold 10;xp 3,battle ambush,덤불 속 매복을 먼저 알아차리고 돌아갔다. 버려진 짐에서 금화 10.,덤불 속에서 화살이 날아온다!
+crossroads,흔적을 읽고 간다,hunter,,,,gold 10;xp 5;potion 1,,사냥꾼이 고블린의 흔적을 읽고 둥지를 피해 지름길을 지났다. 둥지에서 물약 하나를 슬쩍했다.,
+crossroads,큰길로 돌아간다,,,,,resolve_all 1,,먼 길이지만 마음 편히 걸었다. (모두 결의 +1),
+peddler,물약을 산다 (금화 10),,,,,gold -10;potion 1,,물약 하나를 샀다.,
+peddler,흥정한다,,cha,3,2,potion 2;gold -5,gold -10;potion 1,행상이 혀를 찬다. 금화 5에 물약 둘.,흥정은 실패. 제값을 내고 물약 하나.
+peddler,노름을 건다,gambler,fixed50,3,2,gold 20;potion 1,gold -10,“한 판 어때?” 도박사가 이겼다. 금화 20과 덤으로 물약 하나.,도박사가 졌다. 금화 10을 잃었다.
+peddler,그냥 간다,,,,,,,행상이 아쉬운 듯 손을 흔든다.,
+shrine,기도한다,,wil,3,2,heal_all 10;resolve_all 1,weak_next,불씨가 환하게 타오른다. (모두 생명력 +10. 결의 +1),불씨가 꺼지고 차가운 바람이 분다. 다음 전투를 약화된 채 시작한다.
+shrine,성소를 손본다,knight,,,,hope 1;flag shrine_mended,,기사가 무너진 돌을 다시 쌓는다. 오래된 맹세가 생각난다. (희망 +1),
+shrine,제물을 바친다 (금화 10),,,,,gold -10;resolve_all 2,,촛불이 흔들리며 답한다. (모두 결의 +2),
+shrine,지나친다,,,,,,,너희는 고개만 숙이고 지나간다.,
+chest,조심스럽게 연다,,agi,3,2,gold 20,hurt 6;gold 8,실을 끊지 않고 열었다. 금화 20.,실이 끊기며 바늘이 튀었다. (생명력 −6) 그래도 금화 8은 건졌다.
+chest,부순다,,str,2,1,gold 8,hurt 4,상자가 부서지며 금화 8이 쏟아진다. 안의 무언가도 함께 깨졌다.,상자가 꿈쩍도 않고 바늘만 튀었다. (생명력 −4)
+chest,덫을 해체한다,hunter,,,,gold 20;potion 1,,사냥꾼이 덫을 해체했다. 덫에 쓰인 물약까지 챙겼다. 금화 20.,
+chest,지나친다,,,,,,,상자를 두고 간다.,
+seal,돌에 새긴 이름을 읽는다,,int,2,1,resolve_all 2;flag read_seal,,「리엔」. 그 아래 낯선 이름 몇 개가 더 새겨져 있다. 일지가 따뜻해진다. (모두 결의 +2),글씨가 닳아 읽히지 않는다.
+seal,봉인의 문장을 읊는다,elementalist,,,,resolve_all 2;bless_all;flag read_seal,,원소술사가 일지의 문장을 읊자 금 사이 연기가 잠시 멎는다. (모두 결의 +2. 다음 판정 확정 +1),
+seal,곧장 맞선다,,,,,,,너희는 무기를 든다.,

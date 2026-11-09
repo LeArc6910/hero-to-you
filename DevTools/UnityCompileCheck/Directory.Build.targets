@@ -1,0 +1,34 @@
+<Project>
+
+  <!-- A project in Assemblies/ names its Unity asmdef in $(Asmdef). Its references are read from that asmdef, the
+       way Unity would give them, so a script that uses a type from an assembly its asmdef does not reference fails
+       here too. A reference resolves to the stub project of the same name, another project in Assemblies/, or
+       Game.Core. References with no project here (packages whose types the scripts do not touch) are skipped.
+       Editor-only asmdefs also get UnityEditor. -->
+  <PropertyGroup Condition="'$(Asmdef)' != ''">
+    <_AsmdefText>$([System.IO.File]::ReadAllText($(Asmdef)))</_AsmdefText>
+    <_AsmdefReferences>$([System.Text.RegularExpressions.Regex]::Replace($(_AsmdefText), '(?s)^.*?"references"\s*:\s*\[([^\]]*)\].*$', '$1'))</_AsmdefReferences>
+    <_AsmdefReferences>$([System.Text.RegularExpressions.Regex]::Replace($(_AsmdefReferences), '"|\s', ''))</_AsmdefReferences>
+    <_AsmdefReferences>$(_AsmdefReferences.Replace(',', ';'))</_AsmdefReferences>
+    <_AsmdefEditorOnly>$([System.Text.RegularExpressions.Regex]::IsMatch($(_AsmdefText), '"includePlatforms"\s*:\s*\[\s*"Editor"\s*\]'))</_AsmdefEditorOnly>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Asmdef)' != ''">
+    <_KnownProject Include="$(MSBuildThisFileDirectory)Stubs/*/*.csproj;$(MSBuildThisFileDirectory)Assemblies/*/*.csproj;$(ProjectRoot)DevTools/Game.Core/Game.Core.csproj">
+      <ProjectPath>%(FullPath)</ProjectPath>
+    </_KnownProject>
+    <_KnownAssembly Include="@(_KnownProject->'%(Filename)')" />
+    <_AsmdefReference Include="$([MSBuild]::Unescape($(_AsmdefReferences)))" />
+    <_UnreferencedAssembly Include="@(_KnownAssembly)" Exclude="@(_AsmdefReference)" />
+    <_ReferencedAssembly Include="@(_KnownAssembly)" Exclude="@(_UnreferencedAssembly)" />
+    <ProjectReference Include="@(_ReferencedAssembly->'%(ProjectPath)')" />
+    <!-- Recompile when the asmdef changes, even if no script did. -->
+    <CustomAdditionalCompileInputs Include="$(Asmdef)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(_AsmdefEditorOnly)' == 'True'">
+    <Reference Include="$(UnityAssemblies)/UnityEditor.*Module.dll" Private="false" />
+    <Reference Include="$(UnityAssemblies)/UnityEditor.dll" Private="false" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Asmdef>$(ProjectRoot)Assets/_Project/Scripts/Client/Game.Client.asmdef</Asmdef>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(ProjectRoot)Assets/_Project/Scripts/Client/**/*.cs" Exclude="$(ProjectRoot)Assets/_Project/Scripts/Client/Editor/**" />
+  </ItemGroup>
+
+</Project>

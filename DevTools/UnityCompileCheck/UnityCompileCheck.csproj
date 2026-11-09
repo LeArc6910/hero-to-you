@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Compiles the Unity-side scripts the way Unity splits them: one project per asmdef under Assemblies/, each
+       referencing only what its asmdef references (Directory.Build.targets reads them). Engine types come from
+       Unity's real assemblies (fetched by fetch-unity.sh); package types from hand-written stand-ins under Stubs/,
+       one project per package assembly. Catches compile errors before the editor does; nothing here runs. -->
+  <ItemGroup>
+    <ProjectReference Include="Assemblies/*/*.csproj" />
+  </ItemGroup>
+
+</Project>

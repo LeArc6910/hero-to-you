@@ -1,0 +1,55 @@
+name: Core tests
+
+# Every push: the Core's tests, the balance sandbox, the pixel art drawn to a picture, and the Unity-side scripts
+# compiled against Unity's own engine assemblies (editor and web player). No Unity license needed.
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Unit tests
+        run: dotnet test DevTools/Game.Core.Tests --logger "console;verbosity=normal"
+
+      - name: Balance sandbox
+        run: |
+          dotnet run --project DevTools/CoreSandbox -- --dice
+          dotnet run --project DevTools/CoreSandbox -- --adventure 200 --party knight,hunter,cleric
+
+      - name: Draw the pixel art
+        run: |
+          pip install --quiet pillow
+          python3 DevTools/ArtPreview/preview.py "$RUNNER_TEMP/art-preview.png"
+
+      - name: Keep the pixel art picture
+        uses: actions/upload-artifact@v4
+        with:
+          name: art-preview
+          path: ${{ runner.temp }}/art-preview.png
+
+      - name: Cache Unity assemblies
+        uses: actions/cache@v4
+        with:
+          path: DevTools/UnityCompileCheck/.unity
+          key: unity-assemblies-v1-${{ hashFiles('ProjectSettings/ProjectVersion.txt') }}
+
+      - name: Fetch Unity assemblies
+        run: bash DevTools/UnityCompileCheck/fetch-unity.sh
+
+      - name: Compile-check Unity scripts
+        run: dotnet build DevTools/UnityCompileCheck
+
+      - name: Compile-check Unity scripts for the web
+        run: >-
+          dotnet build DevTools/UnityCompileCheck/Assemblies/Game.Client
+          -p:DefineConstants=UNITY_WEBGL
+          -p:UnityAssemblies="$PWD/DevTools/UnityCompileCheck/.unity/WebGL"
+          -o "$RUNNER_TEMP/webgl-check"

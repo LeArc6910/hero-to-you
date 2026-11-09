@@ -1,0 +1,7 @@
+id,name,hp,speed,accuracy,armor,ward,xp,gold,pattern,pattern2,phase2,phase2_line,boss,color,size,text
+goblin,고블린,18,11,70,0,0,4,3,gob_stab,,0,,no,#6E8F3A,1,잿빛에 물든 고블린.
+goblin_archer,고블린 궁수,14,12,70,0,0,4,4,gob_arrow,,0,,no,#8A9A4A,1,뒤에서 약한 쪽을 노린다.
+wolf,잿빛 늑대,16,15,65,0,0,4,0,wolf_bite wolf_bite wolf_howl,,0,,no,#8C8C94,1,빠르다. 울부짖으면 다음 이빨이 깊다.
+bandit,산적,26,11,70,1,0,6,8,bandit_slash bandit_slash bandit_heavy,,0,,no,#A06A48,1,세 번째 차례마다 크게 내려찍는다.
+cutthroat,단검잡이,18,14,70,0,0,5,6,cut_throw,,0,,no,#7A4A5A,1,빠르고 약한 쪽을 노린다.
+ash_warden,잿빛 파수꾼,200,13,70,2,1,40,40,warden_strike warden_sweep warden_strike,warden_ember warden_crush warden_sweep,50,봉인은… 지켜야 한다… 너희도… 재가 되어라!,yes,#9A8F86,2,봉인을 지키던 돌 파수꾼. 균열에 물들었다.

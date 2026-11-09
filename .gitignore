@@ -1,0 +1,55 @@
+# Unity generated
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+/Assets/Plugins/Editor/JetBrains*
+/Assets/[Ss]treaming[Aa]ssets/aa/
+/Assets/[Ss]treaming[Aa]ssets/aa.meta
+sysinfo.txt
+# Burst writes its generated web code here during WebGL builds
+/[Dd]ata/
+crashlytics-build.properties
+
+# IDE / solution files Unity regenerates at the project root
+/*.csproj
+/*.sln
+/*.slnx
+/*.user
+/*.userprefs
+/*.pidb
+/*.suo
+/*.tmp
+/*.pdb
+/*.mdb
+/*.opendb
+/*.VC.db
+.vs/
+.vscode/
+.idea/
+.consulo/
+
+# Builds and packages
+*.apk
+*.aab
+*.app
+*.unitypackage
+
+# .NET dev tools build output
+DevTools/**/bin/
+DevTools/**/obj/
+DevTools/ArtPreview/out/
+
+# OS
+.DS_Store
+Thumbs.db
+DevTools/UnityCompileCheck/.unity/
+DevTools/WebPlaytest/out/
+# Written by the web build for the title screen (Editor/WebBuild.cs)
+/Assets/_Project/Resources/BuildInfo.txt
+/Assets/_Project/Resources/BuildInfo.txt.meta

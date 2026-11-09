@@ -1,0 +1,27 @@
+* text=auto
+
+*.cs         text diff=csharp
+*.asmdef     text eol=lf
+*.sh         text eol=lf
+DevTools/Local/test/fake-unity text eol=lf
+*.meta       text eol=lf
+*.unity      text merge=unityyamlmerge eol=lf
+*.prefab     text merge=unityyamlmerge eol=lf
+*.asset      text merge=unityyamlmerge eol=lf
+*.anim       text merge=unityyamlmerge eol=lf
+*.controller text merge=unityyamlmerge eol=lf
+*.mat        text merge=unityyamlmerge eol=lf
+
+# Binary assets go through Git LFS
+*.png  filter=lfs diff=lfs merge=lfs -text
+*.jpg  filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.psd  filter=lfs diff=lfs merge=lfs -text
+*.tga  filter=lfs diff=lfs merge=lfs -text
+*.gif  filter=lfs diff=lfs merge=lfs -text
+*.wav  filter=lfs diff=lfs merge=lfs -text
+*.mp3  filter=lfs diff=lfs merge=lfs -text
+*.ogg  filter=lfs diff=lfs merge=lfs -text
+*.ttf  filter=lfs diff=lfs merge=lfs -text
+*.otf  filter=lfs diff=lfs merge=lfs -text
+*.fbx  filter=lfs diff=lfs merge=lfs -text

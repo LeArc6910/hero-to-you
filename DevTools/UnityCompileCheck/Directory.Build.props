@@ -1,0 +1,24 @@
+<Project>
+
+  <!-- Shared by everything under UnityCompileCheck: the aggregate project, one project per Unity asmdef
+       (Assemblies/) and one per package assembly that has stand-ins (Stubs/). -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Unity gives an assembly only the references its asmdef lists, not theirs in turn. -->
+    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+    <UnityAssemblies>$(MSBuildThisFileDirectory).unity/Managed/UnityEngine</UnityAssemblies>
+    <ProjectRoot>$(MSBuildThisFileDirectory)../../</ProjectRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="$(UnityAssemblies)/UnityEngine.*Module.dll" Private="false" />
+  </ItemGroup>
+
+  <Target Name="RequireUnityAssemblies" BeforeTargets="ResolveAssemblyReferences" Condition="!Exists('$(UnityAssemblies)/UnityEngine.CoreModule.dll')">
+    <Error Text="Unity assemblies are missing. Run DevTools/UnityCompileCheck/fetch-unity.sh first." />
+  </Target>
+
+</Project>
