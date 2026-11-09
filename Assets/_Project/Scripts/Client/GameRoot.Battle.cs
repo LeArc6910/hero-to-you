@@ -123,7 +123,8 @@ namespace Game.Client
             return e.Kind switch
             {
                 BattleEventKind.Turn => hero ? 0.1f : 0.3f,
-                BattleEventKind.Roll => 1.15f,
+                // The heroes' own dice get the longer look; monsters' rolls move the game along.
+                BattleEventKind.Roll => hero ? 1.15f : 0.8f,
                 BattleEventKind.Damage => 0.45f,
                 BattleEventKind.Miss => 0.4f,
                 BattleEventKind.Heal => 0.45f,
