@@ -59,7 +59,7 @@ static class Program
         foreach (var cls in _data.PlayableClasses)
         {
             var hero = new Hero(cls);
-            foreach (var skill in cls.Skills.Where(s => s.Rolls))
+            foreach (var skill in hero.Skills.Where(s => s.Rolls))
             {
                 int chance = skill.FixedChance > 0 ? skill.FixedChance : Dice.ClampChance(hero.Stat(skill.Stat.Value));
                 double Mean(int sure)
@@ -96,7 +96,7 @@ static class Program
         {
             var heroes = party.Select(id => new Hero(_data.Classes[id])).ToList();
             foreach (var hero in heroes) hero.GainXp(level > 1 ? Hero.LevelXp[level - 1] : 0);
-            var battle = new Battle(heroes, encounter.Monsters, (ulong)(run * 7919 + 13));
+            var battle = new Battle(heroes, encounter.Monsters, (ulong)(run * 7919 + 13), false, _data);
             var random = new GameRandom((ulong)run, 3);
             int turns = 0;
             while (!battle.Over && turns < 500)
@@ -133,15 +133,22 @@ static class Program
         Console.WriteLine($"모든 셋 조합 ({parties.Count}개), 레벨 {level}(보스는 3), {(smart ? "똑똑한" : "아무렇게나")} 봇, 조합·전투마다 {runs}판");
         Console.WriteLine($"{"파티",-24} " + string.Join(" ", encounters.Select(e => $"{e,8}")));
         var byClass = ids.ToDictionary(id => id, id => new List<double>());
+        var partyRates = new List<(string[] party, double win, double hp)>();
         foreach (var party in parties)
         {
             var rates = encounters.Select(e => Battles(runs, party, e, e == "warden" ? Math.Max(level, 3) : level, smart, false)).ToList();
-            Console.WriteLine($"{string.Join("+", party.Select(p => _data.Classes[p].Name)),-24} " + string.Join(" ", rates.Select(t => $"{t.WinRate,8:P0}")));
+            if (parties.Count <= 40) Console.WriteLine($"{string.Join("+", party.Select(p => _data.Classes[p].Name)),-24} " + string.Join(" ", rates.Select(t => $"{t.WinRate,8:P0}")));
+            partyRates.Add((party, rates.Average(t => t.WinRate), rates.Average(t => (double)t.HpLeft / Math.Max(1, t.HpMax))));
             foreach (string id in party) byClass[id].Add(rates.Average(t => t.WinRate));
         }
         Console.WriteLine();
         Console.WriteLine("직업이 들어간 파티의 평균 승률");
         foreach (var pair in byClass.OrderByDescending(p => p.Value.Average())) Console.WriteLine($"  {_data.Classes[pair.Key].Name,-6} {pair.Value.Average():P1}");
+        Console.WriteLine();
+        Console.WriteLine("가장 약한 파티 다섯과 가장 센 파티 다섯 (전투 평균 승률, 남은 생명력)");
+        var sorted = partyRates.OrderBy(p => p.win).ThenBy(p => p.hp).ToList();
+        foreach (var p in sorted.Take(5).Concat(sorted.Skip(Math.Max(5, sorted.Count - 5))))
+            Console.WriteLine($"  {string.Join("+", p.party.Select(id => _data.Classes[id].Name)),-24} {p.win:P0} {p.hp:P0}");
     }
 
     static void Adventures(int runs, string[] party, bool smart)

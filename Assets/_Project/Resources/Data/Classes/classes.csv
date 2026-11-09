@@ -1,13 +1,13 @@
-id,name,role,hp,armor,resolve,grit,str,agi,int,wil,per,cha,skills,color,mechanic,blurb,playable
-knight,기사,막기,42,2,3,5,70,40,35,65,50,55,knight_slash knight_bash knight_guard knight_taunt,#8FA3C8,수호·도발: 아군 대신 맞고 적의 의도를 자기에게 돌린다,무너진 기사단의 맹세를 지키려고 길을 나섰다.,yes
-berserker,광전사,근접,38,1,2,5,75,55,30,45,45,40,bers_chop bers_frenzy bers_thirst,#C8573E,분노: 잃은 생명력만큼 주사위 확률이 오른다(최대 +25),균열에 마을을 잃었다. 남은 것은 도끼와 분노뿐.,yes
-hunter,사냥꾼,원거리,30,1,3,5,50,65,45,45,75,45,hunt_shot hunt_mark hunt_aimed,#6E9E4F,표식: 표식한 적은 누구에게 맞든 확정 성공 +1,숲이 죽어 가는 까닭을 찾아 숲 밖으로 나왔다.,yes
-elementalist,원소술사,광역,26,0,4,5,35,50,75,55,55,50,elem_bolt elem_fire elem_frost elem_chain,#7C6CD6,원소 순환: 불→얼음→번개 순서로 이으면 공명 확정 성공 +1,일지의 봉인 마법을 읽을 수 있는 몇 안 되는 사람.,yes
-cleric,성직자,회복,32,1,3,5,50,45,50,75,50,60,cler_smite cler_heal cler_bless cler_revive,#E3C766,기도: 회복의 바닥이 높고 쓰러진 아군을 전투 중에 일으킨다,신탁이 이 일지를 가리켰다고 믿는다.,yes
-gambler,도박사,변칙,30,0,2,3,45,65,50,45,55,70,gamb_card gamb_allin gamb_coin,#D6A23C,승부사: 공격 확률은 언제나 50%. 대신 주사위가 많고 완벽하면 세 배,일지를 노름판에서 땄다고 주장한다.,yes
-rogue,도적,기습,30,1,3,5,50,75,50,40,60,50,,#5B5F73,연계: 행동할 때마다 연계가 쌓이고 마무리 기술이 쓴다,일지를 훔치려다 말려들었다.,no
-bard,음유시인,강화,30,0,3,5,40,55,55,50,50,75,,#C86FA8,연주: 켜 둔 노래가 매 라운드 파티에 효과를 준다,영웅의 노래를 다시 쓰고 싶다.,no
-alchemist,연금술사,소모품,28,0,3,5,40,50,70,50,60,45,,#5FB3A1,조합: 모은 재료로 전투 중 폭탄과 물약을 만든다,잿가루가 약이 될지도 모른다.,no
-necromancer,사령술사,소환,28,0,3,5,35,45,60,75,50,35,,#7A8C7A,영혼: 쓰러진 적의 영혼으로 해골을 일으킨다,리엔의 망령과 말하고 싶다.,no
-seer,점성술사,예지,26,0,4,5,35,50,65,55,70,50,,#4F7FC8,예지: 다음에 나올 주사위를 미리 본다,별이 이 셋을 골랐다.,no
-beastmaster,야수조련사,동료,34,1,3,5,60,55,40,45,70,45,,#A0784F,늑대: 자기 차례가 있는 동료 늑대에게 명령한다,숲의 짐승들이 미쳐 가는 것을 볼 수 없었다.,no
+id,name,role,hp,armor,resolve,grit,str,agi,int,wil,per,cha,weapon,weapons,skills,color,mechanic,blurb,playable
+knight,기사,막기,42,2,3,5,70,40,35,65,50,55,sword_old,sword mace,knight_bash knight_guard knight_taunt,#8FA3C8,수호·도발: 아군 대신 맞고 적의 의도를 자기에게 돌린다,무너진 기사단의 맹세를 지키려고 길을 나섰다.,yes
+berserker,광전사,근접,38,1,2,5,75,55,30,45,45,40,axe_hand,axe sword,bers_frenzy bers_thirst,#C8573E,분노: 잃은 생명력만큼 주사위 확률이 오른다(최대 +25),균열에 마을을 잃었다. 남은 것은 도끼와 분노뿐.,yes
+hunter,사냥꾼,원거리,30,1,3,5,50,65,45,45,75,45,bow_short,bow,hunt_mark hunt_aimed,#6E9E4F,표식: 표식한 적은 누구에게 맞든 확정 성공 +1,숲이 죽어 가는 까닭을 찾아 숲 밖으로 나왔다.,yes
+elementalist,원소술사,광역,26,0,4,5,35,50,75,55,55,50,staff_oak,staff orb,elem_fire elem_frost elem_chain,#7C6CD6,원소 순환: 불→얼음→번개 순서로 이으면 공명 확정 성공 +1,일지의 봉인 마법을 읽을 수 있는 몇 안 되는 사람.,yes
+cleric,성직자,회복,32,1,3,5,50,45,50,75,50,60,mace_small,mace staff,cler_heal cler_bless cler_revive,#E3C766,기도: 회복의 바닥이 높고 쓰러진 아군을 전투 중에 일으킨다,신탁이 이 일지를 가리켰다고 믿는다.,yes
+gambler,도박사,변칙,30,0,2,3,45,65,50,45,55,70,cards_old,cards dagger,gamb_allin gamb_coin,#D6A23C,승부사: 공격 확률은 언제나 50%. 대신 주사위가 많고 완벽하면 세 배,일지를 노름판에서 땄다고 주장한다.,yes
+rogue,도적,기습,30,1,3,5,50,75,50,40,60,50,dagger_rusty,dagger,rogue_hide rogue_finisher,#5B5F73,연계: 행동할 때마다 연계가 쌓이고 급소 찌르기가 그만큼 주사위를 더한다. 첫 차례가 빠르다,일지를 훔치려다 말려들었다.,yes
+bard,음유시인,강화,30,0,3,5,40,55,55,50,50,75,lute_old,lute,bard_discord bard_courage bard_rest bard_encore,#C86FA8,연주: 켜 둔 노래가 파티 전체에 효과를 준다(용기: 확률 +10 / 안식: 차례마다 회복 3),영웅의 노래를 다시 쓰고 싶다.,yes
+alchemist,연금술사,소모품,28,0,3,5,40,50,70,50,60,45,sling_old,sling,alch_bomb alch_acid alch_brew,#5FB3A1,조합: 재료를 써서 폭탄·산성 병·물약을 만든다. 재료는 지도와 전투에서 모은다. 물약 효과 1.5배,잿가루가 약이 될지도 모른다.,yes
+necromancer,사령술사,소환,28,0,3,5,35,45,60,75,50,35,staff_bone,staff,necro_drain necro_raise necro_mark,#7A8C7A,영혼: 적이 쓰러질 때마다 영혼을 모아 해골을 일으킨다,리엔의 망령과 말하고 싶다.,yes
+seer,점성술사,예지,26,0,4,5,35,50,70,55,70,50,orb_glass,orb staff,seer_star seer_foretell seer_twist,#4F7FC8,별의 눈: 다음에 나올 주사위 세 개가 보인다. 나쁜 수는 운명 바꾸기로 버린다,별이 이 셋을 골랐다.,yes
+beastmaster,야수조련사,동료,34,1,3,5,60,55,40,45,70,45,spear_hunting,spear bow,beast_command beast_guard beast_call,#A0784F,늑대: 전투마다 자기 차례가 있는 동료 늑대가 함께 싸운다,숲의 짐승들이 미쳐 가는 것을 볼 수 없었다.,yes

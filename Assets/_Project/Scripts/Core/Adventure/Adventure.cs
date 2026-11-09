@@ -153,7 +153,7 @@ namespace Game.Core
         {
             Encounter = encounter;
             BossBattle = boss;
-            Battle = new Battle(Heroes, encounter.Monsters, NextSeed(), _weakNext);
+            Battle = new Battle(Heroes, encounter.Monsters, NextSeed(), _weakNext, Data);
             _weakNext = false;
             Screen = AdventureScreen.Battle;
         }

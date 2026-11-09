@@ -10,3 +10,5 @@ warden_strike,돌주먹,3,15,0,physical,one,random,100,,
 warden_sweep,휩쓸기,2,10,0,physical,all,random,110,,모두를 휩쓴다.
 warden_ember,잿불 폭발,3,10,0,magic,all,random,120,burn,잿불이 터진다. 화상.
 warden_crush,짓누르기,4,20,0,physical,one,strongest,130,,
+skel_slash,녹슨 칼,2,6,0,physical,one,random,100,,해골의 칼질.
+ally_bite,물어뜯기,3,6,0,physical,one,weakest,100,,늑대가 약한 적을 문다.

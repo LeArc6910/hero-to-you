@@ -41,7 +41,7 @@ namespace Game.Client
             var classes = _data.ClassList;
             float top = 8;
             Ui.Text(new Rect(12, top, Ui.Width - 24, 26), "영웅 셋을 고르세요", 20, Palette.Ink, TextAnchor.MiddleLeft, true);
-            Ui.Text(new Rect(12, top + 24, Ui.Width - 24, 18), $"직업 {classes.Count}종 · 지금 고를 수 있는 것 {classes.Count(c => c.Playable)}종 (나머지는 M5)", 12, Palette.Dim);
+            Ui.Text(new Rect(12, top + 24, Ui.Width - 24, 18), $"직업 {classes.Count}종 가운데 셋 · 카드를 누르면 고르고, 다시 누르면 뺀다", 12, Palette.Dim);
             float footer = 56;
             var area = new Rect(8, top + 48, Ui.Width - 16, Ui.Height - top - 48 - footer);
 

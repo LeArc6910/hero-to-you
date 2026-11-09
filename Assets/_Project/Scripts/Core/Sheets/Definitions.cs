@@ -15,7 +15,13 @@ namespace Game.Core
         public int Resolve { get; internal set; }
         public int GritCap { get; internal set; }
         public int[] Stats { get; internal set; } = new int[Game.Core.Stats.Count];
+        // The class's own skills; the basic attack comes from the weapon (ItemDef.Attack).
         public IReadOnlyList<SkillDef> Skills { get; internal set; } = new List<SkillDef>();
+
+        // The weapon every hero of the class starts with, and the kinds of weapon it can hold.
+        public ItemDef StartWeapon { get; internal set; }
+        public IReadOnlyList<string> WeaponKinds { get; internal set; } = new List<string>();
+        public IReadOnlyList<UpgradeDef> Upgrades { get; internal set; } = new List<UpgradeDef>();
         public string Color { get; internal set; }
         public string Mechanic { get; internal set; }
         public string Blurb { get; internal set; }
@@ -85,7 +91,14 @@ namespace Game.Core
 
         // crit150, crit200, crit300, stun, armor1 or empty.
         public string Perfect { get; internal set; }
+
+        // What using it spends besides the turn: "reagent" or "soul" (CostAmount of them), or empty.
+        public string CostKind { get; internal set; } = "";
+        public int CostAmount { get; internal set; }
         public string Text { get; internal set; }
+
+        // A copy to change for one hero (level-up upgrades, Hero.Skills).
+        internal SkillDef Clone() => (SkillDef)MemberwiseClone();
 
         public bool Rolls => Dice > 0;
         public bool Damages => Kind == SkillKind.Physical || Kind == SkillKind.Magic;
@@ -237,5 +250,65 @@ namespace Game.Core
         public string Text { get; internal set; }
         public string Journal { get; internal set; }
         public List<EventChoice> Choices { get; } = new List<EventChoice>();
+    }
+}
+
+namespace Game.Core
+{
+    public enum ItemSlot
+    {
+        Weapon,
+        Armor,
+        Trinket,
+    }
+
+    // A weapon, armor or trinket (Data/Items/items.csv). A weapon's Attack is the holder's basic attack.
+    public sealed class ItemDef
+    {
+        public string Id { get; internal set; }
+        public string Name { get; internal set; }
+        public ItemSlot Slot { get; internal set; }
+        public string Kind { get; internal set; }
+        public int Tier { get; internal set; }
+        public int Price { get; internal set; }
+        public SkillDef Attack { get; internal set; }
+        public int Armor { get; internal set; }
+        public int Hp { get; internal set; }
+        public int Resolve { get; internal set; }
+        public int[] StatBonus { get; internal set; } = new int[Stats.Count];
+        public string Text { get; internal set; }
+
+        // "힘 +5 · 방어도 +2", what it gives besides an attack.
+        public string Bonuses
+        {
+            get
+            {
+                var parts = new List<string>();
+                if (Armor != 0) parts.Add($"방어도 +{Armor}");
+                if (Hp != 0) parts.Add($"생명력 +{Hp}");
+                if (Resolve != 0) parts.Add($"결의 +{Resolve}");
+                for (int i = 0; i < Stats.Count; i++)
+                    if (StatBonus[i] != 0) parts.Add($"{Stats.Name((Stat)i)} {(StatBonus[i] > 0 ? "+" : "")}{StatBonus[i]}");
+                return string.Join(" · ", parts);
+            }
+        }
+    }
+
+    // One change a level-up upgrade makes: "power attack +3" is Verb power, Target attack, Amount 3.
+    public sealed class UpgradeEffect
+    {
+        public string Verb { get; internal set; }
+        public string Target { get; internal set; }
+        public int Amount { get; internal set; }
+    }
+
+    // A choice offered on level up (Data/Classes/upgrades.csv, Docs/Classes.md).
+    public sealed class UpgradeDef
+    {
+        public string Id { get; internal set; }
+        public string ClassId { get; internal set; }
+        public string Name { get; internal set; }
+        public IReadOnlyList<UpgradeEffect> Effects { get; internal set; } = new List<UpgradeEffect>();
+        public string Text { get; internal set; }
     }
 }

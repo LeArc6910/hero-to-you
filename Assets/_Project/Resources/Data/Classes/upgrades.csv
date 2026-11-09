@@ -1,0 +1,73 @@
+id,class,name,effect,text
+k_heavy,knight,무거운 베기,power attack +3,기본 공격 위력 +3
+k_bash,knight,방패 숙련,dice knight_bash +1;cooldown knight_bash -1,방패 치기 주사위 +1·대기 −1
+k_wall,knight,방패벽,dice knight_taunt +1,도발 주사위 +1(방어도가 더 오른다)
+k_guard,knight,재빠른 수호,cooldown knight_guard -1;delay knight_guard -20,수호 대기 −1·더 빠르게
+k_vigil,knight,불침번,hp +8,최대 생명력 +8
+k_oath,knight,맹세,resolve +1,결의 최대 +1
+b_thirst,berserker,피의 열망,power bers_thirst +4,피의 갈증 위력 +4
+b_frenzy,berserker,끝없는 난도질,dice bers_frenzy +1,난도질 주사위 +1
+b_quick,berserker,멈추지 않는 손,cooldown bers_frenzy -1,난도질 대기 −1
+b_skin,berserker,두꺼운 가죽,armor +1,방어도 +1
+b_blood,berserker,끓는 피,stat str +6,힘 +6
+b_giant,berserker,거구,hp +10,최대 생명력 +10
+h_aim,hunter,매의 눈,power hunt_aimed +4,조준 사격 위력 +4
+h_mark,hunter,빠른 표식,cooldown hunt_mark -1,표식 대기 −1
+h_volley,hunter,연사,dice attack +1,기본 공격 주사위 +1
+h_focus,hunter,집중 조준,dice hunt_aimed +1,조준 사격 주사위 +1
+h_sense,hunter,예리한 감각,stat per +6,감각 +6
+h_calm,hunter,침착함,resolve +1,결의 최대 +1
+e_fire,elementalist,업화,power elem_fire +4,화염구 위력 +4
+e_storm,elementalist,폭풍,dice elem_chain +1,연쇄 번개 주사위 +1
+e_frost,elementalist,혹한,power elem_frost +3;floor elem_frost +25,서리 창 위력 +3·바닥 +25%
+e_mind,elementalist,깨달음,stat int +6,지능 +6
+e_well,elementalist,마나 샘,resolve +1,결의 최대 +1
+e_quick,elementalist,빠른 주문,delay attack -20,기본 공격 뒤 다음 차례가 빨리 온다
+c_light,cleric,넘치는 빛,power cler_heal +6,치유의 빛 위력 +6
+c_miracle,cleric,기적,power cler_revive +20;cooldown cler_revive -1,부활 기도 위력 +20·대기 −1
+c_bless,cleric,거듭된 축복,cooldown cler_bless -1,축복 대기 −1
+c_faith,cleric,깊은 믿음,stat wil +6,의지 +6
+c_judge,cleric,심판,power attack +3,기본 공격 위력 +3
+c_body,cleric,순례자의 몸,hp +8,최대 생명력 +8
+g_big,gambler,큰 판,power gamb_allin +6,올인 위력 +6
+g_again,gambler,재도전,cooldown gamb_allin -1,올인 대기 −1
+g_card,gambler,한 장 더,dice attack +1,기본 공격 주사위 +1
+g_coin,gambler,동전 두 닢,cooldown gamb_coin -1,행운의 동전 대기 −1
+g_nerve,gambler,배짱,resolve +1,결의 최대 +1
+g_spite,gambler,오기,gritcap -1,끈기가 하나 일찍 찬다
+r_vital,rogue,급소 숙련,power rogue_finisher +5,급소 찌르기 위력 +5
+r_shadow,rogue,그림자 걸음,cooldown rogue_hide -1,그림자 숨기 대기 −1
+r_quick,rogue,빠른 손,dice attack +1,기본 공격 주사위 +1
+r_combo,rogue,연계 숙련,special combo_cap +2,연계 최대 +2
+r_agi,rogue,날렵함,stat agi +6,민첩 +6
+r_nerve,rogue,담력,resolve +1,결의 최대 +1
+d_loud,bard,큰 소리,dice bard_discord +1,불협화음 주사위 +1
+d_song,bard,힘찬 노래,special song +5,노래 효과가 커진다(용기 +5 · 안식 +2)
+d_encore,bard,또 한 번,cooldown bard_encore -1,앙코르 대기 −1
+d_charm,bard,매혹,stat cha +6,매력 +6
+d_breath,bard,긴 숨,resolve +1,결의 최대 +1
+d_hp,bard,여행자의 몸,hp +8,최대 생명력 +8
+a_bomb,alchemist,큰 폭탄,power alch_bomb +3,투척 폭탄 위력 +3
+a_bag,alchemist,큰 가방,special reagent_cap +3;special reagent_gain +1,재료 최대 +3·전투마다 재료 +1 더
+a_brew,alchemist,진한 물약,power alch_brew +5,즉석 물약 위력 +5
+a_acid,alchemist,강산,dice alch_acid +1,산성 병 주사위 +1
+a_mind,alchemist,연구,stat int +6,지능 +6
+a_nerve,alchemist,침착한 손,resolve +1,결의 최대 +1
+n_drain,necromancer,깊은 흡수,power necro_drain +4,생명 흡수 위력 +4
+n_bone,necromancer,단단한 뼈,special skeleton_hp +8,해골 생명력 +8
+n_soul,necromancer,영혼 그릇,special soul_start +1,전투를 영혼 1개 더 들고 시작
+n_mark,necromancer,빠른 표,cooldown necro_mark -1,죽음의 표 대기 −1
+n_will,necromancer,강철 의지,stat wil +6,의지 +6
+n_hp,necromancer,질긴 목숨,hp +8,최대 생명력 +8
+s_star,seer,유성우,dice seer_star +1,별똥별 주사위 +1
+s_eye,seer,더 먼 눈,special foresight +2,별의 눈으로 주사위 2개 더 본다
+s_twist,seer,가벼운 손,delay seer_twist -20,운명 바꾸기 뒤 다음 차례가 빨리 온다
+s_omen,seer,불길한 예언,special foretell +10,예언이 확률을 10 더 깎는다
+s_mind,seer,별의 지혜,stat int +6,지능 +6
+s_calm,seer,고요함,resolve +1,결의 최대 +1
+m_wolf,beastmaster,큰 늑대,special wolf_hp +8,늑대 생명력 +8
+m_bite,beastmaster,날카로운 이빨,special wolf_power +3,늑대 위력 +3
+m_command,beastmaster,호흡,cooldown beast_command -1,협공 명령 대기 −1
+m_spear,beastmaster,창술,power attack +3,기본 공격 위력 +3
+m_sense,beastmaster,짐승의 감각,stat per +6,감각 +6
+m_hp,beastmaster,야생의 몸,hp +8,최대 생명력 +8

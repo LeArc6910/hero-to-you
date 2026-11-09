@@ -18,12 +18,20 @@ namespace Game.Core
         public const string StoriesFile = "Story/stories.csv";
         public const string EventsFile = "Story/events.csv";
         public const string EventChoicesFile = "Story/event_choices.csv";
+        public const string ItemsFile = "Items/items.csv";
+        public const string UpgradesFile = "Classes/upgrades.csv";
 
         public static readonly string[] Files =
         {
             ClassesFile, SkillsFile, MonstersFile, MonsterSkillsFile, EncountersFile, PathFile, StoriesFile, EventsFile,
-            EventChoicesFile,
+            EventChoicesFile, ItemsFile, UpgradesFile,
         };
+
+        // Monsters the classes summon to their side (Docs/Classes.md: necromancer, beastmaster).
+        public const string SkeletonId = "skeleton";
+        public const string CompanionWolfId = "companion_wolf";
+
+        static readonly string[] UpgradeVerbs = { "dice", "power", "floor", "cooldown", "delay", "stat", "hp", "resolve", "armor", "gritcap", "special" };
 
         static readonly string[] OutcomeVerbs =
         {
@@ -31,7 +39,11 @@ namespace Game.Core
             "weak_next", "flag", "battle",
         };
 
-        static readonly string[] SkillEffects = { "", "burn", "chill", "lifesteal", "guard", "taunt", "mark", "bless", "lucky", "backfire" };
+        static readonly string[] SkillEffects =
+        {
+            "", "burn", "chill", "lifesteal", "guard", "taunt", "mark", "bless", "lucky", "backfire", "hide", "finisher", "weaken",
+            "song_courage", "song_rest", "encore", "corrode", "raise", "deathmark", "foretell", "twist", "command", "wolfguard", "call",
+        };
         static readonly string[] PerfectEffects = { "", "crit150", "crit200", "crit300", "stun", "armor1" };
         static readonly string[] Elements = { "", "fire", "frost", "lightning" };
 
@@ -50,6 +62,9 @@ namespace Game.Core
         public IReadOnlyList<PathNode> Path { get; private set; } = new List<PathNode>();
         public IReadOnlyDictionary<string, StoryDef> Stories { get; private set; } = new Dictionary<string, StoryDef>();
         public IReadOnlyList<EventCard> Events { get; private set; } = new List<EventCard>();
+        public IReadOnlyDictionary<string, ItemDef> Items { get; private set; } = new Dictionary<string, ItemDef>();
+        public IReadOnlyList<ItemDef> ItemList { get; private set; } = new List<ItemDef>();
+        public IReadOnlyDictionary<string, UpgradeDef> Upgrades { get; private set; } = new Dictionary<string, UpgradeDef>();
 
         public IEnumerable<ClassDef> PlayableClasses => ClassList.Where(c => c.Playable);
 
@@ -59,10 +74,14 @@ namespace Game.Core
             var data = new GameData();
             var skills = data.ReadSkills(CsvTable.Read(read(SkillsFile)));
             data.Skills = skills;
+            data.ReadItems(CsvTable.Read(read(ItemsFile)));
             data.ReadClasses(CsvTable.Read(read(ClassesFile)), skills);
+            data.ReadUpgrades(CsvTable.Read(read(UpgradesFile)));
             var monsterSkills = data.ReadMonsterSkills(CsvTable.Read(read(MonsterSkillsFile)));
             data.MonsterSkills = monsterSkills;
             data.ReadMonsters(CsvTable.Read(read(MonstersFile)), monsterSkills);
+            foreach (string summon in new[] { SkeletonId, CompanionWolfId })
+                if (!data.Monsters.ContainsKey(summon)) data._errors.Add($"{MonstersFile}: 소환 몬스터 '{summon}'가 없습니다.");
             data.ReadEncounters(CsvTable.Read(read(EncountersFile)));
             data.ReadStories(CsvTable.Read(read(StoriesFile)));
             data.ReadEvents(CsvTable.Read(read(EventsFile)), CsvTable.Read(read(EventChoicesFile)));
@@ -173,7 +192,7 @@ namespace Game.Core
         Dictionary<string, SkillDef> ReadSkills(CsvTable table)
         {
             const string file = SkillsFile;
-            RequireColumns(file, table, "id", "class", "name", "stat", "dice", "power", "floor", "kind", "target", "delay", "cooldown", "element", "effect", "perfect", "text");
+            RequireColumns(file, table, "id", "class", "name", "stat", "dice", "power", "floor", "kind", "target", "delay", "cooldown", "element", "effect", "perfect", "cost", "text");
             var skills = new Dictionary<string, SkillDef>();
             var seen = new HashSet<string>();
             foreach (var row in table.Rows)
@@ -196,6 +215,13 @@ namespace Game.Core
                     Text = row["text"],
                 };
                 (skill.Stat, skill.FixedChance) = StatColumn(file, row, row["stat"], skill.Dice > 0);
+                string[] cost = row["cost"].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (cost.Length == 2 && (cost[0] == "reagent" || cost[0] == "soul"))
+                {
+                    skill.CostKind = cost[0];
+                    skill.CostAmount = Signed(file, row, cost[1], "cost");
+                }
+                else if (cost.Length > 0) Error(file, row, $"cost '{row["cost"]}'는 'reagent 1'이나 'soul 2'처럼 씁니다.");
                 Choice(file, row, "element", Elements);
                 Choice(file, row, "effect", SkillEffects);
                 Choice(file, row, "perfect", PerfectEffects);
@@ -215,7 +241,7 @@ namespace Game.Core
         void ReadClasses(CsvTable table, Dictionary<string, SkillDef> skills)
         {
             const string file = ClassesFile;
-            RequireColumns(file, table, "id", "name", "role", "hp", "armor", "resolve", "grit", "str", "agi", "int", "wil", "per", "cha", "skills", "color", "mechanic", "blurb", "playable");
+            RequireColumns(file, table, "id", "name", "role", "hp", "armor", "resolve", "grit", "str", "agi", "int", "wil", "per", "cha", "weapon", "weapons", "skills", "color", "mechanic", "blurb", "playable");
             var list = new List<ClassDef>();
             var map = new Dictionary<string, ClassDef>();
             var seen = new HashSet<string>();
@@ -245,8 +271,14 @@ namespace Game.Core
                     else classSkills.Add(skill);
                 }
                 cls.Skills = classSkills;
-                if (cls.Playable && (classSkills.Count == 0 || !classSkills[0].Damages || !classSkills[0].Rolls || classSkills[0].Cooldown > 0))
-                    Error(file, row, "고를 수 있는 직업의 첫 기술은 대기 없는 기본 공격이어야 합니다.");
+                cls.WeaponKinds = row["weapons"].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (Items.TryGetValue(row["weapon"], out var weapon) && weapon.Slot == ItemSlot.Weapon)
+                {
+                    cls.StartWeapon = weapon;
+                    if (!cls.WeaponKinds.Contains(weapon.Kind)) Error(file, row, $"처음 무기 '{weapon.Id}'({weapon.Kind})를 이 직업이 들 수 없습니다(weapons).");
+                }
+                else Error(file, row, $"처음 무기 '{row["weapon"]}'가 items.csv의 무기가 아닙니다.");
+                if (cls.Playable && classSkills.Count < 2) Error(file, row, "고를 수 있는 직업은 기술이 둘 이상이어야 합니다.");
                 if (cls.GritCap < 1) Error(file, row, "grit은 1 이상입니다.");
                 list.Add(cls);
                 if (cls.Id.Length > 0) map[cls.Id] = cls;
@@ -255,6 +287,118 @@ namespace Game.Core
                 if (!map.ContainsKey(skill.ClassId)) _errors.Add($"{SkillsFile}: 기술 '{skill.Id}'의 직업 '{skill.ClassId}'가 없습니다.");
             ClassList = list;
             Classes = map;
+        }
+
+        void ReadItems(CsvTable table)
+        {
+            const string file = ItemsFile;
+            RequireColumns(file, table, "id", "name", "slot", "kind", "tier", "price", "attack", "stat", "dice", "power", "floor", "damage", "delay", "perfect", "armor", "hp", "resolve", "bonus", "text");
+            var list = new List<ItemDef>();
+            var map = new Dictionary<string, ItemDef>();
+            var seen = new HashSet<string>();
+            foreach (var row in table.Rows)
+            {
+                var item = new ItemDef
+                {
+                    Id = Id(file, row, seen),
+                    Name = row["name"],
+                    Slot = Enum<ItemSlot>(file, row, "slot"),
+                    Kind = row["kind"],
+                    Tier = Number(file, row, "tier"),
+                    Price = Number(file, row, "price"),
+                    Armor = Number(file, row, "armor"),
+                    Hp = Number(file, row, "hp"),
+                    Resolve = Number(file, row, "resolve"),
+                    Text = row["text"],
+                };
+                string[] bonus = row["bonus"].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i + 1 < bonus.Length; i += 2)
+                {
+                    if (Stats.TryParse(bonus[i], out var stat)) item.StatBonus[(int)stat] += Signed(file, row, bonus[i + 1], "bonus");
+                    else Error(file, row, $"bonus의 '{bonus[i]}'는 능력치(str, agi…)가 아닙니다.");
+                }
+                if (bonus.Length % 2 != 0) Error(file, row, "bonus는 '능력치 수' 짝으로 씁니다(예: str 5).");
+                if (item.Slot == ItemSlot.Weapon)
+                {
+                    var attack = new SkillDef
+                    {
+                        Id = Hero.AttackId,
+                        ClassId = "",
+                        Name = row["attack"],
+                        Dice = Number(file, row, "dice"),
+                        Power = Number(file, row, "power"),
+                        Floor = Number(file, row, "floor"),
+                        Kind = row["damage"] == "magic" ? SkillKind.Magic : SkillKind.Physical,
+                        Target = SkillTarget.Enemy,
+                        Delay = Number(file, row, "delay"),
+                        Element = "",
+                        Effect = "",
+                        Perfect = row["perfect"],
+                        Text = $"{item.Name}의 기본 공격.",
+                    };
+                    (attack.Stat, attack.FixedChance) = StatColumn(file, row, row["stat"], true);
+                    Choice(file, row, "damage", new[] { "physical", "magic" });
+                    Choice(file, row, "perfect", PerfectEffects);
+                    if (attack.Name.Length == 0) Error(file, row, "무기에는 attack(공격 이름)이 있어야 합니다.");
+                    if (attack.Dice < 1) Error(file, row, "무기의 dice는 1 이상입니다.");
+                    if (attack.Delay < 20 || attack.Delay > 300) Error(file, row, "delay는 20~300(%)입니다.");
+                    item.Attack = attack;
+                }
+                list.Add(item);
+                if (item.Id.Length > 0) map[item.Id] = item;
+            }
+            Items = map;
+            ItemList = list;
+        }
+
+        void ReadUpgrades(CsvTable table)
+        {
+            const string file = UpgradesFile;
+            RequireColumns(file, table, "id", "class", "name", "effect", "text");
+            var map = new Dictionary<string, UpgradeDef>();
+            var byClass = new Dictionary<string, List<UpgradeDef>>();
+            var seen = new HashSet<string>();
+            foreach (var row in table.Rows)
+            {
+                var upgrade = new UpgradeDef { Id = Id(file, row, seen), ClassId = row["class"], Name = row["name"], Text = row["text"] };
+                if (!Classes.TryGetValue(upgrade.ClassId, out var cls))
+                {
+                    Error(file, row, $"직업 '{upgrade.ClassId}'가 없습니다.");
+                    continue;
+                }
+                var effects = new List<UpgradeEffect>();
+                foreach (string part in row["effect"].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    string[] words = part.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (words.Length == 0 || !UpgradeVerbs.Contains(words[0]))
+                    {
+                        Error(file, row, $"'{part.Trim()}'는 강화 효과가 아닙니다({string.Join(", ", UpgradeVerbs)}).");
+                        continue;
+                    }
+                    bool targeted = words[0] != "hp" && words[0] != "resolve" && words[0] != "armor" && words[0] != "gritcap";
+                    if (words.Length != (targeted ? 3 : 2))
+                    {
+                        Error(file, row, $"'{part.Trim()}': '{words[0]}{(targeted ? " 대상" : "")} 수'로 씁니다.");
+                        continue;
+                    }
+                    var effect = new UpgradeEffect { Verb = words[0], Target = targeted ? words[1] : "", Amount = Signed(file, row, words[words.Length - 1], words[0]) };
+                    bool skillVerb = effect.Verb == "dice" || effect.Verb == "power" || effect.Verb == "floor" || effect.Verb == "cooldown" || effect.Verb == "delay";
+                    if (skillVerb && effect.Target != Hero.AttackId && !cls.Skills.Any(k => k.Id == effect.Target))
+                        Error(file, row, $"'{effect.Target}'는 {cls.Id}의 기술이 아닙니다(기본 공격은 attack).");
+                    if (effect.Verb == "stat" && !Stats.TryParse(effect.Target, out _)) Error(file, row, $"'{effect.Target}'는 능력치가 아닙니다.");
+                    effects.Add(effect);
+                }
+                upgrade.Effects = effects;
+                if (upgrade.Id.Length > 0) map[upgrade.Id] = upgrade;
+                if (!byClass.TryGetValue(cls.Id, out var listed)) byClass[cls.Id] = listed = new List<UpgradeDef>();
+                listed.Add(upgrade);
+            }
+            foreach (var cls in ClassList)
+            {
+                cls.Upgrades = byClass.TryGetValue(cls.Id, out var listed) ? listed : new List<UpgradeDef>();
+                if (cls.Playable && cls.Upgrades.Count < 4) _errors.Add($"{file}: 고를 수 있는 직업 '{cls.Id}'의 강화가 넷보다 적습니다.");
+            }
+            Upgrades = map;
         }
 
         Dictionary<string, MonsterSkillDef> ReadMonsterSkills(CsvTable table)

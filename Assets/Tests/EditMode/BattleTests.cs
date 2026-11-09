@@ -16,7 +16,7 @@ namespace Game.Core.Tests
         {
             var actor = battle.Current;
             var target = battle.Monsters.First(m => !m.Down);
-            Assert.That(battle.Do(new BattleCommand(actor.Id, actor.Hero.Class.Skills[0].Id, target.Id, resolve)), Is.Null);
+            Assert.That(battle.Do(new BattleCommand(actor.Id, Hero.AttackId, target.Id, resolve)), Is.Null);
         }
 
         static Battle Duel(string[] classes, MonsterDef monster, ulong seed = 1) =>
@@ -75,7 +75,7 @@ namespace Game.Core.Tests
             Assert.That(battle.Do(new BattleCommand(hunter.Id, "hunt_mark", dummy.Id)), Is.Null);
             Assert.That(dummy.Has(StatusKind.Mark), Is.True);
             Assert.That(battle.Current, Is.SameAs(knight));
-            var preview = battle.Preview(new BattleCommand(knight.Id, "knight_slash", dummy.Id));
+            var preview = battle.Preview(new BattleCommand(knight.Id, Hero.AttackId, dummy.Id));
             Assert.That(preview.Reasons, Does.Contain("표식 1"));
             Assert.That(preview.Free, Is.EqualTo(1));
         }
@@ -90,7 +90,7 @@ namespace Game.Core.Tests
             MakeNext(battle, second);
             Attack(battle);
             Assert.That(battle.Current, Is.SameAs(second));
-            var combo = battle.Preview(new BattleCommand(second.Id, second.Hero.Class.Skills[0].Id, dummy.Id));
+            var combo = battle.Preview(new BattleCommand(second.Id, Hero.AttackId, dummy.Id));
             Assert.That(combo.Reasons, Does.Contain("협공 1"));
         }
 
@@ -170,7 +170,7 @@ namespace Game.Core.Tests
             var hero = battle.Current;
             var dummy = battle.Monsters.First();
             Assert.That(battle.Do(new BattleCommand(hero.Id, "bers_frenzy", dummy.Id)), Is.Null);
-            var skill = hero.Hero.Class.Skills.First(s => s.Id == "bers_frenzy");
+            var skill = hero.Hero.Skill("bers_frenzy");
             Assert.That(battle.Cooldown(hero, skill), Is.EqualTo(2));
             Assert.That(battle.Do(new BattleCommand(hero.Id, "bers_frenzy", dummy.Id)), Is.Not.Null);
             Attack(battle);
@@ -187,7 +187,7 @@ namespace Game.Core.Tests
             party[0].Hp = party[0].MaxHp / 2;
             var battle = new Battle(party, new List<MonsterDef> { TestData.Dummy() }, 1);
             var hero = battle.Current;
-            var chop = hero.Hero.Class.Skills[0];
+            var chop = hero.Hero.Skill(Hero.AttackId);
             Assert.That(Battle.Rage(hero), Is.EqualTo(16));
             Assert.That(battle.ChanceOf(hero, chop), Is.EqualTo(75 + 16));
         }
@@ -197,7 +197,7 @@ namespace Game.Core.Tests
         {
             var battle = Duel(new[] { "gambler" }, TestData.Dummy());
             var hero = battle.Current;
-            foreach (var skill in hero.Hero.Class.Skills.Where(s => s.Rolls)) Assert.That(battle.ChanceOf(hero, skill), Is.EqualTo(50));
+            foreach (var skill in hero.Hero.Skills.Where(s => s.Rolls)) Assert.That(battle.ChanceOf(hero, skill), Is.EqualTo(50));
         }
 
         [Test]
@@ -206,10 +206,10 @@ namespace Game.Core.Tests
             var battle = Duel(new[] { "knight" }, TestData.Dummy());
             var hero = battle.Current;
             var dummy = battle.Monsters.First();
-            var preview = battle.Preview(new BattleCommand(hero.Id, "knight_slash", dummy.Id, 2));
+            var preview = battle.Preview(new BattleCommand(hero.Id, Hero.AttackId, dummy.Id, 2));
             Assert.That(preview.Ok, Is.True);
             Assert.That(preview.Odds.Guaranteed, Is.EqualTo(2));
-            Assert.That(battle.Preview(new BattleCommand(hero.Id, "knight_slash", dummy.Id, 4)).Ok, Is.False);
+            Assert.That(battle.Preview(new BattleCommand(hero.Id, Hero.AttackId, dummy.Id, 4)).Ok, Is.False);
             int had = hero.Hero.Resolve;
             Attack(battle, 2);
             Assert.That(hero.Hero.Resolve, Is.EqualTo(had - 2));
@@ -251,7 +251,7 @@ namespace Game.Core.Tests
             boss.Hp = boss.MaxHp / 2 + 2;
             var hero = battle.Current;
             hero.Hero.Blessing = 5;
-            Assert.That(battle.Do(new BattleCommand(hero.Id, hero.Hero.Class.Skills[0].Id, boss.Id)), Is.Null);
+            Assert.That(battle.Do(new BattleCommand(hero.Id, Hero.AttackId, boss.Id)), Is.Null);
             Assert.That(boss.Phase, Is.EqualTo(1));
             Assert.That(battle.Events.Any(e => e.Kind == BattleEventKind.Phase), Is.True);
             Assert.That(boss.Monster.Pattern2.Select(s => s.Id), Does.Contain(boss.Intent.Skill.Id));

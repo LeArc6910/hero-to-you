@@ -1,0 +1,40 @@
+id,name,slot,kind,tier,price,attack,stat,dice,power,floor,damage,delay,perfect,armor,hp,resolve,bonus,text
+sword_old,낡은 장검,weapon,sword,1,0,베기,str,3,8,0,physical,100,crit150,0,0,0,,기사단의 녹슨 검.
+sword_steel,강철 장검,weapon,sword,2,30,베기,str,3,10,0,physical,100,crit150,0,0,0,,
+sword_knight,맹세의 검,weapon,sword,3,60,베기,str,4,11,0,physical,100,crit150,0,0,0,wil 5,손잡이에 옛 맹세가 새겨져 있다.
+axe_hand,손도끼,weapon,axe,1,0,도끼질,str,3,9,0,physical,100,crit150,0,0,0,,
+axe_war,전투 도끼,weapon,axe,2,35,도끼질,str,3,12,0,physical,100,crit150,0,0,0,,
+axe_great,대도끼,weapon,axe,3,60,도끼질,str,4,14,0,physical,120,crit150,0,0,0,,무겁다. 다음 차례가 늦다.
+bow_short,짧은 활,weapon,bow,1,0,사격,per,3,8,0,physical,100,crit150,0,0,0,,
+bow_long,장궁,weapon,bow,2,30,사격,per,3,10,0,physical,100,crit150,0,0,0,,
+bow_forest,숲의 활,weapon,bow,3,60,사격,per,4,10,0,physical,100,crit200,0,0,0,agi 5,
+staff_oak,참나무 지팡이,weapon,staff,1,0,마력탄,int,2,6,25,magic,100,crit150,0,0,0,,
+staff_ember,잿불 지팡이,weapon,staff,2,35,마력탄,int,3,7,25,magic,100,crit150,0,0,0,,
+staff_bone,뼈 지팡이,weapon,staff,1,0,망령의 손길,wil,2,6,25,magic,100,crit150,0,0,0,,
+staff_grave,무덤 지팡이,weapon,staff,2,35,망령의 손길,wil,3,7,25,magic,100,crit150,0,0,0,,
+orb_glass,유리 구슬,weapon,orb,1,0,별빛,int,2,6,25,magic,100,crit150,0,0,0,,
+orb_star,별 구슬,weapon,orb,2,40,별빛,int,3,7,25,magic,100,crit150,0,0,1,,
+mace_small,축복받은 철퇴,weapon,mace,1,0,성스러운 일격,wil,2,5,0,magic,100,crit150,0,0,0,,
+mace_iron,쇠철퇴,weapon,mace,2,30,성스러운 일격,wil,2,7,0,magic,100,crit150,0,0,0,,
+cards_old,낡은 카드,weapon,cards,1,0,카드 던지기,fixed50,4,10,0,physical,100,crit300,0,0,0,,
+cards_marked,표시된 카드,weapon,cards,2,40,카드 던지기,fixed55,4,10,0,physical,100,crit300,0,0,0,,뒷면에 작은 표시가 있다. 확률 55%.
+dagger_rusty,녹슨 단검,weapon,dagger,1,0,찌르기,agi,2,6,0,physical,70,crit200,0,0,0,,가볍다. 다음 차례가 빨리 온다.
+dagger_fine,날렵한 단검,weapon,dagger,2,30,찌르기,agi,2,8,0,physical,70,crit200,0,0,0,,
+lute_old,낡은 류트,weapon,lute,1,0,현 튕기기,cha,2,5,25,magic,100,crit150,0,0,0,,
+lute_silver,은빛 류트,weapon,lute,2,30,현 튕기기,cha,2,7,25,magic,100,crit150,0,0,0,,
+sling_old,투석 주머니,weapon,sling,1,0,투석,int,2,6,0,physical,100,crit150,0,0,0,,
+sling_iron,쇠구슬 투석,weapon,sling,2,30,투석,int,2,8,0,physical,100,crit150,0,0,0,,
+spear_hunting,사냥 창,weapon,spear,1,0,찌르기,str,3,8,0,physical,100,crit150,0,0,0,,
+spear_boar,멧돼지 창,weapon,spear,2,30,찌르기,str,3,10,0,physical,100,crit150,0,0,0,,
+armor_leather,가죽 갑옷,armor,light,1,15,,,0,0,0,,100,,1,0,0,,
+armor_chain,사슬 갑옷,armor,heavy,2,35,,,0,0,0,,100,,2,0,0,agi -5,
+armor_plate,판금 갑옷,armor,heavy,3,70,,,0,0,0,,100,,3,0,0,agi -10,
+robe_star,별무늬 로브,armor,light,2,30,,,0,0,0,,100,,0,4,1,,결의 +1.
+ring_strength,힘의 반지,trinket,ring,1,25,,,0,0,0,,100,,0,0,0,str 5,
+ring_wind,바람의 반지,trinket,ring,1,25,,,0,0,0,,100,,0,0,0,agi 5,
+amulet_mind,지혜의 목걸이,trinket,amulet,1,25,,,0,0,0,,100,,0,0,0,int 5,
+amulet_faith,믿음의 목걸이,trinket,amulet,1,25,,,0,0,0,,100,,0,0,0,wil 5,
+eye_hawk,매의 눈,trinket,charm,1,25,,,0,0,0,,100,,0,0,0,per 5,
+brooch_silver,은 브로치,trinket,charm,1,25,,,0,0,0,,100,,0,0,0,cha 5,
+heart_stone,심장석,trinket,charm,2,30,,,0,0,0,,100,,0,8,0,,
+candle_old,오래된 초,trinket,charm,2,35,,,0,0,0,,100,,0,0,1,,리엔의 이름이 새겨진 초. 결의 +1.

@@ -5,3 +5,5 @@ wolf,잿빛 늑대,16,15,65,0,0,4,0,wolf_bite wolf_bite wolf_howl,,0,,no,#8C8C94
 bandit,산적,26,11,70,1,0,6,8,bandit_slash bandit_slash bandit_heavy,,0,,no,#A06A48,1,세 번째 차례마다 크게 내려찍는다.
 cutthroat,단검잡이,18,14,70,0,0,5,6,cut_throw,,0,,no,#7A4A5A,1,빠르고 약한 쪽을 노린다.
 ash_warden,잿빛 파수꾼,200,13,70,2,1,40,40,warden_strike warden_sweep warden_strike,warden_ember warden_crush warden_sweep,50,봉인은… 지켜야 한다… 너희도… 재가 되어라!,yes,#9A8F86,2,봉인을 지키던 돌 파수꾼. 균열에 물들었다.
+skeleton,해골,14,10,70,1,0,0,0,skel_slash,,0,,no,#D8D2C0,1,사령술사가 일으킨 해골.
+companion_wolf,늑대,18,14,70,0,0,0,0,ally_bite,,0,,no,#9C8A6A,1,야수조련사의 동료.

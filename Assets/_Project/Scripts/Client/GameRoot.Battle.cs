@@ -279,7 +279,8 @@ namespace Game.Client
 
         void DrawUnits(Rect field, Battle battle)
         {
-            var heroes = battle.Heroes.ToList();
+            // The party side: heroes, then their summons (the skeleton, the wolf).
+            var heroes = battle.Party.ToList();
             var monsters = battle.Monsters.ToList();
             if (Ui.Portrait)
             {
@@ -292,10 +293,13 @@ namespace Game.Client
             {
                 var heroArea = new Rect(field.x + 6, field.y + 4, field.width * 0.42f, field.height - 8);
                 var monsterArea = new Rect(heroArea.xMax + 8, field.y + 4, field.xMax - heroArea.xMax - 12, field.height - 8);
+                int heroColumns = heroes.Count > 3 ? 2 : 1;
+                int heroRows = (heroes.Count + heroColumns - 1) / heroColumns;
+                float hw = heroArea.width / heroColumns;
                 for (int i = 0; i < heroes.Count; i++)
                 {
-                    float h = heroArea.height / heroes.Count;
-                    DrawUnit(new Rect(heroArea.x, heroArea.y + i * h, heroArea.width, h - 4), heroes[i], battle);
+                    float h = heroArea.height / heroRows;
+                    DrawUnit(new Rect(heroArea.x + i / heroRows * hw, heroArea.y + i % heroRows * h, hw - 4, h - 4), heroes[i], battle);
                 }
                 int columns = monsters.Count > 3 ? 2 : 1;
                 int perColumn = (monsters.Count + columns - 1) / columns;
@@ -451,7 +455,7 @@ namespace Game.Client
             _selectedFor = actor.Id;
             _resolve = 0;
             _battleError = null;
-            Select(battle, actor.Hero.Class.Skills[0].Id);
+            Select(battle, Hero.AttackId);
         }
 
         void Select(Battle battle, string skillId)
@@ -481,7 +485,7 @@ namespace Game.Client
             };
         }
 
-        static SkillDef SkillDef(Unit actor, string id) => actor.Hero.Class.Skills.FirstOrDefault(s => s.Id == id);
+        static SkillDef SkillDef(Unit actor, string id) => actor.Hero.Skill(id);
 
         bool NeedsTarget(Battle battle)
         {
@@ -517,10 +521,17 @@ namespace Game.Client
             Ui.Text(new Rect(inner.x + 30, y, inner.width - 30, 26), $"{hero.Name}의 차례", 16, Palette.Gold, TextAnchor.MiddleLeft, true);
             y += 28;
             DrawResources(new Rect(inner.x, y, inner.width, 16), hero);
-            y += 20;
+            y += 18;
+            string special = ClassLine(battle, actor);
+            if (special.Length > 0)
+            {
+                Ui.Text(new Rect(inner.x, y, inner.width, 15), special, 11, Palette.Journal);
+                y += 16;
+            }
+            y += 2;
 
             // Skills (and the potion) in two columns.
-            var skills = hero.Class.Skills.Select(s => s.Id).ToList();
+            var skills = hero.Skills.Select(s => s.Id).ToList();
             skills.Add(BattleCommand.Potion);
             int columns = 2;
             float bh = Ui.Short ? 40 : 44;
@@ -587,6 +598,28 @@ namespace Game.Client
             }
         }
 
+        // The class's own state for the panel: combo, souls, reagents, the song, and the seer's next dice.
+        static string ClassLine(Battle battle, Unit actor)
+        {
+            var parts = new System.Collections.Generic.List<string>();
+            switch (actor.Hero.Class.Id)
+            {
+                case "rogue":
+                    parts.Add($"연계 {actor.Combo}/{battle.ComboMax(actor)}" + (actor.Has(StatusKind.Hidden) ? " · 숨음(기습 +1)" : ""));
+                    break;
+                case "necromancer":
+                    parts.Add($"영혼 {actor.Souls}");
+                    break;
+                case "alchemist":
+                    parts.Add($"재료 {actor.Hero.Reagents}/{actor.Hero.ReagentMax}");
+                    break;
+            }
+            if (battle.Song != Song.None) parts.Add(battle.Song == Song.Courage ? "용기의 노래" : "안식의 노래");
+            var foresight = battle.Foresee();
+            if (foresight.Count > 0) parts.Add("다음 주사위: " + string.Join(" · ", foresight));
+            return string.Join(" · ", parts);
+        }
+
         static void DrawResources(Rect r, Hero hero)
         {
             float x = r.x;
@@ -616,7 +649,10 @@ namespace Game.Client
             }
             var skill = SkillDef(actor, id);
             int wait = battle.Cooldown(actor, skill);
-            string detail = !skill.Rolls ? "주사위 없음" : skill.FixedChance > 0 ? $"{skill.FixedChance}% × {skill.Dice}" : $"{Stats.Name(skill.Stat.Value)} {battle.ChanceOf(actor, skill)}% × {skill.Dice}";
+            int dice = battle.DiceOf(actor, skill);
+            string detail = !skill.Rolls ? "주사위 없음" : skill.FixedChance > 0 ? $"{skill.FixedChance}% × {dice}" : $"{Stats.Name(skill.Stat.Value)} {battle.ChanceOf(actor, skill)}% × {dice}";
+            if (skill.CostKind == "reagent") detail += $" · 재료 {skill.CostAmount}";
+            if (skill.CostKind == "soul") detail += $" · 영혼 {skill.CostAmount}";
             if (wait > 0) detail = $"대기 {wait}";
             Ui.Face(cell, selected ? Look.Selected : Look.Normal, wait == 0);
             Ui.Text(new Rect(cell.x + 4, cell.y + 3, cell.width - 8, cell.height * 0.5f), skill.Name, 13, wait == 0 ? Palette.Ink : Palette.Dim, TextAnchor.MiddleCenter, true);
