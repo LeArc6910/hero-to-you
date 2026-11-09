@@ -60,6 +60,7 @@ namespace Game.Client
             Touch = WebBridge.TouchInput();
             Origins.Clear();
             Origins.Push(Vector2.zero);
+            Views.Clear();
             StartProbe();
         }
 
