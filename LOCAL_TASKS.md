@@ -6,7 +6,7 @@
 
 ### 웹 데모(휴대폰 브라우저 테스트)용 — 먼저 해 주세요
 
-아래를 하면 푸시마다 https://learc6910.github.io/hero-to-you/ 가 갱신되고, 클라우드가 그 페이지로 PC·휴대폰 화면 시험을 한다(`Docs/WebDemo.md`, `Docs/Playtest.md`). 저장소는 이미 public이다.
+아래를 하면 푸시마다 https://learc6910.github.io/hero-to-you/ 가 갱신되고, 클라우드가 그 페이지로 PC·휴대폰 화면 시험을 한다. 저장소는 이미 public이다. **화면마다 무엇을 누르는지, 문제가 생기면 어떻게 하는지는 `Docs/WebDemoSetup.md`에 단계별로 있다.**
 
 - [ ] Settings > Secrets and variables > Actions > New repository secret: `UNITY_EMAIL`, `UNITY_PASSWORD`. pray-to에 넣은 것과 같은 Unity 계정이면 된다(시크릿은 저장소마다 따로라서 이 저장소에도 넣어야 한다). 소셜 로그인이나 2단계 인증 없이 https://id.unity.com 에 이메일·비밀번호로 들어가지는 계정. **값은 이 파일이나 커밋, 채팅에 절대 적지 않는다**
 - [ ] Settings > Pages > Build and deployment > Source를 **GitHub Actions**로

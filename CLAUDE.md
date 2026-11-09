@@ -1,6 +1,6 @@
 # hero-to-you
 
-For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000.6.3f1. 기획과 기술 원칙은 `Docs/Design.md`(개발 가이드라인)에 있고, 방향이 바뀌면 그 문서를 먼저 고친다. 세부는 `Docs/Dice.md`(주사위), `Docs/Combat.md`(전투), `Docs/Classes.md`(직업 12종), `Docs/Narrative.md`(이야기·사건), `Docs/WebDemo.md`(웹 데모), `Docs/Playtest.md`(클라우드 플레이 시험).
+For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000.6.3f1. 기획과 기술 원칙은 `Docs/Design.md`(개발 가이드라인)에 있고, 방향이 바뀌면 그 문서를 먼저 고친다. 세부는 `Docs/Dice.md`(주사위), `Docs/Combat.md`(전투), `Docs/Classes.md`(직업 12종), `Docs/Narrative.md`(이야기·사건), `Docs/WebDemo.md`(웹 데모), `Docs/WebDemoSetup.md`(사람이 처음 한 번 하는 웹 데모 설정), `Docs/Playtest.md`(클라우드 플레이 시험).
 
 ## 작업 분담
 
