@@ -20,14 +20,14 @@ namespace Game.Core
         public const int GuardArmor = 2;
         public const int CorrodeTurns = 3;
         public const int ComboCap = 5;
-        public const int ComboPower = 5;
+        public const int ComboPower = 4;
         public const int SoulCap = 6;
         public const int CourageBonus = 10;
         public const int RestHealBase = 3;
-        public const int ForetellCut = 15;
+        public const int ForetellCut = 20;
         public const int Foresight = 3;
         public const int WolfCallHeal = 8;
-        public const int SkeletonHp = 14;
+        public const int SkeletonHp = 16;
         public const int WolfHp = 18;
 
         // The song the bard keeps up, and which unit sings it (-1 for none).
@@ -46,7 +46,7 @@ namespace Game.Core
         {
             if (!unit.IsHero || unit.Down) return;
             if (weakStart) unit.Statuses[StatusKind.Weak] = WeakTurns;
-            if (Is(unit, "necromancer")) unit.Souls = 1 + unit.Hero.Special("soul_start");
+            if (Is(unit, "necromancer")) unit.Souls = 2 + unit.Hero.Special("soul_start");
             if (Is(unit, "beastmaster")) Summon(unit, GameData.CompanionWolfId, WolfHp + 2 * (unit.Hero.Level - 1) + unit.Hero.Special("wolf_hp"), unit.Hero.Special("wolf_power"));
         }
 

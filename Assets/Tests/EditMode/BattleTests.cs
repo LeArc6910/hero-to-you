@@ -146,7 +146,8 @@ namespace Game.Core.Tests
             mage.Hero.Blessing = 3;
             int before = dummy.Hp;
             Assert.That(battle.Do(new BattleCommand(mage.Id, "elem_fire", dummy.Id)), Is.Null);
-            Assert.That(dummy.Hp, Is.EqualTo(before - Dice.Percent(10, 150)), "확정 3개면 완벽: 10의 1.5배");
+            int power = mage.Hero.Skill("elem_fire").Power;
+            Assert.That(dummy.Hp, Is.EqualTo(before - Dice.Percent(power, 150)), "확정 3개면 완벽: 위력의 1.5배");
             Assert.That(dummy.Has(StatusKind.Burn), Is.True);
         }
 

@@ -467,6 +467,8 @@ namespace Game.Core
             Battle = new Battle(_fighters, monsters, NextSeed(), _weakNext, Data);
             _weakNext = false;
             Screen = AdventureScreen.Battle;
+            // Monsters quick enough can finish a lone, hurt hero before its first turn.
+            if (Battle.Over) FinishBattle();
             return null;
         }
 
@@ -495,7 +497,8 @@ namespace Game.Core
         // the battle stays readable for the screen to finish showing it.
         public string Fight(BattleCommand command)
         {
-            if (Screen != AdventureScreen.Battle || Battle == null) return "전투 중이 아닙니다.";
+            if (Screen != AdventureScreen.Battle || Battle == null || Battle.Over) return "전투 중이 아닙니다.";
+            if (command == null) return "명령이 없습니다.";
             string error = Battle.Do(command);
             if (error != null) return error;
             Record($"fight {command.Actor} {command.Skill} {command.Target} {command.Resolve}");

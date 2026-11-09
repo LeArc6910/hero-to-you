@@ -7,5 +7,5 @@ cutthroat,단검잡이,18,14,70,0,0,5,6,cut_throw,,0,,no,#7A4A5A,1,빠르고 약
 ash_warden,잿빛 파수꾼,190,13,70,2,1,40,40,warden_strike warden_sweep warden_charge warden_storm warden_strike,warden_crush warden_charge warden_storm warden_ember warden_sweep,50,"봉인은… 지켜야 한다… 잿불이여, 일어나라!",yes,#9A8F86,2,봉인을 지키던 돌 파수꾼. 균열에 물들었다.,ash_wisp ash_wisp
 ash_wisp,잿불 정령,12,16,70,0,0,4,2,wisp_flare,,0,,no,#E8873A,1,빠르게 날아다니며 잿불을 뿜는다.,
 bog_lurker,늪 괴물,34,9,65,1,0,8,6,lurker_grab lurker_slam,,0,,no,#4E6B4A,1,느리지만 무겁다. 두 번째 차례마다 크게 내려친다.,
-skeleton,해골,14,10,70,1,0,0,0,skel_slash,,0,,no,#D8D2C0,1,사령술사가 일으킨 해골.,
+skeleton,해골,16,10,70,1,0,0,0,skel_slash,,0,,no,#D8D2C0,1,사령술사가 일으킨 해골.,
 companion_wolf,늑대,18,14,70,0,0,0,0,ally_bite,,0,,no,#9C8A6A,1,야수조련사의 동료.,

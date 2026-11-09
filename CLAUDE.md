@@ -18,10 +18,11 @@ For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000
   - `Dice/`: 판정(`Check`), 굴리기 전 확률(`CheckSpec.Odds`), 운명의 흐름(`Fate`)
   - `Heroes/`: 영웅, 능력치, 직업, 레벨
   - `Combat/`: 턴제 전투(`Battle`). 명령(`BattleCommand`)을 받아 상태를 바꾸고 일어난 일(`BattleEvent`) 목록을 쌓는다. 직업 기믹은 `Battle.Classes.cs`
-  - `Adventure/`: 한 판의 진행(`Adventure`): 길(`path.csv`), 이야기 화면, 사건(`EventCard`), 쉼터, 전투 연결
-- `Assets/_Project/Resources/Data`: 데이터 시트(CSV). 형식은 `Docs/Classes.md`, `Docs/Combat.md`, `Docs/Narrative.md`. 시트를 새로 추가하면 `GameData`와 `Client/GameSheets.cs`, `Editor/SceneSetup.cs`에도 넣는다.
+  - `Map/`: 육각 칸(`Hex`), 지도 글자 읽기(`MapDef`), 지금 지도(`WorldMap`: 칸의 내용, 이동 범위)
+  - `Adventure/`: 한 판의 진행(`Adventure`): 지도 차례와 이동 판정, 칸의 일, 하루와 균열, 전투 합류, 사건, 레벨업 고르기(`Adventure.cs`), 마을·상점·장비(`Adventure.Town.cs`), 저장과 불러오기(`Adventure.Save.cs`, 명령 기록을 다시 돌린다), 모험 봇(`AdventureBot`)
+- `Assets/_Project/Resources/Data`: 데이터 시트(CSV)와 지도(`Maps/*.txt`). 형식은 `Docs/Classes.md`, `Docs/Combat.md`, `Docs/Narrative.md`, `Docs/Map.md`. 클라이언트는 `Resources.Load`로 바로 읽는다. 시트를 새로 추가하면 `GameData.Files`에 넣는다.
 - `Assets/Tests/EditMode` (`Game.Core.Tests`): Core 테스트(NUnit). Unity Test Runner와 `dotnet test`가 같은 파일을 쓴다.
-- `Assets/_Project/Scripts/Client` (`Game.Client`): 화면과 입력만. 게임 규칙을 두지 않는다. UI는 IMGUI이고 크기는 `Ui`의 점 단위(`Ui.Width`, `Ui.Height`)로 잡는다. 줄이 바뀔 수 있는 한글은 `Ui.Wrap`. 그림은 `Art/`에 코드로 그린 도트(`PixelArt`), 글꼴은 `Resources/Fonts`의 Noto Sans KR 부분집합. 입력은 IMGUI 이벤트만 쓴다(마우스·탭 모두 클릭으로 들어온다). `Editor/`에는 프로젝트 설정과 씬을 코드로 만드는 메뉴(`Game > Set Up Project`)와 웹 빌드(`Game > Build Web Demo`).
+- `Assets/_Project/Scripts/Client` (`Game.Client`): 화면과 입력만. 게임 규칙을 두지 않는다. UI는 IMGUI이고 크기는 `Ui`의 점 단위(`Ui.Width`, `Ui.Height`)로 잡는다. 줄이 바뀔 수 있는 한글은 `Ui.Wrap`. 그림은 `Art/`에 코드로 그린 도트(`PixelArt`), 효과음도 코드로 합성한다(`Art/SoundArt.cs`, `Sounds`). 글꼴은 `Resources/Fonts`의 Noto Sans KR 부분집합. 화면은 `GameRoot`의 부분 파일(`.Menu`, `.Map`, `.Battle`, `.Story`, `.Town`)이고, 모험 명령은 `GameRoot.Act`로 줘서 받아들여지면 기기에 저장한다(`SaveStore`). 입력은 IMGUI 이벤트만 쓴다(마우스·탭 모두 클릭으로 들어온다). `Editor/`에는 프로젝트 설정과 씬을 코드로 만드는 메뉴(`Game > Set Up Project`)와 웹 빌드(`Game > Build Web Demo`).
 - `DevTools/`: Unity 없이 Core를 빌드·테스트·시뮬레이션하는 .NET 프로젝트. 소스는 `Assets/`에서 가져다 쓰므로 여기에 게임 코드를 두지 않는다.
   - `Game.Core`: Core만 컴파일한다. 경고도 에러로 친다
   - `Game.Core.Tests`: 테스트
@@ -29,6 +30,7 @@ For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000
   - `UnityCompileCheck`: Unity 쪽 코드를 Unity 실제 엔진 DLL로 컴파일만 해 본다. asmdef마다 `Assemblies/`에 프로젝트가 하나씩 있다. 패키지 API를 쓰게 되면 `Stubs/<어셈블리 이름>/`에 같은 시그니처로 적는다. 웹 빌드용 확인은 웹 플레이어 DLL(`.unity/WebGL`)로 한다
   - `WebPlaytest`: 웹 데모를 헤드리스 Chromium으로 플레이하는 시험(`Docs/Playtest.md`)
   - `ArtPreview/preview.py`: `Client/Art/PixelArt.cs`의 도트 그림을 PNG 한 장으로 그린다(Unity 없이 그림 확인)
+  - `SoundPreview`: `Client/Art/SoundArt.cs`의 효과음을 WAV로 쓰고 무음·클리핑을 검사한다
   - `Fonts`: 게임 글꼴 부분집합 만들기. `.cs`나 시트에 새 한글을 쓰면 다시 돌린다(없는 글자는 웹에서 빈칸으로 나온다)
 - 웹 데모: `.github/workflows/web-demo.yml`이 GameCI로 빌드해 GitHub Pages에 올린다. `Docs/WebDemo.md`.
 
@@ -40,7 +42,9 @@ dotnet test DevTools/Game.Core.Tests
 dotnet run --project DevTools/CoreSandbox -- --dice
 dotnet run --project DevTools/CoreSandbox -- --battle 2000 --party knight,hunter,cleric --encounter goblins
 dotnet run --project DevTools/CoreSandbox -- --classes 1000
-dotnet run --project DevTools/CoreSandbox -- --adventure 500 --party berserker,elementalist,gambler
+dotnet run --project DevTools/CoreSandbox -- --classes 60 --encounter warden --level 4
+dotnet run --project DevTools/CoreSandbox -- --adventure 200 --party berserker,elementalist,gambler   # 지도 챕터 전체를 봇이
+dotnet run --project DevTools/SoundPreview -- /tmp/sounds
 
 # 코드로 그린 도트 그림을 PNG로 보기 (Pillow 필요)
 python3 DevTools/ArtPreview/preview.py /tmp/art.png
@@ -63,6 +67,7 @@ GitHub Actions(`.github/workflows/core-tests.yml`)가 푸시마다 테스트, �
 
 - Core에서는 `System.Random` 대신 `GameRandom`을 쓴다. 같은 시드와 같은 명령이면 어디서나 같은 결과가 나와야 한다(협동의 명령 동기화, 버그 재현). 시각(`DateTime.Now` 등)도 Core 안에서 읽지 않는다. 부동소수점 대신 정수 계산을 쓴다.
 - 전투의 모든 주사위는 그 전투의 `Fate`에서 꺼낸다(점성술사의 예지, `Docs/Dice.md`).
+- `Adventure`의 공개 명령은 성공하면 `Record`로 한 줄을 남긴다. 저장은 그 기록을 다시 돌리는 것이라(`Docs/Saving.md`), 새 명령을 만들면 `Record`와 `Adventure.Run`에 같이 넣고, 명령 글 형식을 바꾸면 `SaveVersion`을 올린다.
 - 게임은 **턴제**다(사용자 결정, 2026-11-09). 지도도 전투도 차례가 있고, Core는 프레임을 모른다.
 - 확률은 "선택을 존중하는" 쪽으로 만든다(사용자 요청, 2026-11-09). 굴리기 전에 확률을 보이고, 결의·끈기·바닥으로 운의 몫을 묶는다. 새 판정을 만들 때 `Docs/Dice.md`의 기준을 지키고 샌드박스로 확인한다.
 - 직업은 수치만 다르게 만들지 않는다. 고유 기믹, 사건 선택지, 약점을 같이 만든다(`Docs/Classes.md`).

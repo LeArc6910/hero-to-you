@@ -24,6 +24,10 @@ jobs:
           dotnet run --project DevTools/CoreSandbox -- --dice
           dotnet run --project DevTools/CoreSandbox -- --adventure 200 --party knight,hunter,cleric
 
+      # The synthesized sound effects: fails when one is silent, clips or has NaN.
+      - name: Check the sound effects
+        run: dotnet run --project DevTools/SoundPreview -- "$RUNNER_TEMP/sounds"
+
       - name: Draw the pixel art
         run: |
           pip install --quiet pillow

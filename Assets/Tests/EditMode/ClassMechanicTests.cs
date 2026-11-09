@@ -85,16 +85,16 @@ namespace Game.Core.Tests
             var party = TestData.Party("necromancer");
             var battle = new Battle(party, new List<MonsterDef> { weak, TestData.Dummy() }, 5, false, TestData.Data);
             var necro = battle.Current;
-            Assert.That(necro.Souls, Is.EqualTo(1));
+            Assert.That(necro.Souls, Is.EqualTo(2), "전투를 영혼 둘로 시작한다");
             necro.Hero.Blessing = 3;
             Act(battle, Hero.AttackId, battle.Monsters.First(m => m.MaxHp == 1).Id);
-            Assert.That(necro.Souls, Is.EqualTo(2), "적이 쓰러지면 영혼 +1");
+            Assert.That(necro.Souls, Is.EqualTo(3), "적이 쓰러지면 영혼 +1");
             Act(battle, "necro_raise", necro.Id);
             var skeleton = battle.Summons.Single();
             Assert.That(skeleton.Side, Is.EqualTo(Side.Party));
             Assert.That(skeleton.Intent, Is.Not.Null);
             Assert.That(battle.Unit(skeleton.Intent.Target).IsFoe, Is.True, "해골은 적을 노린다");
-            Assert.That(necro.Souls, Is.Zero);
+            Assert.That(necro.Souls, Is.EqualTo(1));
         }
 
         [Test]

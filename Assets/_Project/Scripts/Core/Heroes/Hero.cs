@@ -17,7 +17,7 @@ namespace Game.Core
 
         // The basic attack's skill id: whichever weapon is held.
         public const string AttackId = "attack";
-        public const int StartReagents = 3;
+        public const int StartReagents = 4;
         public const int ReagentCap = 6;
 
         readonly int[] _baseStats;

@@ -48,6 +48,17 @@ async function main() {
   process.exitCode = run.failed > 0 || run.errors.length > 0 ? 1 : 0;
 }
 
+// Steps the adventure bot until the report passes the test (or `limit` steps).
+async function autoplayUntil(game, test, limit = 200) {
+  for (let i = 0; i < limit; i++) {
+    const state = await game.state();
+    if (test(state)) return state;
+    if (state.adventure === 'Victory' || state.adventure === 'Defeat') return null;
+    await game.send('autoplay 1');
+  }
+  return null;
+}
+
 async function playSlice(game, wholeRun) {
   const { run } = game;
   let state = await game.state();
@@ -57,89 +68,131 @@ async function playSlice(game, wholeRun) {
   await game.shot('title', '타이틀');
 
   // Party: three cards by real presses.
-  run.check(await game.press('혼자 시작 (영웅 셋을 모두 조종)'), '[혼자 시작]을 누를 수 있다');
+  run.check(await game.press(/^(혼자 시작|새 모험)/), '[혼자 시작]을 누를 수 있다');
   state = await game.until(s => s.screen === 'Party', 5000);
   run.check(!!state, '파티 고르기 화면');
   for (const name of ['기사', '사냥꾼', '성직자']) await game.press(name, '직업');
   await game.shot('party', '파티 고르기(기사·사냥꾼·성직자)');
-  const start = (await game.find('모험 시작', null))[0];
-  run.check(start && start.enabled, '셋을 고르면 [모험 시작]이 켜진다');
   await game.press('모험 시작');
   state = await game.until(s => s.adventure === 'Story', 5000);
   run.check(!!state, '프롤로그 이야기 화면');
   await game.shot('story', '프롤로그');
 
-  // First battle: one real command, then the rest by the bot.
+  // The map: roll, pick a hex, move.
   await game.press('계속');
-  state = await game.until(s => s.adventure === 'Battle' && s.awaiting, 30000);
-  run.check(!!state, '첫 전투에서 영웅의 차례가 온다');
-  if (!state) return;
-  run.check(state.battle.monsters.length === 3 && state.battle.monsters.every(m => m.intent), '적 셋이 다음 행동(의도)을 보인다');
-  await game.shot('battle', '첫 전투, 영웅의 차례');
-  const skills = await game.find(/.+/, '기술');
-  run.check(skills.length >= 3, `기술 단추 ${skills.length}개`);
-  run.check(skills.every(b => b.size[1] >= 38), '기술 단추가 손가락으로 누를 만큼 크다(높이 38점 이상)');
-  if (skills[1]) await game.press(skills[1].label, '기술');
-  const targets = await game.find(/.+/, '대상');
-  run.check(targets.length >= 1, `대상 고르기 칸 ${targets.length}개`);
-  if (targets.length > 1) await game.press(targets[targets.length - 1].label, '대상');
-  await game.shot('battle-skill', '두 번째 기술과 대상, 확률 미리 보기');
-  const before = (await game.state()).battle.events;
-  const pressed = await game.press(/^(굴리기|사용)/);
-  run.check(pressed, '[굴리기]를 누를 수 있다');
-  await game.wait(700);
-  await game.shot('battle-dice', '주사위가 굴러가는 중');
-  state = await game.until(s => s.battle && s.battle.events > before, 8000);
-  run.check(!!state, '명령이 전투를 진행시킨다');
+  state = await game.until(s => s.adventure === 'Map', 5000);
+  run.check(!!state, '지도 화면');
+  run.check(state && state.saved, '모험을 시작하면 기기에 저장된다');
+  await game.shot('map', '지도, 첫 영웅의 차례');
+  run.check(await game.press(/^이동 굴리기/), '[이동 굴리기]를 누를 수 있다');
+  state = await game.until(s => s.movePoints >= 1 && s.reachable > 0, 5000);
+  run.check(!!state, `이동력이 나오고 갈 칸이 생긴다 (${state && state.movePoints})`);
+  const hexes = await game.find(/^\d+,\d+$/, '칸');
+  run.check(hexes.length > 0, `누를 수 있는 칸 ${hexes.length}개`);
+  if (hexes.length > 0) await game.press(hexes[hexes.length - 1].label, '칸');
+  await game.shot('map-picked', '칸을 고른 뒤 패널');
+  const before = (await game.state()).commands;
+  run.check(await game.press('이동'), '[이동]을 누를 수 있다');
+  state = await game.until(s => s.commands > before, 5000);
+  run.check(!!state, `이동이 받아들여졌다 (${state && state.adventure})`);
+  await game.shot('map-moved', '이동한 뒤');
 
-  await game.send('speed 0');
-  await game.send('autobattle');
-  await game.send('skip');
-  state = await game.until(s => s.adventure !== 'Battle' && !s.playing, 10000);
-  run.check(state && ['BattleResult', 'Defeat'].includes(state.adventure), `전투가 끝난다 (${state && state.adventure})`);
-  await game.shot('battle-result', '전투 결과');
-  if (!state || state.adventure !== 'BattleResult') return;
-
-  // The event after it.
-  await game.press('계속');
-  state = await game.until(s => s.adventure === 'Event', 5000);
-  run.check(!!state, `사건 화면 (${state && state.event})`);
-  await game.shot('event', '사건');
-  const choices = (await game.find(/.+/, '선택지')).filter(b => b.enabled);
-  run.check(choices.length >= 2, `선택지 ${choices.length}개`);
-  if (choices[0]) await game.press(choices[0].label, '선택지');
-  if ((await game.state()).adventure === 'Event') {
-    await game.shot('event-pick', '판정할 영웅 고르기');
-    await game.press('굴려 본다');
+  // Gear window.
+  await game.send('autoplay 0');
+  state = await autoplayUntil(game, s => s.adventure === 'Map' && !s.levelUp, 40);
+  if (state && (await game.press('장비·가방', null, { quiet: true }))) {
+    await game.shot('gear', '장비·가방 창');
+    run.check((await game.state()).gearOpen, '장비·가방 창이 열린다');
+    await game.press('닫기');
   }
-  state = await game.until(s => s.adventure === 'EventResult', 5000);
-  run.check(!!state, '사건 결과 화면');
-  await game.shot('event-result', '사건 결과');
+
+  // A battle: the bot walks until one starts, then a real command.
+  await game.send('speed 0');
+  state = await autoplayUntil(game, s => s.adventure === 'Join' || s.adventure === 'Battle', 300);
+  run.check(!!state, '지도를 다니다 전투가 난다');
+  if (!state) return;
+  if (state.adventure === 'Join') {
+    await game.shot('join', '합류할 영웅 고르기');
+    run.check(await game.press(/^싸운다/), '[싸운다]를 누를 수 있다');
+  }
+  await game.send('speed 1');
+  state = await game.until(s => s.adventure === 'Battle' && s.awaiting, 30000);
+  run.check(!!state, '전투에서 영웅의 차례가 온다');
+  if (state) {
+    run.check(state.battle.monsters.every(m => m.intent), '적이 다음 행동(의도)을 보인다');
+    await game.shot('battle', '전투, 영웅의 차례');
+    const skills = await game.find(/.+/, '기술');
+    run.check(skills.length >= 2, `기술 단추 ${skills.length}개`);
+    run.check(skills.every(b => b.size[1] >= 38), '기술 단추가 손가락으로 누를 만큼 크다(높이 38점 이상)');
+    const targets = await game.find(/.+/, '대상');
+    if (targets.length > 1) await game.press(targets[targets.length - 1].label, '대상');
+    await game.shot('battle-skill', '기술과 대상, 확률 미리 보기');
+    const events = (await game.state()).battle.events;
+    run.check(await game.press(/^(굴리기|사용)/), '[굴리기]를 누를 수 있다');
+    await game.wait(700);
+    await game.shot('battle-dice', '주사위가 굴러가는 중');
+    state = await game.until(s => s.battle && s.battle.events > events, 8000);
+    run.check(!!state, '명령이 전투를 진행시킨다');
+  }
+  await game.send('speed 0');
+  await game.send('autobattle; skip');
+  state = await game.until(s => s.adventure !== 'Battle' && !s.playing, 10000);
+  run.check(state && ['BattleResult', 'Defeat', 'Story'].includes(state.adventure), `전투가 끝난다 (${state && state.adventure})`);
+  await game.shot('battle-result', '전투 결과');
+
+  // A level-up choice, when one comes.
+  state = await autoplayUntil(game, s => s.levelUp, 300);
+  if (state) {
+    await game.shot('levelup', '레벨업 강화 고르기');
+    const options = await game.find(/.+/, '강화');
+    run.check(options.length >= 1, `강화 선택지 ${options.length}개`);
+    if (options[0]) await game.press(options[0].label, '강화');
+    run.check(!(await game.state()).levelUp, '강화를 누르면 레벨업이 끝난다');
+  }
+
+  // Save and continue: reload the page, then [이어하기].
+  const commands = (await game.state()).commands;
+  await game.page.reload({ waitUntil: 'load' });
+  await game.page.waitForFunction(() => !!window.unityInstance, null, { timeout: 240000 });
+  await game.wait(1500);
+  await game.send('probe on');
+  await game.wait(300);
+  run.check(await game.press('이어하기'), '다시 열면 [이어하기]가 있다');
+  state = await game.until(s => s.adventure, 8000);
+  run.check(state && state.commands === commands, `이어하면 같은 곳에서 계속된다 (명령 ${state && state.commands}/${commands})`);
+  await game.shot('continued', '이어하기 뒤');
 
   if (!wholeRun) return;
-  // The rest of the slice, quickly: every battle by the bot, every event by its first choice.
+  // The town, then the rest of the chapter by the bot.
+  state = await autoplayUntil(game, s => s.adventure === 'Map' && !s.levelUp && s.movePoints < 0, 60);
+  if (state) {
+    await game.send('goto town; roll');
+    const town = await game.find('2,2', '칸');
+    if (town.length > 0) {
+      await game.press('2,2', '칸');
+      await game.press('이동');
+      state = await game.until(s => s.adventure === 'Town', 4000);
+      run.check(!!state, '마을에 들어간다');
+      await game.shot('town', '마을과 상점');
+      await game.press('마을을 떠난다', null, { quiet: true });
+    }
+  }
   let bossShot = false;
-  for (let guard = 0; guard < 200; guard++) {
+  for (let guard = 0; guard < 4000; guard++) {
     state = await game.state();
     if (state.adventure === 'Victory' || state.adventure === 'Defeat') break;
-    if (state.adventure === 'Battle') {
-      if (!bossShot && state.battle && state.battle.encounter === 'warden') {
-        bossShot = true;
-        await game.send('speed 1');
-        await game.until(s => s.awaiting, 15000);
-        await game.shot('boss', '보스 잿빛 파수꾼');
-        await game.send('speed 0');
-      }
-      await game.send('autobattle; skip');
-    } else if (state.adventure === 'Event') {
-      await game.send('autochoose');
-    } else {
-      await game.send('continue');
+    if (!bossShot && state.adventure === 'Battle' && state.battle && state.battle.encounter === 'warden') {
+      bossShot = true;
+      await game.send('speed 1');
+      await game.until(s => s.awaiting, 15000);
+      await game.shot('boss', '보스 잿빛 파수꾼');
+      await game.send('speed 0');
     }
-    await game.wait(150);
+    await game.send('autoplay 20');
   }
   state = await game.state();
-  run.check(state.adventure === 'Victory' || state.adventure === 'Defeat', `세로 조각을 끝까지 간다 (${state.adventure}, 레벨 ${state.heroes.map(h => h.level).join('/')})`);
+  run.check(state.adventure === 'Victory' || state.adventure === 'Defeat', `챕터를 끝까지 간다 (${state.adventure}, ${state.day}일째, 레벨 ${state.heroes.map(h => h.level).join('/')})`);
+  run.check(!state.saved, '끝나면 저장이 지워진다');
   await game.shot('end', '끝 화면');
 }
 

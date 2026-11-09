@@ -219,3 +219,43 @@ namespace Game.Core.Tests
         }
     }
 }
+
+namespace Game.Core.Tests
+{
+    public class AdventureEdgeTests
+    {
+        [Test]
+        public void ABattleLostBeforeTheFirstTurnStillEnds()
+        {
+            var adventure = new Adventure(TestData.Data, new[] { "elementalist", "hunter", "cleric" }, 3);
+            adventure.Continue();
+            var enemy = adventure.Map.Tiles.First(t => t.Content == Content.Enemy);
+            adventure.Heroes[0].Hp = 1;
+            adventure.RollMove();
+            adventure.Teleport(0, enemy.Hex);
+            for (int seed = 0; seed < 1; seed++)
+            {
+                typeof(Adventure).GetMethod("Arrive", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(adventure, new object[] { enemy.Hex });
+                Assert.That(adventure.Join(new[] { 0 }), Is.Null);
+                Assert.That(adventure.Screen == AdventureScreen.Battle && adventure.Battle.Over, Is.False, "끝난 전투에 머물지 않는다");
+                Assert.That(adventure.Fight(null), Is.Not.Null);
+            }
+        }
+
+        [Test]
+        public void TheRandomBotPlaysEveryClassWithoutBreaking()
+        {
+            var ids = TestData.Data.PlayableClasses.Select(c => c.Id).ToList();
+            for (int i = 0; i < 4; i++)
+            {
+                var party = new[] { ids[i * 3], ids[i * 3 + 1], ids[i * 3 + 2] };
+                for (ulong seed = 1; seed <= 3; seed++)
+                {
+                    var adventure = new Adventure(TestData.Data, party, seed * 31 + (ulong)i);
+                    AdventureBot.Play(adventure, new GameRandom(seed, 3), smart: false);
+                    Assert.That(adventure.Screen, Is.EqualTo(AdventureScreen.Victory).Or.EqualTo(AdventureScreen.Defeat), string.Join(",", party));
+                }
+            }
+        }
+    }
+}
