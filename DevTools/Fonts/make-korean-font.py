@@ -51,6 +51,9 @@ def main(source, target):
     subsetter.subset(font)
     missing = sorted(c for c in wanted if c not in font.getBestCmap() and c >= 0xAC00)
     pathlib.Path(target).parent.mkdir(parents=True, exist_ok=True)
+    # The same characters give the same file: no save-time timestamp, so an unchanged font is no new Git LFS object.
+    font.recalcTimestamp = False
+    font["head"].modified = font["head"].created
     font.save(target)
     print(f"{target}: {len(font.getBestCmap())} characters, {pathlib.Path(target).stat().st_size / 1024:.0f} KB")
     if missing:
