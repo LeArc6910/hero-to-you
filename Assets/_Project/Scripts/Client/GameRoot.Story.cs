@@ -73,7 +73,7 @@ namespace Game.Client
             float y = Heading(column, 4, story.Title);
             y = Paragraph(column, y, story.Text, 15);
             EndColumn(y);
-            if (Ui.Button(Footer(48), "계속", 17, true, Look.Primary)) _adventure.Continue();
+            if (Ui.Button(Footer(48), "계속", 17, true, Look.Primary)) Act(_adventure.Continue);
         }
 
         void DrawEvent()
@@ -81,7 +81,7 @@ namespace Game.Client
             var card = _adventure.Event;
             var choices = _adventure.Choices();
             var picking = choices.FirstOrDefault(c => c.Index == _choice);
-            var column = BeginColumn($"event:{card.Id}:{_adventure.Step}:{_choice}", picking != null ? 56 : 8);
+            var column = BeginColumn($"event:{card.Id}:{_adventure.Log.Count}:{_choice}", picking != null ? 56 : 8);
             float y = Heading(column, 4, card.Title);
             y = Paragraph(column, y, card.Text);
             if (!string.IsNullOrEmpty(card.Journal)) y = Paragraph(column, y, "일지: " + card.Journal, 13, Palette.Journal);
@@ -176,15 +176,20 @@ namespace Game.Client
 
         void Choose(EventChoice choice, int hero, int resolve)
         {
-            string error = _adventure.Choose(choice.Index, hero, resolve);
+            string error = Act(() => _adventure.Choose(choice.Index, hero, resolve));
             _eventError = error;
-            if (error == null) ResetEventView();
+            if (error == null)
+            {
+                ResetEventView();
+                var result = _adventure.Result;
+                if (result?.Check != null) Sounds.Play(result.Check.Perfect ? Sound.Perfect : result.Success ? Sound.Success : Sound.Miss);
+            }
         }
 
         void DrawEventResult()
         {
             var result = _adventure.Result;
-            var column = BeginColumn($"result:{_adventure.Step}:{result.Choice.Index}", 56);
+            var column = BeginColumn($"result:{_adventure.Log.Count}", 56);
             float y = 4;
             string title = result.Check == null ? result.Choice.Label : result.Success ? "성공!" : "실패…";
             y = Heading(column, y, title, result.Check == null || result.Success ? Palette.Gold : Palette.Damage);
@@ -205,37 +210,40 @@ namespace Game.Client
             y = Paragraph(column, y, result.Text);
             foreach (string line in result.Changes) y = Paragraph(column, y, "· " + line, 13, Palette.Journal);
             EndColumn(y);
-            if (Ui.Button(Footer(48), "계속", 17, true, Look.Primary)) _adventure.Continue();
+            if (Ui.Button(Footer(48), "계속", 17, true, Look.Primary)) Act(_adventure.Continue);
         }
 
-        // After a battle (rewards, levels, hope) or at a rest.
+        // After a battle: rewards, levels, hope; or who fell.
         void DrawReport()
         {
-            bool rest = _adventure.Screen == AdventureScreen.Rest;
-            var column = BeginColumn($"report:{_adventure.Step}:{_adventure.Screen}:{_adventure.BattlesWon}", 56);
-            float y = Heading(column, 4, rest ? "쉼터" : "전투 승리");
-            if (rest) y = Paragraph(column, y, "모닥불 곁에서 숨을 고른다. 쓰러진 이는 정신을 차리고, 모두 상처를 싸맨다.", 14, Palette.Journal);
-            foreach (string line in _adventure.Report) y = Paragraph(column, y, "· " + line, 14);
+            var a = _adventure;
+            bool won = a.Battle == null || a.Battle.State == BattleState.Won;
+            var column = BeginColumn($"report:{a.Log.Count}", 56);
+            float y = Heading(column, 4, won ? "전투 승리" : "패배…", won ? Palette.Gold : Palette.Damage);
+            foreach (string line in a.Report) y = Paragraph(column, y, "· " + line, 14);
             EndColumn(y);
-            if (Ui.Button(Footer(48), "계속", 17, true, Look.Primary)) _adventure.Continue();
+            if (Ui.Button(Footer(48), "계속", 17, true, Look.Primary)) Act(a.Continue);
         }
 
         void DrawEnd()
         {
-            bool won = _adventure.Screen == AdventureScreen.Victory;
-            var column = BeginColumn("end:" + _adventure.Screen, 56);
-            float y = Heading(column, 4, won ? "첫 번째 봉인을 지켰다" : "모두 쓰러졌다", won ? Palette.Gold : Palette.Damage);
+            var a = _adventure;
+            bool won = a.Screen == AdventureScreen.Victory;
+            var column = BeginColumn("end:" + a.Screen, 56);
+            string title = won ? "첫 번째 봉인을 지켰다" : a.Story?.Id == "rift_open" ? "균열이 열렸다" : "모두 쓰러졌다";
+            float y = Heading(column, 4, title, won ? Palette.Gold : Palette.Damage);
             y = Paragraph(column, y, won
-                ? "세로 조각(M1)의 끝이다. 다음 단계에서 육각 지도와 챕터 1 전체가 이어진다."
+                ? "챕터 1의 끝이다. 다음 챕터(가라앉은 항구)는 다음 단계에서 이어진다."
                 : "일지가 바닥에 떨어진다. 하지만 일지는 언제나 다음 사람을 찾는다.", 14, Palette.Journal);
-            y = Paragraph(column, y, $"이긴 전투 {_adventure.BattlesWon} · 금화 {_adventure.Gold} · 남은 희망 {_adventure.Hope}");
-            foreach (var hero in _adventure.Heroes) y = Paragraph(column, y, $"· {hero.Name} 레벨 {hero.Level}, 생명력 {hero.Hp}/{hero.MaxHp}", 13);
+            y = Paragraph(column, y, $"{a.Day}일째 · 균열 {a.Doom}/{Adventure.DoomMax} · 이긴 전투 {a.BattlesWon} · 금화 {a.Gold} · 남은 희망 {a.Hope}");
+            foreach (var hero in a.Heroes)
+                y = Paragraph(column, y, $"· {hero.Name} 레벨 {hero.Level}, 생명력 {hero.Hp}/{hero.MaxHp}, 강화: {(hero.Upgrades.Count == 0 ? "없음" : string.Join(", ", hero.Upgrades.Select(u => u.Name)))}", 13);
             EndColumn(y);
             var footer = Footer(48);
             float half = (footer.width - 8) / 2;
             if (Ui.Button(new Rect(footer.x, footer.y, half, footer.height), "처음으로", 15, true, Look.Quiet)) BackToTitle();
             if (Ui.Button(new Rect(footer.x + half + 8, footer.y, half, footer.height), "같은 파티로 다시", 16, true, Look.Primary))
-                StartAdventure(_adventure.Heroes.Select(h => h.Class.Id).ToList());
+                StartAdventure(a.ClassIds.ToList());
         }
     }
 }

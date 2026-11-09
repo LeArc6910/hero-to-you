@@ -156,6 +156,17 @@ namespace Game.Core
             return old;
         }
 
+        // Empties the armor or trinket slot.
+        internal void Unequip(ItemSlot slot)
+        {
+            int lost = MaxHp - Hp;
+            if (slot == ItemSlot.Armor) Armor = null;
+            else if (slot == ItemSlot.Trinket) Trinket = null;
+            _skills = null;
+            if (!Down) Hp = Math.Max(1, MaxHp - lost);
+            Resolve = Math.Min(Resolve, MaxResolve);
+        }
+
         internal void ApplyUpgrade(UpgradeDef upgrade)
         {
             _upgrades.Add(upgrade);

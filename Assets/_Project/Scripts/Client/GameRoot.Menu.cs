@@ -7,6 +7,7 @@ namespace Game.Client
     // The title and choosing the party of three (Docs/Classes.md).
     public sealed partial class GameRoot
     {
+        string _titleError;
         float _partyScroll;
         bool _partyDragging;
         float _partyLastY;
@@ -23,16 +24,33 @@ namespace Game.Client
             y += Ui.Short ? 30 : 48;
 
             float h = Ui.Short ? 44 : 50;
-            if (Ui.Button(new Rect(x, y, w, h), "혼자 시작 (영웅 셋을 모두 조종)", 17, true, Look.Primary))
+            float gap = Ui.Short ? 6 : 10;
+            if (SaveStore.Exists)
+            {
+                string summary = SaveStore.Summary(_data);
+                if (Ui.Button(new Rect(x, y, w, h), "이어하기", 17, true, Look.Primary))
+                {
+                    _titleError = Resume();
+                    if (_titleError == null) Sounds.Play(Sound.Click);
+                }
+                if (summary != null) Ui.Text(new Rect(x, y + h, w, 16), summary, 11, Palette.Dim, TextAnchor.MiddleCenter);
+                y += h + 18;
+            }
+            if (Ui.Button(new Rect(x, y, w, h), SaveStore.Exists ? "새 모험 (이어하던 것은 지워진다)" : "혼자 시작 (영웅 셋을 모두 조종)", 16, true, SaveStore.Exists ? Look.Normal : Look.Primary))
             {
                 _party.Clear();
                 _screen = ClientScreen.Party;
             }
-            y += h + 10;
+            y += h + gap;
             Ui.Button(new Rect(x, y, w, h), "협동 (온라인 방은 M4에서)", 15, false);
-            y += h + 10;
+            y += h + gap;
+            float half = (w - 8) / 2;
             string speed = _speed >= 2 ? "빠르게" : "보통";
-            if (Ui.Button(new Rect(x, y, w, Ui.Short ? 40 : 44), $"전투 연출: {speed}", 14, true, Look.Quiet)) _speed = _speed >= 2 ? 1 : 2.5f;
+            float sh = Ui.Short ? 38 : 44;
+            if (Ui.Button(new Rect(x, y, half, sh), $"전투 연출: {speed}", 13, true, Look.Quiet)) _speed = _speed >= 2 ? 1 : 2.5f;
+            if (Ui.Button(new Rect(x + half + 8, y, half, sh), Sounds.Muted ? "소리: 끔" : "소리: 켬", 13, true, Look.Quiet)) Sounds.Muted = !Sounds.Muted;
+            y += sh + 4;
+            if (_titleError != null) Ui.Text(new Rect(x, y, w, 40), _titleError, 12, Palette.Damage, TextAnchor.UpperCenter, false, true);
             Ui.Text(new Rect(0, Ui.Height - 26, Ui.Width - 8, 20), "세로 조각 M1 · " + BuildInfo.Version, 11, Palette.Dim, TextAnchor.MiddleRight);
         }
 

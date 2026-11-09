@@ -6,6 +6,7 @@ without Unity. Reads the same letter rows and palette the game does. Fails when 
 
 Needs Pillow (pip install pillow).
 """
+import csv
 import pathlib
 import re
 import sys
@@ -38,15 +39,8 @@ def pictures(source):
 
 
 def colors_of(csv_path):
-    colors = {}
-    lines = csv_path.read_text(encoding="utf-8").splitlines()
-    header = lines[0].split(",")
-    for line in lines[1:]:
-        cells = line.split(",")
-        if len(cells) >= len(header):
-            row = dict(zip(header, cells))
-            colors[row["id"]] = row["color"]
-    return colors
+    with open(csv_path, encoding="utf-8", newline="") as f:
+        return {row["id"]: row["color"] for row in csv.DictReader(f) if row.get("color", "").startswith("#")}
 
 
 def main(target):

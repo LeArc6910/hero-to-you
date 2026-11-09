@@ -78,18 +78,61 @@ namespace Game.Client
                     BackToTitle();
                     return "ok";
                 case "continue":
-                    _adventure.Continue();
-                    return "ok";
-                case "jump":
-                    _adventure.JumpTo(Number(1));
-                    return "ok";
+                    return Act(_adventure.Continue) ?? "ok";
                 case "choose":
-                    return _adventure.Choose(Number(1), Number(2), Number(3)) ?? "ok";
+                    return Act(() => _adventure.Choose(Number(1), Number(2), Number(3))) ?? "ok";
                 case "autochoose":
                     // The first choice the party can take, tried by the hero likeliest to pass.
-                    var choice = _adventure.Choices().First(_adventure.Affordable);
+                    var choice = _adventure.Choices().First(c => _adventure.Affordable(c) && _adventure.CanAttempt(c).Count > 0);
                     var by = _adventure.CanAttempt(choice).OrderByDescending(h => choice.HasCheck ? Adventure.Odds(choice, h, 0).AtLeast(choice.Need) : 0).First();
-                    return _adventure.Choose(choice.Index, _adventure.Heroes.IndexOf(by)) ?? "ok " + choice.Label;
+                    return Act(() => _adventure.Choose(choice.Index, _adventure.Heroes.IndexOf(by))) ?? "ok " + choice.Label;
+                case "roll":
+                    return Act(_adventure.RollMove) ?? "ok " + _adventure.MovePoints;
+                case "move":
+                    var to = new Hex(Number(1), Number(2));
+                    return Act(() => _adventure.Move(to)) ?? "ok";
+                case "stay":
+                    return Act(_adventure.Stay) ?? "ok";
+                case "camp":
+                    return Act(_adventure.Camp) ?? "ok";
+                case "join":
+                    var all = _adventure.JoinCandidates.ToList();
+                    return Act(() => _adventure.Join(all)) ?? "ok";
+                case "upgrade":
+                    return Act(() => _adventure.ChooseUpgrade(Number(1))) ?? "ok";
+                case "goto":
+                    // Puts the current hero next to a place: town, quest, boss, shrine, or col row.
+                    var where = Arg(1) switch
+                    {
+                        "town" => _adventure.Map.Tile(Site.Town).Hex,
+                        "quest" => _adventure.Map.Tile(Site.Quest).Hex,
+                        "boss" => _adventure.Map.Tile(Site.Boss).Hex,
+                        "shrine" => _adventure.Map.Tile(Site.Shrine).Hex,
+                        _ => new Hex(Number(1), Number(2)),
+                    };
+                    var near = where.Neighbors().FirstOrDefault(h => _adventure.Map.Def.Passable(h) && !_adventure.Map.Stops(_adventure.Map.Tile(h)));
+                    _adventure.Teleport(_adventure.MapHero, near);
+                    return $"ok {near}";
+                case "autoplay":
+                    // The adventure bot plays this many steps (whole battles count one step each command).
+                    int steps = Number(1, 50);
+                    for (int i = 0; i < steps && _adventure.Screen != AdventureScreen.Victory && _adventure.Screen != AdventureScreen.Defeat; i++)
+                    {
+                        string failed = Act(() => AdventureBot.Step(_adventure, BotRandom));
+                        if (failed != null) return "error " + failed;
+                    }
+                    if (_battleShown != null)
+                    {
+                        while (_played < _battleShown.Events.Count) Play(_battleShown.Events[_played++]);
+                        _eventTimer = 0;
+                    }
+                    return "ok " + _adventure.Screen;
+                case "gear":
+                    _gearOpen = Arg(1, "on") != "off";
+                    return "ok";
+                case "sound":
+                    Sounds.Muted = Arg(1) == "off";
+                    return "ok";
                 case "auto":
                     return Auto(false);
                 case "autobattle":
@@ -123,7 +166,7 @@ namespace Game.Client
             do
             {
                 if (battle.State != BattleState.HeroTurn) break;
-                string error = _adventure.Fight(BattleBot.Choose(battle, BotRandom));
+                string error = Act(() => _adventure.Fight(BattleBot.Choose(battle, BotRandom)));
                 if (error != null) return "error " + error;
                 done++;
             } while (all && done < 500);
@@ -160,12 +203,16 @@ namespace Game.Client
             var adventure = _adventure;
             if (adventure != null)
             {
-                json.Add("adventure", adventure.Screen.ToString()).Add("step", adventure.Step).Add("gold", adventure.Gold).Add("hope", adventure.Hope)
+                json.Add("adventure", adventure.Screen.ToString()).Add("day", adventure.Day).Add("time", adventure.TimeOfDay).Add("doom", adventure.Doom)
+                    .Add("gold", adventure.Gold).Add("hope", adventure.Hope).Add("mapHero", adventure.MapHero).Add("movePoints", adventure.MovePoints)
+                    .Add("reachable", adventure.Reachable().Count).Add("levelUp", adventure.LevelUp != null).Add("gearOpen", _gearOpen)
+                    .Add("bag", adventure.Bag.Count).Add("commands", adventure.Log.Count).Add("saved", SaveStore.Exists)
                     .Add("playing", BattlePlaying).Add("awaiting", AwaitingHero);
                 json.List("heroes");
                 foreach (var hero in adventure.Heroes)
                     json.Open().Add("class", hero.Class.Id).Add("level", hero.Level).Add("hp", hero.Hp).Add("max", hero.MaxHp)
-                        .Add("resolve", hero.Resolve).Add("grit", hero.Grit).Add("potions", hero.Potions).Close();
+                        .Add("resolve", hero.Resolve).Add("grit", hero.Grit).Add("potions", hero.Potions).Add("weapon", hero.Weapon.Id)
+                        .Add("at", adventure.Positions[adventure.Heroes.IndexOf(hero)].ToString()).Close();
                 json.End();
                 if (adventure.Event != null && adventure.Screen == AdventureScreen.Event)
                 {

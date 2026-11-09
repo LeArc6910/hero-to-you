@@ -121,7 +121,7 @@ namespace Game.Client
             }
         }
 
-        // ---- Starting and leaving ----
+        // ---- Starting, saving and leaving ----
 
         internal void StartAdventure(IReadOnlyList<string> classes, ulong? seed = null)
         {
@@ -130,7 +130,46 @@ namespace Game.Client
             _adventure = new Adventure(_data, classes.ToList(), value);
             _screen = ClientScreen.Adventure;
             ResetAdventureView();
+            SaveStore.Write(_adventure.Save());
         }
+
+        // The saved adventure, replayed (SaveStore, Docs/Saving.md). Its battle, if it was in one, shows as it is.
+        internal string Resume()
+        {
+            var adventure = Adventure.Load(_data, SaveStore.Read(), out string error, out string note);
+            if (adventure == null)
+            {
+                SaveStore.Delete();
+                return error;
+            }
+            _adventure = adventure;
+            _screen = ClientScreen.Adventure;
+            ResetAdventureView();
+            if (adventure.Battle != null)
+            {
+                BeginPlayback(adventure.Battle);
+                SkipPlayback();
+            }
+            _toast = note;
+            return null;
+        }
+
+        // Gives the adventure a choice the player made and saves when it took. Errors show on the screen.
+        internal string Act(Func<string> command)
+        {
+            string error = command();
+            if (error == null)
+            {
+                if (_adventure.Screen == AdventureScreen.Victory || _adventure.Screen == AdventureScreen.Defeat) SaveStore.Delete();
+                else SaveStore.Write(_adventure.Save());
+                Sounds.Play(Sound.Click);
+            }
+            _actError = error;
+            return error;
+        }
+
+        string _actError;
+        string _toast;
 
         internal void BackToTitle()
         {
@@ -158,6 +197,12 @@ namespace Game.Client
                 case AdventureScreen.Story:
                     DrawStory();
                     break;
+                case AdventureScreen.Map:
+                    DrawMap();
+                    break;
+                case AdventureScreen.Join:
+                    DrawJoin();
+                    break;
                 case AdventureScreen.Event:
                     DrawEvent();
                     break;
@@ -165,18 +210,22 @@ namespace Game.Client
                     DrawEventResult();
                     break;
                 case AdventureScreen.BattleResult:
-                case AdventureScreen.Rest:
                     DrawReport();
+                    break;
+                case AdventureScreen.Town:
+                    DrawTown();
                     break;
                 case AdventureScreen.Victory:
                 case AdventureScreen.Defeat:
                     DrawEnd();
                     break;
             }
+            if (_gearOpen && (adventure.Screen == AdventureScreen.Map || adventure.Screen == AdventureScreen.Town)) DrawGear();
+            if (adventure.LevelUp != null) DrawLevelUp();
         }
 
         // The party strip along the top of the non-battle screens: each hero's health, resolve and potions, then
-        // hope and gold.
+        // hope and gold. On the map, the hero whose turn it is has a gold edge.
         void DrawPartyStrip(Rect r)
         {
             var heroes = _adventure.Heroes;
@@ -186,7 +235,8 @@ namespace Game.Client
             {
                 var hero = heroes[i];
                 var cell = new Rect(r.x + i * each, r.y, each - 6, r.height);
-                Ui.Panel(cell);
+                bool turn = _adventure.Screen == AdventureScreen.Map && _adventure.MapHero == i;
+                Ui.Panel(cell, turn ? Palette.Selected : (Color?)null, turn ? Palette.Gold : (Color?)null);
                 float icon = Mathf.Min(cell.height - 8, 40);
                 Ui.Image(new Rect(cell.x + 4, cell.y + (cell.height - icon) / 2, icon, icon), PixelArt.Hero(hero.Class.Id, hero.Class.Color), hero.Down ? new Color(1, 1, 1, 0.35f) : (Color?)null);
                 float x = cell.x + icon + 8;

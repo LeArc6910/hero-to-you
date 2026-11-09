@@ -160,6 +160,8 @@ namespace Game.Core
 
     public sealed class MonsterDef
     {
+        internal MonsterDef Clone() => (MonsterDef)MemberwiseClone();
+
         public string Id { get; internal set; }
         public string Name { get; internal set; }
         public int Hp { get; internal set; }
@@ -175,6 +177,9 @@ namespace Game.Core
         // At or below this percent of its health the second pattern starts (0 for none).
         public int Phase2 { get; internal set; }
         public string Phase2Line { get; internal set; }
+
+        // Monsters that join the boss when its second phase starts.
+        public IReadOnlyList<MonsterDef> Phase2Summon { get; internal set; } = new List<MonsterDef>();
         public bool Boss { get; internal set; }
         public string Color { get; internal set; }
 
@@ -187,23 +192,12 @@ namespace Game.Core
     {
         public string Id { get; internal set; }
         public IReadOnlyList<MonsterDef> Monsters { get; internal set; } = new List<MonsterDef>();
+
+        // Where the map puts it (terrain codes) and how strong it is: 1 early, 2 once the rift has grown, 0 never by
+        // itself (events and the boss).
+        public IReadOnlyList<string> Terrains { get; internal set; } = new List<string>();
+        public int Danger { get; internal set; }
         public string Text { get; internal set; }
-    }
-
-    public enum PathKind
-    {
-        Story,
-        Battle,
-        Event,
-        Rest,
-        Boss,
-    }
-
-    public sealed class PathNode
-    {
-        public int Order { get; internal set; }
-        public PathKind Kind { get; internal set; }
-        public string Arg { get; internal set; }
     }
 
     public sealed class StoryDef
@@ -230,6 +224,9 @@ namespace Game.Core
 
         // The class that must be in the party, alive, to see this choice; null for anyone.
         public string ClassId { get; internal set; }
+
+        // A flag the adventure must have (or, with a leading !, must not have) for the choice to show.
+        public string Requires { get; internal set; }
         public Stat? Stat { get; internal set; }
         public int FixedChance { get; internal set; }
         public int Dice { get; internal set; }
@@ -246,6 +243,9 @@ namespace Game.Core
     {
         public string Id { get; internal set; }
         public string Pool { get; internal set; }
+
+        // A class's own event: only drawn when that class is in the party.
+        public string ClassId { get; internal set; }
         public string Title { get; internal set; }
         public string Text { get; internal set; }
         public string Journal { get; internal set; }

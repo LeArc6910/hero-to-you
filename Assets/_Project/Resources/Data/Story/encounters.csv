@@ -1,6 +1,12 @@
-id,monsters,text
-goblins,goblin goblin goblin_archer,잿빛 덤불에서 고블린 셋이 튀어나온다.
-wolves,wolf wolf wolf,잿빛 늑대 무리가 길을 막는다. 눈이 붉다.
-bandits,bandit cutthroat,“일지를 내놓으면 보내 주지.” 산적들이 길을 막는다.
-warden,ash_warden,봉인석 앞에 돌 파수꾼이 눈을 뜬다.
-ambush,goblin goblin_archer goblin_archer,덤불 속에서 화살이 날아온다!
+id,monsters,terrain,danger,text
+goblins,goblin goblin goblin_archer,plains forest,1,잿빛 덤불에서 고블린 셋이 튀어나온다.
+wolves,wolf wolf wolf,forest plains,1,잿빛 늑대 무리가 길을 막는다. 눈이 붉다.
+bandits,bandit cutthroat,road,1,“일지를 내놓으면 보내 주지.” 산적들이 길을 막는다.
+wisps,ash_wisp ash_wisp goblin,ruins forest,1,폐허 사이로 잿불 정령들이 떠다닌다.
+lurker,bog_lurker goblin,swamp,1,늪이 끓더니 무언가가 솟아오른다.
+goblins_big,goblin goblin goblin_archer goblin_archer,plains forest,2,고블린 패거리가 몰려온다. 균열이 그들을 부풀렸다.
+wolves_big,wolf wolf wolf wolf,forest plains,2,늑대 넷이 둘러싼다.
+bandits_big,bandit bandit cutthroat,road,2,산적 두목이 직접 나섰다.
+lurkers,bog_lurker bog_lurker,swamp,2,늪 괴물 둘이 솟아오른다.
+ambush,goblin goblin_archer goblin_archer,,0,덤불 속에서 화살이 날아온다!
+warden,ash_warden,,0,봉인석 앞에 돌 파수꾼이 눈을 뜬다.

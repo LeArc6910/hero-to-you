@@ -50,6 +50,11 @@ namespace Game.Client
             _selectedFor = -1;
             _skill = null;
             _battleError = null;
+            _picked = null;
+            _gearOpen = false;
+            _actError = null;
+            _toast = null;
+            _panFor = -1;
             ResetEventView();
         }
 
@@ -112,6 +117,23 @@ namespace Game.Client
             }
         }
 
+        // Shows the battle as it stands now, without playing back what already happened (a loaded save).
+        void SkipPlayback()
+        {
+            if (_battleShown == null) return;
+            _played = _battleShown.Events.Count;
+            _eventTimer = 0;
+            _diceEvent = null;
+            _banner = null;
+            SyncShown(_battleShown);
+            for (int i = _battleShown.Events.Count - 1; i >= 0; i--)
+            {
+                if (_battleShown.Events[i].Kind != BattleEventKind.Turn) continue;
+                _turnActor = _battleShown.Events[i].Actor;
+                break;
+            }
+        }
+
         void SyncShown(Battle battle)
         {
             foreach (var unit in battle.Units) _shownHp[unit.Id] = unit.Hp;
@@ -153,19 +175,23 @@ namespace Game.Client
                 case BattleEventKind.Roll:
                     _diceEvent = e;
                     _diceAge = 0;
+                    if (_speed > 0) Sounds.Play(e.Perfect ? Sound.Perfect : Sound.Dice);
                     break;
                 case BattleEventKind.Damage:
                     _shownHp[e.Target] = Mathf.Max(0, _shownHp[e.Target] - e.Amount);
                     _hitAt[e.Target] = _clock;
                     Float(e.Target, "-" + e.Amount + (e.Perfect ? "!" : ""), Palette.Damage);
+                    if (_speed > 0) Sounds.Play(Sound.Hit);
                     break;
                 case BattleEventKind.Miss:
                     Float(e.Target, "빗나감", Palette.Dim);
+                    if (_speed > 0) Sounds.Play(Sound.Miss);
                     break;
                 case BattleEventKind.Heal:
                 case BattleEventKind.Potion:
                     _shownHp[e.Target] += e.Amount;
                     Float(e.Target, "+" + e.Amount, Palette.Heal);
+                    if (_speed > 0) Sounds.Play(Sound.Heal);
                     break;
                 case BattleEventKind.Revive:
                     _shownHp[e.Target] = e.Amount;
@@ -173,6 +199,7 @@ namespace Game.Client
                     break;
                 case BattleEventKind.Down:
                     _shownHp[e.Target] = 0;
+                    if (_speed > 0) Sounds.Play(Sound.Down);
                     break;
                 case BattleEventKind.StatusOn:
                     Float(e.Target, StatusFloat(e), Palette.Gold);
@@ -188,6 +215,7 @@ namespace Game.Client
                 case BattleEventKind.Defeat:
                     _banner = e.Text;
                     _bannerAge = 0;
+                    if (_speed > 0) Sounds.Play(e.Kind == BattleEventKind.Victory ? Sound.Victory : e.Kind == BattleEventKind.Defeat ? Sound.Defeat : Sound.Battle);
                     break;
             }
             if (e.Kind != BattleEventKind.Turn && e.Kind != BattleEventKind.Intent && !string.IsNullOrEmpty(e.Text))
@@ -270,7 +298,7 @@ namespace Game.Client
             Ui.Text(new Rect(info.x + 16, info.y, 40, r.height), _adventure.Hope.ToString(), 13, Palette.Ink);
             Ui.Image(new Rect(info.x + 44, info.y + (r.height - 14) / 2, 14, 14), PixelArt.Icon("coin"));
             Ui.Text(new Rect(info.x + 60, info.y, 50, r.height), _adventure.Gold.ToString(), 13, Palette.Ink);
-            if (infoW > 120) Ui.Text(new Rect(info.x + 90, info.y, 60, r.height), _adventure.BossBattle ? "보스" : $"길 {_adventure.Step + 1}", 12, _adventure.BossBattle ? Palette.Damage : Palette.Dim, TextAnchor.MiddleRight);
+            if (infoW > 120) Ui.Text(new Rect(info.x + 90, info.y, 60, r.height), _adventure.BossBattle ? "보스" : $"{_adventure.Day}일째", 12, _adventure.BossBattle ? Palette.Damage : Palette.Dim, TextAnchor.MiddleRight);
         }
 
         static Texture2D Sprite(Unit unit) => unit.IsHero
@@ -588,7 +616,8 @@ namespace Game.Client
             string go = preview.Ok && preview.Dice > 0 ? $"굴리기 ({preview.Dice}개)" : "사용";
             if (Ui.Button(new Rect(inner.x, inner.yMax - rollH, inner.width, rollH), go, 17, preview.Ok, Look.Primary))
             {
-                string error = _adventure.Fight(new BattleCommand(actor.Id, _skill, _target, _resolve));
+                var command = new BattleCommand(actor.Id, _skill, _target, _resolve);
+                string error = Act(() => _adventure.Fight(command));
                 _battleError = error;
                 if (error == null)
                 {

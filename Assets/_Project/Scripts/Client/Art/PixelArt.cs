@@ -467,6 +467,44 @@ namespace Game.Client
                 "...kk......kk...",
                 "................",
             },
+            ["ash_wisp"] = new[]
+            {
+                "................",
+                "......k.........",
+                ".....kok....k...",
+                "....kooyk..kok..",
+                "...kooyyok.kk...",
+                "...koyyyyok.....",
+                "..kooykyykok....",
+                "..koyyyyyyok....",
+                "..kooyyyyook....",
+                "...kooyyook.....",
+                "....kooook......",
+                ".....kook..k....",
+                "......kk..kok...",
+                "...k.......k....",
+                "..kok...........",
+                "...k............",
+            },
+            ["bog_lurker"] = new[]
+            {
+                "................",
+                "................",
+                ".....kkkkkk.....",
+                "...kkcccccckk...",
+                "..kcccccccccck..",
+                ".kcckeckkecccck.",
+                ".kccccccccccdck.",
+                "kccdkkkkkkcccddk",
+                "kcck.W.W.kccddck",
+                "kccckkkkkcccdcck",
+                ".kdccccccccdcck.",
+                "kccdcccdcccccdck",
+                "kckdccdcccdcckck",
+                "kk.kccdccdcck.kk",
+                "...kkkkkkkkkk...",
+                "................",
+            },
             ["ash_warden"] = new[]
             {
                 "........................",
@@ -526,7 +564,231 @@ namespace Game.Client
         {
             "heart" => Make("icon:heart", Heart, null),
             "coin" => Make("icon:coin", Coin, null),
-            _ => null,
+            _ => MapIcons.TryGetValue(name, out var rows) ? Make("map:" + name, rows, null) : null,
         };
+
+        // ---- The map (12×12 marks drawn on the hexes) ----
+
+        public static readonly Dictionary<string, string[]> MapIcons = new Dictionary<string, string[]>
+        {
+            ["tree"] = new[]
+            {
+                "....kkkk....",
+                "...kGGlGk...",
+                "..kGlGGGGk..",
+                "..kGGGGlGk..",
+                ".kGGlGGGGGk.",
+                ".kGGGGGlGGk.",
+                "..kkGGGGkk..",
+                "....kwwk....",
+                "....kwwk....",
+                "....kkkk....",
+                "............",
+                "............",
+            },
+            ["peak"] = new[]
+            {
+                "............",
+                ".....kk.....",
+                "....kWWk....",
+                "...kWaaAk...",
+                "...kaaaAk...",
+                "..kaaaaAAk..",
+                "..kaaAaaAk..",
+                ".kaaaaAaaAk.",
+                ".kaaAaaaaAk.",
+                "kkkkkkkkkkkk",
+                "............",
+                "............",
+            },
+            ["wave"] = new[]
+            {
+                "............",
+                "............",
+                "..bb....bb..",
+                ".b..b..b..b.",
+                "b....bb....b",
+                "............",
+                "............",
+                "..bb....bb..",
+                ".b..b..b..b.",
+                "b....bb....b",
+                "............",
+                "............",
+            },
+            ["reeds"] = new[]
+            {
+                "............",
+                "..w.....w...",
+                "..l..w..l...",
+                "..l..l..l.w.",
+                ".ll..l.ll.l.",
+                ".l..ll.l..l.",
+                ".l..l..l.ll.",
+                "ll.ll.ll.l..",
+                "............",
+                "............",
+                "............",
+                "............",
+            },
+            ["stones"] = new[]
+            {
+                "............",
+                "............",
+                "..kk........",
+                ".kaak...kk..",
+                ".kaAk..kaak.",
+                ".kaAk..kaAk.",
+                ".kaAk.kkaAk.",
+                "kkkkkkkaaAkk",
+                "............",
+                "............",
+                "............",
+                "............",
+            },
+            ["town"] = new[]
+            {
+                "......k.....",
+                ".....krk....",
+                "....krrrk...",
+                "...krrrrrk..",
+                "..krrrrrrrk.",
+                "...kWWWWWk..",
+                "...kWykWWk..",
+                "...kWykWWk..",
+                "...kWWkWyk..",
+                "...kkkkkkk..",
+                "............",
+                "............",
+            },
+            ["shrine"] = new[]
+            {
+                ".....kk.....",
+                ".....ko.....",
+                ".....ky.....",
+                "....kWWk....",
+                "...kaaaak...",
+                "...kaAAak...",
+                "...kaAAak...",
+                "..kaaaaaak..",
+                "..kkkkkkkk..",
+                "............",
+                "............",
+                "............",
+            },
+            ["quest"] = new[]
+            {
+                "....kkkk....",
+                "...kaaaak...",
+                "..kaWaWaak..",
+                "..kaaaaaak..",
+                "..kaWaWWak..",
+                "..kaaaaaak..",
+                "..kaWWaWak..",
+                "..kaaaaaak..",
+                ".kkkkkkkkkk.",
+                "............",
+                "............",
+                "............",
+            },
+            ["boss"] = new[]
+            {
+                "....kkkk....",
+                "...kaaaak...",
+                "..kaaeaaak..",
+                "..kaaeeaak..",
+                "..kaeaaeak..",
+                "..kaaeeaak..",
+                "..kaaaeaak..",
+                "..kaaaaaak..",
+                ".kkkkkkkkkk.",
+                "............",
+                "............",
+                "............",
+            },
+            ["event"] = new[]
+            {
+                "...kkkkk....",
+                "..kgggggk...",
+                "..kgkkkgk...",
+                "..kkk.kgk...",
+                ".....kggk...",
+                "....kggk....",
+                "....kgk.....",
+                "....kkk.....",
+                "....kgk.....",
+                "....kkk.....",
+                "............",
+                "............",
+            },
+            ["chest"] = new[]
+            {
+                "............",
+                "............",
+                "..kkkkkkkk..",
+                ".kwwwwwwwwk.",
+                ".kwwwgwwwwk.",
+                ".kkkkgkkkkk.",
+                ".kwwwgwwwwk.",
+                ".kwwwwwwwwk.",
+                ".kkkkkkkkkk.",
+                "............",
+                "............",
+                "............",
+            },
+            ["herb"] = new[]
+            {
+                "............",
+                "....k..k....",
+                "...klkklk...",
+                "..klllllk...",
+                "...kllllk.k.",
+                ".k..kllk.klk",
+                "klk..kk.kllk",
+                "kllk.kk.kk..",
+                ".kk..kk.....",
+                ".....kk.....",
+                "............",
+                "............",
+            },
+        };
+
+        // A pointy-top hexagon, white, to tint for a map hex; or just its rim.
+        public static Texture2D Hex(bool rim)
+        {
+            string key = rim ? "hex:rim" : "hex:fill";
+            if (Cache.TryGetValue(key, out var cached) && cached != null) return cached;
+            const int width = 26;
+            const int height = 30;
+            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.HideAndDontSave,
+            };
+            var pixels = new Color32[width * height];
+            float cx = (width - 1) / 2f;
+            float cy = (height - 1) / 2f;
+            float r = height / 2f;
+            bool Inside(float x, float y, float shrink)
+            {
+                float dx = Mathf.Abs(x - cx);
+                float dy = Mathf.Abs(y - cy);
+                float rr = r - shrink;
+                return dx <= rr * 0.866f && dy <= rr - dx * 0.577f;
+            }
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                {
+                    bool inside = Inside(x, y, 0.4f);
+                    bool core = Inside(x, y, 2.4f);
+                    bool on = rim ? inside && !core : inside;
+                    pixels[y * width + x] = on ? new Color32(255, 255, 255, 255) : new Color32(0, 0, 0, 0);
+                }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            Cache[key] = texture;
+            return texture;
+        }
     }
 }

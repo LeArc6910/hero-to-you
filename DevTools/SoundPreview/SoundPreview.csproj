@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Writes the game's synthesized sound effects (Client/Art/SoundArt.cs) to WAV files and checks them: no NaN, no
+       clipping past full scale, not silent. For hearing and checking sounds without Unity. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="../../Assets/_Project/Scripts/Client/Art/SoundArt.cs" />
+  </ItemGroup>
+
+</Project>

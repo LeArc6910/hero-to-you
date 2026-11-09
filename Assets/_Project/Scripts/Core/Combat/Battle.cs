@@ -292,6 +292,16 @@ namespace Game.Core
             monster.PatternIndex = 0;
             Emit(new BattleEvent { Kind = BattleEventKind.Phase, Actor = monster.Id, Text = $"{monster.Name}: {def.Phase2Line}" });
             ChooseIntent(monster);
+            // Its second phase can call others in (the warden's ash wisps).
+            var called = def.Phase2Summon.Select((d, i) => (d, i)).ToList();
+            foreach (var (summonDef, index) in called)
+            {
+                var unit = new Unit(_units.Count, summonDef, called.Count > 1 ? $"{summonDef.Name} {(char)('A' + index)}" : summonDef.Name);
+                unit.Ready = monster.Ready + Wait(unit.Speed, 50) + index;
+                _units.Add(unit);
+                Emit(new BattleEvent { Kind = BattleEventKind.Revive, Actor = monster.Id, Target = unit.Id, Amount = unit.Hp, Text = $"{Korean.Subject(unit.Name)} 나타났다!" });
+                ChooseIntent(unit);
+            }
         }
 
         // ---- Monsters and summons ----
@@ -369,6 +379,11 @@ namespace Game.Core
                 {
                     actor.Statuses[StatusKind.Howl] = 3;
                     Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Status = StatusKind.Howl, Text = $"{actor.Name}: {skill.Name}! 다음 공격 위력 +3" });
+                }
+                else
+                {
+                    // A wind-up whose blow the next intent shows (the warden's 잿불 모으기).
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Text = $"{actor.Name}: {skill.Name}! {skill.Text}" });
                 }
                 EndTurn(actor, skill.Delay);
                 ChooseIntent(actor);

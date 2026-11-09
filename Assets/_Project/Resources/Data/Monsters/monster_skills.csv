@@ -12,3 +12,8 @@ warden_ember,잿불 폭발,3,10,0,magic,all,random,120,burn,잿불이 터진다.
 warden_crush,짓누르기,4,20,0,physical,one,strongest,130,,
 skel_slash,녹슨 칼,2,6,0,physical,one,random,100,,해골의 칼질.
 ally_bite,물어뜯기,3,6,0,physical,one,weakest,100,,늑대가 약한 적을 문다.
+wisp_flare,잿불,2,7,25,magic,one,random,100,burn,잿불을 뿜는다. 화상.
+lurker_slam,내려치기,3,13,0,physical,one,strongest,120,,늪에서 솟아 내려친다.
+lurker_grab,끌어당기기,2,8,0,physical,one,weakest,100,,
+warden_charge,잿불 모으기,0,0,0,buff,self,random,80,charge,잿불을 모은다. 다음 차례에 모두를 태운다!
+warden_storm,잿불 폭풍,4,12,0,magic,all,random,130,burn,모아 둔 잿불이 터진다. 모두 화상.

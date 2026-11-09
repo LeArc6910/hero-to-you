@@ -154,43 +154,31 @@ static class Program
     static void Adventures(int runs, string[] party, bool smart)
     {
         int wins = 0;
-        var lostAt = new Dictionary<string, int>();
-        int gold = 0, levels = 0;
+        var endings = new Dictionary<string, int>();
+        double days = 0, levels = 0, battles = 0, gold = 0, doom = 0;
+        int sealRead = 0;
         for (int run = 0; run < runs; run++)
         {
             var adventure = new Adventure(_data, party, (ulong)(run * 104729 + 7));
-            var random = new GameRandom((ulong)run, 9);
-            for (int guard = 0; guard < 5000; guard++)
+            AdventureBot.Play(adventure, new GameRandom((ulong)run, 9), smart);
+            string end;
+            if (adventure.Screen == AdventureScreen.Victory)
             {
-                if (adventure.Screen == AdventureScreen.Victory || adventure.Screen == AdventureScreen.Defeat) break;
-                switch (adventure.Screen)
-                {
-                    case AdventureScreen.Battle:
-                        adventure.Fight(BattleBot.Choose(adventure.Battle, random, smart));
-                        break;
-                    case AdventureScreen.Event:
-                        var choices = adventure.Choices().Where(adventure.Affordable).ToList();
-                        // Prefer a class's own choice, then a check, like a person showing off their party.
-                        var choice = choices.FirstOrDefault(c => c.ClassId != null) ?? choices[random.Next(choices.Count)];
-                        var hero = adventure.CanAttempt(choice).OrderByDescending(h => choice.HasCheck ? Adventure.ChanceOf(choice, h) : 0).First();
-                        adventure.Choose(choice.Index, adventure.Heroes.IndexOf(hero));
-                        break;
-                    default:
-                        adventure.Continue();
-                        break;
-                }
+                wins++;
+                end = adventure.Story?.Id == "epilogue_kind" ? "승리(다정한 결말)" : "승리";
             }
-            if (adventure.Screen == AdventureScreen.Victory) wins++;
-            else
-            {
-                string where = adventure.Encounter?.Id ?? "?";
-                lostAt.TryGetValue(where, out int n);
-                lostAt[where] = n + 1;
-            }
+            else if (adventure.Story?.Id == "rift_open") end = "균열이 열림";
+            else end = adventure.Battle != null && adventure.Battle.Monsters.Any(m => m.Monster.Boss) ? "보스에게 짐" : "길에서 전멸";
+            endings.TryGetValue(end, out int n);
+            endings[end] = n + 1;
+            days += adventure.Day;
+            levels += adventure.Heroes.Average(h => h.Level);
+            battles += adventure.BattlesWon;
             gold += adventure.Gold;
-            levels += adventure.Heroes.Sum(h => h.Level);
+            doom += adventure.Doom;
+            if (adventure.HasFlag("read_seal")) sealRead++;
         }
-        Console.WriteLine($"{string.Join("+", party.Select(p => _data.Classes[p].Name))}: {runs}판 중 {wins}판 끝까지 ({(double)wins / runs:P1}), 끝날 때 평균 금화 {(double)gold / runs:0}, 평균 레벨 {(double)levels / runs / 3:0.0}");
-        foreach (var pair in lostAt.OrderByDescending(p => p.Value)) Console.WriteLine($"  진 곳 {pair.Key}: {pair.Value}");
+        Console.WriteLine($"{string.Join("+", party.Select(p => _data.Classes[p].Name))} ({(smart ? "똑똑한" : "아무렇게나")} 봇, {runs}판): 이김 {(double)wins / runs:P1}, 평균 {days / runs:0.0}일, 균열 {doom / runs:0.0}, 레벨 {levels / runs:0.0}, 이긴 전투 {battles / runs:0.0}, 남은 금화 {gold / runs:0}, 비석 읽음 {(double)sealRead / runs:P0}");
+        foreach (var pair in endings.OrderByDescending(p => p.Value)) Console.WriteLine($"  {pair.Key}: {pair.Value}");
     }
 }

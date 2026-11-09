@@ -14,7 +14,7 @@ namespace Game.Core
         public const string MonstersFile = "Monsters/monsters.csv";
         public const string MonsterSkillsFile = "Monsters/monster_skills.csv";
         public const string EncountersFile = "Story/encounters.csv";
-        public const string PathFile = "Story/path.csv";
+        public const string MapFile = "Maps/chapter1.txt";
         public const string StoriesFile = "Story/stories.csv";
         public const string EventsFile = "Story/events.csv";
         public const string EventChoicesFile = "Story/event_choices.csv";
@@ -23,7 +23,7 @@ namespace Game.Core
 
         public static readonly string[] Files =
         {
-            ClassesFile, SkillsFile, MonstersFile, MonsterSkillsFile, EncountersFile, PathFile, StoriesFile, EventsFile,
+            ClassesFile, SkillsFile, MonstersFile, MonsterSkillsFile, EncountersFile, MapFile, StoriesFile, EventsFile,
             EventChoicesFile, ItemsFile, UpgradesFile,
         };
 
@@ -36,7 +36,7 @@ namespace Game.Core
         static readonly string[] OutcomeVerbs =
         {
             "gold", "heal", "heal_all", "hurt", "hurt_all", "resolve", "resolve_all", "bless_all", "potion", "hope", "xp",
-            "weak_next", "flag", "battle",
+            "weak_next", "flag", "battle", "item", "loot", "reagent", "doom",
         };
 
         static readonly string[] SkillEffects =
@@ -59,7 +59,7 @@ namespace Game.Core
         public IReadOnlyDictionary<string, MonsterDef> Monsters { get; private set; } = new Dictionary<string, MonsterDef>();
         public IReadOnlyDictionary<string, MonsterSkillDef> MonsterSkills { get; private set; } = new Dictionary<string, MonsterSkillDef>();
         public IReadOnlyDictionary<string, EncounterDef> Encounters { get; private set; } = new Dictionary<string, EncounterDef>();
-        public IReadOnlyList<PathNode> Path { get; private set; } = new List<PathNode>();
+        public MapDef Map { get; private set; }
         public IReadOnlyDictionary<string, StoryDef> Stories { get; private set; } = new Dictionary<string, StoryDef>();
         public IReadOnlyList<EventCard> Events { get; private set; } = new List<EventCard>();
         public IReadOnlyDictionary<string, ItemDef> Items { get; private set; } = new Dictionary<string, ItemDef>();
@@ -69,9 +69,17 @@ namespace Game.Core
         public IEnumerable<ClassDef> PlayableClasses => ClassList.Where(c => c.Playable);
 
         // `read` gives a sheet's text for its path under Assets/_Project/Resources/Data (one of Files).
+        // A short hash of every sheet's text: a save notes it to tell when the rules changed (Adventure.Save).
+        public string Fingerprint { get; private set; } = "";
+
         public static GameData Load(Func<string, string> read)
         {
             var data = new GameData();
+            uint hash = 2166136261;
+            foreach (string file in Files)
+                foreach (char c in read(file) ?? "")
+                    hash = unchecked((hash ^ c) * 16777619);
+            data.Fingerprint = hash.ToString("x8");
             var skills = data.ReadSkills(CsvTable.Read(read(SkillsFile)));
             data.Skills = skills;
             data.ReadItems(CsvTable.Read(read(ItemsFile)));
@@ -85,7 +93,13 @@ namespace Game.Core
             data.ReadEncounters(CsvTable.Read(read(EncountersFile)));
             data.ReadStories(CsvTable.Read(read(StoriesFile)));
             data.ReadEvents(CsvTable.Read(read(EventsFile)), CsvTable.Read(read(EventChoicesFile)));
-            data.ReadPath(CsvTable.Read(read(PathFile)));
+            data.ReadMap(read(MapFile));
+            foreach (string pool in new[] { "wild", "chest", "herb", "quest", "shrine", "elder" })
+                if (!data.Events.Any(e => e.Pool == pool)) data._errors.Add($"{EventsFile}: 사건 묶음 '{pool}'가 없습니다.");
+            foreach (string story in new[] { "prologue", "epilogue", "epilogue_kind", "rift_open" })
+                if (!data.Stories.ContainsKey(story)) data._errors.Add($"{StoriesFile}: 이야기 '{story}'가 없습니다.");
+            foreach (string encounter in new[] { "warden" })
+                if (!data.Encounters.ContainsKey(encounter)) data._errors.Add($"{EncountersFile}: 전투 '{encounter}'가 없습니다.");
             if (data._errors.Count > 0) throw new FormatException("시트 오류:\n" + string.Join("\n", data._errors));
             return data;
         }
@@ -424,7 +438,7 @@ namespace Game.Core
                     Text = row["text"],
                 };
                 Choice(file, row, "kind", new[] { "physical", "magic", "buff" });
-                Choice(file, row, "effect", new[] { "", "burn", "howl" });
+                Choice(file, row, "effect", new[] { "", "burn", "howl", "charge" });
                 if (skill.Damages && skill.Dice == 0) Error(file, row, "공격에는 주사위가 있어야 합니다.");
                 if (skill.Delay < 20 || skill.Delay > 300) Error(file, row, "delay는 20~300(%)입니다.");
                 if (skill.Id.Length > 0) map[skill.Id] = skill;
@@ -446,7 +460,7 @@ namespace Game.Core
         void ReadMonsters(CsvTable table, Dictionary<string, MonsterSkillDef> skills)
         {
             const string file = MonstersFile;
-            RequireColumns(file, table, "id", "name", "hp", "speed", "accuracy", "armor", "ward", "xp", "gold", "pattern", "pattern2", "phase2", "phase2_line", "boss", "color", "size", "text");
+            RequireColumns(file, table, "id", "name", "hp", "speed", "accuracy", "armor", "ward", "xp", "gold", "pattern", "pattern2", "phase2", "phase2_line", "phase2_summon", "boss", "color", "size", "text");
             var map = new Dictionary<string, MonsterDef>();
             var seen = new HashSet<string>();
             foreach (var row in table.Rows)
@@ -480,12 +494,23 @@ namespace Game.Core
                 if (monster.Id.Length > 0) map[monster.Id] = monster;
             }
             Monsters = map;
+            foreach (var row in table.Rows)
+            {
+                if (!map.TryGetValue(row["id"], out var monster)) continue;
+                var summons = new List<MonsterDef>();
+                foreach (string id in row["phase2_summon"].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (map.TryGetValue(id, out var summon)) summons.Add(summon);
+                    else Error(file, row, $"phase2_summon의 '{id}'가 monsters.csv에 없습니다.");
+                }
+                monster.Phase2Summon = summons;
+            }
         }
 
         void ReadEncounters(CsvTable table)
         {
             const string file = EncountersFile;
-            RequireColumns(file, table, "id", "monsters", "text");
+            RequireColumns(file, table, "id", "monsters", "terrain", "danger", "text");
             var map = new Dictionary<string, EncounterDef>();
             var seen = new HashSet<string>();
             foreach (var row in table.Rows)
@@ -497,7 +522,17 @@ namespace Game.Core
                     else Error(file, row, $"몬스터 '{id}'가 monsters.csv에 없습니다.");
                 }
                 if (monsters.Count < 1 || monsters.Count > 5) Error(file, row, "몬스터는 1~5마리입니다.");
-                var encounter = new EncounterDef { Id = Id(file, row, seen), Monsters = monsters, Text = row["text"] };
+                var encounter = new EncounterDef
+                {
+                    Id = Id(file, row, seen),
+                    Monsters = monsters,
+                    Terrains = row["terrain"].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries),
+                    Danger = Number(file, row, "danger"),
+                    Text = row["text"],
+                };
+                foreach (string terrain in encounter.Terrains)
+                    if (!System.Enum.GetValues(typeof(Terrain)).Cast<Terrain>().Any(t => TerrainInfo.Code(t) == terrain)) Error(file, row, $"terrain '{terrain}'는 땅 종류가 아닙니다(plains, forest, swamp, road, ruins).");
+                if (encounter.Danger > 0 && encounter.Terrains.Count == 0) Error(file, row, "지도에 나오는 전투(danger 1 이상)에는 terrain이 있어야 합니다.");
                 if (encounter.Id.Length > 0) map[encounter.Id] = encounter;
             }
             Encounters = map;
@@ -519,8 +554,8 @@ namespace Game.Core
 
         void ReadEvents(CsvTable events, CsvTable choices)
         {
-            RequireColumns(EventsFile, events, "id", "pool", "title", "text", "journal");
-            RequireColumns(EventChoicesFile, choices, "event", "label", "class", "stat", "dice", "need", "success", "fail", "success_text", "fail_text");
+            RequireColumns(EventsFile, events, "id", "pool", "class", "title", "text", "journal");
+            RequireColumns(EventChoicesFile, choices, "event", "label", "class", "requires", "stat", "dice", "need", "success", "fail", "success_text", "fail_text");
             var list = new List<EventCard>();
             var map = new Dictionary<string, EventCard>();
             var seen = new HashSet<string>();
@@ -530,11 +565,13 @@ namespace Game.Core
                 {
                     Id = Id(EventsFile, row, seen),
                     Pool = row["pool"],
+                    ClassId = row["class"].Length > 0 ? row["class"] : null,
                     Title = row["title"],
                     Text = row["text"],
                     Journal = row["journal"],
                 };
                 if (card.Pool.Length == 0) Error(EventsFile, row, "pool이 비었습니다.");
+                if (card.ClassId != null && !Classes.ContainsKey(card.ClassId)) Error(EventsFile, row, $"직업 '{card.ClassId}'가 없습니다.");
                 list.Add(card);
                 if (card.Id.Length > 0) map[card.Id] = card;
             }
@@ -552,6 +589,7 @@ namespace Game.Core
                     Index = card.Choices.Count,
                     Label = row["label"],
                     ClassId = row["class"].Length > 0 ? row["class"] : null,
+                    Requires = row["requires"].Length > 0 ? row["requires"] : null,
                     Dice = row["dice"].Length > 0 ? Number(file, row, "dice") : 0,
                     Need = row["need"].Length > 0 ? Number(file, row, "need") : 1,
                     Success = Outcomes(file, row, "success"),
@@ -586,11 +624,12 @@ namespace Game.Core
                 }
                 var outcome = new Outcome { Verb = verb };
                 bool noArgument = verb == "bless_all" || verb == "weak_next";
-                if (verb == "flag" || verb == "battle")
+                if (verb == "flag" || verb == "battle" || verb == "item")
                 {
                     outcome.Arg = words.Length > 1 ? words[1] : "";
                     if (outcome.Arg.Length == 0) Error(file, row, $"{verb} 뒤에 이름이 있어야 합니다.");
                     if (verb == "battle" && !Encounters.ContainsKey(outcome.Arg)) Error(file, row, $"전투 '{outcome.Arg}'가 encounters.csv에 없습니다.");
+                    if (verb == "item" && !Items.ContainsKey(outcome.Arg)) Error(file, row, $"아이템 '{outcome.Arg}'가 items.csv에 없습니다.");
                 }
                 else if (!noArgument)
                 {
@@ -602,31 +641,16 @@ namespace Game.Core
             return outcomes;
         }
 
-        void ReadPath(CsvTable table)
+        void ReadMap(string text)
         {
-            const string file = PathFile;
-            RequireColumns(file, table, "order", "kind", "arg");
-            var path = new List<PathNode>();
-            foreach (var row in table.Rows)
+            try
             {
-                var node = new PathNode { Order = Number(file, row, "order"), Kind = Enum<PathKind>(file, row, "kind"), Arg = row["arg"] };
-                switch (node.Kind)
-                {
-                    case PathKind.Story:
-                        if (!Stories.ContainsKey(node.Arg)) Error(file, row, $"이야기 '{node.Arg}'가 stories.csv에 없습니다.");
-                        break;
-                    case PathKind.Battle:
-                    case PathKind.Boss:
-                        if (!Encounters.ContainsKey(node.Arg)) Error(file, row, $"전투 '{node.Arg}'가 encounters.csv에 없습니다.");
-                        break;
-                    case PathKind.Event:
-                        if (!Events.Any(e => e.Pool == node.Arg)) Error(file, row, $"사건 묶음 '{node.Arg}'가 events.csv에 없습니다.");
-                        break;
-                }
-                path.Add(node);
+                Map = MapDef.Parse(text, MapFile);
             }
-            Path = path.OrderBy(n => n.Order).ToList();
-            if (Path.Count == 0) _errors.Add($"{file}: 길이 비었습니다.");
+            catch (FormatException e)
+            {
+                _errors.Add(e.Message);
+            }
         }
     }
 }
