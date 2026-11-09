@@ -197,6 +197,9 @@ namespace Game.Core
         // itself (events and the boss).
         public IReadOnlyList<string> Terrains { get; internal set; } = new List<string>();
         public int Danger { get; internal set; }
+
+        // The chapter whose map may hold it (0 for any).
+        public int Chapter { get; internal set; }
         public string Text { get; internal set; }
     }
 
@@ -260,6 +263,7 @@ namespace Game.Core
         Weapon,
         Armor,
         Trinket,
+        Consumable,
     }
 
     // A weapon, armor or trinket (Data/Items/items.csv). A weapon's Attack is the holder's basic attack.
@@ -276,6 +280,10 @@ namespace Game.Core
         public int Hp { get; internal set; }
         public int Resolve { get; internal set; }
         public int[] StatBonus { get; internal set; } = new int[Stats.Count];
+
+        // What a consumable does when used (heal 15, resolve 2, cleanse, flee, bomb 8, luck 2).
+        public IReadOnlyList<UpgradeEffect> Use { get; internal set; } = new List<UpgradeEffect>();
+        public bool Consumable => Slot == ItemSlot.Consumable;
         public string Text { get; internal set; }
 
         // "힘 +5 · 방어도 +2", what it gives besides an attack.
@@ -309,6 +317,79 @@ namespace Game.Core
         public string ClassId { get; internal set; }
         public string Name { get; internal set; }
         public IReadOnlyList<UpgradeEffect> Effects { get; internal set; } = new List<UpgradeEffect>();
+        public string Text { get; internal set; }
+    }
+}
+
+namespace Game.Core
+{
+    // A chapter of the campaign (Data/Story/chapters.csv, Docs/Map.md): its map, its boss and middle boss, its stories
+    // and the event pools its map draws from, and which flags weaken its boss.
+    public sealed class ChapterDef
+    {
+        public string Id { get; internal set; }
+        public int Index { get; internal set; }
+        public string Title { get; internal set; }
+        public MapDef Map { get; internal set; }
+        public string Boss { get; internal set; }
+        public string Midboss { get; internal set; }
+        public string Town { get; internal set; }
+        public string Prologue { get; internal set; }
+        public string Epilogue { get; internal set; }
+        public string EpilogueKind { get; internal set; }
+        public string EpilogueGrim { get; internal set; }
+        public string WildPool { get; internal set; }
+        public string ChestPool { get; internal set; }
+        public string HerbPool { get; internal set; }
+        public string QuestPool { get; internal set; }
+        public string CluePool { get; internal set; }
+        public string ShrinePool { get; internal set; }
+        public string ElderPool { get; internal set; }
+
+        // Reading the quest site sets WeakenFlag (the boss −25% and no armor); the clue site sets NoSummonFlag (no
+        // helpers in its second phase).
+        public string WeakenFlag { get; internal set; }
+        public string NoSummonFlag { get; internal set; }
+        public string QuestName { get; internal set; }
+        public string ClueName { get; internal set; }
+        public string MidbossName { get; internal set; }
+        public string BossName { get; internal set; }
+
+        // The story page when the rift fills up and the run is lost.
+        public string Rift { get; internal set; }
+
+        // The ending (Docs/Narrative.md 결말): EpilogueKind when at least KindNeed of KindFlags are set, else
+        // EpilogueGrim when at least GrimNeed of GrimFlags are, else Epilogue.
+        public IReadOnlyList<string> KindFlags { get; internal set; } = new List<string>();
+        public IReadOnlyList<string> GrimFlags { get; internal set; } = new List<string>();
+        public int KindNeed { get; internal set; }
+        public int GrimNeed { get; internal set; }
+
+        // The map screen's goals, in the chapter's words, and the lines the boss battle shows for the quest and clue.
+        public string GoalQuest { get; internal set; }
+        public string GoalClue { get; internal set; }
+        public string GoalCamp { get; internal set; }
+        public string GoalBoss { get; internal set; }
+        public string WeakenText { get; internal set; }
+        public string NoSummonText { get; internal set; }
+    }
+
+    // A step of the party's renown (Data/Story/renown.csv, Docs/Narrative.md 명성): the title the party goes by once it
+    // has Need renown.
+    public sealed class RenownDef
+    {
+        public int Need { get; internal set; }
+        public string Title { get; internal set; }
+        public string Text { get; internal set; }
+    }
+
+    // A journal page perk (Data/Journal/perks.csv, Docs/Journal.md): bought with pages, chosen at the start of a run.
+    public sealed class PerkDef
+    {
+        public string Id { get; internal set; }
+        public string Name { get; internal set; }
+        public int Pages { get; internal set; }
+        public UpgradeEffect Effect { get; internal set; }
         public string Text { get; internal set; }
     }
 }

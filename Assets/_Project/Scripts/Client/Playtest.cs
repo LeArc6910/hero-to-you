@@ -54,6 +54,12 @@ namespace Game.Client
             {
                 case "probe":
                     Ui.Probing = Arg(1, "on") != "off";
+                    // The first-time tip cards would cover what the playtest presses; "tips reset" brings them back.
+                    if (Ui.Probing)
+                    {
+                        Tips.MarkAllSeen();
+                        _tipOpen = null;
+                    }
                     return "ok";
                 case "buttons":
                     return Buttons();
@@ -145,6 +151,49 @@ namespace Game.Client
                         _eventTimer = 0;
                     }
                     return "ok";
+                case "tips":
+                    // "tips off" marks every first-time tip seen (the default for playtests), "tips reset" brings them back.
+                    if (Arg(1, "off") == "reset") Tips.Reset();
+                    else Tips.MarkAllSeen();
+                    _tipOpen = null;
+                    return "ok";
+                case "tip":
+                    ShowTip(Arg(1, "map"));
+                    return _tipOpen != null ? "ok" : "error no tip " + Arg(1);
+                case "avoid":
+                    return Act(_adventure.Avoid) ?? "ok " + _adventure.Screen;
+                case "scare":
+                    return Act(_adventure.Scare) ?? "ok " + _adventure.Screen;
+                case "reroll":
+                    return Act(_adventure.Reroll) ?? "ok " + _adventure.MovePoints;
+                case "rumor":
+                    return Act(_adventure.Rumor) ?? "ok";
+                case "donate":
+                    return Act(_adventure.Donate) ?? "ok " + _adventure.Renown;
+                case "use":
+                    return Act(() => _adventure.UseItem(Number(1), Arg(2, Hero.PotionId))) ?? "ok";
+                case "give":
+                    // Puts consumables in a hero's pack: give hero item count.
+                    _adventure.Heroes[Number(1)].AddConsumable(Arg(2, Hero.PotionId), Number(3, 1));
+                    return "ok";
+                case "endchapter":
+                    // The chapter's boss beaten without the battle: its ending page comes up.
+                    _adventure.EndChapterForTest();
+                    SaveStore.Write(_adventure.Save());
+                    return "ok " + _adventure.Story?.Id;
+                case "pages":
+                    // Gives the journal pages (to try the journal screen).
+                    JournalNow.AddPages(Number(1, 10));
+                    SaveStore.WriteJournal(JournalNow);
+                    return "ok " + JournalNow.Pages;
+                case "screen":
+                    _screen = Arg(1) switch
+                    {
+                        "journal" => ClientScreen.Journal,
+                        "party" => ClientScreen.Party,
+                        _ => ClientScreen.Title,
+                    };
+                    return "ok";
                 case "hurt":
                     var hero = _adventure.Heroes[Number(1)];
                     hero.Hp = Math.Max(0, hero.Hp - Number(2));
@@ -199,7 +248,8 @@ namespace Game.Client
                 .Add("screen", _screen.ToString())
                 .Add("touch", Ui.Touch)
                 .Add("width", Ui.Width)
-                .Add("height", Ui.Height);
+                .Add("height", Ui.Height)
+                .Add("pages", JournalNow.Pages).Add("perks", string.Join(",", ChosenPerks()));
             var adventure = _adventure;
             if (adventure != null)
             {
@@ -207,11 +257,16 @@ namespace Game.Client
                     .Add("gold", adventure.Gold).Add("hope", adventure.Hope).Add("mapHero", adventure.MapHero).Add("movePoints", adventure.MovePoints)
                     .Add("reachable", adventure.Reachable().Count).Add("levelUp", adventure.LevelUp != null).Add("gearOpen", _gearOpen)
                     .Add("bag", adventure.Bag.Count).Add("commands", adventure.Log.Count).Add("saved", SaveStore.Exists)
-                    .Add("playing", BattlePlaying).Add("awaiting", AwaitingHero);
+                    .Add("playing", BattlePlaying).Add("awaiting", AwaitingHero)
+                    .Add("chapter", adventure.Chapter.Id).Add("renown", adventure.Renown).Add("rank", adventure.Rank.Title)
+                    .Add("unknown", adventure.Map.Tiles.Count(t => !adventure.Knows(t))).Add("explored", adventure.Map.Tiles.Count(t => adventure.Explored(t.Hex)))
+                    .Add("canAvoid", adventure.CanAvoid).Add("canScare", adventure.CanScare).Add("footsteps", adventure.Footsteps.Count)
+                    .Add("tip", _tipOpen ?? "").Add("tooltip", Ui.ShownTip ?? "").Add("music", Music.Volume);
                 json.List("heroes");
                 foreach (var hero in adventure.Heroes)
                     json.Open().Add("class", hero.Class.Id).Add("level", hero.Level).Add("hp", hero.Hp).Add("max", hero.MaxHp)
                         .Add("resolve", hero.Resolve).Add("grit", hero.Grit).Add("potions", hero.Potions).Add("weapon", hero.Weapon.Id)
+                        .Add("items", string.Join(",", hero.Consumables.Where(c => c.Value > 0).Select(c => c.Key + ":" + c.Value)))
                         .Add("at", adventure.Positions[adventure.Heroes.IndexOf(hero)].ToString()).Close();
                 json.End();
                 if (adventure.Event != null && adventure.Screen == AdventureScreen.Event)

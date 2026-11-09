@@ -218,8 +218,9 @@ namespace Game.Client
         {
             var a = _adventure;
             bool won = a.Battle == null || a.Battle.State == BattleState.Won;
+            bool fled = a.Battle != null && a.Battle.State == BattleState.Fled;
             var column = BeginColumn($"report:{a.Log.Count}", 56);
-            float y = Heading(column, 4, won ? "전투 승리" : "패배…", won ? Palette.Gold : Palette.Damage);
+            float y = Heading(column, 4, won ? "전투 승리" : fled ? "도망쳤다" : "패배…", won ? Palette.Gold : fled ? Palette.Journal : Palette.Damage);
             foreach (string line in a.Report) y = Paragraph(column, y, "· " + line, 14);
             EndColumn(y);
             if (Ui.Button(Footer(48), "계속", 17, true, Look.Primary)) Act(a.Continue);
@@ -230,12 +231,14 @@ namespace Game.Client
             var a = _adventure;
             bool won = a.Screen == AdventureScreen.Victory;
             var column = BeginColumn("end:" + a.Screen, 56);
-            string title = won ? "첫 번째 봉인을 지켰다" : a.Story?.Id == "rift_open" ? "균열이 열렸다" : "모두 쓰러졌다";
+            string title = won ? "지금까지의 이야기 끝" : a.Story?.Id == a.Chapter.Rift ? "균열이 열렸다" : "모두 쓰러졌다";
             float y = Heading(column, 4, title, won ? Palette.Gold : Palette.Damage);
             y = Paragraph(column, y, won
-                ? "챕터 1의 끝이다. 다음 챕터(가라앉은 항구)는 다음 단계에서 이어진다."
-                : "일지가 바닥에 떨어진다. 하지만 일지는 언제나 다음 사람을 찾는다.", 14, Palette.Journal);
-            y = Paragraph(column, y, $"{a.Day}일째 · 균열 {a.Doom}/{Adventure.DoomMax} · 이긴 전투 {a.BattlesWon} · 금화 {a.Gold} · 남은 희망 {a.Hope}");
+                ? $"{a.ChaptersCleared}개의 장을 모두 지났다. 사람들은 너희를 「{a.Rank.Title}」라 부른다. 다음 장은 준비 중이다."
+                : $"{a.Chapter.Index + 1}장 「{a.Chapter.Title}」에서 길이 끊겼다. 하지만 일지는 언제나 다음 사람을 찾는다.", 14, Palette.Journal);
+            y = Paragraph(column, y, $"지난 장 {a.ChaptersCleared} · 중간 보스 {a.MidbossesBeaten} · 이긴 전투 {a.BattlesWon} · 명성 {a.Renown} 「{a.Rank.Title}」 · 금화 {a.Gold} · 남은 희망 {a.Hope}");
+            if (_recorded) y = Paragraph(column, y, $"일지 페이지 +{_lastPages} (모두 {JournalNow.Pages}장). 타이틀의 [일지]에서 장을 펼칠 수 있다." + (a.Hard && won ? " 가시밭길로 이겨 두 배!" : ""), 14, Palette.Gold);
+            if (a.Footsteps.Count > 0) y = Paragraph(column, y, $"이번 길에서 찾은 옛 메모 {a.Footsteps.Count}개", 13, Palette.Journal);
             foreach (var hero in a.Heroes)
                 y = Paragraph(column, y, $"· {hero.Name} 레벨 {hero.Level}, 생명력 {hero.Hp}/{hero.MaxHp}, 강화: {(hero.Upgrades.Count == 0 ? "없음" : string.Join(", ", hero.Upgrades.Select(u => u.Name)))}", 13);
             EndColumn(y);

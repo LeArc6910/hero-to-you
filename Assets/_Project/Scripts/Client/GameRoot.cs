@@ -10,6 +10,7 @@ namespace Game.Client
     {
         Title,
         Party,
+        Journal,
         Adventure,
     }
 
@@ -85,6 +86,24 @@ namespace Game.Client
         void Update()
         {
             TickBattle(Time.unscaledDeltaTime);
+            Music.Play(MusicFor());
+            Music.Tick(Time.unscaledDeltaTime);
+        }
+
+        // The tune for what is on the screen (Art/MusicArt.cs).
+        Tune MusicFor()
+        {
+            var a = _adventure;
+            if (_screen != ClientScreen.Adventure || a == null) return Tune.Title;
+            if (a.Battle != null && (a.Screen == AdventureScreen.Battle || BattlePlaying)) return a.BossBattle ? Tune.Boss : Tune.Battle;
+            return a.Screen switch
+            {
+                AdventureScreen.Town => Tune.Town,
+                AdventureScreen.Victory => Tune.Title,
+                AdventureScreen.Defeat => Tune.Title,
+                AdventureScreen.Story => Tune.Story,
+                _ => a.Chapter.Index == 0 ? Tune.Forest : Tune.Harbor,
+            };
         }
 
         void OnGUI()
@@ -96,6 +115,9 @@ namespace Game.Client
                 Ui.Text(new Rect(20, 20, Ui.Width - 40, Ui.Height - 40), "데이터를 불러오지 못했습니다.\n" + _loadError, 14, Palette.Damage, TextAnchor.UpperLeft, false, true);
                 return;
             }
+            // A tip card is modal: the screen under it is drawn but cannot be pressed.
+            bool modal = _tipOpen != null;
+            if (modal) GUI.enabled = false;
             switch (_screen)
             {
                 case ClientScreen.Title:
@@ -104,10 +126,44 @@ namespace Game.Client
                 case ClientScreen.Party:
                     DrawParty();
                     break;
+                case ClientScreen.Journal:
+                    DrawJournal();
+                    break;
                 case ClientScreen.Adventure:
                     DrawAdventure();
                     break;
             }
+            GUI.enabled = true;
+            if (modal) DrawTipCard();
+            else Ui.DrawTip();
+        }
+
+        // ---- Tips (Tips.cs) ----
+
+        string _tipOpen;
+
+        internal void ShowTip(string id)
+        {
+            if (Tips.All.ContainsKey(id)) _tipOpen = id;
+        }
+
+        void FirstTip(string id)
+        {
+            if (_tipOpen == null && Tips.FirstTime(id)) _tipOpen = id;
+        }
+
+        void DrawTipCard()
+        {
+            var (title, text) = Tips.All[_tipOpen];
+            Ui.Fill(new Rect(0, 0, Ui.Width, Ui.Height), new Color(0, 0, 0, 0.55f));
+            float w = Mathf.Min(460, Ui.Width - 24);
+            float textH = Ui.TextHeight(text, 14, w - 32);
+            float h = Mathf.Min(Ui.Height - 24, textH + 120);
+            var r = new Rect((Ui.Width - w) / 2, (Ui.Height - h) / 2, w, h);
+            Ui.Panel(r, Palette.Panel, Palette.Gold);
+            Ui.Text(new Rect(r.x + 16, r.y + 10, w - 32, 28), title, 19, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.Text(new Rect(r.x + 16, r.y + 44, w - 32, h - 110), text, 14, Palette.Ink, TextAnchor.UpperLeft, false, true);
+            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 56, 180, 46), "알겠다", 16, true, Look.Primary, "도움말")) _tipOpen = null;
         }
 
         static void DrawBackground()
@@ -127,7 +183,8 @@ namespace Game.Client
         {
             ulong value = seed ?? _nextSeed ?? (ulong)DateTime.Now.Ticks;
             _nextSeed = null;
-            _adventure = new Adventure(_data, classes.ToList(), value);
+            _recorded = false;
+            _adventure = new Adventure(_data, classes.ToList(), value, ChosenPerks());
             _screen = ClientScreen.Adventure;
             ResetAdventureView();
             SaveStore.Write(_adventure.Save());
@@ -143,6 +200,7 @@ namespace Game.Client
                 return error;
             }
             _adventure = adventure;
+            _recorded = false;
             _screen = ClientScreen.Adventure;
             ResetAdventureView();
             if (adventure.Battle != null)
@@ -160,7 +218,11 @@ namespace Game.Client
             string error = command();
             if (error == null)
             {
-                if (_adventure.Screen == AdventureScreen.Victory || _adventure.Screen == AdventureScreen.Defeat) SaveStore.Delete();
+                if (_adventure.Over)
+                {
+                    SaveStore.Delete();
+                    RecordInJournal();
+                }
                 else SaveStore.Write(_adventure.Save());
                 Sounds.Play(Sound.Click);
             }
@@ -192,6 +254,15 @@ namespace Game.Client
                 DrawBattle(adventure.Battle);
                 return;
             }
+            string first = adventure.LevelUp != null ? "levelup" : adventure.Screen switch
+            {
+                AdventureScreen.Map => "map",
+                AdventureScreen.Join => "join",
+                AdventureScreen.Event => "event",
+                AdventureScreen.Town => "town",
+                _ => null,
+            };
+            if (first != null) FirstTip(first);
             switch (adventure.Screen)
             {
                 case AdventureScreen.Story:
@@ -245,6 +316,7 @@ namespace Game.Client
                 Ui.Bar(new Rect(x, cell.y + 20, w, 6), hero.MaxHp > 0 ? (float)hero.Hp / hero.MaxHp : 0, Palette.HpHero);
                 string line = hero.Down ? "쓰러짐" : w >= 150 ? $"{hero.Hp}/{hero.MaxHp} · 결의 {hero.Resolve}/{hero.MaxResolve} · 물약 {hero.Potions}" : $"{hero.Hp}/{hero.MaxHp} · 결의 {hero.Resolve}";
                 Ui.Text(new Rect(x, cell.y + 26, w, 14), line, 10, hero.Down ? Palette.Damage : Palette.Dim);
+                Ui.Tip(cell, HeroTip(hero));
             }
             var info = new Rect(r.xMax - infoWidth, r.y, infoWidth, r.height);
             Ui.Panel(info);
@@ -252,6 +324,46 @@ namespace Game.Client
             Ui.Text(new Rect(info.x + 24, info.y + 4, info.width - 28, 18), $"희망 {_adventure.Hope}", 12, Palette.Ink);
             Ui.Image(new Rect(info.x + 6, info.y + 24, 14, 14), PixelArt.Icon("coin"));
             Ui.Text(new Rect(info.x + 24, info.y + 22, info.width - 28, 18), $"금화 {_adventure.Gold}", 12, Palette.Ink);
+            Ui.Tip(info, $"희망: 쓰러진 영웅이 전투가 끝나거나 아침이 오면 희망 하나로 일어난다. 금화: 마을에서 쓴다. 명성 {_adventure.Renown} (「{_adventure.Rank.Title}」)");
+        }
+
+        // A hero in a few lines, for the long-press tip on the party strip.
+        string HeroTip(Hero hero)
+        {
+            string stats = string.Join(" ", Enumerable.Range(0, Stats.Count).Select(i => $"{Stats.Name((Stat)i)} {hero.Stat((Stat)i)}"));
+            string carried = string.Join(", ", hero.Consumables.Where(c => c.Value > 0).Select(c => $"{(_data.Items.TryGetValue(c.Key, out var item) ? item.Name : c.Key)} {c.Value}"));
+            return $"{hero.Name} Lv{hero.Level} (경험치 {hero.Xp}, 다음까지 {hero.XpToNext})\n{stats}\n방어도 {hero.ArmorValue} · 결의 {hero.Resolve}/{hero.MaxResolve} · 끈기 {hero.Grit}/{hero.GritCap}\n{hero.Class.Mechanic}" + (carried.Length > 0 ? "\n소모품: " + carried : "");
+        }
+
+        // ---- The journal (Docs/Journal.md) ----
+
+        Journal _journal;
+        bool _recorded;
+        int _lastPages;
+
+        internal Journal JournalNow => _journal ??= SaveStore.ReadJournal();
+
+        void RecordInJournal()
+        {
+            if (_recorded || _adventure == null || !_adventure.Over) return;
+            _recorded = true;
+            _lastPages = JournalNow.Record(_adventure);
+            SaveStore.WriteJournal(JournalNow);
+        }
+
+        // The perks the player picked on the journal screen and still has unlocked.
+        const string PerksKey = "perks_chosen";
+
+        internal List<string> ChosenPerks() =>
+            PlayerPrefs.GetString(PerksKey, "").Split(',').Where(p => p.Length > 0 && JournalNow.Has(p) && _data.Perks.Any(d => d.Id == p)).ToList();
+
+        internal void SetPerkChosen(string id, bool on)
+        {
+            var chosen = ChosenPerks();
+            chosen.Remove(id);
+            if (on) chosen.Add(id);
+            PlayerPrefs.SetString(PerksKey, string.Join(",", chosen));
+            PlayerPrefs.Save();
         }
     }
 }

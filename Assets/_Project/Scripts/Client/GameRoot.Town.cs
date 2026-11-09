@@ -12,15 +12,20 @@ namespace Game.Client
         {
             var a = _adventure;
             var column = BeginColumn($"town:{a.Day}", 56);
-            float y = Heading(column, 4, "잿빛 숲 어귀 마을");
-            var here = a.TownHeroes().Select(i => a.Heroes[i]).ToList();
-            y = Paragraph(column, y, $"마을에 있는 영웅: {string.Join(", ", here.Select(h => h.Name + (h.Down ? "(쓰러짐)" : "")))} · 금화 {a.Gold}", 13, Palette.Journal);
+            float y = Heading(column, 4, a.Chapter.Town);
+            var townHeroes = a.TownHeroes();
+            var here = townHeroes.Select(i => a.Heroes[i]).ToList();
+            y = Paragraph(column, y, $"마을에 있는 영웅: {string.Join(", ", here.Select(h => h.Name + (h.Down ? "(쓰러짐)" : "")))} · 금화 {a.Gold}" + (a.Discount ? " · 음유시인 덕에 값이 20% 싸다" : ""), 13, Palette.Journal);
             float bh = 46;
             float half = (column.width - 8) / 2;
-            if (Ui.Button(new Rect(0, y, half, bh), $"여관에서 쉬기 (금화 {Adventure.InnCost})", 14, a.Gold >= Adventure.InnCost, Look.Normal)) Act(a.Rest);
+            if (Ui.Button(new Rect(0, y, half, bh), $"여관에서 쉬기 (금화 {a.InnPrice})", 14, a.Gold >= a.InnPrice, Look.Normal)) Act(a.Rest);
             if (Ui.Button(new Rect(half + 8, y, half, bh), a.CanMeetElder ? "장로를 만난다" : "장로(이미 만남)", 14, a.CanMeetElder)) Act(a.Elder);
+            y += bh + 6;
+            int rumor = a.Discount ? Adventure.RumorCost * (100 - Adventure.BardDiscount) / 100 : Adventure.RumorCost;
+            if (Ui.Button(new Rect(0, y, half, bh), a.CanHearRumors ? $"소문을 듣는다 (금화 {rumor})" : "소문(오늘은 끝)", 14, a.CanHearRumors && a.Gold >= rumor)) Act(a.Rumor);
+            if (Ui.Button(new Rect(half + 8, y, half, bh), a.CanDonate ? $"마을을 돕는다 (금화 {a.DonationCost})" : "돕기(오늘은 끝)", 14, a.CanDonate && a.Gold >= a.DonationCost)) Act(a.Donate);
             y += bh + 4;
-            y = Paragraph(column, y, $"여관: 마을에 있는 영웅이 모두 일어나 생명력 {Adventure.InnPercent}%와 결의를 모두 회복한다.", 11, Palette.Dim);
+            y = Paragraph(column, y, $"여관: 마을에 있는 영웅이 모두 일어나 생명력 {Adventure.InnPercent}%와 결의를 모두 회복한다. 소문: 마을에서 가까운 안개 속 {Adventure.RumorHexes}곳을 알게 된다. 돕기: 명성 +1.", 11, Palette.Dim);
             foreach (string line in a.Report) y = Paragraph(column, y, "· " + line, 12, Palette.Journal);
             if (_actError != null) y = Paragraph(column, y, _actError, 12, Palette.Damage);
 
@@ -30,13 +35,34 @@ namespace Game.Client
             for (int i = 0; i < a.Shop.Count; i++)
             {
                 var item = a.Shop[i];
-                string detail = item.Item != null ? ItemLine(item.Item) : item.Goods == "potion" ? $"{a.Current.Name}에게 · 생명력 {Battle.PotionHeal} 회복" : "연금술사의 재료 +2";
-                var row = new Rect(0, y, column.width, 44);
-                Ui.Panel(row);
-                Ui.Text(new Rect(8, y + 2, column.width - 120, 20), item.Name + (item.Sold ? " (팔림)" : ""), 13, item.Sold ? Palette.Dim : Palette.Ink, TextAnchor.MiddleLeft, true);
-                Ui.Text(new Rect(8, y + 22, column.width - 120, 18), detail, 10.5f, Palette.Dim);
-                if (Ui.Button(new Rect(column.width - 104, y + 4, 100, 36), $"사기 {item.Price}", 13, !item.Sold && a.Gold >= item.Price, Look.Normal, item.Name)) Act(() => a.Buy(i));
-                y += 50;
+                int index = i;
+                bool consumable = item.Item != null && item.Item.Consumable;
+                string detail = item.Item == null ? "연금술사의 재료 +2" : consumable ? item.Item.Text : ItemLine(item.Item);
+                if (!consumable)
+                {
+                    var row = new Rect(0, y, column.width, 44);
+                    Ui.Panel(row);
+                    Ui.Text(new Rect(8, y + 2, column.width - 120, 20), item.Name + (item.Sold ? " (팔림)" : ""), 13, item.Sold ? Palette.Dim : Palette.Ink, TextAnchor.MiddleLeft, true);
+                    Ui.Text(new Rect(8, y + 22, column.width - 120, 18), detail, 10.5f, Palette.Dim);
+                    if (Ui.Button(new Rect(column.width - 104, y + 4, 100, 36), $"사기 {item.Price}", 13, !item.Sold && a.Gold >= item.Price, Look.Normal, item.Name)) Act(() => a.Buy(index));
+                    y += 50;
+                    continue;
+                }
+                // A consumable goes to one of the heroes in town: a button each.
+                var box = new Rect(0, y, column.width, 72);
+                Ui.Panel(box);
+                Ui.Text(new Rect(8, y + 2, column.width - 16, 20), $"{item.Name} · 금화 {item.Price}", 13, Palette.Ink, TextAnchor.MiddleLeft, true);
+                Ui.Text(new Rect(8, y + 20, column.width - 16, 16), detail, 10.5f, Palette.Dim);
+                float bx = 8;
+                float bw = Mathf.Min(150, (column.width - 16 - 6 * (townHeroes.Length - 1)) / Mathf.Max(1, townHeroes.Length));
+                foreach (int h in townHeroes)
+                {
+                    var hero = a.Heroes[h];
+                    int who = h;
+                    if (Ui.Button(new Rect(bx, y + 38, bw, 30), $"{hero.Name}에게 ({hero.Count(item.Item.Id)})", 11.5f, a.Gold >= item.Price, Look.Normal, item.Name)) Act(() => a.Buy(index, who));
+                    bx += bw + 6;
+                }
+                y += 78;
             }
             if (a.Bag.Count > 0)
             {
@@ -56,7 +82,7 @@ namespace Game.Client
             EndColumn(y);
             var footer = Footer(48);
             float fh = (footer.width - 8) / 2;
-            if (Ui.Button(new Rect(footer.x, footer.y, fh, footer.height), "장비·가방", 15, true, Look.Quiet)) _gearOpen = true;
+            if (Ui.Button(new Rect(footer.x, footer.y, fh, footer.height), "장비·소모품", 15, true, Look.Quiet)) _gearOpen = true;
             if (Ui.Button(new Rect(footer.x + fh + 8, footer.y, fh, footer.height), "마을을 떠난다", 16, true, Look.Primary)) Act(a.LeaveTown);
         }
 
@@ -107,7 +133,10 @@ namespace Game.Client
             for (int h = 0; h < a.Heroes.Count; h++)
             {
                 var hero = a.Heroes[h];
-                var box = new Rect(0, y, w, 92);
+                int heroIndex = h;
+                var carried = hero.Consumables.Where(c => c.Value > 0).ToList();
+                float extra = carried.Count == 0 ? 0 : 36 * ((carried.Count + 2) / 3);
+                var box = new Rect(0, y, w, 92 + extra);
                 Ui.Panel(box);
                 Ui.Image(new Rect(6, y + 6, 36, 36), PixelArt.Hero(hero.Class.Id, hero.Class.Color));
                 Ui.Text(new Rect(48, y + 4, w - 52, 18), $"{hero.Name} Lv{hero.Level} · 생명력 {hero.Hp}/{hero.MaxHp} · 방어도 {hero.ArmorValue} · 결의 {hero.MaxResolve}", 12.5f, Palette.Ink, TextAnchor.MiddleLeft, true);
@@ -121,7 +150,20 @@ namespace Game.Client
                 if (hero.Armor != null && Ui.Button(new Rect(48 + (w - 52) / 2 - 58, sy, 54, 30), "벗기", 11, true, Look.Quiet, hero.Name + " 갑옷")) Act(() => a.Unequip(h, ItemSlot.Armor));
                 Ui.Text(new Rect(48 + (w - 52) / 2, sy, (w - 52) / 2 - 60, 30), trinket, 11, Palette.Journal);
                 if (hero.Trinket != null && Ui.Button(new Rect(w - 60, sy, 54, 30), "벗기", 11, true, Look.Quiet, hero.Name + " 장신구")) Act(() => a.Unequip(h, ItemSlot.Trinket));
-                y += 98;
+                // Consumables: the ones that work outside battle can be used here.
+                float cw = (w - 52 - 12) / 3;
+                for (int c = 0; c < carried.Count; c++)
+                {
+                    string id = carried[c].Key;
+                    var item = _data.Items.TryGetValue(id, out var def) ? def : null;
+                    if (item == null) continue;
+                    var cell = new Rect(48 + c % 3 * (cw + 6), y + 92 + c / 3 * 36, cw, 32);
+                    bool usable = Adventure.UsableOnMap(item) && !hero.Down;
+                    string label = usable ? $"{item.Name} {carried[c].Value} · 쓰기" : $"{item.Name} {carried[c].Value} (전투용)";
+                    if (Ui.Button(cell, label, 11, usable, Look.Quiet, hero.Name + " 소모품")) Act(() => a.UseItem(heroIndex, id));
+                    Ui.Tip(cell, item.Text);
+                }
+                y += 98 + extra;
             }
             Ui.Text(new Rect(0, y, w, 22), a.Bag.Count == 0 ? "가방이 비었다. 사건과 상점에서 물건을 얻는다." : "가방: 누구에게 끼울지 고르세요", 13, Palette.Gold, TextAnchor.MiddleLeft, true);
             y += 26;

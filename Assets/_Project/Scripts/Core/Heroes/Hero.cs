@@ -52,7 +52,39 @@ namespace Game.Core
         public int Hp { get; internal set; }
         public int Resolve { get; internal set; }
         public int Grit { get; internal set; }
-        public int Potions { get; internal set; }
+        // Consumables carried (item id → how many), in the order first gained (Docs/Combat.md 소모품).
+        readonly List<KeyValuePair<string, int>> _consumables = new List<KeyValuePair<string, int>>();
+
+        public IReadOnlyList<KeyValuePair<string, int>> Consumables => _consumables;
+
+        public int Count(string item)
+        {
+            foreach (var pair in _consumables)
+                if (pair.Key == item) return pair.Value;
+            return 0;
+        }
+
+        internal void SetCount(string item, int count)
+        {
+            int index = _consumables.FindIndex(p => p.Key == item);
+            if (count <= 0)
+            {
+                if (index >= 0) _consumables.RemoveAt(index);
+                return;
+            }
+            if (index >= 0) _consumables[index] = new KeyValuePair<string, int>(item, count);
+            else _consumables.Add(new KeyValuePair<string, int>(item, count));
+        }
+
+        internal void AddConsumable(string item, int count) => SetCount(item, Count(item) + count);
+
+        public const string PotionId = "potion";
+
+        public int Potions
+        {
+            get => Count(PotionId);
+            internal set => SetCount(PotionId, value);
+        }
 
         // The alchemist's reagents (Docs/Classes.md), kept between battles.
         public int Reagents { get; internal set; }

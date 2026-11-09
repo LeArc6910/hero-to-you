@@ -14,6 +14,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="../../Assets/_Project/Scripts/Client/Art/SoundArt.cs" />
+    <Compile Include="../../Assets/_Project/Scripts/Client/Art/MusicArt.cs" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,8 @@
+id,name,pages,effect,text
+coin_purse,두둑한 지갑,2,gold 20,모험을 금화 20 더 들고 시작한다.
+spare_potions,넉넉한 물약,2,potion 1,영웅마다 회복 물약 하나를 더 들고 시작한다.
+old_tonic,리엔의 결의,3,tonic 1,영웅마다 결의 물약 하나를 들고 시작한다.
+hope_page,희망의 장,4,hope 1,희망을 하나 더 들고 시작한다.
+quick_start,서두른 출발,4,doom -1,균열이 하나 덜 찬 채로 시작한다(첫 챕터).
+veterans,선배의 가르침,5,xp 10,영웅마다 경험치 10을 들고 시작한다(레벨 2).
+hard_road,가시밭길,6,hard,몬스터 생명력 +25%. 대신 이기면 일지 페이지를 두 배로 받는다.

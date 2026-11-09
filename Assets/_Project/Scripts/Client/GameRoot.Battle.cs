@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Game.Core;
 using UnityEngine;
+using Terrain = Game.Core.Terrain;
 
 namespace Game.Client
 {
@@ -25,6 +26,9 @@ namespace Game.Client
         int _turnActor = -1;
         readonly Dictionary<int, int> _shownHp = new Dictionary<int, int>();
         readonly Dictionary<int, float> _hitAt = new Dictionary<int, float>();
+
+        // When each unit last attacked (it lunges toward the other side) and which way.
+        readonly Dictionary<int, float> _lungeAt = new Dictionary<int, float>();
         readonly List<Floater> _floaters = new List<Floater>();
         readonly List<string> _log = new List<string>();
         BattleEvent _diceEvent;
@@ -66,6 +70,7 @@ namespace Game.Client
             var battle = _adventure?.Battle;
             if (battle == null) return;
             if (battle != _battleShown) BeginPlayback(battle);
+            FirstTip("battle");
             float step = _speed <= 0 ? float.MaxValue : dt * _speed;
             foreach (var floater in _floaters) floater.Age += step;
             _floaters.RemoveAll(f => f.Age > 1.2f);
@@ -161,6 +166,7 @@ namespace Game.Client
                 BattleEventKind.Guard => 0.45f,
                 BattleEventKind.Victory => 0.9f,
                 BattleEventKind.Defeat => 1.2f,
+                BattleEventKind.Fled => 1.0f,
                 _ => 0.02f,
             };
         }
@@ -175,6 +181,7 @@ namespace Game.Client
                 case BattleEventKind.Roll:
                     _diceEvent = e;
                     _diceAge = 0;
+                    if (e.Actor >= 0 && e.Target != e.Actor) _lungeAt[e.Actor] = _clock;
                     if (_speed > 0) Sounds.Play(e.Perfect ? Sound.Perfect : Sound.Dice);
                     break;
                 case BattleEventKind.Damage:
@@ -213,6 +220,7 @@ namespace Game.Client
                 case BattleEventKind.Phase:
                 case BattleEventKind.Victory:
                 case BattleEventKind.Defeat:
+                case BattleEventKind.Fled:
                     _banner = e.Text;
                     _bannerAge = 0;
                     if (_speed > 0) Sounds.Play(e.Kind == BattleEventKind.Victory ? Sound.Victory : e.Kind == BattleEventKind.Defeat ? Sound.Defeat : Sound.Battle);
@@ -267,12 +275,50 @@ namespace Game.Client
 
             PrepareSelection(battle);
             DrawTimeline(top, battle);
-            Ui.Fill(new Rect(field.x, field.y + field.height * 0.62f, field.width, field.height * 0.38f), Palette.WithAlpha(Palette.Ground, 0.6f));
+            DrawBackdrop(field);
             DrawUnits(field, battle);
             DrawFloaters();
             DrawDice(field, battle);
             DrawBanner(field);
             DrawPanel(panel, battle);
+        }
+
+        // The place the battle happens, behind the units: the chapter's sky, the ground of the hex it started on and
+        // a few shapes of it (trees, stones, waves), drawn from code like the rest of the art.
+        void DrawBackdrop(Rect field)
+        {
+            var a = _adventure;
+            var tile = a.JoinTile;
+            var terrain = tile?.Terrain ?? Terrain.Plains;
+            bool boss = a.BossBattle;
+            var sky = BackdropSky(a.Chapter.Index, a.Night, boss);
+            int bands = 6;
+            float skyH = field.height * 0.62f;
+            for (int i = 0; i < bands; i++)
+                Ui.Fill(new Rect(field.x, field.y + skyH * i / bands, field.width, skyH / bands + 1), Color.Lerp(sky.top, sky.bottom, i / (float)(bands - 1)));
+            var ground = TerrainColors.TryGetValue(terrain, out var g) ? g : Palette.Ground;
+            Ui.Fill(new Rect(field.x, field.y + skyH, field.width, field.height - skyH), Color.Lerp(ground, Palette.Back, 0.35f));
+            Ui.Fill(new Rect(field.x, field.y + skyH, field.width, 2), Color.Lerp(ground, Color.white, 0.15f));
+            string mark = TerrainMark(terrain) ?? (terrain == Terrain.Road ? "stones" : null);
+            if (boss) mark = a.Chapter.Index == 0 ? "stones" : "wave";
+            if (mark == null) return;
+            var icon = PixelArt.Icon(mark);
+            float s = Mathf.Min(field.height * 0.22f, 64);
+            // Far shapes along the horizon, fixed per battle so they do not jump around.
+            var random = new System.Random(_adventure.Log.Count / 50 + (int)terrain * 7 + a.Chapter.Index * 31);
+            for (int i = 0; i < 7; i++)
+            {
+                float x = field.x + (float)random.NextDouble() * (field.width - s);
+                float y = field.y + skyH - s * (0.75f + (float)random.NextDouble() * 0.2f);
+                Ui.Image(new Rect(x, y, s, s), icon, new Color(1, 1, 1, 0.22f));
+            }
+        }
+
+        static (Color top, Color bottom) BackdropSky(int chapter, bool night, bool boss)
+        {
+            if (boss) return chapter == 0 ? (Palette.Hex("#2A1712"), Palette.Hex("#6B3322")) : (Palette.Hex("#0E1A2A"), Palette.Hex("#2E5A6E"));
+            if (night) return (Palette.Hex("#0B0D18"), Palette.Hex("#232842"));
+            return chapter == 0 ? (Palette.Hex("#3A3530"), Palette.Hex("#7A6E5E")) : (Palette.Hex("#2E4252"), Palette.Hex("#7895A0"));
         }
 
         void DrawTimeline(Rect r, Battle battle)
@@ -370,11 +416,19 @@ namespace Game.Client
             float intentH = unit.IsHero ? 0 : 30;
             float sprite = Mathf.Min(slot.height - textH - intentH - 4, slot.width * (big ? 0.8f : 0.5f));
             sprite = Mathf.Max(16, Mathf.Floor(sprite / 8) * 8);
-            float shake = _hitAt.TryGetValue(unit.Id, out float at) && _clock - at < 0.25f ? Mathf.Sin((_clock - at) * 80) * 3 : 0;
-            var spriteRect = new Rect(slot.x + (slot.width - sprite) / 2 + shake, slot.y + intentH + 2, sprite, sprite);
+            // Motion (Docs/Design.md 그림): a slow breath while standing, a lunge toward the other side when attacking,
+            // a shake and a red flash when hit, lying low when down.
+            bool hit = _hitAt.TryGetValue(unit.Id, out float at) && _clock - at < 0.25f;
+            float shake = hit ? Mathf.Sin((_clock - at) * 80) * 3 : 0;
+            float lunge = 0;
+            if (_lungeAt.TryGetValue(unit.Id, out float swung) && _clock - swung < 0.3f) lunge = Mathf.Sin((_clock - swung) / 0.3f * Mathf.PI) * sprite * 0.18f;
+            var toward = unit.IsHero || unit.Side == Side.Party ? (Ui.Portrait ? new Vector2(0, -1) : new Vector2(1, 0)) : (Ui.Portrait ? new Vector2(0, 1) : new Vector2(-1, 0));
+            float breath = down ? 0 : Mathf.Sin(_clock * 2.2f + unit.Id * 1.3f) * sprite * 0.015f;
+            var spriteRect = new Rect(slot.x + (slot.width - sprite) / 2 + shake + toward.x * lunge, slot.y + intentH + 2 + toward.y * lunge + breath + (down ? sprite * 0.18f : 0), sprite, sprite - (down ? sprite * 0.18f : 0));
             _unitRects[unit.Id] = spriteRect;
             Ui.Fill(new Rect(spriteRect.x + sprite * 0.15f, spriteRect.yMax - sprite * 0.06f, sprite * 0.7f, sprite * 0.08f), new Color(0, 0, 0, 0.35f));
-            Ui.Image(spriteRect, Sprite(unit), down ? new Color(0.4f, 0.4f, 0.45f, 0.45f) : (Color?)null);
+            var tint = down ? new Color(0.4f, 0.4f, 0.45f, 0.45f) : hit ? new Color(1f, 0.55f, 0.5f, 1f) : (Color?)null;
+            Ui.Image(spriteRect, Sprite(unit), tint);
 
             if (!unit.IsHero && !down && unit.Intent != null && !battle.Over) DrawIntent(new Rect(slot.x + 2, slot.y, slot.width - 4, intentH - 2), unit, battle);
 
@@ -392,6 +446,7 @@ namespace Game.Client
             Ui.Text(new Rect(slot.x, y, slot.width, 15), line, 10.5f, down ? Palette.Damage : Palette.Dim, TextAnchor.MiddleCenter);
 
             if (targetable && Ui.Hit(slot, unit.Name, true, "대상")) _target = unit.Id;
+            if (!unit.IsHero) Ui.Tip(slot, $"{unit.Name}: {unit.Monster.Text} (방어도 {unit.Monster.Armor}" + (unit.Monster.Ward > 0 ? $", 마법 방어 {unit.Monster.Ward}" : "") + ")" + (unit.Intent != null && !down ? $"\n다음 행동: {unit.Intent.Skill.Name}. {unit.Intent.Skill.Text}" : ""));
         }
 
         static string StatusLine(Unit unit, Battle battle)
@@ -492,12 +547,12 @@ namespace Game.Client
             _skill = skillId;
             _resolve = 0;
             _battleError = null;
-            var skill = SkillDef(actor, skillId);
-            if (skillId == BattleCommand.Potion)
+            if (IsItemOrFlee(skillId))
             {
                 _target = actor.Id;
                 return;
             }
+            var skill = SkillDef(actor, skillId);
             int fixedTarget = Battle.FixedTarget(actor, skill);
             if (fixedTarget >= 0)
             {
@@ -513,12 +568,16 @@ namespace Game.Client
             };
         }
 
-        static SkillDef SkillDef(Unit actor, string id) => actor.Hero.Skill(id);
+        static SkillDef SkillDef(Unit actor, string id) => IsItemOrFlee(id) ? null : actor.Hero.Skill(id);
+
+        static bool IsItemOrFlee(string id) => BattleCommand.IsUse(id) || id == BattleCommand.Flee;
+
+        ItemDef ItemOf(string id) => BattleCommand.IsUse(id) && _data.Items.TryGetValue(id.Substring(BattleCommand.UsePrefix.Length), out var item) ? item : null;
 
         bool NeedsTarget(Battle battle)
         {
             var actor = battle.Current;
-            if (actor == null || _skill == null || _skill == BattleCommand.Potion) return false;
+            if (actor == null || _skill == null || IsItemOrFlee(_skill)) return false;
             var skill = SkillDef(actor, _skill);
             return skill != null && Battle.FixedTarget(actor, skill) < 0;
         }
@@ -536,7 +595,7 @@ namespace Game.Client
             var inner = new Rect(r.x + 8, r.y + 6, r.width - 16, r.height - 12);
             if (!AwaitingHero)
             {
-                string title = battle.Over ? (battle.State == BattleState.Won ? "승리!" : "패배…") : _turnActor >= 0 && !battle.Unit(_turnActor).IsHero ? "적의 차례" : "…";
+                string title = battle.Over ? (battle.State == BattleState.Won ? "승리!" : battle.State == BattleState.Fled ? "도망쳤다" : "패배…") : _turnActor >= 0 && !battle.Unit(_turnActor).IsHero ? "적의 차례" : "…";
                 Ui.Text(new Rect(inner.x, inner.y, inner.width, 22), title, 16, Palette.Ink, TextAnchor.MiddleLeft, true);
                 DrawLog(new Rect(inner.x, inner.y + 26, inner.width, inner.height - 26));
                 return;
@@ -558,9 +617,12 @@ namespace Game.Client
             }
             y += 2;
 
-            // Skills (and the potion) in two columns.
+            // Skills, then the consumables the hero carries (the potion always) and running away, in two columns.
             var skills = hero.Skills.Select(s => s.Id).ToList();
             skills.Add(BattleCommand.Potion);
+            foreach (var pair in hero.Consumables)
+                if (pair.Key != Hero.PotionId && pair.Value > 0) skills.Add(BattleCommand.Use(pair.Key));
+            if (battle.CanFlee) skills.Add(BattleCommand.Flee);
             int columns = 2;
             float bh = Ui.Short ? 40 : 44;
             float bw = (inner.width - 6) / columns;
@@ -579,7 +641,10 @@ namespace Game.Client
             float rollH = 46;
             float room = inner.yMax - rollH - 4 - y;
 
-            string about = _skill == BattleCommand.Potion ? $"생명력 {Battle.PotionHeal} 회복. 다음 차례가 빨리 온다." : skill?.Text;
+            var item = ItemOf(_skill);
+            string about = item != null ? item.Text + " 다음 차례가 빨리 온다."
+                : _skill == BattleCommand.Flee ? $"민첩 주사위 {Battle.FleeDice}개 중 {Battle.FleeNeed}개 성공이면 모두 빠져나간다. 실패하면 차례만 쓴다. 보상은 없고 적은 그 자리에 남는다."
+                : skill?.Text;
             if (skill != null && skill.PerfectText.Length > 0) about += " " + skill.PerfectText + ".";
             float aboutH = Mathf.Min(Ui.TextHeight(about ?? "", 11.5f, inner.width), 34);
             if (room > 150)
@@ -588,11 +653,21 @@ namespace Game.Client
                 y += aboutH + 4;
             }
 
-            string targetLine = _skill == BattleCommand.Potion ? "대상: 자신" : skill == null ? "" : skill.Target == SkillTarget.AllEnemies ? "대상: 모든 적" : skill.Target == SkillTarget.Self ? "대상: 자신" : _target >= 0 && battle.Unit(_target) != null ? $"대상: {battle.Unit(_target).Name} (다른 대상을 눌러 바꾸기)" : "대상을 눌러 고르세요";
+            string targetLine = item != null ? (item.Use.Any(u => u.Verb == "bomb") ? "대상: 모든 적" : "대상: 자신") : _skill == BattleCommand.Flee ? "대상: 파티 전체" : skill == null ? "" : skill.Target == SkillTarget.AllEnemies ? "대상: 모든 적" : skill.Target == SkillTarget.Self ? "대상: 자신" : _target >= 0 && battle.Unit(_target) != null ? $"대상: {battle.Unit(_target).Name} (다른 대상을 눌러 바꾸기)" : "대상을 눌러 고르세요";
             Ui.Text(new Rect(inner.x, y, inner.width, 16), targetLine, 11.5f, Palette.Ink);
             y += 18;
 
-            if (preview.Ok && preview.Dice > 0)
+            if (preview.Ok && preview.Dice > 0 && preview.Need > 0)
+            {
+                float rh = 34;
+                Ui.Text(new Rect(inner.x, y, 70, rh), "결의 쓰기", 12, Palette.Resolve, TextAnchor.MiddleLeft, true);
+                if (Ui.Button(new Rect(inner.x + 72, y, 44, rh), "−", 18, _resolve > 0)) _resolve--;
+                Ui.Text(new Rect(inner.x + 118, y, 54, rh), $"{_resolve}/{preview.ResolveRoom}", 14, Palette.Ink, TextAnchor.MiddleCenter, true);
+                if (Ui.Button(new Rect(inner.x + 174, y, 44, rh), "+", 18, _resolve < preview.ResolveRoom)) _resolve++;
+                y += rh + 4;
+                Ui.Text(new Rect(inner.x, y, inner.width, 16), $"성공 {preview.Need}개 이상일 확률 {Percent(preview.Odds.AtLeast(preview.Need))}", 13, Palette.Ink, TextAnchor.MiddleLeft, true);
+            }
+            else if (preview.Ok && preview.Dice > 0)
             {
                 // Resolve: − n/room +
                 float rh = 34;
@@ -670,10 +745,17 @@ namespace Game.Client
         void DrawSkillButton(Rect cell, Battle battle, Unit actor, string id)
         {
             bool selected = _skill == id;
-            if (id == BattleCommand.Potion)
+            if (BattleCommand.IsUse(id))
             {
-                bool usable = actor.Hero.Potions > 0;
-                if (Ui.Button(cell, $"물약 ({actor.Hero.Potions})", 13, usable, selected ? Look.Selected : Look.Quiet)) Select(battle, id);
+                var item = ItemOf(id);
+                int count = item == null ? 0 : actor.Hero.Count(item.Id);
+                string name = item?.Name ?? id;
+                if (Ui.Button(cell, $"{name} ({count})", 13, count > 0, selected ? Look.Selected : Look.Quiet, "소모품")) Select(battle, id);
+                return;
+            }
+            if (id == BattleCommand.Flee)
+            {
+                if (Ui.Button(cell, $"도망 (민첩 {Dice.ClampChance(actor.Hero.Stat(Stat.Agility))}%)", 13, true, selected ? Look.Selected : Look.Danger)) Select(battle, id);
                 return;
             }
             var skill = SkillDef(actor, id);
@@ -687,6 +769,7 @@ namespace Game.Client
             Ui.Text(new Rect(cell.x + 4, cell.y + 3, cell.width - 8, cell.height * 0.5f), skill.Name, 13, wait == 0 ? Palette.Ink : Palette.Dim, TextAnchor.MiddleCenter, true);
             Ui.Text(new Rect(cell.x + 4, cell.y + cell.height * 0.5f, cell.width - 8, cell.height * 0.45f), detail, 10.5f, wait == 0 ? Palette.Journal : Palette.Dim, TextAnchor.MiddleCenter);
             if (Ui.Hit(cell, skill.Name, wait == 0, "기술")) Select(battle, id);
+            Ui.Tip(cell, skill.Text + (skill.PerfectText.Length > 0 ? " " + skill.PerfectText + "." : ""));
         }
 
         // The chance of each number of successes as columns, with what each gives.

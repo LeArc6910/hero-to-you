@@ -62,6 +62,7 @@ namespace Game.Client
             Origins.Push(Vector2.zero);
             Views.Clear();
             StartProbe();
+            TrackPress();
         }
 
         public static Texture2D White
@@ -252,6 +253,63 @@ namespace Game.Client
             bool pressed = GUI.Button(Px(r), GUIContent.none, GUIStyle.none);
             GUI.enabled = was;
             return pressed;
+        }
+
+        // ---- Tooltips: hover with a mouse, hold a finger still on a phone ----
+
+        const float HoldSeconds = 0.45f;
+        static float _pressAt = -1;
+        static Vector2 _pressFrom;
+        static string _tip;
+        static Rect _tipAt;
+
+        // The tooltip shown this frame, if any (for the playtests).
+        internal static string ShownTip { get; private set; }
+
+        static void TrackPress()
+        {
+            var e = Event.current;
+            switch (e.type)
+            {
+                case EventType.MouseDown:
+                    _pressAt = Time.unscaledTime;
+                    _pressFrom = e.mousePosition;
+                    break;
+                case EventType.MouseDrag when (e.mousePosition - _pressFrom).magnitude > 10 * Scale:
+                case EventType.MouseUp:
+                    _pressAt = -1;
+                    break;
+                case EventType.Repaint:
+                    _tip = null;
+                    break;
+            }
+        }
+
+        // Explains what is under the pointer: shown while a mouse is over r, or once a finger has held still on it
+        // for a moment (that press then does not count as a tap). Drawn on top by DrawTip at the end of the frame.
+        public static void Tip(Rect r, string text)
+        {
+            if (string.IsNullOrEmpty(text) || Event.current.type != EventType.Repaint || !r.Contains(Pointer)) return;
+            bool held = _pressAt >= 0 && Time.unscaledTime - _pressAt >= HoldSeconds;
+            if (Touch ? !held : !Hovered(r)) return;
+            if (held) GUIUtility.hotControl = 0;
+            _tip = text;
+            _tipAt = new Rect(Origins.Peek() + r.position, r.size);
+        }
+
+        public static void DrawTip()
+        {
+            ShownTip = _tip;
+            if (_tip == null || Event.current.type != EventType.Repaint) return;
+            float w = Mathf.Min(300, Width - 16);
+            float h = TextHeight(_tip, 12, w - 16) + 12;
+            float x = Mathf.Clamp(_tipAt.center.x - w / 2, 8, Width - w - 8);
+            float y = _tipAt.y - h - 6;
+            if (y < 6) y = Mathf.Min(_tipAt.yMax + 6, Height - h - 6);
+            var box = new Rect(x, y, w, h);
+            Fill(box, new Color(0.06f, 0.05f, 0.08f, 0.96f));
+            Frame(box, Palette.Gold, 1);
+            Text(new Rect(x + 8, y + 6, w - 16, h - 12), _tip, 12, Palette.Ink, TextAnchor.UpperLeft, false, true);
         }
 
         // ---- Areas: a clipped part of the screen with its own origin, scrolled by dragging or the wheel ----

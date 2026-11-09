@@ -126,6 +126,17 @@ namespace Game.Core
             // A potion when low and nobody can heal.
             if (actor.Hp * 10 < actor.MaxHp * 3 && hero.Potions > 0 && !living.Any(h => h.Hero.Skills.Any(s => s.Kind == SkillKind.Heal)))
                 return new BattleCommand(actor.Id, BattleCommand.Potion, actor.Id);
+            // Consumables (Docs/Combat.md 소모품): run from a lost fight, burn a crowd, steady a big turn.
+            var monstersLeft = enemies.Sum(e => e.Hp);
+            var partyLeft = living.Sum(h => h.Hp);
+            if (battle.CanFlee && living.Count == 1 && actor.Hp * 10 < actor.MaxHp * 3 && monstersLeft > partyLeft * 2)
+            {
+                if (hero.Count("smoke") > 0) return new BattleCommand(actor.Id, BattleCommand.Use("smoke"), actor.Id);
+            }
+            if (hero.Count("firebomb") > 0 && enemies.Count >= 3) return new BattleCommand(actor.Id, BattleCommand.Use("firebomb"), actor.Id);
+            if (hero.Count("antidote") > 0 && actor.Hp * 2 < actor.MaxHp && (actor.Has(StatusKind.Burn) || actor.Has(StatusKind.Corrode)))
+                return new BattleCommand(actor.Id, BattleCommand.Use("antidote"), actor.Id);
+            if (hero.Count("tonic") > 0 && hero.Resolve == 0 && enemies.Any(e => e.Monster.Boss)) return new BattleCommand(actor.Id, BattleCommand.Use("tonic"), actor.Id);
 
             // Otherwise the attack with the best expected damage, finishing a monster off counting double.
             BattleCommand best = null;
@@ -149,7 +160,7 @@ namespace Game.Core
             }
             if (best == null)
             {
-                var support = options.FirstOrDefault(o => o.Skill != BattleCommand.Potion);
+                var support = options.FirstOrDefault(o => !BattleCommand.IsUse(o.Skill));
                 return support ?? options[0];
             }
             var bestSkill = battle.Preview(best).Skill;

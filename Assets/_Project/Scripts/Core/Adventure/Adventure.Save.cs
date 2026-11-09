@@ -13,7 +13,7 @@ namespace Game.Core
     public sealed partial class Adventure
     {
         public const string SaveHeader = "hero-to-you save";
-        public const int SaveVersion = 1;
+        public const int SaveVersion = 2;
 
         public string Save()
         {
@@ -21,6 +21,7 @@ namespace Game.Core
             text.Append(SaveHeader).Append(' ').Append(SaveVersion.ToString(CultureInfo.InvariantCulture)).Append('\n');
             text.Append("seed ").Append(Seed.ToString(CultureInfo.InvariantCulture)).Append('\n');
             text.Append("party ").Append(string.Join(",", ClassIds)).Append('\n');
+            text.Append("perks ").Append(string.Join(",", Perks)).Append('\n');
             text.Append("sheets ").Append(Data.Fingerprint).Append('\n');
             foreach (string line in _log) text.Append(line).Append('\n');
             return text.ToString();
@@ -47,21 +48,27 @@ namespace Game.Core
                 error = "저장본의 머리말이 깨졌습니다.";
                 return null;
             }
+            int first = 3;
+            var perks = new List<string>();
+            if (lines.Count > first && lines[first].StartsWith("perks"))
+            {
+                perks = lines[first].Substring(5).Trim().Split(',').Where(p => p.Length > 0).ToList();
+                first++;
+            }
             Adventure adventure;
             try
             {
-                adventure = new Adventure(data, lines[2].Substring(6).Split(','), seed);
+                adventure = new Adventure(data, lines[2].Substring(6).Split(','), seed, perks);
             }
             catch (ArgumentException e)
             {
                 error = "저장본의 파티를 만들 수 없습니다: " + e.Message;
                 return null;
             }
-            int first = 3;
-            if (lines.Count > 3 && lines[3].StartsWith("sheets "))
+            if (lines.Count > first && lines[first].StartsWith("sheets "))
             {
-                if (lines[3].Substring(7) != data.Fingerprint) note = "저장한 뒤 게임 데이터가 바뀌어 결과가 조금 다를 수 있습니다.";
-                first = 4;
+                if (lines[first].Substring(7) != data.Fingerprint) note = "저장한 뒤 게임 데이터가 바뀌어 결과가 조금 다를 수 있습니다.";
+                first++;
             }
             for (int i = first; i < lines.Count; i++)
             {
@@ -99,7 +106,13 @@ namespace Game.Core
                 case "fight": return Fight(new BattleCommand(N(1), w[2], N(3), N(4)));
                 case "choose": return Choose(N(1), N(2), N(3));
                 case "rest": return Rest();
-                case "buy": return Buy(N(1));
+                case "reroll": return Reroll();
+                case "avoid": return Avoid();
+                case "scare": return Scare();
+                case "rumor": return Rumor();
+                case "donate": return Donate();
+                case "use": return UseItem(N(1), w[2]);
+                case "buy": return Buy(N(1), w.Length > 2 ? N(2) : -1);
                 case "sell": return Sell(N(1));
                 case "elder": return Elder();
                 case "leave": return LeaveTown();

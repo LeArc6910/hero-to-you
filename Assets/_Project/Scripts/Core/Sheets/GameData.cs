@@ -14,17 +14,19 @@ namespace Game.Core
         public const string MonstersFile = "Monsters/monsters.csv";
         public const string MonsterSkillsFile = "Monsters/monster_skills.csv";
         public const string EncountersFile = "Story/encounters.csv";
-        public const string MapFile = "Maps/chapter1.txt";
+        public const string ChaptersFile = "Story/chapters.csv";
+        public const string PerksFile = "Journal/perks.csv";
         public const string StoriesFile = "Story/stories.csv";
         public const string EventsFile = "Story/events.csv";
         public const string EventChoicesFile = "Story/event_choices.csv";
         public const string ItemsFile = "Items/items.csv";
         public const string UpgradesFile = "Classes/upgrades.csv";
+        public const string RenownFile = "Story/renown.csv";
 
         public static readonly string[] Files =
         {
-            ClassesFile, SkillsFile, MonstersFile, MonsterSkillsFile, EncountersFile, MapFile, StoriesFile, EventsFile,
-            EventChoicesFile, ItemsFile, UpgradesFile,
+            ClassesFile, SkillsFile, MonstersFile, MonsterSkillsFile, EncountersFile, ChaptersFile, StoriesFile, EventsFile,
+            EventChoicesFile, ItemsFile, UpgradesFile, PerksFile, RenownFile,
         };
 
         // Monsters the classes summon to their side (Docs/Classes.md: necromancer, beastmaster).
@@ -36,7 +38,7 @@ namespace Game.Core
         static readonly string[] OutcomeVerbs =
         {
             "gold", "heal", "heal_all", "hurt", "hurt_all", "resolve", "resolve_all", "bless_all", "potion", "hope", "xp",
-            "weak_next", "flag", "battle", "item", "loot", "reagent", "doom",
+            "weak_next", "flag", "battle", "item", "loot", "reagent", "doom", "renown",
         };
 
         static readonly string[] SkillEffects =
@@ -59,7 +61,11 @@ namespace Game.Core
         public IReadOnlyDictionary<string, MonsterDef> Monsters { get; private set; } = new Dictionary<string, MonsterDef>();
         public IReadOnlyDictionary<string, MonsterSkillDef> MonsterSkills { get; private set; } = new Dictionary<string, MonsterSkillDef>();
         public IReadOnlyDictionary<string, EncounterDef> Encounters { get; private set; } = new Dictionary<string, EncounterDef>();
-        public MapDef Map { get; private set; }
+        // The first chapter's map (tests and tools); every chapter has its own (Chapters).
+        public MapDef Map => Chapters.Count > 0 ? Chapters[0].Map : null;
+        public IReadOnlyList<ChapterDef> Chapters { get; private set; } = new List<ChapterDef>();
+        public IReadOnlyList<PerkDef> Perks { get; private set; } = new List<PerkDef>();
+        public IReadOnlyList<RenownDef> Renown { get; private set; } = new List<RenownDef>();
         public IReadOnlyDictionary<string, StoryDef> Stories { get; private set; } = new Dictionary<string, StoryDef>();
         public IReadOnlyList<EventCard> Events { get; private set; } = new List<EventCard>();
         public IReadOnlyDictionary<string, ItemDef> Items { get; private set; } = new Dictionary<string, ItemDef>();
@@ -76,9 +82,15 @@ namespace Game.Core
         {
             var data = new GameData();
             uint hash = 2166136261;
-            foreach (string file in Files)
-                foreach (char c in read(file) ?? "")
-                    hash = unchecked((hash ^ c) * 16777619);
+            var source = read;
+            string Read(string file)
+            {
+                string text = source(file) ?? "";
+                foreach (char c in text) hash = unchecked((hash ^ c) * 16777619);
+                return text;
+            }
+            var texts = Files.ToDictionary(f => f, Read);
+            read = f => texts.TryGetValue(f, out string t) ? t : Read(f);
             data.Fingerprint = hash.ToString("x8");
             var skills = data.ReadSkills(CsvTable.Read(read(SkillsFile)));
             data.Skills = skills;
@@ -93,13 +105,9 @@ namespace Game.Core
             data.ReadEncounters(CsvTable.Read(read(EncountersFile)));
             data.ReadStories(CsvTable.Read(read(StoriesFile)));
             data.ReadEvents(CsvTable.Read(read(EventsFile)), CsvTable.Read(read(EventChoicesFile)));
-            data.ReadMap(read(MapFile));
-            foreach (string pool in new[] { "wild", "chest", "herb", "quest", "shrine", "elder" })
-                if (!data.Events.Any(e => e.Pool == pool)) data._errors.Add($"{EventsFile}: 사건 묶음 '{pool}'가 없습니다.");
-            foreach (string story in new[] { "prologue", "epilogue", "epilogue_kind", "rift_open" })
-                if (!data.Stories.ContainsKey(story)) data._errors.Add($"{StoriesFile}: 이야기 '{story}'가 없습니다.");
-            foreach (string encounter in new[] { "warden" })
-                if (!data.Encounters.ContainsKey(encounter)) data._errors.Add($"{EncountersFile}: 전투 '{encounter}'가 없습니다.");
+            data.ReadChapters(CsvTable.Read(read(ChaptersFile)), read);
+            data.ReadPerks(CsvTable.Read(read(PerksFile)));
+            data.ReadRenown(CsvTable.Read(read(RenownFile)));
             if (data._errors.Count > 0) throw new FormatException("시트 오류:\n" + string.Join("\n", data._errors));
             return data;
         }
@@ -306,7 +314,7 @@ namespace Game.Core
         void ReadItems(CsvTable table)
         {
             const string file = ItemsFile;
-            RequireColumns(file, table, "id", "name", "slot", "kind", "tier", "price", "attack", "stat", "dice", "power", "floor", "damage", "delay", "perfect", "armor", "hp", "resolve", "bonus", "text");
+            RequireColumns(file, table, "id", "name", "slot", "kind", "tier", "price", "attack", "stat", "dice", "power", "floor", "damage", "delay", "perfect", "armor", "hp", "resolve", "bonus", "use", "text");
             var list = new List<ItemDef>();
             var map = new Dictionary<string, ItemDef>();
             var seen = new HashSet<string>();
@@ -332,6 +340,18 @@ namespace Game.Core
                     else Error(file, row, $"bonus의 '{bonus[i]}'는 능력치(str, agi…)가 아닙니다.");
                 }
                 if (bonus.Length % 2 != 0) Error(file, row, "bonus는 '능력치 수' 짝으로 씁니다(예: str 5).");
+                if (item.Slot == ItemSlot.Consumable)
+                {
+                    var uses = new List<UpgradeEffect>();
+                    foreach (string part in row["use"].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        string[] words = part.Trim().Split(' ');
+                        if (!new[] { "heal", "resolve", "cleanse", "flee", "bomb", "luck" }.Contains(words[0])) Error(file, row, $"use의 '{words[0]}'는 heal, resolve, cleanse, flee, bomb, luck 가운데 하나입니다.");
+                        uses.Add(new UpgradeEffect { Verb = words[0], Target = "", Amount = words.Length > 1 ? Signed(file, row, words[1], "use") : 0 });
+                    }
+                    if (uses.Count == 0) Error(file, row, "소모품에는 use가 있어야 합니다.");
+                    item.Use = uses;
+                }
                 if (item.Slot == ItemSlot.Weapon)
                 {
                     var attack = new SkillDef
@@ -438,7 +458,7 @@ namespace Game.Core
                     Text = row["text"],
                 };
                 Choice(file, row, "kind", new[] { "physical", "magic", "buff" });
-                Choice(file, row, "effect", new[] { "", "burn", "howl", "charge" });
+                Choice(file, row, "effect", new[] { "", "burn", "chill", "howl", "charge" });
                 if (skill.Damages && skill.Dice == 0) Error(file, row, "공격에는 주사위가 있어야 합니다.");
                 if (skill.Delay < 20 || skill.Delay > 300) Error(file, row, "delay는 20~300(%)입니다.");
                 if (skill.Id.Length > 0) map[skill.Id] = skill;
@@ -510,7 +530,7 @@ namespace Game.Core
         void ReadEncounters(CsvTable table)
         {
             const string file = EncountersFile;
-            RequireColumns(file, table, "id", "monsters", "terrain", "danger", "text");
+            RequireColumns(file, table, "id", "monsters", "terrain", "danger", "chapter", "text");
             var map = new Dictionary<string, EncounterDef>();
             var seen = new HashSet<string>();
             foreach (var row in table.Rows)
@@ -528,6 +548,7 @@ namespace Game.Core
                     Monsters = monsters,
                     Terrains = row["terrain"].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries),
                     Danger = Number(file, row, "danger"),
+                    Chapter = row["chapter"].Length > 0 ? Number(file, row, "chapter") : 0,
                     Text = row["text"],
                 };
                 foreach (string terrain in encounter.Terrains)
@@ -641,16 +662,113 @@ namespace Game.Core
             return outcomes;
         }
 
-        void ReadMap(string text)
+        void ReadChapters(CsvTable table, Func<string, string> read)
         {
-            try
+            const string file = ChaptersFile;
+            string[] columns = { "id", "title", "map", "boss", "midboss", "town", "prologue", "epilogue", "epilogue_kind", "epilogue_grim", "wild", "chest", "herb", "quest", "clue", "shrine", "elder", "weaken_flag", "nosummon_flag", "quest_name", "clue_name", "midboss_name", "boss_name", "rift", "kind_flags", "kind_need", "grim_flags", "grim_need", "goal_quest", "goal_clue", "goal_camp", "goal_boss", "weaken_text", "nosummon_text" };
+            RequireColumns(file, table, columns);
+            var list = new List<ChapterDef>();
+            var seen = new HashSet<string>();
+            foreach (var row in table.Rows)
             {
-                Map = MapDef.Parse(text, MapFile);
+                var chapter = new ChapterDef
+                {
+                    Id = Id(file, row, seen),
+                    Index = list.Count,
+                    Title = row["title"],
+                    Boss = row["boss"],
+                    Midboss = row["midboss"],
+                    Town = row["town"],
+                    Prologue = row["prologue"],
+                    Epilogue = row["epilogue"],
+                    EpilogueKind = row["epilogue_kind"],
+                    EpilogueGrim = row["epilogue_grim"],
+                    WildPool = row["wild"],
+                    ChestPool = row["chest"],
+                    HerbPool = row["herb"],
+                    QuestPool = row["quest"],
+                    CluePool = row["clue"],
+                    ShrinePool = row["shrine"],
+                    ElderPool = row["elder"],
+                    WeakenFlag = row["weaken_flag"],
+                    NoSummonFlag = row["nosummon_flag"],
+                    QuestName = row["quest_name"],
+                    ClueName = row["clue_name"],
+                    MidbossName = row["midboss_name"],
+                    BossName = row["boss_name"],
+                    Rift = row["rift"],
+                    KindFlags = List(row["kind_flags"]),
+                    KindNeed = Number(file, row, "kind_need"),
+                    GrimFlags = List(row["grim_flags"]),
+                    GrimNeed = Number(file, row, "grim_need"),
+                    GoalQuest = row["goal_quest"],
+                    GoalClue = row["goal_clue"],
+                    GoalCamp = row["goal_camp"],
+                    GoalBoss = row["goal_boss"],
+                    WeakenText = row["weaken_text"],
+                    NoSummonText = row["nosummon_text"],
+                };
+                try
+                {
+                    chapter.Map = MapDef.Parse(read(row["map"]), row["map"]);
+                }
+                catch (FormatException e)
+                {
+                    _errors.Add(e.Message);
+                }
+                foreach (string encounter in new[] { chapter.Boss, chapter.Midboss })
+                    if (!Encounters.ContainsKey(encounter)) Error(file, row, $"전투 '{encounter}'가 encounters.csv에 없습니다.");
+                foreach (string story in new[] { chapter.Prologue, chapter.Epilogue, chapter.EpilogueKind, chapter.EpilogueGrim, chapter.Rift })
+                    if (!Stories.ContainsKey(story)) Error(file, row, $"이야기 '{story}'가 stories.csv에 없습니다.");
+                foreach (string pool in new[] { chapter.WildPool, chapter.ChestPool, chapter.HerbPool, chapter.QuestPool, chapter.CluePool, chapter.ShrinePool, chapter.ElderPool })
+                    if (!Events.Any(e => e.Pool == pool)) Error(file, row, $"사건 묶음 '{pool}'가 events.csv에 없습니다.");
+                int index = list.Count + 1;
+                if (!Encounters.Values.Any(e => e.Danger == 1 && (e.Chapter == 0 || e.Chapter == index))) Error(file, row, "이 챕터의 지도에 놓을 전투(danger 1)가 없습니다.");
+                list.Add(chapter);
             }
-            catch (FormatException e)
+            if (list.Count == 0) _errors.Add($"{file}: 챕터가 없습니다.");
+            Chapters = list;
+        }
+
+        static List<string> List(string raw) => (raw ?? "").Split(';').Select(s => s.Trim()).Where(s => s.Length > 0).ToList();
+
+        void ReadRenown(CsvTable table)
+        {
+            const string file = RenownFile;
+            RequireColumns(file, table, "need", "title", "text");
+            var list = new List<RenownDef>();
+            foreach (var row in table.Rows)
             {
-                _errors.Add(e.Message);
+                var rank = new RenownDef { Need = Number(file, row, "need"), Title = row["title"], Text = row["text"] };
+                if (list.Count > 0 && rank.Need <= list[list.Count - 1].Need) Error(file, row, "need는 위 줄보다 커야 합니다.");
+                if (list.Count == 0 && rank.Need != 0) Error(file, row, "첫 줄의 need는 0이어야 합니다.");
+                list.Add(rank);
             }
+            if (list.Count == 0) _errors.Add($"{file}: 명성 단계가 없습니다.");
+            Renown = list;
+        }
+
+        void ReadPerks(CsvTable table)
+        {
+            const string file = PerksFile;
+            RequireColumns(file, table, "id", "name", "pages", "effect", "text");
+            var list = new List<PerkDef>();
+            var seen = new HashSet<string>();
+            foreach (var row in table.Rows)
+            {
+                string[] words = row["effect"].Split(' ');
+                var perk = new PerkDef
+                {
+                    Id = Id(file, row, seen),
+                    Name = row["name"],
+                    Pages = Number(file, row, "pages"),
+                    Effect = new UpgradeEffect { Verb = words[0], Target = "", Amount = words.Length > 1 ? Signed(file, row, words[1], "effect") : 0 },
+                    Text = row["text"],
+                };
+                if (!new[] { "gold", "potion", "tonic", "hope", "doom", "xp", "hard" }.Contains(perk.Effect.Verb)) Error(file, row, $"effect '{perk.Effect.Verb}'는 gold, potion, tonic, hope, doom, xp, hard 가운데 하나입니다.");
+                list.Add(perk);
+            }
+            Perks = list;
         }
     }
 }

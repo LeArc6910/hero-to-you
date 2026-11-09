@@ -51,6 +51,8 @@ namespace Game.Core
         Swamp,
         Road,
         Ruins,
+        Shallows,
+        Sand,
         Water,
         Mountain,
     }
@@ -64,6 +66,9 @@ namespace Game.Core
         Shrine,
         Quest,
         Boss,
+        // A clue for the quest (the watchtower), and the middle boss's camp.
+        Clue,
+        Camp,
     }
 
     // What a hex holds that the seed placed: an enemy group, an event (?), treasure or herbs.
@@ -85,6 +90,8 @@ namespace Game.Core
             Terrain.Swamp => "늪",
             Terrain.Road => "길",
             Terrain.Ruins => "폐허",
+            Terrain.Shallows => "얕은 물",
+            Terrain.Sand => "모래톱",
             Terrain.Water => "물",
             Terrain.Mountain => "산",
             _ => terrain.ToString(),
@@ -95,6 +102,7 @@ namespace Game.Core
         {
             Terrain.Forest => 2,
             Terrain.Swamp => 2,
+            Terrain.Shallows => 2,
             Terrain.Water => 0,
             Terrain.Mountain => 0,
             _ => 1,
@@ -160,6 +168,8 @@ namespace Game.Core
                         's' => (Terrain.Swamp, Site.None),
                         'r' => (Terrain.Road, Site.None),
                         'u' => (Terrain.Ruins, Site.None),
+                        'w' => (Terrain.Shallows, Site.None),
+                        'b' => (Terrain.Sand, Site.None),
                         '~' => (Terrain.Water, Site.None),
                         '^' => (Terrain.Mountain, Site.None),
                         'S' => (Terrain.Plains, Site.Start),
@@ -167,13 +177,15 @@ namespace Game.Core
                         'H' => (Terrain.Plains, Site.Shrine),
                         'R' => (Terrain.Ruins, Site.Quest),
                         'B' => (Terrain.Ruins, Site.Boss),
+                        'C' => (Terrain.Ruins, Site.Clue),
+                        'M' => (Terrain.Plains, Site.Camp),
                         _ => throw new FormatException($"{file}: 지도 {r + 1}번째 줄의 '{ch}'는 땅이나 장소 글자가 아닙니다."),
                     };
                     map.Terrains[r * width + c] = terrain;
                     map.Sites[r * width + c] = site;
                 }
             }
-            foreach (var site in new[] { Site.Start, Site.Town, Site.Quest, Site.Boss })
+            foreach (var site in new[] { Site.Start, Site.Town, Site.Quest, Site.Boss, Site.Clue, Site.Camp })
             {
                 int count = map.Sites.Count(s => s == site);
                 if (count != 1) throw new FormatException($"{file}: 장소 {site}가 {count}개입니다(하나여야 합니다).");
@@ -230,28 +242,53 @@ namespace Game.Core
             tile.Content != Content.None || (tile.Site != Site.None && tile.Site != Site.Start && !(tile.Used && tile.Site != Site.Town));
 
         // Every hex reachable with `points` of movement and what it costs. Moving passes through quiet hexes only;
-        // a hex where something happens can be the end of the move but not a step on the way.
-        public Dictionary<Hex, int> Reach(Hex from, int points)
+        // a hex where something happens can be the end of the move but not a step on the way. `stops` says what
+        // counts as something happening (the adventure leaves out what fog hides); `cost` the price of each terrain
+        // for this mover (some classes walk forests lightly).
+        public Dictionary<Hex, int> Reach(Hex from, int points, Func<MapTile, bool> stops = null, Func<Terrain, int> cost = null)
+        {
+            var (costs, _) = Search(from, points, stops ?? Stops, cost ?? TerrainInfo.Cost);
+            costs.Remove(from);
+            return costs;
+        }
+
+        // The hexes walked from `from` to `to` (both included), by the same rules as Reach; empty when out of reach.
+        public List<Hex> Path(Hex from, Hex to, int points, Func<MapTile, bool> stops = null, Func<Terrain, int> cost = null)
+        {
+            var (costs, parents) = Search(from, points, stops ?? Stops, cost ?? TerrainInfo.Cost);
+            var path = new List<Hex>();
+            if (!costs.ContainsKey(to)) return path;
+            for (var at = to; ; at = parents[at])
+            {
+                path.Add(at);
+                if (at == from) break;
+            }
+            path.Reverse();
+            return path;
+        }
+
+        (Dictionary<Hex, int>, Dictionary<Hex, Hex>) Search(Hex from, int points, Func<MapTile, bool> stops, Func<Terrain, int> price)
         {
             var cost = new Dictionary<Hex, int> { [from] = 0 };
+            var parents = new Dictionary<Hex, Hex> { [from] = from };
             var open = new List<Hex> { from };
             while (open.Count > 0)
             {
                 var hex = open.OrderBy(h => cost[h]).ThenBy(h => h.Row).ThenBy(h => h.Col).First();
                 open.Remove(hex);
-                if (hex != from && Stops(Tile(hex))) continue;
+                if (hex != from && stops(Tile(hex))) continue;
                 foreach (var next in hex.Neighbors())
                 {
                     if (!Def.Passable(next)) continue;
-                    int step = cost[hex] + TerrainInfo.Cost(Def.TerrainAt(next));
+                    int step = cost[hex] + Math.Max(1, price(Def.TerrainAt(next)));
                     if (step > points) continue;
                     if (cost.TryGetValue(next, out int had) && had <= step) continue;
                     cost[next] = step;
+                    parents[next] = hex;
                     open.Add(next);
                 }
             }
-            cost.Remove(from);
-            return cost;
+            return (cost, parents);
         }
 
         // Steps (by movement cost) from `from` to every hex, ignoring what stops a move: for planning far ahead.

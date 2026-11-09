@@ -27,6 +27,8 @@ namespace Game.Client
             [Terrain.Swamp] = Palette.Hex("#45574A"),
             [Terrain.Road] = Palette.Hex("#7C6C50"),
             [Terrain.Ruins] = Palette.Hex("#5E5A57"),
+            [Terrain.Shallows] = Palette.Hex("#3F6E7A"),
+            [Terrain.Sand] = Palette.Hex("#9C8A5E"),
             [Terrain.Water] = Palette.Hex("#2A425C"),
             [Terrain.Mountain] = Palette.Hex("#4A4550"),
         };
@@ -70,14 +72,25 @@ namespace Game.Client
         void DrawDayLine(Rect r)
         {
             var a = _adventure;
-            string time = $"{a.Day}일째 {a.TimeName}" + (a.Night ? " (밤: 이동 −1)" : "");
-            Ui.Text(new Rect(r.x, r.y, 170, r.height), time, 12, Palette.Ink, TextAnchor.MiddleLeft, true);
-            float barX = r.x + 170;
+            string time = $"{a.Chapter.Index + 1}장 · {a.Day}일째 {a.TimeName}" + (a.Night ? " (밤: 이동 −1)" : "");
+            float timeW = Mathf.Min(200, Ui.TextWidth(time, 12, true) + 10);
+            Ui.Text(new Rect(r.x, r.y, timeW, r.height), time, 12, Palette.Ink, TextAnchor.MiddleLeft, true);
+            if (Ui.Hit(new Rect(r.x, r.y, timeW, r.height), "시간", true, "도움말")) ShowTip("time");
+            float barX = r.x + timeW;
             float barW = Mathf.Min(140, r.width * 0.2f);
             Ui.Text(new Rect(barX, r.y, 36, r.height), "균열", 11, Palette.Damage, TextAnchor.MiddleLeft, true);
             Ui.Bar(new Rect(barX + 34, r.y + 5, barW, 8), (float)a.Doom / Adventure.DoomMax, Palette.Damage);
             Ui.Text(new Rect(barX + barW + 38, r.y, 50, r.height), $"{a.Doom}/{Adventure.DoomMax}", 11, Palette.Dim);
+            if (Ui.Hit(new Rect(barX, r.y, barW + 80, r.height), "균열", true, "도움말")) ShowTip("rift");
             float ox = barX + barW + 84;
+            string rank = $"「{a.Rank.Title}」 명성 {a.Renown}";
+            float rankW = Ui.TextWidth(rank, 11, true) + 8;
+            if (r.xMax - ox > rankW)
+            {
+                Ui.Text(new Rect(ox, r.y, rankW, r.height), rank, 11, Palette.Gold, TextAnchor.MiddleLeft, true);
+                if (Ui.Hit(new Rect(ox, r.y, rankW, r.height), "명성", true, "도움말")) ShowTip("renown");
+                ox += rankW + 6;
+            }
             if (r.xMax - ox > 120) Ui.Text(new Rect(ox, r.y, r.xMax - ox, r.height), "목표: " + a.Objective, 11, Palette.Journal);
         }
 
@@ -150,11 +163,17 @@ namespace Game.Client
                 var c = origin + HexCenter(tile.Hex, size);
                 var rect = new Rect(c.x - w / 2, c.y - h / 2, w, h);
                 if (!local.Overlaps(rect)) continue;
-                Ui.Image(rect, fill, TerrainColors[tile.Terrain]);
+                bool seen = a.Explored(tile.Hex);
+                bool known = a.Knows(tile);
+                var ground = TerrainColors.TryGetValue(tile.Terrain, out var color) ? color : Palette.Ground;
+                // Fog (Docs/Map.md 안개): hexes nobody has seen are dim, and what they hold stays hidden.
+                Ui.Image(rect, fill, seen ? ground : Color.Lerp(ground, Palette.Back, 0.55f));
                 string mark = TerrainMark(tile.Terrain);
-                if (mark != null && tile.Site == Site.None && tile.Content == Content.None)
-                    Ui.Image(new Rect(c.x - size * 0.45f, c.y - size * 0.4f, size * 0.9f, size * 0.9f), PixelArt.Icon(mark), new Color(1, 1, 1, 0.55f));
-                DrawHexContent(tile, c, size);
+                if (mark != null && tile.Site == Site.None && (tile.Content == Content.None || !known))
+                    Ui.Image(new Rect(c.x - size * 0.45f, c.y - size * 0.4f, size * 0.9f, size * 0.9f), PixelArt.Icon(mark), new Color(1, 1, 1, seen ? 0.55f : 0.25f));
+                // A dark edge on every hex gives the map some depth.
+                Ui.Image(rect, rim, new Color(0, 0, 0, seen ? 0.22f : 0.12f));
+                if (known) DrawHexContent(tile, c, size, seen);
                 bool reachable = reach.ContainsKey(tile.Hex);
                 if (reachable) Ui.Image(rect, fill, new Color(1, 1, 1, 0.18f));
                 if (reachable) Ui.Image(rect, rim, Palette.WithAlpha(Palette.Gold, 0.7f));
@@ -190,10 +209,12 @@ namespace Game.Client
             Terrain.Water => "wave",
             Terrain.Swamp => "reeds",
             Terrain.Ruins => "stones",
+            Terrain.Shallows => "wave",
+            Terrain.Sand => "dunes",
             _ => null,
         };
 
-        void DrawHexContent(MapTile tile, Vector2 c, float size)
+        void DrawHexContent(MapTile tile, Vector2 c, float size, bool seen)
         {
             Texture2D icon = null;
             switch (tile.Content)
@@ -219,6 +240,8 @@ namespace Game.Client
                     Site.Town => PixelArt.Icon("town"),
                     Site.Shrine => PixelArt.Icon("shrine"),
                     Site.Quest => PixelArt.Icon("quest"),
+                    Site.Clue => PixelArt.Icon("clue"),
+                    Site.Camp => PixelArt.Icon("camp"),
                     Site.Boss => PixelArt.Icon("boss"),
                     _ => null,
                 };
@@ -226,13 +249,17 @@ namespace Game.Client
             if (icon == null) return;
             bool faded = tile.Used && tile.Site != Site.Town;
             float s = size * (tile.Content == Content.Enemy ? 1.15f : 1.1f);
-            Ui.Image(new Rect(c.x - s / 2, c.y - s / 2, s, s), icon, faded ? new Color(1, 1, 1, 0.35f) : (Color?)null);
+            // Known from afar (a rumor, the seer, the beastmaster) but not seen: drawn faint.
+            var tint = faded ? new Color(1, 1, 1, 0.35f) : !seen && tile.Site == Site.None ? new Color(1, 1, 1, 0.6f) : (Color?)null;
+            Ui.Image(new Rect(c.x - s / 2, c.y - s / 2, s, s), icon, tint);
         }
 
         // What a hex holds, in words, for the panel.
         string Describe(Hex hex)
         {
             var tile = _adventure.Map.Tile(hex);
+            var chapter = _adventure.Chapter;
+            if (!_adventure.Knows(tile)) return $"{TerrainInfo.Name(tile.Terrain)} · 안개 속: 무엇이 있는지 모른다";
             string what = tile.Content switch
             {
                 Content.Enemy => "적: " + string.Join(", ", _data.Encounters[tile.Encounter].Monsters.Select(m => m.Name)),
@@ -241,10 +268,12 @@ namespace Game.Client
                 Content.Herb => "약초",
                 _ => tile.Site switch
                 {
-                    Site.Town => "마을: 여관, 상점, 장로",
+                    Site.Town => $"{chapter.Town}: 여관, 상점, 장로",
                     Site.Shrine => tile.Used ? "성소(이미 다녀감)" : "성소",
-                    Site.Quest => tile.Used ? "리엔의 비석(읽음)" : "리엔의 비석",
-                    Site.Boss => "봉인석: 잿빛 파수꾼",
+                    Site.Quest => tile.Used ? $"{chapter.QuestName}(다녀감)" : chapter.QuestName,
+                    Site.Clue => tile.Used ? $"{chapter.ClueName}(다녀감)" : chapter.ClueName,
+                    Site.Camp => tile.Used ? $"{chapter.MidbossName}(쓰러뜨림)" : $"{chapter.MidbossName} (중간 보스)",
+                    Site.Boss => $"보스: {chapter.BossName}",
                     Site.Start => "출발한 곳",
                     _ => "",
                 },
@@ -276,22 +305,31 @@ namespace Game.Client
 
             if (a.MovePoints < 0)
             {
-                if (Ui.Button(new Rect(inner.x, y, inner.width, bh), $"이동 굴리기 (민첩 {Dice.ClampChance(hero.Stat(Stat.Agility))}% × {Adventure.MoveDice})", 15, true, Look.Primary))
+                if (Ui.Button(new Rect(inner.x, y, inner.width, bh), $"이동 굴리기 ({a.MoveChance(hero)}% × {Adventure.MoveDice})", 15, true, Look.Primary))
                 {
                     _picked = null;
                     if (Act(a.RollMove) == null) Sounds.Play(Sound.Dice);
                 }
                 y += bh + 6;
                 if (Ui.Button(new Rect(inner.x, y, half, bh), "야영", 14, true, Look.Quiet)) Act(a.Camp);
-                if (Ui.Button(new Rect(inner.x + half + 6, y, half, bh), "장비·가방", 14, true, Look.Quiet)) _gearOpen = true;
+                if (Ui.Button(new Rect(inner.x + half + 6, y, half, bh), "장비·소모품", 14, true, Look.Quiet)) _gearOpen = true;
                 y += bh + 4;
-                Ui.Text(new Rect(inner.x, y, inner.width, 30), "이동력 = 2 + 성공 수. 야영은 움직이지 않고 생명력 20%와 결의 1을 회복한다.", 10.5f, Palette.Dim, TextAnchor.UpperLeft, false, true);
+                Ui.Text(new Rect(inner.x, y, inner.width, 30), "이동력 = 2 + 성공 수. 야영은 움직이지 않고 생명력 20%와 결의 1을 회복한다." + PerkLine(hero), 10.5f, Palette.Dim, TextAnchor.UpperLeft, false, true);
                 y += 32;
             }
             else
             {
                 DrawMoveDice(new Rect(inner.x, y, inner.width, 30), a.MoveRoll);
                 y += 32;
+                if (a.CanReroll)
+                {
+                    if (Ui.Button(new Rect(inner.x, y, inner.width, bh - 4), "다시 굴리기 (도박사, 하루 한 번)", 13, true, Look.Normal))
+                    {
+                        _picked = null;
+                        if (Act(a.Reroll) == null) Sounds.Play(Sound.Dice);
+                    }
+                    y += bh;
+                }
                 Ui.Text(new Rect(inner.x, y, inner.width, 18), $"이동력 {a.MovePoints} · 갈 칸을 누르세요 (금색 테두리)", 12, Palette.Ink);
                 y += 20;
                 if (_picked.HasValue && reach.TryGetValue(_picked.Value, out int cost))
@@ -315,7 +353,7 @@ namespace Game.Client
                     _picked = null;
                     Act(a.Stay);
                 }
-                if (Ui.Button(new Rect(inner.x + half + 6, y, half, bh), "장비·가방", 14, true, Look.Quiet)) _gearOpen = true;
+                if (Ui.Button(new Rect(inner.x + half + 6, y, half, bh), "장비·소모품", 14, true, Look.Quiet)) _gearOpen = true;
                 y += bh + 4;
             }
             if (_actError != null)
@@ -332,9 +370,37 @@ namespace Game.Client
                 Ui.Text(new Rect(inner.x, y, inner.width, lh), line, 11, Palette.Journal, TextAnchor.UpperLeft, false, true);
                 y += lh + 2;
             }
-            if (Ui.Portrait || y > inner.yMax - 40) return;
-            Ui.Text(new Rect(inner.x, inner.yMax - 34, inner.width, 34), "?: 사건 · 상자: 보물 · 풀: 약초 · 몬스터: 적 무리 · 집: 마을 · 비석: 리엔의 비석 · 붉은 돌: 봉인석", 9.5f, Palette.Dim, TextAnchor.LowerLeft, false, true);
+            if (Ui.Portrait) return;
+            // The chapter's goals, done ones struck through with a check.
+            var goals = a.Objectives;
+            float gy = inner.yMax - goals.Count * 30 - 18;
+            if (gy < y + 4) return;
+            Ui.Text(new Rect(inner.x, gy, inner.width, 16), $"{a.Chapter.Title}의 목표", 11, Palette.Gold, TextAnchor.MiddleLeft, true);
+            gy += 18;
+            foreach (var (text, done) in goals)
+            {
+                Ui.Text(new Rect(inner.x, gy, inner.width, 28), (done ? "✓ " : "· ") + text, 10, done ? Palette.Dim : Palette.Journal, TextAnchor.UpperLeft, false, true);
+                gy += 30;
+            }
         }
+
+        // The hero's map perk in a line (Docs/Classes.md 지도 특기).
+        static string PerkLine(Hero hero) => hero.Class.Id switch
+        {
+            "hunter" => " 사냥꾼: 숲을 들판처럼 걷고 한 칸 더 본다.",
+            "beastmaster" => " 야수조련사: 숲·늪을 들판처럼 걷고 4칸 안의 적을 느낀다.",
+            "elementalist" => " 원소술사: 이동 판정에 지능을 쓸 수 있다.",
+            "gambler" => " 도박사: 하루 한 번 이동을 다시 굴린다.",
+            "necromancer" => " 사령술사: 밤에도 느려지지 않는다.",
+            "seer" => " 점성술사: 안개 속 사건과 보물을 느낀다.",
+            "knight" => " 기사: 야영하면 같은 칸 동료도 결의 +1.",
+            "cleric" => " 성직자: 야영 회복이 두 배, 같은 칸 동료도 돌본다.",
+            "alchemist" => " 연금술사: 야영하면 재료를 모은다.",
+            "bard" => " 음유시인: 마을 값이 20% 싸다.",
+            "rogue" => " 도적: 무리를 피할 때 확정 성공 1.",
+            "berserker" => " 광전사: 들판의 무리를 겁줘 쫓을 수 있다.",
+            _ => "",
+        };
 
         static void DrawMoveDice(Rect r, CheckResult roll)
         {
@@ -365,7 +431,14 @@ namespace Game.Client
                 foreach (int i in a.JoinCandidates) _joining.Add(i);
             }
             var column = BeginColumn($"join:{a.Log.Count}", 56);
-            float y = Heading(column, 4, a.BossBattle ? "봉인석의 파수꾼" : "전투");
+            string heading = a.Kind switch
+            {
+                Adventure.JoinKind.Boss => a.Chapter.BossName,
+                Adventure.JoinKind.Camp => a.Chapter.MidbossName,
+                Adventure.JoinKind.Ambush => "기습!",
+                _ => "전투",
+            };
+            float y = Heading(column, 4, heading);
             y = Paragraph(column, y, a.Encounter.Text, 14, Palette.Journal);
             float icon = 40;
             var monsters = a.Encounter.Monsters;
@@ -391,6 +464,26 @@ namespace Game.Client
             }
             var far = Enumerable.Range(0, a.Heroes.Count).Where(i => !a.JoinCandidates.Contains(i)).Select(i => a.Heroes[i].Name).ToList();
             if (far.Count > 0) y = Paragraph(column, y, $"멀어서 못 오는 영웅: {string.Join(", ", far)}", 12, Palette.Dim);
+            // Slipping past (or, for the berserker, scaring off) a group met in the open: once, before choosing.
+            if (a.CanAvoid)
+            {
+                var avoid = a.AvoidOdds(false);
+                string avoidLabel = $"피해 간다 (민첩 {avoid.Chance}% × {Adventure.AvoidDice}, {Adventure.AvoidNeed}개 이상 {Percent(avoid.AtLeast(Adventure.AvoidNeed))})";
+                if (Ui.Button(new Rect(0, y, column.width, 44), avoidLabel, 13, true, Look.Quiet)) Act(a.Avoid);
+                y += 50;
+                if (a.CanScare)
+                {
+                    var scare = a.AvoidOdds(true);
+                    string scareLabel = $"겁줘 쫓는다 (힘 {scare.Chance}% × {Adventure.AvoidDice}, {Percent(scare.AtLeast(Adventure.AvoidNeed))}) · 경험치 절반";
+                    if (Ui.Button(new Rect(0, y, column.width, 44), scareLabel, 13, true, Look.Danger)) Act(a.Scare);
+                    y += 50;
+                }
+                y = Paragraph(column, y, "실패하면 싸워야 한다. 피하면 온 칸으로 물러나고 무리는 남는다.", 11, Palette.Dim);
+            }
+            else if (a.JoinCheck != null)
+            {
+                y = Paragraph(column, y, string.Join(" ", a.Report), 12, Palette.Damage);
+            }
             if (_actError != null) y = Paragraph(column, y, _actError, 12, Palette.Damage);
             EndColumn(y);
             if (Ui.Button(Footer(48), $"싸운다 ({_joining.Count}명)", 17, true, Look.Primary))

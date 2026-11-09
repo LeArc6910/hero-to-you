@@ -1,19 +1,35 @@
 id,name,dice,power,floor,kind,target,aim,delay,effect,text
-gob_stab,찌르기,2,9,0,physical,one,random,100,,녹슨 칼로 찌른다.
-gob_arrow,화살,2,10,0,physical,one,weakest,100,,가장 약한 쪽을 노린다.
-wolf_bite,물어뜯기,3,8,0,physical,one,random,100,,
+gob_stab,찌르기,2,10,0,physical,one,random,100,,녹슨 칼로 찌른다.
+gob_arrow,화살,2,11,0,physical,one,weakest,100,,가장 약한 쪽을 노린다.
+wolf_bite,물어뜯기,3,9,0,physical,one,random,100,,
 wolf_howl,울부짖기,0,0,0,buff,self,random,60,howl,다음 공격의 위력 +3.
-bandit_slash,베기,2,11,0,physical,one,random,100,,
+bandit_slash,베기,2,12,0,physical,one,random,100,,
 bandit_heavy,내려찍기,3,16,0,physical,one,strongest,120,,힘을 모아 가장 튼튼한 쪽을 내려찍는다.
-cut_throw,단검 던지기,2,10,0,physical,one,weakest,90,,
+cut_throw,단검 던지기,2,11,0,physical,one,weakest,90,,
 warden_strike,돌주먹,3,15,0,physical,one,random,100,,
 warden_sweep,휩쓸기,2,10,0,physical,all,random,110,,모두를 휩쓴다.
 warden_ember,잿불 폭발,3,10,0,magic,all,random,120,burn,잿불이 터진다. 화상.
 warden_crush,짓누르기,4,20,0,physical,one,strongest,130,,
 skel_slash,녹슨 칼,2,6,0,physical,one,random,100,,해골의 칼질.
 ally_bite,물어뜯기,3,6,0,physical,one,weakest,100,,늑대가 약한 적을 문다.
-wisp_flare,잿불,2,7,25,magic,one,random,100,burn,잿불을 뿜는다. 화상.
-lurker_slam,내려치기,3,13,0,physical,one,strongest,120,,늪에서 솟아 내려친다.
-lurker_grab,끌어당기기,2,8,0,physical,one,weakest,100,,
+wisp_flare,잿불,2,8,25,magic,one,random,100,burn,잿불을 뿜는다. 화상.
+lurker_slam,내려치기,3,14,0,physical,one,strongest,120,,늪에서 솟아 내려친다.
+lurker_grab,끌어당기기,2,9,0,physical,one,weakest,100,,
 warden_charge,잿불 모으기,0,0,0,buff,self,random,80,charge,잿불을 모은다. 다음 차례에 모두를 태운다!
 warden_storm,잿불 폭풍,4,12,0,magic,all,random,130,burn,모아 둔 잿불이 터진다. 모두 화상.
+chief_cleave,쪼개기,3,14,0,physical,one,strongest,110,,가장 튼튼한 쪽을 도끼로 쪼갠다.
+chief_rally,호령,2,7,0,physical,all,random,100,,“밀어붙여!” 모두를 휩쓴다.
+drown_grab,움켜쥐기,2,13,0,physical,one,random,100,,차가운 손이 붙잡는다.
+drown_pull,끌어들이기,2,11,0,physical,one,weakest,110,chill,물속으로 끌어당긴다. 냉기.
+smug_knife,갈고리칼,2,14,0,physical,one,weakest,90,,
+smug_bottle,불붙은 병,2,11,0,magic,one,random,100,burn,불붙은 병을 던진다. 화상.
+crab_pinch,집게,2,14,0,physical,one,random,100,,
+crab_snap,으스러뜨리기,3,20,0,physical,one,strongest,120,,큰 집게로 으스러뜨린다.
+gull_peck,쪼기,2,9,0,physical,one,weakest,80,,
+captain_hook,갈고리,3,18,0,physical,one,strongest,110,,
+captain_cannon,작은 대포,2,12,0,physical,all,random,120,,모두에게 산탄을 쏜다.
+bell_strike,종채,3,20,0,physical,one,random,100,,
+bell_toll,종소리,2,11,0,magic,all,random,110,chill,물속의 종이 울린다. 모두 냉기.
+bell_raise,종 들어 올리기,0,0,0,buff,self,random,80,charge,거대한 종을 들어 올린다. 다음 차례에 해일이 온다!
+bell_wave,해일,4,16,0,magic,all,random,130,,들어 올린 종이 떨어지며 해일이 덮친다.
+bell_crush,종으로 짓누르기,4,26,0,physical,one,strongest,130,,

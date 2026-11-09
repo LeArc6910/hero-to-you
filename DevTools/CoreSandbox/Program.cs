@@ -155,30 +155,54 @@ static class Program
     {
         int wins = 0;
         var endings = new Dictionary<string, int>();
-        double days = 0, levels = 0, battles = 0, gold = 0, doom = 0;
-        int sealRead = 0;
+        double levels = 0, battles = 0, gold = 0, renown = 0, pages = 0;
+        var reached = new int[_data.Chapters.Count + 1];
+        int quest = 0, clue = 0, midboss = 0;
+        double firstLevel = 0, firstDay = 0, firstBattles = 0;
         for (int run = 0; run < runs; run++)
         {
             var adventure = new Adventure(_data, party, (ulong)(run * 104729 + 7));
-            AdventureBot.Play(adventure, new GameRandom((ulong)run, 9), smart);
+            var bot = new GameRandom((ulong)run, 9);
+            int cleared = 0;
+            for (int step = 0; step < 20000 && !adventure.Over; step++)
+            {
+                string error = AdventureBot.Step(adventure, bot, smart);
+                if (error != null) throw new InvalidOperationException($"bot step {step} on {adventure.Screen}: {error}");
+                if (adventure.ChaptersCleared > cleared)
+                {
+                    cleared = adventure.ChaptersCleared;
+                    if (cleared == 1)
+                    {
+                        firstLevel += adventure.Heroes.Average(h => h.Level);
+                        firstDay += adventure.Day;
+                        firstBattles += adventure.BattlesWon;
+                    }
+                }
+            }
+            string chapter = $"{adventure.Chapter.Index + 1}장 ";
             string end;
             if (adventure.Screen == AdventureScreen.Victory)
             {
                 wins++;
-                end = adventure.Story?.Id == "epilogue_kind" ? "승리(다정한 결말)" : "승리";
+                end = "승리" + (adventure.Story?.Id == adventure.Chapter.EpilogueKind ? "(다정한 결말)" : adventure.Story?.Id == adventure.Chapter.EpilogueGrim ? "(쓸쓸한 결말)" : "");
             }
-            else if (adventure.Story?.Id == "rift_open") end = "균열이 열림";
-            else end = adventure.Battle != null && adventure.Battle.Monsters.Any(m => m.Monster.Boss) ? "보스에게 짐" : "길에서 전멸";
+            else if (adventure.Story?.Id == adventure.Chapter.Rift) end = chapter + "균열이 열림";
+            else end = chapter + (adventure.Battle != null && adventure.Battle.Monsters.Any(m => m.Monster.Boss) ? "보스에게 짐" : adventure.Battle != null && adventure.Kind == Adventure.JoinKind.Camp ? "중간 보스에게 짐" : "길에서 전멸");
             endings.TryGetValue(end, out int n);
             endings[end] = n + 1;
-            days += adventure.Day;
+            reached[adventure.ChaptersCleared]++;
             levels += adventure.Heroes.Average(h => h.Level);
             battles += adventure.BattlesWon;
             gold += adventure.Gold;
-            doom += adventure.Doom;
-            if (adventure.HasFlag("read_seal")) sealRead++;
+            renown += adventure.Renown;
+            pages += adventure.PagesEarned;
+            midboss += adventure.MidbossesBeaten;
+            if (adventure.HasFlag(_data.Chapters[0].WeakenFlag)) quest++;
+            if (adventure.HasFlag(_data.Chapters[0].NoSummonFlag)) clue++;
         }
-        Console.WriteLine($"{string.Join("+", party.Select(p => _data.Classes[p].Name))} ({(smart ? "똑똑한" : "아무렇게나")} 봇, {runs}판): 이김 {(double)wins / runs:P1}, 평균 {days / runs:0.0}일, 균열 {doom / runs:0.0}, 레벨 {levels / runs:0.0}, 이긴 전투 {battles / runs:0.0}, 남은 금화 {gold / runs:0}, 비석 읽음 {(double)sealRead / runs:P0}");
+        Console.WriteLine($"{string.Join("+", party.Select(p => _data.Classes[p].Name))} ({(smart ? "똑똑한" : "아무렇게나")} 봇, {runs}판): 캠페인 승리 {(double)wins / runs:P1}, 1장 넘김 {(double)(runs - reached[0]) / runs:P0}, 레벨 {levels / runs:0.0}, 이긴 전투 {battles / runs:0.0}, 남은 금화 {gold / runs:0}, 명성 {renown / runs:0.0}, 일지 페이지 {pages / runs:0.0}");
+        int past = Math.Max(1, runs - reached[0]);
+        Console.WriteLine($"  1장 비석 {(double)quest / runs:P0}, 1장 단서 {(double)clue / runs:P0}, 중간 보스 {midboss / (double)runs:0.0} · 1장을 넘긴 판: {firstDay / past:0.0}일, 레벨 {firstLevel / past:0.0}, 이긴 전투 {firstBattles / past:0.0}");
         foreach (var pair in endings.OrderByDescending(p => p.Value)) Console.WriteLine($"  {pair.Key}: {pair.Value}");
     }
 }

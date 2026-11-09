@@ -1,12 +1,12 @@
 # 챕터 1 잿빛 숲 (Docs/Map.md). 한 글자가 육각 칸 하나다. 홀수 줄은 반 칸 오른쪽으로 밀린다.
-# 땅: . 들판  f 숲  s 늪  r 길  u 폐허  ~ 물(못 감)  ^ 산(못 감)
-# 장소: S 시작  T 마을  H 성소  R 봉인의 비석(본 줄거리)  B 봉인석(보스)
+# 땅: . 들판  f 숲  s 늪  r 길  u 폐허  w 얕은 물  b 모래  ~ 물(못 감)  ^ 산(못 감)
+# 장소: S 시작  T 마을  H 성소  R 본 줄거리 비석  C 단서(망루)  M 중간 보스 야영지  B 보스
 ^^ffff^^^ffff^^
 ^.Sr.ffff.uuRf^
 ..Tr..ff.f.uuf.
-f..rr.f..ff.ff.
+f..rr.f..ffCff.
 ff..rr..H.f..f.
 ~f...rrr..ff.Bf
 ~~fss..frrrr.f^
-~~ssss.f.ff.ff^
+~~sMss.f.ff.ff^
 ~~~sss^^^ffff^^

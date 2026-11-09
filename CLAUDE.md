@@ -1,6 +1,6 @@
 # hero-to-you
 
-For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000.6.3f1. 기획과 기술 원칙은 `Docs/Design.md`(개발 가이드라인)에 있고, 방향이 바뀌면 그 문서를 먼저 고친다. 세부는 `Docs/Dice.md`(주사위), `Docs/Combat.md`(전투), `Docs/Classes.md`(직업 12종), `Docs/Narrative.md`(이야기·사건), `Docs/WebDemo.md`(웹 데모), `Docs/WebDemoSetup.md`(사람이 처음 한 번 하는 웹 데모 설정), `Docs/Playtest.md`(클라우드 플레이 시험).
+For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000.6.3f1. 기획과 기술 원칙은 `Docs/Design.md`(개발 가이드라인)에 있고, 방향이 바뀌면 그 문서를 먼저 고친다. 세부는 `Docs/Dice.md`(주사위), `Docs/Combat.md`(전투), `Docs/Classes.md`(직업 12종), `Docs/Narrative.md`(이야기·사건), `Docs/Map.md`(지도·장), `Docs/Saving.md`(저장), `Docs/Journal.md`(판을 넘는 일지), `Docs/WebDemo.md`(웹 데모), `Docs/WebDemoSetup.md`(사람이 처음 한 번 하는 웹 데모 설정), `Docs/Playtest.md`(클라우드 플레이 시험).
 
 ## 작업 분담
 
@@ -19,10 +19,10 @@ For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000
   - `Heroes/`: 영웅, 능력치, 직업, 레벨
   - `Combat/`: 턴제 전투(`Battle`). 명령(`BattleCommand`)을 받아 상태를 바꾸고 일어난 일(`BattleEvent`) 목록을 쌓는다. 직업 기믹은 `Battle.Classes.cs`
   - `Map/`: 육각 칸(`Hex`), 지도 글자 읽기(`MapDef`), 지금 지도(`WorldMap`: 칸의 내용, 이동 범위)
-  - `Adventure/`: 한 판의 진행(`Adventure`): 지도 차례와 이동 판정, 칸의 일, 하루와 균열, 전투 합류, 사건, 레벨업 고르기(`Adventure.cs`), 마을·상점·장비(`Adventure.Town.cs`), 저장과 불러오기(`Adventure.Save.cs`, 명령 기록을 다시 돌린다), 모험 봇(`AdventureBot`)
+  - `Adventure/`: 한 판(장을 잇는 캠페인)의 진행(`Adventure`): 장과 이야기·결말·목표(`Adventure.cs`), 지도 채우기·안개·지도 차례·직업 지도 특기·하루와 균열(`.Map.cs`), 합류·피하기·보스·레벨업(`.Battle.cs`), 사건·명성·발자취(`.Events.cs`), 마을·상점·소모품·장비(`.Town.cs`), 저장과 불러오기(`.Save.cs`, 명령 기록을 다시 돌린다), 판을 넘는 일지(`Journal`), 모험 봇(`AdventureBot`)
 - `Assets/_Project/Resources/Data`: 데이터 시트(CSV)와 지도(`Maps/*.txt`). 형식은 `Docs/Classes.md`, `Docs/Combat.md`, `Docs/Narrative.md`, `Docs/Map.md`. 클라이언트는 `Resources.Load`로 바로 읽는다. 시트를 새로 추가하면 `GameData.Files`에 넣는다.
 - `Assets/Tests/EditMode` (`Game.Core.Tests`): Core 테스트(NUnit). Unity Test Runner와 `dotnet test`가 같은 파일을 쓴다.
-- `Assets/_Project/Scripts/Client` (`Game.Client`): 화면과 입력만. 게임 규칙을 두지 않는다. UI는 IMGUI이고 크기는 `Ui`의 점 단위(`Ui.Width`, `Ui.Height`)로 잡는다. 줄이 바뀔 수 있는 한글은 `Ui.Wrap`. 그림은 `Art/`에 코드로 그린 도트(`PixelArt`), 효과음도 코드로 합성한다(`Art/SoundArt.cs`, `Sounds`). 글꼴은 `Resources/Fonts`의 Noto Sans KR 부분집합. 화면은 `GameRoot`의 부분 파일(`.Menu`, `.Map`, `.Battle`, `.Story`, `.Town`)이고, 모험 명령은 `GameRoot.Act`로 줘서 받아들여지면 기기에 저장한다(`SaveStore`). 입력은 IMGUI 이벤트만 쓴다(마우스·탭 모두 클릭으로 들어온다). `Editor/`에는 프로젝트 설정과 씬을 코드로 만드는 메뉴(`Game > Set Up Project`)와 웹 빌드(`Game > Build Web Demo`).
+- `Assets/_Project/Scripts/Client` (`Game.Client`): 화면과 입력만. 게임 규칙을 두지 않는다. UI는 IMGUI이고 크기는 `Ui`의 점 단위(`Ui.Width`, `Ui.Height`)로 잡는다. 줄이 바뀔 수 있는 한글은 `Ui.Wrap`. 설명은 `Ui.Tip`(마우스는 가리키기, 휴대폰은 길게 누르기), 처음 보는 화면의 도움말 카드는 `Tips`. 그림은 `Art/`에 코드로 그린 도트(`PixelArt`), 효과음과 음악도 코드로 합성한다(`Art/SoundArt.cs`·`Sounds`, `Art/MusicArt.cs`·`Music`). 글꼴은 `Resources/Fonts`의 Noto Sans KR 부분집합. 화면은 `GameRoot`의 부분 파일(`.Menu`, `.Map`, `.Battle`, `.Story`, `.Town`)이고, 모험 명령은 `GameRoot.Act`로 줘서 받아들여지면 기기에 저장한다(`SaveStore`). 입력은 IMGUI 이벤트만 쓴다(마우스·탭 모두 클릭으로 들어온다). `Editor/`에는 프로젝트 설정과 씬을 코드로 만드는 메뉴(`Game > Set Up Project`)와 웹 빌드(`Game > Build Web Demo`).
 - `DevTools/`: Unity 없이 Core를 빌드·테스트·시뮬레이션하는 .NET 프로젝트. 소스는 `Assets/`에서 가져다 쓰므로 여기에 게임 코드를 두지 않는다.
   - `Game.Core`: Core만 컴파일한다. 경고도 에러로 친다
   - `Game.Core.Tests`: 테스트
@@ -30,7 +30,7 @@ For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000
   - `UnityCompileCheck`: Unity 쪽 코드를 Unity 실제 엔진 DLL로 컴파일만 해 본다. asmdef마다 `Assemblies/`에 프로젝트가 하나씩 있다. 패키지 API를 쓰게 되면 `Stubs/<어셈블리 이름>/`에 같은 시그니처로 적는다. 웹 빌드용 확인은 웹 플레이어 DLL(`.unity/WebGL`)로 한다
   - `WebPlaytest`: 웹 데모를 헤드리스 Chromium으로 플레이하는 시험(`Docs/Playtest.md`)
   - `ArtPreview/preview.py`: `Client/Art/PixelArt.cs`의 도트 그림을 PNG 한 장으로 그린다(Unity 없이 그림 확인)
-  - `SoundPreview`: `Client/Art/SoundArt.cs`의 효과음을 WAV로 쓰고 무음·클리핑을 검사한다
+  - `SoundPreview`: `Client/Art/SoundArt.cs`의 효과음과 `MusicArt.cs`의 음악을 WAV로 쓰고 무음·클리핑을 검사한다
   - `Fonts`: 게임 글꼴 부분집합 만들기. `.cs`나 시트에 새 한글을 쓰면 다시 돌린다(없는 글자는 웹에서 빈칸으로 나온다)
 - 웹 데모: `.github/workflows/web-demo.yml`이 GameCI로 빌드해 GitHub Pages에 올린다. `Docs/WebDemo.md`.
 
@@ -70,7 +70,8 @@ GitHub Actions(`.github/workflows/core-tests.yml`)가 푸시마다 테스트, �
 - `Adventure`의 공개 명령은 성공하면 `Record`로 한 줄을 남긴다. 저장은 그 기록을 다시 돌리는 것이라(`Docs/Saving.md`), 새 명령을 만들면 `Record`와 `Adventure.Run`에 같이 넣고, 명령 글 형식을 바꾸면 `SaveVersion`을 올린다.
 - 게임은 **턴제**다(사용자 결정, 2026-11-09). 지도도 전투도 차례가 있고, Core는 프레임을 모른다.
 - 확률은 "선택을 존중하는" 쪽으로 만든다(사용자 요청, 2026-11-09). 굴리기 전에 확률을 보이고, 결의·끈기·바닥으로 운의 몫을 묶는다. 새 판정을 만들 때 `Docs/Dice.md`의 기준을 지키고 샌드박스로 확인한다.
-- 직업은 수치만 다르게 만들지 않는다. 고유 기믹, 사건 선택지, 약점을 같이 만든다(`Docs/Classes.md`).
+- 직업은 수치만 다르게 만들지 않는다. 고유 기믹, 사건 선택지, 지도 특기, 약점을 같이 만든다(`Docs/Classes.md`).
+- 서사는 "옛 영웅의 발자취를 따라 걷다 스스로 영웅이 되어 가는 서사시"다(사용자 결정, 2026-11-09). 사용자가 나중에 이야기 전체를 바꿀 수 있으니, 인물·장소 이름과 이야기 글은 데이터(`Data/Story/`, `chapters.csv`, `renown.csv`)에만 두고 코드(`Core`, `Client`)에 쓰지 않는다(`Docs/Narrative.md` 이야기 바꾸기).
 - PC와 모바일 크로스 플랫폼(사용자 목표). 새 기능은 마우스와 터치 둘 다로 쓸 수 있어야 하고, UI는 휴대폰 가로·세로와 작은 PC 창(800×600)에 들어가야 한다. 누르는 단추는 44점 이상.
 - 에디터에서 손으로 만드는 콘텐츠를 늘리지 않는다. 직업·몬스터·사건은 데이터, 씬과 설정은 에디터 스크립트로 만든다.
 - For the King은 느낌의 기준일 뿐이다. 그 게임의 이름, 인물, 그림, 사건 문장, 수치를 가져오지 않는다.

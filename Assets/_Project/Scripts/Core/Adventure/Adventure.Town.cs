@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Game.Core
@@ -8,6 +9,21 @@ namespace Game.Core
     public sealed partial class Adventure
     {
         public const int ShopItems = 6;
+        public const int InnPercent = 50;
+        public const int InnCost = 10;
+        public const int ReagentPrice = 4;
+        public const int RumorCost = 5;
+        public const int RumorHexes = 6;
+        public const int BardDiscount = 20;
+        public const int DonateCost = 20;
+
+        int _shopDay;
+        int _rumorDay;
+        int _donateDay;
+        bool _elderMet;
+
+        public List<ItemDef> Bag { get; } = new List<ItemDef>();
+        public List<ShopItem> Shop { get; } = new List<ShopItem>();
 
         void OpenTown()
         {
@@ -15,21 +31,27 @@ namespace Game.Core
             Screen = AdventureScreen.Town;
         }
 
-        // A new stock each day: six items of tier 1–2 (more of tier 2 as days pass), potions and, for an alchemist,
-        // reagents.
+        // The bard talks the prices down (Docs/Classes.md 지도 특기).
+        public bool Discount => Standing("bard");
+
+        int PriceOf(int price) => Discount ? price * (100 - BardDiscount) / 100 : price;
+
+        // A new stock each day: six pieces of gear (better ones as the days and chapters go), every consumable and, for
+        // an alchemist, reagents.
         void Restock()
         {
             _shopDay = Day;
             Shop.Clear();
-            var pool = Data.ItemList.Where(i => i.Price > 0 && i.Tier <= (Day >= 3 ? 3 : 2)).ToList();
+            int tier = Math.Min(3, Chapter.Index + (Day >= 3 ? 3 : 2));
+            var pool = Data.ItemList.Where(i => i.Price > 0 && !i.Consumable && i.Tier <= tier).ToList();
             for (int i = 0; i < ShopItems && pool.Count > 0; i++)
             {
                 int pick = _random.Next(pool.Count);
-                Shop.Add(new ShopItem { Item = pool[pick], Price = pool[pick].Price });
+                Shop.Add(new ShopItem { Item = pool[pick], Price = PriceOf(pool[pick].Price) });
                 pool.RemoveAt(pick);
             }
-            Shop.Add(new ShopItem { Goods = "potion", Price = PotionPrice });
-            if (Heroes.Any(h => h.Class.Id == "alchemist")) Shop.Add(new ShopItem { Goods = "reagent", Price = ReagentPrice });
+            foreach (var item in Data.ItemList.Where(i => i.Consumable && i.Price > 0)) Shop.Add(new ShopItem { Item = item, Price = PriceOf(item.Price) });
+            if (Heroes.Any(h => h.Class.Id == "alchemist")) Shop.Add(new ShopItem { Goods = "reagent", Price = PriceOf(ReagentPrice) });
         }
 
         // Heroes standing in the town now (downed ones too: the inn takes them in).
@@ -46,13 +68,17 @@ namespace Game.Core
             return Screen == AdventureScreen.Town ? null : "마을에 있지 않습니다.";
         }
 
+        // The inn's price: dearer in later chapters, cheaper with the bard.
+        public int InnPrice => PriceOf(InnCost * (Chapter.Index + 1));
+
         // The inn: everyone in town gets up, heals half and gets all resolve back.
         public string Rest()
         {
             string error = InTown();
             if (error != null) return error;
-            if (Gold < InnCost) return $"금화가 모자랍니다 (여관 {InnCost}).";
-            Gold -= InnCost;
+            int cost = InnPrice;
+            if (Gold < cost) return $"금화가 모자랍니다 (여관 {cost}).";
+            Gold -= cost;
             Record("rest");
             Report.Clear();
             foreach (int i in TownHeroes())
@@ -67,33 +93,64 @@ namespace Game.Core
             return null;
         }
 
-        public string Buy(int index)
+        // Buys a thing: gear goes to the bag, a consumable to the hero (the one whose turn it is when not given).
+        public string Buy(int index, int heroIndex = -1)
         {
             string error = InTown();
             if (error != null) return error;
             if (index < 0 || index >= Shop.Count || Shop[index].Sold) return "살 수 없는 물건입니다.";
-            var item = Shop[index];
-            if (Gold < item.Price) return $"금화가 모자랍니다 ({item.Price}).";
-            Gold -= item.Price;
-            Record($"buy {index}");
+            var goods = Shop[index];
+            if (heroIndex < 0) heroIndex = MapHero;
+            if (heroIndex >= Heroes.Count) return "영웅을 고르세요.";
+            if (Gold < goods.Price) return $"금화가 모자랍니다 ({goods.Price}).";
+            Gold -= goods.Price;
+            Record($"buy {index} {heroIndex}");
             Report.Clear();
-            switch (item.Goods)
+            var hero = Heroes[heroIndex];
+            if (goods.Goods == "reagent")
             {
-                case "potion":
-                    Current.Potions++;
-                    Report.Add($"{Current.Name}: 회복 물약 +1 ({Current.Potions}개)");
-                    break;
-                case "reagent":
-                    var alchemist = Heroes.First(h => h.Class.Id == "alchemist");
-                    alchemist.GainReagents(2);
-                    Report.Add($"{alchemist.Name}: 재료 {alchemist.Reagents}/{alchemist.ReagentMax}");
-                    break;
-                default:
-                    item.Sold = true;
-                    Bag.Add(item.Item);
-                    Report.Add($"{Korean.Object(item.Item.Name)} 샀다 (가방)");
-                    break;
+                var alchemist = Heroes.First(h => h.Class.Id == "alchemist");
+                alchemist.GainReagents(2);
+                Report.Add($"{alchemist.Name}: 재료 {alchemist.Reagents}/{alchemist.ReagentMax}");
             }
+            else if (goods.Item.Consumable)
+            {
+                hero.AddConsumable(goods.Item.Id, 1);
+                Report.Add($"{hero.Name}: {goods.Item.Name} +1 ({hero.Count(goods.Item.Id)}개)");
+            }
+            else
+            {
+                goods.Sold = true;
+                Bag.Add(goods.Item);
+                Report.Add($"{Korean.Object(goods.Item.Name)} 샀다 (가방)");
+            }
+            return null;
+        }
+
+        // Rumors at the inn, once a day: what the nearest hexes the party does not know yet hold.
+        public bool CanHearRumors => Screen == AdventureScreen.Town && _rumorDay != Day && Unknown().Any();
+
+        IEnumerable<MapTile> Unknown()
+        {
+            var town = Map.Tile(Site.Town).Hex;
+            return Map.Tiles.Where(t => !Knows(t)).OrderBy(t => t.Hex.Distance(town)).ThenBy(t => t.Hex.Row).ThenBy(t => t.Hex.Col);
+        }
+
+        public string Rumor()
+        {
+            string error = InTown();
+            if (error != null) return error;
+            if (!CanHearRumors) return "오늘은 들을 소문이 없습니다.";
+            int cost = PriceOf(RumorCost);
+            if (Gold < cost) return $"금화가 모자랍니다 (소문 {cost}).";
+            Gold -= cost;
+            _rumorDay = Day;
+            Record("rumor");
+            Report.Clear();
+            var heard = Unknown().Take(RumorHexes).ToList();
+            foreach (var tile in heard) _revealed.Add(tile.Hex);
+            int enemies = heard.Count(t => t.Content == Content.Enemy);
+            Report.Add($"소문으로 {heard.Count}곳을 알게 되었다" + (enemies > 0 ? $" (적 무리 {enemies})" : ""));
             return null;
         }
 
@@ -113,7 +170,28 @@ namespace Game.Core
             return null;
         }
 
-        public bool CanMeetElder => !HasFlag("elder_met");
+        // Helping the town rebuild, once a day: gold for renown (Docs/Narrative.md 명성). Costs more each chapter.
+        public int DonationCost => DonateCost * (Chapter.Index + 1);
+
+        public bool CanDonate => Screen == AdventureScreen.Town && _donateDay != Day;
+
+        public string Donate()
+        {
+            string error = InTown();
+            if (error != null) return error;
+            if (!CanDonate) return "오늘은 이미 도왔습니다.";
+            if (Gold < DonationCost) return $"금화가 모자랍니다 ({DonationCost}).";
+            Gold -= DonationCost;
+            _donateDay = Day;
+            Record("donate");
+            Report.Clear();
+            Report.Add($"금화 {DonationCost}로 무너진 집을 고치는 일을 도왔다.");
+            GainRenown(1, Report);
+            return null;
+        }
+
+        // The town's elder, once a chapter.
+        public bool CanMeetElder => !_elderMet;
 
         public string Elder()
         {
@@ -121,8 +199,9 @@ namespace Game.Core
             if (error != null) return error;
             if (!CanMeetElder) return "장로와는 이미 이야기했습니다.";
             Record("elder");
+            _elderMet = true;
             _backToTown = true;
-            OpenEvent(PickEvent("elder"), Map.Tile(Site.Town));
+            OpenEvent(PickEvent(Chapter.ElderPool), Map.Tile(Site.Town));
             return null;
         }
 
@@ -168,6 +247,41 @@ namespace Game.Core
             hero.Unequip(slot);
             Bag.Add(item);
             Record($"unequip {heroIndex} {slot.ToString().ToLowerInvariant()}");
+            return null;
+        }
+
+        // Consumables that work outside battle: healing, resolve, the cure and the charm (Docs/Combat.md 소모품).
+        public static bool UsableOnMap(ItemDef item) => item.Consumable && item.Use.All(e => e.Verb == "heal" || e.Verb == "resolve" || e.Verb == "cleanse" || e.Verb == "luck");
+
+        public string UseItem(int heroIndex, string itemId)
+        {
+            if (!CanChangeGear) return "지금은 쓸 수 없습니다.";
+            if (heroIndex < 0 || heroIndex >= Heroes.Count) return "영웅을 고르세요.";
+            var hero = Heroes[heroIndex];
+            if (hero.Down) return $"{Korean.Topic(hero.Name)} 쓰러져 있습니다.";
+            if (!Data.Items.TryGetValue(itemId ?? "", out var item) || hero.Count(itemId) <= 0) return "그 소모품이 없습니다.";
+            if (!UsableOnMap(item)) return $"{Korean.Topic(item.Name)} 전투에서만 씁니다.";
+            hero.AddConsumable(itemId, -1);
+            Record($"use {heroIndex} {itemId}");
+            Report.Clear();
+            foreach (var e in item.Use)
+            {
+                switch (e.Verb)
+                {
+                    case "heal":
+                        int amount = hero.Class.Id == "alchemist" ? e.Amount * 3 / 2 : e.Amount;
+                        Report.Add(HealLine(hero, amount));
+                        break;
+                    case "resolve":
+                        hero.GainResolve(e.Amount);
+                        Report.Add($"{hero.Name}: 결의 +{e.Amount} ({hero.Resolve}/{hero.MaxResolve})");
+                        break;
+                    case "luck":
+                        hero.Luck += e.Amount;
+                        Report.Add($"{hero.Name}: 다음 판정 확정 +{e.Amount}");
+                        break;
+                }
+            }
             return null;
         }
     }

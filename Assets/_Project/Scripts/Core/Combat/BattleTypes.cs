@@ -27,6 +27,8 @@ namespace Game.Core
         Potion,
         Victory,
         Defeat,
+        // The party got away (Text says how).
+        Fled,
     }
 
     // Something that happened in a battle, in order, for the screen to play back and for the log (Text, in Korean).
@@ -49,7 +51,13 @@ namespace Game.Core
     // A hero's action: the skill (or Potion), the target unit, and how much resolve to spend on sure successes.
     public sealed class BattleCommand
     {
-        public const string Potion = "potion";
+        // Using a consumable is "use:<item id>"; running away is "flee" (Docs/Combat.md 도망).
+        public const string UsePrefix = "use:";
+        public const string Potion = UsePrefix + Hero.PotionId;
+        public const string Flee = "flee";
+
+        public static string Use(string item) => UsePrefix + item;
+        public static bool IsUse(string skill) => skill != null && skill.StartsWith(UsePrefix);
 
         public BattleCommand(int actor, string skill, int target, int resolve = 0)
         {
@@ -73,12 +81,20 @@ namespace Game.Core
         HeroTurn,
         Won,
         Lost,
+        // The party ran away: no rewards, the monsters stay.
+        Fled,
     }
 
     // What a skill would do, shown before rolling (Docs/Dice.md 굴리기 전에 보여 주는 것).
     public sealed class SkillPreview
     {
         public SkillDef Skill { get; internal set; }
+
+        // The consumable a "use:" command uses.
+        public ItemDef Item { get; internal set; }
+
+        // Successes needed for the check to work (fleeing needs two); 0 when the dice only size the effect.
+        public int Need { get; internal set; }
 
         // Null when the command could be given; otherwise why not.
         public string Error { get; internal set; }

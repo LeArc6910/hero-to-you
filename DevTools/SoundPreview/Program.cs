@@ -3,7 +3,8 @@ using System.IO;
 using System.Linq;
 using Game.Client;
 
-// dotnet run --project DevTools/SoundPreview -- <folder>: one WAV per sound, and a line each with its length and peak.
+// dotnet run --project DevTools/SoundPreview -- <folder>: one WAV per sound and per music tune, and a line each with
+// its length and peak.
 // Fails (exit 1) when a sound is silent, clips or has NaN.
 static class Program
 {
@@ -21,6 +22,17 @@ static class Program
             if (!ok) bad++;
             Console.WriteLine($"{sound,-8} {samples.Length / (double)SoundArt.Rate,5:0.00}s peak {peak:0.00} {(ok ? "" : "BAD")}");
             Write(Path.Combine(folder, sound.ToString().ToLowerInvariant() + ".wav"), samples);
+        }
+        foreach (Tune tune in Enum.GetValues(typeof(Tune)))
+        {
+            if (tune == Tune.None) continue;
+            float[] samples = MusicArt.Make(tune);
+            float peak = samples.Select(Math.Abs).DefaultIfEmpty(0).Max();
+            bool nan = samples.Any(float.IsNaN);
+            bool ok = !nan && peak > 0.05f && peak <= 1f;
+            if (!ok) bad++;
+            Console.WriteLine($"music {tune,-7} {samples.Length / (double)MusicArt.Rate,5:0.00}s peak {peak:0.00} {(ok ? "" : "BAD")}");
+            Write(Path.Combine(folder, "music_" + tune.ToString().ToLowerInvariant() + ".wav"), samples);
         }
         return bad == 0 ? 0 : 1;
     }

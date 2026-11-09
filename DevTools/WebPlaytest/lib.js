@@ -168,6 +168,28 @@ function helpers(game) {
     }
   };
 
+  // Holds a finger (or rests the mouse) on a point for `ms`, and returns the report read while holding: the
+  // long-press tooltip shows only then. `during` runs while holding (a picture).
+  h.hold = async (x, y, ms = 800, during = null) => {
+    let report;
+    if (game.touch) {
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+      await page.waitForTimeout(ms);
+      report = await h.state();
+      if (during) await during();
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    } else {
+      await page.mouse.move(x, y);
+      await page.waitForTimeout(ms);
+      report = await h.state();
+      if (during) await during();
+      await page.mouse.move(2, 2);
+    }
+    await page.waitForTimeout(200);
+    return report;
+  };
+
   h.shot = async (name, caption) => {
     const file = path.join(run.out, `${profile.name}-${name}.png`);
     await page.screenshot({ path: file });

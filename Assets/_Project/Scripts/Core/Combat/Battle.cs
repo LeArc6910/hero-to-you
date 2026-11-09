@@ -136,6 +136,7 @@ namespace Game.Core
             CurrentId = -1;
             for (int guard = 0; guard < 10000; guard++)
             {
+                if (State == BattleState.Fled) return;
                 if (Monsters.All(m => m.Down))
                 {
                     State = BattleState.Won;
@@ -441,6 +442,7 @@ namespace Game.Core
                 }
                 Hurt(target, damage, actor.Id, false, skill.Name);
                 if (skill.Effect == "burn" && check.Successes > 0) AddStatus(target, StatusKind.Burn, BurnTurns);
+                if (skill.Effect == "chill" && check.Successes > 0) AddStatus(target, StatusKind.Chill, 1);
             }
         }
 
@@ -475,16 +477,8 @@ namespace Game.Core
             if (State != BattleState.HeroTurn || actor == null || actor.Id != CurrentId) return Fail(preview, "지금은 이 영웅의 차례가 아닙니다.");
             var hero = actor.Hero;
 
-            if (command.Skill == BattleCommand.Potion)
-            {
-                var drinker = Unit(command.Target);
-                if (hero.Potions <= 0) return Fail(preview, "물약이 없습니다.");
-                if (drinker != null && drinker.Id != actor.Id) return Fail(preview, "물약은 자신에게만 씁니다.");
-                preview.Odds = new CheckOdds(0, 100, 0);
-                preview.ValueBySuccesses = new[] { Math.Min(PotionOf(actor), actor.MaxHp - actor.Hp) };
-                preview.Expected = preview.ValueBySuccesses[0];
-                return preview;
-            }
+            if (BattleCommand.IsUse(command.Skill)) return PreviewUse(preview, actor, command);
+            if (command.Skill == BattleCommand.Flee) return PreviewFlee(preview, actor, command);
 
             var skill = hero.Skill(command.Skill);
             preview.Skill = skill;
@@ -590,16 +584,14 @@ namespace Game.Core
             var actor = _units[command.Actor];
             var hero = actor.Hero;
 
-            if (command.Skill == BattleCommand.Potion)
+            if (BattleCommand.IsUse(command.Skill))
             {
-                hero.Potions--;
-                int healed = Math.Min(PotionOf(actor), actor.MaxHp - actor.Hp);
-                hero.Heal(PotionOf(actor));
-                Emit(new BattleEvent { Kind = BattleEventKind.Potion, Actor = actor.Id, Target = actor.Id, Amount = healed, Text = $"{actor.Name}: 물약을 마셨다 (+{healed})" });
-                _lastAttacker = _lastAttacked = -1;
-                AfterAction(actor, null);
-                EndTurn(actor, PotionDelay);
-                Advance();
+                DoUse(actor, preview);
+                return null;
+            }
+            if (command.Skill == BattleCommand.Flee)
+            {
+                DoFlee(actor, preview);
                 return null;
             }
 

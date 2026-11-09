@@ -1,12 +1,23 @@
-id,monsters,terrain,danger,text
-goblins,goblin goblin goblin_archer,plains forest,1,잿빛 덤불에서 고블린 셋이 튀어나온다.
-wolves,wolf wolf wolf,forest plains,1,잿빛 늑대 무리가 길을 막는다. 눈이 붉다.
-bandits,bandit cutthroat,road,1,“일지를 내놓으면 보내 주지.” 산적들이 길을 막는다.
-wisps,ash_wisp ash_wisp goblin,ruins forest,1,폐허 사이로 잿불 정령들이 떠다닌다.
-lurker,bog_lurker goblin,swamp,1,늪이 끓더니 무언가가 솟아오른다.
-goblins_big,goblin goblin goblin_archer goblin_archer,plains forest,2,고블린 패거리가 몰려온다. 균열이 그들을 부풀렸다.
-wolves_big,wolf wolf wolf wolf,forest plains,2,늑대 넷이 둘러싼다.
-bandits_big,bandit bandit cutthroat,road,2,산적 두목이 직접 나섰다.
-lurkers,bog_lurker bog_lurker,swamp,2,늪 괴물 둘이 솟아오른다.
-ambush,goblin goblin_archer goblin_archer,,0,덤불 속에서 화살이 날아온다!
-warden,ash_warden,,0,봉인석 앞에 돌 파수꾼이 눈을 뜬다.
+id,monsters,terrain,danger,chapter,text
+goblins,goblin goblin goblin_archer,plains forest,1,1,잿빛 덤불에서 고블린 셋이 튀어나온다.
+wolves,wolf wolf wolf,forest plains,1,1,잿빛 늑대 무리가 길을 막는다. 눈이 붉다.
+bandits,bandit cutthroat,road,1,1,“일지를 내놓으면 보내 주지.” 산적들이 길을 막는다.
+wisps,ash_wisp ash_wisp goblin,ruins forest,1,1,폐허 사이로 잿불 정령들이 떠다닌다.
+lurker,bog_lurker goblin,swamp,1,1,늪이 끓더니 무언가가 솟아오른다.
+goblins_big,goblin goblin goblin_archer goblin_archer,plains forest,2,1,고블린 패거리가 몰려온다. 균열이 그들을 부풀렸다.
+wolves_big,wolf wolf wolf wolf,forest plains,2,1,늑대 넷이 둘러싼다.
+bandits_big,bandit bandit cutthroat,road,2,1,산적 두목이 직접 나섰다.
+lurkers,bog_lurker bog_lurker,swamp,2,1,늪 괴물 둘이 솟아오른다.
+bandit_chief,bandit_chief bandit cutthroat,,0,1,산적 두목이 도끼를 어깨에 걸친다. “일지를 가져오면 균열이 우리를 살려 준댔지.”
+ambush,goblin goblin_archer goblin_archer,,0,1,덤불 속에서 화살이 날아온다!
+warden,ash_warden,,0,1,봉인석 앞에 돌 파수꾼이 눈을 뜬다.
+drowned,drowned drowned gull,shallows sand,1,2,물에 잠긴 거리에서 익사자들이 일어선다.
+smugglers,smuggler smuggler gull,road ruins plains,1,2,“일지라고? 값 좀 나가겠는데.” 밀수꾼들이 칼을 뽑는다.
+crabs,crab crab gull,sand shallows,1,2,모래톱이 들썩이더니 껍데기 게가 솟는다.
+gulls,gull gull gull gull,sand plains forest,1,2,폭풍 갈매기 떼가 비명처럼 울며 내리꽂힌다.
+drowned_big,drowned drowned drowned smuggler,shallows sand ruins,2,2,밀물과 함께 익사자 무리가 몰려온다.
+smugglers_big,smuggler smuggler smuggler gull,road ruins plains,2,2,밀수꾼 패거리가 길을 막았다. 균열이 그들을 부풀렸다.
+crabs_big,crab crab crab,sand shallows,2,2,껍데기 게 셋이 둘러싼다.
+captain,tide_captain smuggler smuggler,,0,2,녹슨 닻 선장이 갈고리를 휘두른다. “리엔의 일지? 그걸 가져가면 균열이 배 한 척을 통째로 준대.”
+harbor_ambush,smuggler smuggler gull,,0,2,창고 그늘에서 밀수꾼들이 덮친다!
+bell,bell_ringer,,0,2,물속에서 거대한 종이 울린다. 종지기가 고개를 든다.

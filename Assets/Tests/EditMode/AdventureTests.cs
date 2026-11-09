@@ -166,7 +166,7 @@ namespace Game.Core.Tests
             Assert.That(adventure.Screen, Is.EqualTo(AdventureScreen.Town));
             int gold = adventure.Gold;
             Assert.That(adventure.Rest(), Is.Null);
-            Assert.That(adventure.Gold, Is.EqualTo(gold - Adventure.InnCost));
+            Assert.That(adventure.Gold, Is.EqualTo(gold - adventure.InnPrice));
             Assert.That(adventure.Heroes[1].Down, Is.False);
             Assert.That(adventure.Heroes[0].Hp, Is.GreaterThan(3));
         }

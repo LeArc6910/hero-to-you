@@ -4,8 +4,15 @@ goblin_archer,고블린 궁수,14,12,70,0,0,4,4,gob_arrow,,0,,no,#8A9A4A,1,뒤�
 wolf,잿빛 늑대,16,15,65,0,0,4,0,wolf_bite wolf_bite wolf_howl,,0,,no,#8C8C94,1,빠르다. 울부짖으면 다음 이빨이 깊다.,
 bandit,산적,26,11,70,1,0,6,8,bandit_slash bandit_slash bandit_heavy,,0,,no,#A06A48,1,세 번째 차례마다 크게 내려찍는다.,
 cutthroat,단검잡이,18,14,70,0,0,5,6,cut_throw,,0,,no,#7A4A5A,1,빠르고 약한 쪽을 노린다.,
-ash_warden,잿빛 파수꾼,190,13,70,2,1,40,40,warden_strike warden_sweep warden_charge warden_storm warden_strike,warden_crush warden_charge warden_storm warden_ember warden_sweep,50,"봉인은… 지켜야 한다… 잿불이여, 일어나라!",yes,#9A8F86,2,봉인을 지키던 돌 파수꾼. 균열에 물들었다.,ash_wisp ash_wisp
+ash_warden,잿빛 파수꾼,190,13,70,2,1,30,40,warden_strike warden_sweep warden_charge warden_storm warden_strike,warden_crush warden_charge warden_storm warden_ember warden_sweep,50,"봉인은… 지켜야 한다… 잿불이여, 일어나라!",yes,#9A8F86,2,봉인을 지키던 돌 파수꾼. 균열에 물들었다.,ash_wisp ash_wisp
 ash_wisp,잿불 정령,12,16,70,0,0,4,2,wisp_flare,,0,,no,#E8873A,1,빠르게 날아다니며 잿불을 뿜는다.,
 bog_lurker,늪 괴물,34,9,65,1,0,8,6,lurker_grab lurker_slam,,0,,no,#4E6B4A,1,느리지만 무겁다. 두 번째 차례마다 크게 내려친다.,
+bandit_chief,산적 두목,60,11,70,2,0,16,30,chief_cleave bandit_slash chief_rally,chief_cleave chief_cleave chief_rally,40,“다들 뭐 해! 덤벼!”,no,#8A3B2E,1,균열에 사람을 팔아넘기던 산적들의 두목.,cutthroat
 skeleton,해골,16,10,70,1,0,0,0,skel_slash,,0,,no,#D8D2C0,1,사령술사가 일으킨 해골.,
 companion_wolf,늑대,18,14,70,0,0,0,0,ally_bite,,0,,no,#9C8A6A,1,야수조련사의 동료.,
+drowned,익사자,44,9,65,0,0,6,3,drown_grab drown_grab drown_pull,,0,,no,#5E7A80,1,물에 잠긴 거리에서 걸어 나온 사람의 그림자.,
+smuggler,밀수꾼,36,13,70,1,0,6,10,smug_knife smug_bottle,,0,,no,#7A5E3A,1,균열의 물건을 사고파는 자들. 불붙은 병을 던진다.,
+crab,껍데기 게,46,8,65,3,0,6,2,crab_pinch crab_pinch crab_snap,,0,,no,#B0573E,1,껍데기가 두껍다. 마법이 잘 듣는다.,
+gull,폭풍 갈매기,18,17,75,0,0,3,0,gull_peck,,0,,no,#C8CED6,1,빠르고 약한 쪽을 쪼아 댄다.,
+tide_captain,녹슨 닻 선장,140,11,70,2,0,18,35,captain_hook captain_cannon smug_knife,captain_hook captain_cannon captain_cannon,40,“닻을 내려라! 다 같이 가라앉자!”,no,#3E5A6E,1,항구를 균열에 팔아넘긴 밀수 선장.,drowned
+bell_ringer,가라앉은 종지기,420,12,70,2,2,40,50,bell_strike bell_toll bell_raise bell_wave bell_strike,bell_crush bell_raise bell_wave bell_toll bell_strike,50,“리엔… 왜 돌아오지 않았지… 종은… 내가 계속 울렸는데…”,yes,#4A6C8C,2,백 년 동안 물속에서 종을 울려 온 리엔의 옛 동료. 균열에 물들었다.,drowned drowned
