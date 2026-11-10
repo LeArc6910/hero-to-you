@@ -88,14 +88,14 @@ namespace Game.Client
                 int y = Mathf.RoundToInt(depth * Mathf.Pow(k / 11f, 1.9f) - belowHorizon);
                 for (int x = 0; x < width; x += 1) if (((x + k) & 1) == 0) Set(x, y, lines);
             }
-            // Lines from the vanishing point, every so often along the bottom edge.
+            // Lines from the vanishing point, every so often along the bottom edge, dotted so they stay faint.
             for (int k = -10; k <= 10; k++)
             {
                 float bottomX = vanishing + k * width * 0.16f;
                 for (int y = 0; y < height; y++)
                 {
                     float t = (y + belowHorizon) / depth;
-                    Set(Mathf.RoundToInt(vanishing + (bottomX - vanishing) * t), y, lines);
+                    if ((y & 1) == 0) Set(Mathf.RoundToInt(vanishing + (bottomX - vanishing) * t), y, lines);
                 }
             }
             // Grit, bigger nearer; the same for the same place.

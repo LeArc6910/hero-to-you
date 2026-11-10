@@ -197,7 +197,10 @@ async function playSlice(game, wholeRun) {
     await game.shot('battle-skill', '기술과 대상, 확률 미리 보기');
     run.check((await game.find(/^자동/, '자동')).length === 1, '전투에 [자동] 단추가 있다');
     run.check((await game.find(/^회복 물약/, '소모품')).length === 1, '전투에서 물약(소모품) 단추가 있다');
-    run.check((await game.find(/^도망/)).length === 1, '보스가 아니면 [도망] 단추가 있다');
+    // A seed can walk the party into a boss first: no fleeing there, and the boss is drawn bigger than the heroes.
+    const bossFight = ['warden', 'bell', 'abbess', 'sern', 'nameless', 'bandit_chief', 'captain', 'priest', 'captain4', 'shadow'].includes((await game.state()).battle.encounter);
+    if (bossFight) run.check((await game.find(/^도망/)).length === 0, '보스 앞에서는 [도망] 단추가 없다');
+    else run.check((await game.find(/^도망/)).length === 1, '보스가 아니면 [도망] 단추가 있다');
     // The long-press (phone) or hover (PC) explanation of a skill.
     const held = await game.hold(skills[0].cx, skills[0].cy, 900, () => game.shot('tooltip', game.touch ? '기술을 길게 누른 설명' : '기술을 가리킨 설명'));
     run.check(held.tooltip && held.tooltip.length > 0, `기술 단추를 ${game.touch ? '길게 누르면' : '가리키면'} 설명이 나온다`);
@@ -217,7 +220,7 @@ async function playSlice(game, wholeRun) {
     const side = party => (art.units || []).filter(u => u.party === party);
     const mean = (list, key) => list.reduce((sum, u) => sum + u[key], 0) / Math.max(1, list.length);
     const heroes = side(true), foes = side(false);
-    run.check(heroes.length > 0 && foes.length > 0 && mean(foes, 'y') < mean(heroes, 'y') && mean(foes, 'size') < mean(heroes, 'size'),
+    run.check(heroes.length > 0 && foes.length > 0 && mean(foes, 'y') < mean(heroes, 'y') && (bossFight || mean(foes, 'size') < mean(heroes, 'size')),
       `적이 아군보다 멀리(위에) 작게 선다 (발 높이 ${Math.round(mean(foes, 'y'))} < ${Math.round(mean(heroes, 'y'))}, 크기 ${Math.round(mean(foes, 'size'))} < ${Math.round(mean(heroes, 'size'))})`);
     const upright = game.profile.context.viewport.height > game.profile.context.viewport.width;
     if (!upright) run.check(mean(foes, 'x') > mean(heroes, 'x'), '가로 화면에서 적은 오른쪽 위, 아군은 왼쪽 아래에 선다');
