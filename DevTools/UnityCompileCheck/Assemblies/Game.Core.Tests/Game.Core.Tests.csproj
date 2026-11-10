@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The Core tests as Unity compiles them: Unity bundles its own NUnit (com.unity.ext.nunit), based on NUnit 3.5,
+       which lacks some constraints the newer NUnit of DevTools/Game.Core.Tests has (e.g. Does.Not.Contain with a
+       collection item). Compiling against 3.5 here catches that before a web build does. -->
+  <PropertyGroup>
+    <Asmdef>$(ProjectRoot)Assets/Tests/EditMode/Game.Core.Tests.asmdef</Asmdef>
+    <!-- NUnit 3.5 ships only .NET Framework builds (Unity uses its net472 one); compiling against it is all we need. -->
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(ProjectRoot)Assets/Tests/EditMode/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.5.0" />
+  </ItemGroup>
+
+</Project>

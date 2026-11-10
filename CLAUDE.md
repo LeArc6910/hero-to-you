@@ -27,7 +27,7 @@ For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000
   - `Game.Core`: Core만 컴파일한다. 경고도 에러로 친다
   - `Game.Core.Tests`: 테스트
   - `CoreSandbox`: 밸런스 시뮬레이션 콘솔(판정 분포, 봇 파티 전투·모험)
-  - `UnityCompileCheck`: Unity 쪽 코드를 Unity 실제 엔진 DLL로 컴파일만 해 본다. asmdef마다 `Assemblies/`에 프로젝트가 하나씩 있다. 패키지 API를 쓰게 되면 `Stubs/<어셈블리 이름>/`에 같은 시그니처로 적는다. 웹 빌드용 확인은 웹 플레이어 DLL(`.unity/WebGL`)로 한다
+  - `UnityCompileCheck`: Unity 쪽 코드를 Unity 실제 엔진 DLL로 컴파일만 해 본다. asmdef마다 `Assemblies/`에 프로젝트가 하나씩 있다. 패키지 API를 쓰게 되면 `Stubs/<어셈블리 이름>/`에 같은 시그니처로 적는다. 웹 빌드용 확인은 웹 플레이어 DLL(`.unity/WebGL`)로 한다. 시험 코드는 Unity가 쓰는 NUnit(3.5 바탕)으로도 컴파일해 본다(`Assemblies/Game.Core.Tests`): `dotnet test`의 새 NUnit에만 있는 제약(예: 원소에 `Does.Not.Contain`)은 Unity 빌드를 깨뜨린다. 원소에는 `Has.Member`/`Has.No.Member`를 쓴다
   - `WebPlaytest`: 웹 데모를 헤드리스 Chromium으로 플레이하는 시험(`Docs/Playtest.md`)
   - `ArtPreview/preview.py`: `Client/Art/PixelArt.cs`의 도트 그림을 PNG 한 장으로 그린다(Unity 없이 그림 확인)
   - `SoundPreview`: `Client/Art/SoundArt.cs`의 효과음과 `MusicArt.cs`의 음악을 WAV로 쓰고 무음·클리핑을 검사한다
