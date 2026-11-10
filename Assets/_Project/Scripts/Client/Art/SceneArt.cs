@@ -59,7 +59,7 @@ namespace Game.Client
 
         // A picture over a whole screen: as big as covering it needs, but never so big that fewer than `minColumns` of
         // its columns show (a phone held upright would see only the middle, blown up). Then it sits at the bottom and
-        // its sky goes on above it, darkening upward.
+        // its sky goes on above it.
         public static void DrawCover(Rect r, string scene, int minColumns)
         {
             var picture = PixelArt.Picture(scene);
@@ -73,9 +73,9 @@ namespace Game.Client
                 return;
             }
             float cols = r.width / s;
-            var sky = PixelArt.PictureEdge(scene, true);
-            float above = r.height - shownH;
-            Ui.Image(new Rect(r.x, r.y, r.width, above + 1), PixelArt.Sky(GamePalette.Darker(sky), sky, r.width / Mathf.Max(1, above)));
+            // The picture's own top rows already darken upward; past them the sky stays that colour (a dithered band
+            // this tall would show as big checks behind the title).
+            Ui.Fill(new Rect(r.x, r.y, r.width, r.height - shownH + 1), PixelArt.PictureEdge(scene, true));
             GUI.DrawTextureWithTexCoords(Ui.ToPixels(new Rect(r.x, r.yMax - shownH, r.width, shownH)), picture, new Rect((w - cols) / 2 / w, 0, cols / w, 1));
         }
 
