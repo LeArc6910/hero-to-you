@@ -328,8 +328,8 @@ namespace Game.Client
             float skyH = field.height * 0.62f;
             Ui.Image(new Rect(field.x, field.y, field.width, skyH + 1), PixelArt.Sky(sky.top, sky.bottom, field.width / Mathf.Max(1, skyH)));
             var ground = TerrainColors.TryGetValue(terrain, out var g) ? g : Palette.Ground;
-            Ui.Fill(new Rect(field.x, field.y + skyH, field.width, field.height - skyH), Color.Lerp(ground, Palette.Back, 0.35f));
-            Ui.Fill(new Rect(field.x, field.y + skyH, field.width, 2), Color.Lerp(ground, Color.white, 0.15f));
+            Ui.Fill(new Rect(field.x, field.y + skyH, field.width, field.height - skyH), GamePalette.Darker(ground));
+            Ui.Fill(new Rect(field.x, field.y + skyH, field.width, 2), GamePalette.Lighter(ground));
             string mark = TerrainMark(terrain) ?? (terrain == Terrain.Road ? "stones" : null);
             if (boss) mark = (a.Chapter.Index % 3) switch { 0 => "stones", 1 => "wave", _ => "peak" };
             if (mark == null) return;
@@ -349,16 +349,16 @@ namespace Game.Client
         {
             if (boss) return (chapter % 3) switch
             {
-                0 => (Palette.Hex("#2A1712"), Palette.Hex("#6B3322")),
-                1 => (Palette.Hex("#0E1A2A"), Palette.Hex("#2E5A6E")),
-                _ => (Palette.Hex("#1A2230"), Palette.Hex("#8DA6BC")),
+                0 => (Palette.Hex("#2E1D18"), Palette.Hex("#76282C")),
+                1 => (Palette.Hex("#1B1622"), Palette.Hex("#2B4862")),
+                _ => (Palette.Hex("#28222F"), Palette.Hex("#8FA3C8")),
             };
-            if (night) return (Palette.Hex("#0B0D18"), Palette.Hex("#232842"));
+            if (night) return (Palette.Hex("#1B1622"), Palette.Hex("#2A1F40"));
             return (chapter % 3) switch
             {
-                0 => (Palette.Hex("#3A3530"), Palette.Hex("#7A6E5E")),
-                1 => (Palette.Hex("#2E4252"), Palette.Hex("#7895A0")),
-                _ => (Palette.Hex("#5C6E80"), Palette.Hex("#C9D6E0")),
+                0 => (Palette.Hex("#3B3243"), Palette.Hex("#6C6467")),
+                1 => (Palette.Hex("#3A4150"), Palette.Hex("#8DBAC6")),
+                _ => (Palette.Hex("#5A6376"), Palette.Hex("#C4D2EA")),
             };
         }
 

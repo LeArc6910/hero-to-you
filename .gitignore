@@ -54,3 +54,4 @@ DevTools/WebPlaytest/out/
 /Assets/_Project/Resources/BuildInfo.txt
 /Assets/_Project/Resources/BuildInfo.txt.meta
 unity-tests.xml
+__pycache__/

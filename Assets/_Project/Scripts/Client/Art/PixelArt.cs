@@ -9,7 +9,10 @@ namespace Game.Client
     // without Unity. Textures are made once and sampled to the nearest pixel, so they stay crisp at any size.
     static class PixelArt
     {
-        static readonly Dictionary<char, string> Colors = new Dictionary<char, string>
+        // The letters of the small pictures drawn before the fixed palette (16×16 heroes and monsters, 12×12 icons),
+        // with the colours they were drawn in; each is snapped to the palette (GamePalette) when the picture is made.
+        // Pictures drawn at full size (32 rows or more) use the palette's own letters (Resources/Data/Ui/palette.csv).
+        static readonly Dictionary<char, string> Legacy = new Dictionary<char, string>
         {
             ['k'] = "#1B1820",
             ['s'] = "#E8B48A",
@@ -63,15 +66,21 @@ namespace Game.Client
             return Keep('m', monsterId, color, Make("monster:" + monsterId, Monsters.TryGetValue(monsterId, out var rows) ? rows : Monsters["goblin"], color, true));
         }
 
-        // `finish`: heroes and monsters are drawn at twice the size of their letter rows with the finishing pass below.
+        // `finish`: small heroes and monsters (under 32 rows) are drawn at twice the size of their letter rows with the
+        // finishing pass below; pictures drawn at full size are shaded by hand and kept as they are. Every colour comes
+        // from the palette: `c` is the class or monster colour, `d` one step darker on its ramp, `C` one step lighter.
         public static Texture2D Make(string key, string[] rows, string color, bool finish = false)
         {
             key += color + (finish ? "+" : "");
             if (Cache.TryGetValue(key, out var cached) && cached != null) return cached;
-            var main = Palette.Hex(color ?? "#888888");
-            var shade = Color.Lerp(main, Color.black, 0.35f);
             int height = rows.Length;
             int width = rows[0].Length;
+            bool full = height >= 32;
+            finish &= !full;
+            var main = GamePalette.Snap(Palette.Hex(color ?? "#888888"));
+            var shade = GamePalette.Darker(main);
+            var light = GamePalette.Lighter(main);
+            var missing = new Color32(255, 0, 255, 255);
             var pixels = new Color32[width * height];
             for (int y = 0; y < height; y++)
             {
@@ -79,13 +88,13 @@ namespace Game.Client
                 for (int x = 0; x < width; x++)
                 {
                     char c = x < row.Length ? row[x] : '.';
-                    Color pixel = c switch
-                    {
-                        '.' => Color.clear,
-                        'c' => main,
-                        'd' => shade,
-                        _ => Colors.TryGetValue(c, out string hex) ? Palette.Hex(hex) : Color.magenta,
-                    };
+                    Color32 pixel;
+                    if (c == '.') pixel = default;
+                    else if (c == 'c') pixel = main;
+                    else if (c == 'd') pixel = shade;
+                    else if (c == 'C') pixel = light;
+                    else if (full) pixel = GamePalette.Letter(c, out var letter) ? letter : missing;
+                    else pixel = Legacy.TryGetValue(c, out string hex) ? GamePalette.Snap(Palette.Hex(hex)) : missing;
                     pixels[y * width + x] = pixel;
                 }
             }
@@ -128,8 +137,8 @@ namespace Game.Client
                 float t = y / (float)(height - 1) * (steps - 1);
                 int band = Mathf.Min((int)t, steps - 2);
                 float frac = t - band;
-                Color32 a = Color.Lerp(top, bottom, band / (float)(steps - 1));
-                Color32 b = Color.Lerp(top, bottom, (band + 1) / (float)(steps - 1));
+                var a = GamePalette.Snap(Color.Lerp(top, bottom, band / (float)(steps - 1)));
+                var b = GamePalette.Snap(Color.Lerp(top, bottom, (band + 1) / (float)(steps - 1)));
                 for (int x = 0; x < width; x++)
                     pixels[(height - 1 - y) * width + x] = frac * 16 > Bayer[(y & 3) * 4 + (x & 3)] + 0.5f ? b : a;
             }
@@ -148,8 +157,8 @@ namespace Game.Client
         // ---- The finishing pass (user decision 2026-11-10: the art stays pixel art, drawn in code) ----
 
         // The letter rows at twice the size, then: the dark outline thinned to one point (half what it was), and in
-        // each coloured part a lit edge toward the top left and a shaded edge toward the bottom right, so the shapes
-        // read with volume (three tones from two). Thin parts lit on both sides keep their colour. Shapes stay exactly
+        // each coloured part a lit edge toward the top left and a shaded edge toward the bottom right, one step along
+        // the colour's palette ramp, so the shapes read with volume (three tones from two). Thin parts lit on both sides keep their colour. Shapes stay exactly
         // as drawn (no smoothing: small crosses and blades would melt). Pixels run bottom-up, as Texture2D keeps them.
         static Color32[] Finish(Color32[] small, int width, int height)
         {
@@ -158,7 +167,7 @@ namespace Game.Client
             for (int y = 0; y < h; y++)
                 for (int x = 0; x < w; x++)
                     big[y * w + x] = small[y / 2 * width + x / 2];
-            var ink = (Color32)Palette.Hex(Colors['k']);
+            var ink = GamePalette.Ink;
             bool Ink(Color32 c) => c.a > 0 && c.r == ink.r && c.g == ink.g && c.b == ink.b;
             bool Clear(Color32[] p, int x, int y) => x < 0 || y < 0 || x >= w || y >= h || p[y * w + x].a == 0;
             bool InkAt(Color32[] p, int x, int y) => x >= 0 && y >= 0 && x < w && y < h && Ink(p[y * w + x]);
@@ -194,8 +203,8 @@ namespace Game.Client
                     if (c.a == 0 || Ink(c)) continue;
                     bool lit = Edge(x, y + 1) || Edge(x - 1, y);
                     bool dark = Edge(x, y - 1) || Edge(x + 1, y);
-                    if (lit && !dark) done[y * w + x] = new Color32((byte)(c.r + (255 - c.r) * 22 / 100), (byte)(c.g + (255 - c.g) * 22 / 100), (byte)(c.b + (255 - c.b) * 22 / 100), c.a);
-                    else if (dark && !lit) done[y * w + x] = new Color32((byte)(c.r * 75 / 100), (byte)(c.g * 75 / 100), (byte)(c.b * 75 / 100), c.a);
+                    if (lit && !dark) done[y * w + x] = GamePalette.Lighter(c);
+                    else if (dark && !lit) done[y * w + x] = GamePalette.Darker(c);
                 }
             return done;
         }
@@ -1844,6 +1853,113 @@ namespace Game.Client
                 "............",
             },
         };
+
+        // ---- Map ground: a hexagon filled with its land's pattern, in the land's palette ramp ----
+
+        static readonly Dictionary<(string, int, int), Texture2D> Grounds = new Dictionary<(string, int, int), Texture2D>();
+
+        // `pattern`: grass, forest, swamp, road, ruins, water, shallows, sand, snow, rift, mountain (anything else is
+        // plain). Three variants of each, so neighbouring hexes do not repeat. Made once per pattern, colour, variant.
+        public static Texture2D Ground(string pattern, Color color, int variant)
+        {
+            var key = (pattern, Pack(color), variant);
+            if (Grounds.TryGetValue(key, out var made) && made != null) return made;
+            const int width = 26;
+            const int height = 30;
+            var baseColor = GamePalette.Snap(color);
+            var dark = GamePalette.Darker(baseColor);
+            var darker = GamePalette.Darker(dark);
+            var light = GamePalette.Lighter(baseColor);
+            var ember = GamePalette.Letter('e', out var e) ? e : light;
+            var grid = new Color32[width * height];
+            for (int i = 0; i < grid.Length; i++) grid[i] = baseColor;
+            // A small fixed hash per point: the same picture on every device.
+            uint seed = (uint)(pattern.Length * 131 + variant * 977 + 7);
+            int Noise(int x, int y)
+            {
+                uint h = (uint)(x * 374761393 + y * 668265263) ^ seed * 2246822519u;
+                h = (h ^ (h >> 13)) * 1274126177u;
+                return (int)((h ^ (h >> 16)) % 100);
+            }
+            void Put(int x, int y, Color32 c)
+            {
+                if (x >= 0 && y >= 0 && x < width && y < height) grid[y * width + x] = c;
+            }
+            // y grows downward here (row 0 is the top); flipped when written.
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                {
+                    int n = Noise(x, y);
+                    switch (pattern)
+                    {
+                        case "grass":
+                            if (n < 4) { Put(x, y, light); Put(x - 1, y + 1, light); Put(x + 1, y + 1, light); }
+                            else if (n < 7) Put(x, y, dark);
+                            break;
+                        case "forest":
+                            if (n < 12) Put(x, y, dark);
+                            else if (n < 15) Put(x, y, darker);
+                            else if (n < 17) Put(x, y, light);
+                            break;
+                        case "swamp":
+                            if (n < 4) for (int i = 0; i < 4; i++) Put(x + i, y, dark);
+                            else if (n < 6) { Put(x, y, light); Put(x, y - 1, light); }
+                            break;
+                        case "road":
+                            // A packed dirt road: pebbles and short dark ruts.
+                            if (n < 5) Put(x, y, light);
+                            else if (n < 8) { Put(x, y, dark); Put(x + 1, y, dark); Put(x + 2, y, dark); }
+                            else if (n < 11) Put(x, y, dark);
+                            break;
+                        case "ruins":
+                            if (n < 3) { int cx = x, cy = y; for (int i = 0; i < 5; i++) { Put(cx, cy, darker); cx += Noise(cx, cy + i) < 50 ? 1 : 0; cy++; } }
+                            else if (n < 7) Put(x, y, light);
+                            else if (n < 11) Put(x, y, dark);
+                            break;
+                        case "water":
+                        case "shallows":
+                            // Short wave crests in rows, light above a dark trough.
+                            if ((y + variant * 2) % 6 == 0 && (x + y * 3 + variant * 5) % 9 < 3) { Put(x, y, light); Put(x, y + 1, dark); }
+                            else if (pattern == "shallows" && n < 3) Put(x, y, light);
+                            break;
+                        case "sand":
+                            if ((x + y * 2 + variant * 3) % 9 == 0 && n < 70) Put(x, y, light);
+                            else if (n < 3) Put(x, y, dark);
+                            break;
+                        case "snow":
+                            if (n < 4) Put(x, y, light);
+                            else if (n < 7 && x + y > width) Put(x, y, dark);
+                            break;
+                        case "rift":
+                            if (n < 3) { int cx = x, cy = y; for (int i = 0; i < 6; i++) { Put(cx, cy, darker); cx += Noise(cx + i, cy) < 50 ? 1 : -1; cy++; } }
+                            else if (n < 5) Put(x, y, ember);
+                            break;
+                        case "mountain":
+                            if (n < 10) Put(x, y, dark);
+                            else if (n < 16) Put(x, y, light);
+                            break;
+                    }
+                }
+            var pixels = new Color32[width * height];
+            float cxm = (width - 1) / 2f, cym = (height - 1) / 2f, r = height / 2f - 0.4f;
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                {
+                    float dx = Mathf.Abs(x - cxm), dy = Mathf.Abs(y - cym);
+                    bool inside = dx <= r * 0.866f && dy <= r - dx * 0.577f;
+                    pixels[(height - 1 - y) * width + x] = inside ? grid[y * width + x] : default;
+                }
+            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.HideAndDontSave,
+            };
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            Grounds[key] = texture;
+            return texture;
+        }
 
         // A pointy-top hexagon, white, to tint for a map hex; or just its rim.
         public static Texture2D Hex(bool rim)

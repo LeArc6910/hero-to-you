@@ -32,6 +32,26 @@ namespace Game.Core.Tests
         };
 
         [Test]
+        public void ClassesAndMonstersAreColouredFromTheOnePalette()
+        {
+            // The fixed palette the client draws everything in (Data/Ui/palette.csv, user decision 2026-11-10).
+            var palette = CsvTable.Read(System.IO.File.ReadAllText(System.IO.Path.Combine(TestData.DataFolder, "Ui/palette.csv"))).Rows;
+            var colors = new HashSet<string>(palette.Select(r => r["hex"].ToUpperInvariant()));
+            var letters = palette.Select(r => r["char"]).ToList();
+            Assert.That(letters.Distinct().Count(), Is.EqualTo(letters.Count), "글자마다 색 하나");
+            Assert.That(letters, Has.No.Member("."));
+            Assert.That(letters, Has.No.Member("c"));
+            Assert.That(letters, Has.No.Member("d"));
+            Assert.That(letters, Has.No.Member("C"));
+            foreach (var cls in TestData.Data.ClassList)
+                Assert.That(colors, Has.Member(cls.Color.ToUpperInvariant()), $"{cls.Id}의 색이 팔레트에 없다");
+            foreach (var monster in TestData.Data.Monsters.Values)
+                Assert.That(colors, Has.Member(monster.Color.ToUpperInvariant()), $"{monster.Id}의 색이 팔레트에 없다");
+            var classColors = TestData.Data.ClassList.Where(c => c.Playable).Select(c => c.Color.ToUpperInvariant()).ToList();
+            Assert.That(classColors.Distinct().Count(), Is.EqualTo(classColors.Count), "직업마다 다른 색");
+        }
+
+        [Test]
         public void APartyWithNeitherFrontNorHealerIsMarkedAsAChallenge()
         {
             var data = TestData.Data;

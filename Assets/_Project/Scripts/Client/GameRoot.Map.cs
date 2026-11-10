@@ -20,19 +20,20 @@ namespace Game.Client
         int _panFor = -1;
         bool _gearOpen;
 
+        // Palette colours (GamePalette) that have a darker and a lighter step on their ramp, for the ground patterns.
         static readonly Dictionary<Terrain, Color> TerrainColors = new Dictionary<Terrain, Color>
         {
             [Terrain.Plains] = Palette.Hex("#5F6B45"),
-            [Terrain.Forest] = Palette.Hex("#3B5236"),
+            [Terrain.Forest] = Palette.Hex("#3D5A35"),
             [Terrain.Swamp] = Palette.Hex("#45574A"),
-            [Terrain.Road] = Palette.Hex("#7C6C50"),
-            [Terrain.Ruins] = Palette.Hex("#5E5A57"),
-            [Terrain.Shallows] = Palette.Hex("#3F6E7A"),
+            [Terrain.Road] = Palette.Hex("#7C5236"),
+            [Terrain.Ruins] = Palette.Hex("#6C6467"),
+            [Terrain.Shallows] = Palette.Hex("#3E7A6E"),
             [Terrain.Sand] = Palette.Hex("#9C8A5E"),
-            [Terrain.Snow] = Palette.Hex("#AEB9C4"),
-            [Terrain.Rift] = Palette.Hex("#3A2A44"),
-            [Terrain.Water] = Palette.Hex("#2A425C"),
-            [Terrain.Mountain] = Palette.Hex("#4A4550"),
+            [Terrain.Snow] = Palette.Hex("#A0AABB"),
+            [Terrain.Rift] = Palette.Hex("#3B3243"),
+            [Terrain.Water] = Palette.Hex("#2B4862"),
+            [Terrain.Mountain] = Palette.Hex("#5A6376"),
         };
 
         void DrawMap()
@@ -185,8 +186,10 @@ namespace Game.Client
                 bool seen = a.Explored(tile.Hex);
                 bool known = a.Knows(tile);
                 var ground = TerrainColors.TryGetValue(tile.Terrain, out var color) ? color : Palette.Ground;
-                // Fog (Docs/Map.md 안개): hexes nobody has seen are dim, and what they hold stays hidden.
-                Ui.Image(rect, fill, seen ? ground : Color.Lerp(ground, Palette.Back, 0.55f));
+                // The land's pattern in its palette ramp (three variants by place). Fog (Docs/Map.md 안개): hexes nobody
+                // has seen are dim, and what they hold stays hidden.
+                int variant = (int)((uint)(tile.Hex.Col * 73856093 ^ tile.Hex.Row * 19349663) % 3);
+                Ui.Image(rect, PixelArt.Ground(GroundPattern(tile.Terrain), ground, variant), seen ? Color.white : Fogged);
                 string mark = TerrainMark(tile.Terrain);
                 if (mark != null && tile.Site == Site.None && (tile.Content == Content.None || !known))
                     Ui.Image(new Rect(c.x - size * 0.45f, c.y - size * 0.4f, size * 0.9f, size * 0.9f), PixelArt.Icon(mark), new Color(1, 1, 1, seen ? 0.55f : 0.25f));
@@ -222,6 +225,24 @@ namespace Game.Client
                 if (Ui.Hit(hit, hex.ToString(), true, "칸") && !_mapDragged) _picked = hex;
             }
         }
+
+        static readonly Color Fogged = new Color(0.42f, 0.4f, 0.48f, 1);
+
+        static string GroundPattern(Terrain terrain) => terrain switch
+        {
+            Terrain.Plains => "grass",
+            Terrain.Forest => "forest",
+            Terrain.Swamp => "swamp",
+            Terrain.Road => "road",
+            Terrain.Ruins => "ruins",
+            Terrain.Shallows => "shallows",
+            Terrain.Water => "water",
+            Terrain.Sand => "sand",
+            Terrain.Snow => "snow",
+            Terrain.Rift => "rift",
+            Terrain.Mountain => "mountain",
+            _ => "plain",
+        };
 
         static string TerrainMark(Terrain terrain) => terrain switch
         {

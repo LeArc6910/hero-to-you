@@ -15,23 +15,23 @@ namespace Game.Client
         {
             var (top, bottom, ground, mark, extra) = scene switch
             {
-                "forest" => (Palette.Hex("#3A3530"), Palette.Hex("#8A7A62"), Palette.Hex("#3B5236"), "tree", "stones"),
-                "harbor" => (Palette.Hex("#22384A"), Palette.Hex("#7895A0"), Palette.Hex("#3F6E7A"), "wave", "bell"),
-                "snow" => (Palette.Hex("#5C6E80"), Palette.Hex("#C9D6E0"), Palette.Hex("#AEB9C4"), "peak", "snowflake"),
-                "rift" => (Palette.Hex("#1A0C0C"), Palette.Hex("#6B2A1E"), Palette.Hex("#2A1A18"), "stones", "boss"),
-                "tomb" => (Palette.Hex("#3A1A10"), Palette.Hex("#C8784A"), Palette.Hex("#9C8A5E"), "stones", "crown"),
-                "gate" => (Palette.Hex("#0C0A18"), Palette.Hex("#4A2A5A"), Palette.Hex("#2A2030"), "crack", "boss"),
-                "dawn" => (Palette.Hex("#E89A6A"), Palette.Hex("#FCE3B0"), Palette.Hex("#6E8F5A"), "tree", "sun"),
-                "dusk" => (Palette.Hex("#23222E"), Palette.Hex("#6A5E6E"), Palette.Hex("#3A3840"), "stones", "ash"),
-                "reunion" => (Palette.Hex("#2E2240"), Palette.Hex("#C8784A"), Palette.Hex("#4A3A2A"), "tree", "waiting"),
-                "shrine" => (Palette.Hex("#162236"), Palette.Hex("#6E8CA8"), Palette.Hex("#4A5A4A"), "stones", "glow"),
-                "camp" => (Palette.Hex("#0E1226"), Palette.Hex("#34304E"), Palette.Hex("#2A281E"), "tree", "fire"),
-                _ => (Palette.Hex("#2A2438"), Palette.Hex("#6E5A6E"), Palette.Hex("#3A3440"), null, null),
+                "forest" => (Palette.Hex("#3B3243"), Palette.Hex("#9C8A5E"), Palette.Hex("#3E5430"), "tree", "stones"),
+                "harbor" => (Palette.Hex("#1E3448"), Palette.Hex("#8DBAC6"), Palette.Hex("#3E7A6E"), "wave", "bell"),
+                "snow" => (Palette.Hex("#5A6376"), Palette.Hex("#C4D2EA"), Palette.Hex("#A0AABB"), "peak", "snowflake"),
+                "rift" => (Palette.Hex("#2A1020"), Palette.Hex("#76282C"), Palette.Hex("#2E1D18"), "stones", "boss"),
+                "tomb" => (Palette.Hex("#2E1D18"), Palette.Hex("#AD7C4E"), Palette.Hex("#9C8A5E"), "stones", "crown"),
+                "gate" => (Palette.Hex("#1B1622"), Palette.Hex("#3B3243"), Palette.Hex("#28222F"), "crack", "boss"),
+                "dawn" => (Palette.Hex("#DC9E78"), Palette.Hex("#F8EAB0"), Palette.Hex("#6E9E4F"), "tree", "sun"),
+                "dusk" => (Palette.Hex("#28222F"), Palette.Hex("#6C6467"), Palette.Hex("#3B3243"), "stones", "ash"),
+                "reunion" => (Palette.Hex("#2A1F40"), Palette.Hex("#AD7C4E"), Palette.Hex("#4A2F24"), "tree", "waiting"),
+                "shrine" => (Palette.Hex("#28222F"), Palette.Hex("#4C7A96"), Palette.Hex("#45574A"), "stones", "glow"),
+                "camp" => (Palette.Hex("#1B1622"), Palette.Hex("#3B3243"), Palette.Hex("#2E1D18"), "tree", "fire"),
+                _ => (Palette.Hex("#28222F"), Palette.Hex("#6C6467"), Palette.Hex("#3B3243"), null, null),
             };
             float skyH = r.height * 0.68f;
             Ui.Image(new Rect(r.x, r.y, r.width, skyH + 1), PixelArt.Sky(top, bottom, r.width / Mathf.Max(1, skyH)));
             Ui.Fill(new Rect(r.x, r.y + skyH, r.width, r.height - skyH), ground);
-            Ui.Fill(new Rect(r.x, r.y + skyH, r.width, 2), Color.Lerp(ground, Color.white, 0.2f));
+            Ui.Fill(new Rect(r.x, r.y + skyH, r.width, 2), GamePalette.Lighter(ground));
 
             float s = Mathf.Min(r.height * 0.42f, 72);
             var random = new System.Random(scene?.GetHashCode() ?? 0);
@@ -75,7 +75,7 @@ namespace Game.Client
                 float flicker = Settings.LessMotion ? 0 : Mathf.Sin(time * 9) * 0.08f;
                 Ui.Image(new Rect(r.x + r.width * 0.62f, r.yMax - fire - 6, fire, fire), PixelArt.Icon("camp"), new Color(1, 1, 1, 0.9f + flicker));
                 float who = Mathf.Min(r.height * 0.36f, 56);
-                Ui.Image(new Rect(r.x + r.width * 0.62f + fire, r.yMax - who - 4, who, who), PixelArt.Hero("wanderer", "#9A8F86"), null, true);
+                Ui.Image(new Rect(r.x + r.width * 0.62f + fire, r.yMax - who - 4, who, who), PixelArt.Hero("wanderer", "#9A8F88"), null, true);
             }
             else if (extra == "glow")
             {

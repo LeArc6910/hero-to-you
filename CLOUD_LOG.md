@@ -8,6 +8,15 @@
 - **로컬에서 할 일**: 없으면 "없음"
 - **로컬 확인**: 로컬 세션이 읽고 체크한다
 
+## 2026-11-10 정해진 팔레트와 지도 칸의 무늬
+
+- **바뀐 것**: 사용자 요청 "1, 2, 3 진행해줘"(32×32 다시 그리기, 지도 무늬, 정해진 팔레트) 가운데 팔레트와 지도 무늬. 32×32 그림은 다음 커밋으로 온다(`Docs/WebDemo.md` 도트 다듬기)
+  - 팔레트: `Resources/Data/Ui/palette.csv`(19개 색 띠, 83색, 그림 글자)와 이를 읽는 `Client/Art/GamePalette.cs`. 모든 도트 그림·하늘·장면·전투 땅·지도 색이 팔레트 색이고, 명암은 색 띠에서 한 단계 옮긴다. 직업·몬스터 색도 팔레트 색으로 바꿨다(시험 `ClassesAndMonstersAreColouredFromTheOnePalette`)
+  - 지도 칸: 땅마다 무늬가 든 육각 그림 셋(`PixelArt.Ground`)
+  - `DevTools/ArtPreview/preview.py`가 게임과 같이 팔레트로 그린다
+- **로컬에서 할 일**: 새 파일 `Client/Art/GamePalette.cs`, `Resources/Data/Ui/palette.csv`의 `.meta`를 Unity가 만들면 커밋
+- **로컬 확인**: [ ]
+
 ## 2026-11-10 도트 다듬기 첫 단계: 영웅·몬스터 명암과 디더링 하늘
 
 - **바뀐 것**: 사용자가 도트를 골라 그 방향을 게임에 입히는 첫 단계다(`Docs/WebDemo.md` 도트 다듬기)
