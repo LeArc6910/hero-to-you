@@ -24,6 +24,7 @@ namespace Game.Core
             text.Append("perks ").Append(string.Join(",", Perks)).Append('\n');
             text.Append("level ").Append(Difficulty.ToString().ToLowerInvariant()).Append('\n');
             if (Hardcore) text.Append("hardcore\n");
+            if (FirstChapter > 0 || LastChapter < Data.Chapters.Count - 1) text.Append($"chapters {FirstChapter} {LastChapter}\n");
             text.Append("sheets ").Append(Data.Fingerprint).Append('\n');
             foreach (string line in _log) text.Append(line).Append('\n');
             return text.ToString();
@@ -55,6 +56,7 @@ namespace Game.Core
             var perks = new List<string>();
             var difficulty = Difficulty.Normal;
             bool hardcore = false;
+            int firstChapter = 0, lastChapter = -1;
             string sheets = null;
             for (; first < lines.Count; first++)
             {
@@ -63,12 +65,18 @@ namespace Game.Core
                 else if (line.StartsWith("level ")) Enum.TryParse(line.Substring(6), true, out difficulty);
                 else if (line.StartsWith("sheets ")) sheets = line.Substring(7);
                 else if (line == "hardcore") hardcore = true;
+                else if (line.StartsWith("chapters "))
+                {
+                    string[] range = line.Split(' ');
+                    int.TryParse(range[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out firstChapter);
+                    if (range.Length > 2) int.TryParse(range[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out lastChapter);
+                }
                 else break;
             }
             Adventure adventure;
             try
             {
-                adventure = new Adventure(data, lines[2].Substring(6).Split(','), seed, perks, difficulty, hardcore);
+                adventure = new Adventure(data, lines[2].Substring(6).Split(','), seed, perks, difficulty, hardcore, firstChapter, lastChapter);
             }
             catch (ArgumentException e)
             {

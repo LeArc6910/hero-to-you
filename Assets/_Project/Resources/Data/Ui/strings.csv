@@ -2,10 +2,9 @@ id,ko,en
 title.name,히어로 투 유,Hero to You
 title.subtitle,영웅에게서 너에게 · 1~3인 협동 턴제 모험,"From a hero, to you · a turn-based co-op adventure for 1–3"
 title.continue,이어하기,Continue
-title.new,혼자 시작 (영웅 셋을 모두 조종),Start solo (lead all three heroes)
-title.new_over,새 모험 (이어하던 것은 지워진다),New adventure (the saved one is lost)
+title.new,새 모험 (영웅 셋을 이끈다),New adventure (lead three heroes)
 title.journal,일지 ({0}장),Journal ({0} pages)
-title.coop,협동 (준비 중),Co-op (coming)
+title.coop,협동 플레이는 준비 중이다,Co-op play is coming
 title.settings,설정,Settings
 title.footer,{0}개의 장,{0} chapters
 party.heading,영웅 셋을 고르세요,Choose three heroes
@@ -29,7 +28,7 @@ settings.speed_fast,전투 연출: 빠르게,Battle playback: fast
 settings.tips,도움말 다시 보기,Show the tips again
 settings.tips_done,처음 보는 화면마다 도움말이 다시 나온다.,The tips will show again on each new screen.
 settings.language,언어: 한국어,Language: English
-settings.language_note,영어는 메뉴와 도움말만 있다. 이야기와 사건은 한국어로 나온다.,Only the menus and tips are in English yet; the story and events are in Korean.
+settings.language_note,"영어: 메뉴·도움말, 직업·기술·몬스터·장비·장의 이름, 이야기 장면, 명성, 일지가 영어로 나온다. 사건과 전투 기록 문장은 아직 한국어다.","English: menus, tips, names of classes, skills, monsters, gear and chapters, the story pages, renown and the journal. Event and battle log sentences are still in Korean."
 settings.back,뒤로,Back
 common.ok,알겠다,Got it
 common.close,닫기,Close
@@ -111,3 +110,35 @@ battle.use,사용,Use
 battle.flee,도망,Flee
 event.who,누가 해 볼까?,Who tries it?
 common.back,뒤로,Back
+title.practice,연습 판,Practice run
+title.practice_tip,"처음이라면: 1장만, 쉬움, 정해진 파티와 지도로 도움말을 다시 보며 걷는다. 따로 저장된다.","First time? Chapter 1 only, easy, a set party and map, with every tip again. Saved on its own."
+title.slots,저장 슬롯,Save slots
+title.slot_summary,{0} · {1},{0} · {1}
+title.pick_slot,이어 할 슬롯을 고른다,Choose a slot to continue
+slots.heading,저장 슬롯,Save slots
+slots.hint,모험을 셋까지 따로 저장한다. 연습 판은 따로 저장된다. 끝난 모험은 슬롯에서 지워진다.,Up to three adventures are kept apart. The practice run has its own. A finished adventure leaves its slot.
+slots.slot,슬롯 {0},Slot {0}
+slots.practice,연습 판,Practice run
+slots.empty,비어 있음,Empty
+slots.continue,이어하기,Continue
+slots.new,새 모험,New
+slots.delete,지우기,Delete
+slots.confirm,한 번 더 누르면 지운다,Tap again to delete
+slots.full,슬롯 셋이 모두 찼다. 하나를 지우거나 이어 하세요.,All three slots are full. Delete one or continue one.
+slots.from,{0}장부터,from chapter {0}
+slots.progress,진행 {0},{0} steps
+party.difficulty_tip,"쉬움: 몬스터 생명력 −25%, 희망 +1, 금화 +10. 보통이 이 게임이 맞춘 난이도다.","Easy: monsters have 25% less life, +1 hope, +10 gold. Normal is the difficulty the game is tuned for."
+party.from,시작: {0}장,Start: chapter {0}
+party.length_all,길이: 끝까지,Length: to the end
+party.length_one,길이: 한 장,Length: one chapter
+party.chapters_tip,한 번이라도 다다른 장부터 시작할 수 있다. 늦게 시작하면 그 장에 맞는 레벨·장비·금화를 받는다. 짧은 판은 장과 페이지는 남지만 캠페인 승리로는 치지 않는다.,"Start at any chapter you have reached before. A later start brings the levels, gear and gold for it. A short run counts its chapters and pages, not as a won campaign."
+party.combos,조합: {0},Pairings: {0}
+end.copy,기록 복사,Copy the summary
+end.copied,기록을 복사했다. 붙여 넣어 나눌 수 있다.,Copied. Paste it to share.
+end.copy_failed,복사하지 못했다. 이 브라우저는 복사를 막는다.,Could not copy: this browser blocks it.
+share.won,모든 장을 지났다 · 「{2}」,All chapters crossed · “{2}”
+share.won_short,{0}장부터 {1}장까지 지났다 · 「{2}」,Crossed chapters {0} to {1} · “{2}”
+share.lost,{0}장 「{1}」에서 길이 끊겼다,"The road ended in chapter {0}, “{1}”"
+share.stats,지난 장 {0} · 이긴 전투 {1} · {2}일 · 명성 {3},Chapters {0} · battles won {1} · {2} days · renown {3}
+share.endings,다정한 결말 {0} · 쓸쓸한 결말 {1},Kind endings {0} · grim endings {1}
+levelup.auto,남은 강화 {0}개를 알아서 고른다,Pick the remaining {0} for me

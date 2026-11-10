@@ -24,11 +24,12 @@ namespace Game.Core
         public const string RenownFile = "Story/renown.csv";
         public const string TalksFile = "Story/talks.csv";
         public const string AchievementsFile = "Journal/achievements.csv";
+        public const string CombosFile = "Classes/combos.csv";
 
         public static readonly string[] Files =
         {
             ClassesFile, SkillsFile, MonstersFile, MonsterSkillsFile, EncountersFile, ChaptersFile, StoriesFile, EventsFile,
-            EventChoicesFile, ItemsFile, UpgradesFile, PerksFile, RenownFile, TalksFile, AchievementsFile,
+            EventChoicesFile, ItemsFile, UpgradesFile, PerksFile, RenownFile, TalksFile, AchievementsFile, CombosFile,
         };
 
         // Monsters the classes summon to their side (Docs/Classes.md: necromancer, beastmaster).
@@ -48,7 +49,7 @@ namespace Game.Core
         {
             "", "burn", "chill", "lifesteal", "guard", "taunt", "mark", "bless", "lucky", "backfire", "hide", "finisher", "weaken",
             "song_courage", "song_rest", "encore", "corrode", "raise", "deathmark", "foretell", "twist", "command", "wolfguard", "call",
-            "pierce", "meditate", "turret", "snare", "echo",
+            "pierce", "meditate", "turret", "snare", "echo", "bonewall",
         };
         static readonly string[] PerfectEffects = { "", "crit150", "crit200", "crit300", "stun", "armor1" };
         static readonly string[] Elements = { "", "fire", "frost", "lightning" };
@@ -72,6 +73,7 @@ namespace Game.Core
         public IReadOnlyList<RenownDef> Renown { get; private set; } = new List<RenownDef>();
         public IReadOnlyList<TalkDef> Talks { get; private set; } = new List<TalkDef>();
         public IReadOnlyList<AchievementDef> Achievements { get; private set; } = new List<AchievementDef>();
+        public IReadOnlyList<ComboDef> Combos { get; private set; } = new List<ComboDef>();
         public IReadOnlyDictionary<string, StoryDef> Stories { get; private set; } = new Dictionary<string, StoryDef>();
         public IReadOnlyList<EventCard> Events { get; private set; } = new List<EventCard>();
         public IReadOnlyDictionary<string, ItemDef> Items { get; private set; } = new Dictionary<string, ItemDef>();
@@ -84,7 +86,23 @@ namespace Game.Core
         // A short hash of every sheet's text: a save notes it to tell when the rules changed (Adventure.Save).
         public string Fingerprint { get; private set; } = "";
 
-        public static GameData Load(Func<string, string> read)
+        // `language` "en" reads the sheets' `*_en` cells where they are filled in (Docs/Localization.md); the rules and
+        // the save's sheet hash do not change with it.
+        public static GameData Load(Func<string, string> read, string language = "ko")
+        {
+            string was = CsvTable.Language;
+            CsvTable.Language = string.IsNullOrEmpty(language) || language == "ko" ? null : language;
+            try
+            {
+                return LoadSheets(read);
+            }
+            finally
+            {
+                CsvTable.Language = was;
+            }
+        }
+
+        static GameData LoadSheets(Func<string, string> read)
         {
             var data = new GameData();
             uint hash = 2166136261;
@@ -116,6 +134,9 @@ namespace Game.Core
             data.ReadRenown(CsvTable.Read(read(RenownFile)));
             data.ReadTalks(CsvTable.Read(read(TalksFile)));
             data.ReadAchievements(CsvTable.Read(read(AchievementsFile)));
+            data.ReadCombos(CsvTable.Read(read(CombosFile)));
+            foreach (var perk in data.Perks.Where(p => p.Requires.Length > 0))
+                if (!data.Achievements.Any(a => a.Id == perk.Requires)) data._errors.Add($"{PerksFile}: '{perk.Id}'의 requires '{perk.Requires}'가 achievements.csv에 없습니다.");
             if (data._errors.Count > 0) throw new FormatException("시트 오류:\n" + string.Join("\n", data._errors));
             return data;
         }
@@ -260,7 +281,7 @@ namespace Game.Core
                 if (skill.Damages && skill.Target != SkillTarget.Enemy && skill.Target != SkillTarget.AllEnemies)
                     Error(file, row, "공격 기술의 target은 enemy나 all_enemies입니다.");
                 if (skill.Kind == SkillKind.Revive && skill.Target != SkillTarget.DownedAlly) Error(file, row, "revive의 target은 downed_ally입니다.");
-                if (skill.Kind == SkillKind.Heal && skill.Target != SkillTarget.Ally && skill.Target != SkillTarget.Self)
+                if (skill.Kind == SkillKind.Heal && skill.Target != SkillTarget.Ally && skill.Target != SkillTarget.Self && skill.Target != SkillTarget.AllAllies)
                     Error(file, row, "heal의 target은 ally나 self입니다.");
                 if (skill.Kind == SkillKind.Support && skill.Effect.Length == 0) Error(file, row, "support 기술에는 effect가 있어야 합니다.");
                 if (skill.Id.Length > 0) skills[skill.Id] = skill;
@@ -361,6 +382,13 @@ namespace Game.Core
                     if (uses.Count == 0) Error(file, row, "소모품에는 use가 있어야 합니다.");
                     item.Use = uses;
                 }
+                string[] effect = row["effect"].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (effect.Length > 0 && item.Slot != ItemSlot.Weapon)
+                {
+                    item.Effect = effect[0];
+                    item.EffectAmount = effect.Length > 1 ? Signed(file, row, effect[1], "effect") : 0;
+                    if (item.Effect != "thorns" && item.Effect != "regen") Error(file, row, $"갑옷·장신구의 effect '{item.Effect}'는 thorns나 regen입니다.");
+                }
                 if (item.Slot == ItemSlot.Weapon)
                 {
                     var attack = new SkillDef
@@ -375,7 +403,7 @@ namespace Game.Core
                         Target = SkillTarget.Enemy,
                         Delay = Number(file, row, "delay"),
                         Element = "",
-                        Effect = "",
+                        Effect = effect.Length > 0 ? effect[0] : "",
                         Perfect = row["perfect"],
                         Text = $"{item.Name}의 기본 공격.",
                     };
@@ -385,6 +413,7 @@ namespace Game.Core
                     if (attack.Name.Length == 0) Error(file, row, "무기에는 attack(공격 이름)이 있어야 합니다.");
                     if (attack.Dice < 1) Error(file, row, "무기의 dice는 1 이상입니다.");
                     if (attack.Delay < 20 || attack.Delay > 300) Error(file, row, "delay는 20~300(%)입니다.");
+                    if (attack.Effect.Length > 0 && !new[] { "burn", "chill", "lifesteal", "weaken", "corrode", "pierce" }.Contains(attack.Effect)) Error(file, row, $"무기의 effect '{attack.Effect}'는 burn, chill, lifesteal, weaken, corrode, pierce 가운데 하나입니다.");
                     item.Attack = attack;
                 }
                 list.Add(item);
@@ -467,7 +496,7 @@ namespace Game.Core
                     Text = row["text"],
                 };
                 Choice(file, row, "kind", new[] { "physical", "magic", "buff" });
-                Choice(file, row, "effect", new[] { "", "burn", "chill", "weaken", "howl", "charge" });
+                Choice(file, row, "effect", new[] { "", "burn", "chill", "weaken", "howl", "charge", "seal", "erase", "freeze" });
                 if (skill.Damages && skill.Dice == 0) Error(file, row, "공격에는 주사위가 있어야 합니다.");
                 if (skill.Delay < 20 || skill.Delay > 300) Error(file, row, "delay는 20~300(%)입니다.");
                 if (skill.Id.Length > 0) map[skill.Id] = skill;
@@ -599,6 +628,7 @@ namespace Game.Core
                     Title = row["title"],
                     Text = row["text"],
                     Journal = row["journal"],
+                    Requires = row["requires"],
                 };
                 if (card.Pool.Length == 0) Error(EventsFile, row, "pool이 비었습니다.");
                 if (card.ClassId != null && !Classes.ContainsKey(card.ClassId)) Error(EventsFile, row, $"직업 '{card.ClassId}'가 없습니다.");
@@ -751,6 +781,34 @@ namespace Game.Core
 
         static List<string> List(string raw) => (raw ?? "").Split(';').Select(s => s.Trim()).Where(s => s.Length > 0).ToList();
 
+        // What a journal perk or a class pairing can give at the start of a run (Adventure.ApplyGift).
+        public static readonly string[] PerkVerbs = { "gold", "potion", "tonic", "hope", "doom", "xp", "hard", "reveal", "bless", "forge", "renown" };
+
+        void ReadCombos(CsvTable table)
+        {
+            const string file = CombosFile;
+            RequireColumns(file, table, "id", "name", "classes", "effect", "text");
+            var list = new List<ComboDef>();
+            var seen = new HashSet<string>();
+            foreach (var row in table.Rows)
+            {
+                string[] words = row["effect"].Split(' ');
+                var combo = new ComboDef
+                {
+                    Id = Id(file, row, seen),
+                    Name = row["name"],
+                    Classes = List(row["classes"]),
+                    Effect = new UpgradeEffect { Verb = words[0], Target = "", Amount = words.Length > 1 ? Signed(file, row, words[1], "effect") : 0 },
+                    Text = row["text"],
+                };
+                if (!PerkVerbs.Contains(combo.Effect.Verb) || combo.Effect.Verb == "hard") Error(file, row, $"effect '{combo.Effect.Verb}'는 쓸 수 없습니다.");
+                foreach (string cls in combo.Classes)
+                    if (!Classes.ContainsKey(cls)) Error(file, row, $"직업 '{cls}'가 없습니다.");
+                list.Add(combo);
+            }
+            Combos = list;
+        }
+
         static readonly string[] AchievementRules = { "win", "chapters", "kind_ending", "grim_ending", "kind_all", "renown", "dungeons", "contracts", "talks", "notes", "hard_win", "hardcore_win", "easy_win", "classes", "runs", "no_fall" };
 
         void ReadAchievements(CsvTable table)
@@ -826,8 +884,9 @@ namespace Game.Core
                     Pages = Number(file, row, "pages"),
                     Effect = new UpgradeEffect { Verb = words[0], Target = "", Amount = words.Length > 1 ? Signed(file, row, words[1], "effect") : 0 },
                     Text = row["text"],
+                    Requires = row["requires"],
                 };
-                if (!new[] { "gold", "potion", "tonic", "hope", "doom", "xp", "hard" }.Contains(perk.Effect.Verb)) Error(file, row, $"effect '{perk.Effect.Verb}'는 gold, potion, tonic, hope, doom, xp, hard 가운데 하나입니다.");
+                if (!PerkVerbs.Contains(perk.Effect.Verb)) Error(file, row, $"effect '{perk.Effect.Verb}'는 {string.Join(", ", PerkVerbs)} 가운데 하나입니다.");
                 list.Add(perk);
             }
             Perks = list;

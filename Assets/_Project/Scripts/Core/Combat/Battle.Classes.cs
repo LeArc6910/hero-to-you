@@ -24,10 +24,14 @@ namespace Game.Core
         public const int SoulCap = 6;
         public const int CourageBonus = 10;
         public const int RestHealBase = 3;
-        public const int ForetellCut = 20;
+        public const int ForetellCut = 30;
         public const int Foresight = 3;
         public const int WolfCallHeal = 8;
         public const int SkeletonHp = 16;
+        public const int BoneWallArmor = 3;
+
+        // The skeleton grows with its master: +2 life a level, like the engineer's turret.
+        static int SkeletonLife(Unit owner) => SkeletonHp + owner.Hero.Special("skeleton_hp") + 2 * (owner.Hero.Level - 1);
         public const int WolfHp = 18;
         public const int KiCap = 5;
         public const int MeditateKi = 2;
@@ -78,7 +82,7 @@ namespace Game.Core
             {
                 unit.Souls = 2 + unit.Hero.Special("soul_start");
                 // The necromancer walks in with a skeleton already up: it stands in front (Docs/Classes.md).
-                Summon(unit, GameData.SkeletonId, SkeletonHp + unit.Hero.Special("skeleton_hp"), 0);
+                Summon(unit, GameData.SkeletonId, SkeletonLife(unit), 0);
             }
             if (Is(unit, "monk")) unit.Ki = 1 + unit.Hero.Special("ki_start");
             if (Is(unit, "beastmaster")) Summon(unit, GameData.CompanionWolfId, WolfHp + 2 * (unit.Hero.Level - 1) + unit.Hero.Special("wolf_hp"), unit.Hero.Special("wolf_power"));
@@ -174,6 +178,7 @@ namespace Game.Core
             if (skill.Effect == "echo") return "되새길 동료의 기술이 아직 없습니다(동료가 먼저 기술을 쓰면 된다).";
             if (skill.Id == EchoId && Array.IndexOf(Echoable, skill.Effect) < 0) return $"{skill.Name}: 그 기술은 되새길 수 없습니다.";
             if (skill.Effect == "raise" && SummonOf(actor, GameData.SkeletonId) is Unit skeleton && !skeleton.Down) return "해골은 한 번에 하나만 일으킵니다.";
+            if (skill.Effect == "bonewall" && !(SummonOf(actor, GameData.SkeletonId) is Unit bones && !bones.Down)) return "일어서 있는 해골이 없습니다.";
             if (skill.Effect == "finisher" && actor.Combo == 0) return $"{skill.Name}: 연계가 없습니다(먼저 다른 행동을 하세요).";
             if ((skill.Effect == "wolfguard" || skill.Effect == "command") && !(SummonOf(actor, GameData.CompanionWolfId) is Unit wolf && !wolf.Down))
                 return "늑대가 쓰러져 있습니다(야성의 부름으로 일으킵니다).";
@@ -272,7 +277,7 @@ namespace Game.Core
                     break;
                 case "raise":
                     var skeleton = SummonOf(actor, GameData.SkeletonId);
-                    int hp = SkeletonHp + actor.Hero.Special("skeleton_hp");
+                    int hp = SkeletonLife(actor);
                     if (skeleton != null)
                     {
                         skeleton.Hp = hp;
@@ -285,6 +290,17 @@ namespace Game.Core
                     break;
                 case "deathmark":
                     AddStatus(target, StatusKind.DeathMark, MarkTurns);
+                    break;
+                case "bonewall":
+                    var wall = SummonOf(actor, GameData.SkeletonId);
+                    wall.TauntArmor = BoneWallArmor;
+                    wall.Statuses[StatusKind.Taunt] = 1;
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = wall.Id, Status = StatusKind.Taunt, Amount = BoneWallArmor, Text = $"{actor.Name}: 뼈의 벽! 모든 적이 해골을 노린다 (방어도 +{BoneWallArmor})" });
+                    foreach (var monster in Monsters.Where(m => !m.Down && m.Intent != null && m.Intent.Skill.Target == MonsterTarget.One && m.Intent.Target != wall.Id))
+                    {
+                        monster.Intent.Target = wall.Id;
+                        EmitIntent(monster);
+                    }
                     break;
                 case "foretell":
                     int cut = ForetellCut + actor.Hero.Special("foretell");

@@ -67,6 +67,8 @@ namespace Game.Core
         OtherAlly,
         DownedAlly,
         Self,
+        // Every hero standing (the alchemist's healing mist).
+        AllAllies,
     }
 
     public sealed class SkillDef
@@ -259,6 +261,10 @@ namespace Game.Core
         public string Title { get; internal set; }
         public string Text { get; internal set; }
         public string Journal { get; internal set; }
+
+        // A flag the run must have (or, with a leading !, must not have) for this event to be drawn: what an
+        // earlier chapter's choice brings back later (Docs/Narrative.md 장을 넘는 이야기).
+        public string Requires { get; internal set; } = "";
         public List<EventChoice> Choices { get; } = new List<EventChoice>();
     }
 }
@@ -278,6 +284,11 @@ namespace Game.Core
     {
         // Forged levels (Docs/Map.md 대장간): +1 to +3, each a copy of the sheet's item made stronger.
         public int Plus { get; internal set; }
+
+        // Armor and trinkets with something of their own (Docs/Combat.md 장비 효과): "thorns" (a blow's attacker
+        // takes EffectAmount back), "regen" (EffectAmount health at each of the hero's turns).
+        public string Effect { get; internal set; } = "";
+        public int EffectAmount { get; internal set; }
 
         internal ItemDef Clone()
         {
@@ -438,8 +449,21 @@ namespace Game.Core
     }
 
     // A journal page perk (Data/Journal/perks.csv, Docs/Journal.md): bought with pages, chosen at the start of a run.
+    // A pairing of classes the party can have, with its name and a small gift at the start (Data/Classes/combos.csv,
+    // Docs/Classes.md 조합).
+    public sealed class ComboDef
+    {
+        public string Id { get; internal set; }
+        public string Name { get; internal set; }
+        public IReadOnlyList<string> Classes { get; internal set; } = new List<string>();
+        public UpgradeEffect Effect { get; internal set; }
+        public string Text { get; internal set; }
+    }
+
     public sealed class PerkDef
     {
+        // An achievement that must be earned before the perk can be unlocked; empty for none.
+        public string Requires { get; internal set; } = "";
         public string Id { get; internal set; }
         public string Name { get; internal set; }
         public int Pages { get; internal set; }

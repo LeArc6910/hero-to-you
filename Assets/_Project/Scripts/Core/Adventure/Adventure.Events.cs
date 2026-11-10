@@ -37,8 +37,17 @@ namespace Game.Core
 
         EventCard PickEvent(string pool)
         {
-            var all = Data.Events.Where(e => e.Pool == pool && (e.ClassId == null || HasClass(e.ClassId))).ToList();
+            var all = Data.Events.Where(e => e.Pool == pool && (e.ClassId == null || HasClass(e.ClassId)) && FlagOk(e.Requires)).ToList();
             var fresh = all.Where(e => !_seen.Contains(e.Id)).ToList();
+            // Someone an earlier choice saved comes back (an event with `requires`): two times in three while unseen
+            // (Docs/Narrative.md 다시 만나는 사람들).
+            var callback = fresh.Where(e => e.Requires.Length > 0 && !e.Requires.StartsWith("!")).ToList();
+            if (callback.Count > 0 && _eventRandom.Next(3) > 0)
+            {
+                var back = callback[_eventRandom.Next(callback.Count)];
+                _seen.Add(back.Id);
+                return back;
+            }
             // Each class's own event comes first while it has not been seen (Docs/Narrative.md 개인 이야기).
             var personal = fresh.Where(e => e.ClassId != null).ToList();
             var from = personal.Count > 0 && _eventRandom.Next(2) == 0 ? personal : fresh.Count > 0 ? fresh : all;

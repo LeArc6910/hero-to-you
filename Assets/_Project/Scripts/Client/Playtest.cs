@@ -219,7 +219,29 @@ namespace Game.Client
                     return "ok";
                 case "language":
                     Settings.Language = Arg(1, "ko");
+                    ReloadData();
                     return "ok";
+                case "slot":
+                    // The save slot new and continued adventures use (0 is the practice run's).
+                    SaveStore.Slot = Number(1, 1);
+                    return "ok " + SaveStore.Slot;
+                case "practice":
+                    StartPractice();
+                    return "ok";
+                case "reached":
+                    // The furthest chapter the journal remembers (to try the party screen's chapter choice).
+                    JournalNow.ReachForTest(Number(1, 2));
+                    SaveStore.WriteJournal(JournalNow);
+                    return "ok " + JournalNow.Reached;
+                case "range":
+                    // The party screen's start chapter (1-based) and "one" for a one-chapter run.
+                    _startChapter = Number(1, 1) - 1;
+                    _oneChapter = Arg(2) == "one";
+                    return "ok";
+                case "share":
+                    // What the end screen's [기록 복사] copies, its lines joined by " | ".
+                    if (_adventure == null) return "error no adventure";
+                    return RunSummary(_adventure).Replace("\n", " | ");
                 case "textsize":
                     Settings.TextSize = Number(1, 100);
                     return "ok";
@@ -252,6 +274,7 @@ namespace Game.Client
                         "journal" => ClientScreen.Journal,
                         "settings" => ClientScreen.Settings,
                         "party" => ClientScreen.Party,
+                        "slots" => ClientScreen.Slots,
                         _ => ClientScreen.Title,
                     };
                     return "ok";
@@ -312,7 +335,8 @@ namespace Game.Client
                 .Add("height", Ui.Height)
                 .Add("pages", JournalNow.Pages).Add("perks", string.Join(",", ChosenPerks()))
                 .Add("language", Settings.Language).Add("textSize", Settings.TextSize).Add("vibration", Settings.Vibration)
-                .Add("achievements", JournalNow.Achieved.Count).Add("colorMarks", Settings.ColorMarks).Add("lessMotion", Settings.LessMotion);
+                .Add("achievements", JournalNow.Achieved.Count).Add("colorMarks", Settings.ColorMarks).Add("lessMotion", Settings.LessMotion)
+                .Add("slot", SaveStore.Slot).Add("reached", JournalNow.Reached).Add("startChapter", _startChapter).Add("oneChapter", _oneChapter);
             var adventure = _adventure;
             if (adventure != null)
             {
@@ -328,7 +352,9 @@ namespace Game.Client
                     .Add("difficulty", adventure.Difficulty.ToString()).Add("dungeonRoom", adventure.DungeonRoom).Add("contract", adventure.Contract != null)
                     .Add("talks", adventure.Talks.Count).Add("talkWaiting", TalkWaiting).Add("story", adventure.Story?.Id ?? "").Add("storyAll", _storyAll)
                     .Add("hardcore", adventure.Hardcore).Add("auto", _autoBattle).Add("history", _history.Count).Add("canRetry", _retrySave != null)
-                    .Add("reportOpen", _reportOpen).Add("historyOpen", _historyOpen);
+                    .Add("reportOpen", _reportOpen).Add("historyOpen", _historyOpen)
+                    .Add("firstChapter", adventure.FirstChapter).Add("lastChapter", adventure.LastChapter)
+                    .Add("combos", string.Join(",", adventure.Combos.Select(c => c.Id)));
                 json.List("heroes");
                 foreach (var hero in adventure.Heroes)
                     json.Open().Add("class", hero.Class.Id).Add("level", hero.Level).Add("hp", hero.Hp).Add("max", hero.MaxHp)

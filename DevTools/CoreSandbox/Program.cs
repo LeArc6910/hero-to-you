@@ -36,7 +36,7 @@ static class Program
         else if (args.Contains("--battle")) Battles(Count("--battle", 1000), party, Option("--encounter", "goblins"), level, smart, true);
         else if (args.Contains("--classes")) Classes(Count("--classes", 500), Option("--encounter", ""), level, smart);
         else if (args.Contains("--replay")) Replay(Option("--replay", "report.txt"));
-        else if (args.Contains("--adventure")) Adventures(Count("--adventure", 500), party, smart, args.Contains("--human") ? AdventureBot.HumanMistakes : 0, args.Contains("--easy") ? Difficulty.Easy : Difficulty.Normal, Count("--retries", 0));
+        else if (args.Contains("--adventure")) Adventures(Count("--adventure", 500), party, smart, args.Contains("--human") ? AdventureBot.HumanMistakes : 0, args.Contains("--easy") ? Difficulty.Easy : Difficulty.Normal, Count("--retries", 0), Option("--chapters", ""));
         else
         {
             Console.WriteLine("--dice | --battle N --party a,b,c --encounter id [--level L] | --classes N | --adventure N --party a,b,c  ([--random])");
@@ -154,8 +154,16 @@ static class Program
             Console.WriteLine($"  {string.Join("+", p.party.Select(id => _data.Classes[id].Name)),-24} {p.win:P0} {p.hp:P0}");
     }
 
-    static void Adventures(int runs, string[] party, bool smart, int mistakes, Difficulty difficulty, int retries)
+    static void Adventures(int runs, string[] party, bool smart, int mistakes, Difficulty difficulty, int retries, string chapters)
     {
+        // A short run (Docs/Map.md 짧은 판): "--chapters 3-4" plays chapters 3 to 4, 1-based.
+        int first = 0, last = -1;
+        if (chapters.Length > 0)
+        {
+            string[] range = chapters.Split('-');
+            first = int.Parse(range[0]) - 1;
+            last = int.Parse(range[range.Length - 1]) - 1;
+        }
         int wins = 0;
         var endings = new Dictionary<string, int>();
         double levels = 0, battles = 0, gold = 0, renown = 0, pages = 0;
@@ -165,7 +173,7 @@ static class Program
         int usedRetries = 0;
         for (int run = 0; run < runs; run++)
         {
-            var adventure = new Adventure(_data, party, (ulong)(run * 104729 + 7), null, difficulty);
+            var adventure = new Adventure(_data, party, (ulong)(run * 104729 + 7), null, difficulty, false, first, last);
             var bot = new GameRandom((ulong)run, 9);
             int cleared = 0;
             int tries = retries;

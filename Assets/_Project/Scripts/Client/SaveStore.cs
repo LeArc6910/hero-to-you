@@ -4,34 +4,64 @@ using UnityEngine;
 
 namespace Game.Client
 {
-    // The adventure in progress, as a file on the device (Docs/Saving.md). In the browser, persistentDataPath lives
-    // in the site's IndexedDB; the page carries every write there (autoSyncPersistentDataPath in the web template).
+    // The adventures in progress, as files on the device (Docs/Saving.md 저장 슬롯): slots 1 to 3, and slot 0 for the
+    // practice run. Slot 1 keeps the old single save's name, so a save from before the slots is slot 1. In the
+    // browser, persistentDataPath lives in the site's IndexedDB; the page carries every write there
+    // (autoSyncPersistentDataPath in the web template).
     static class SaveStore
     {
-        const string FileName = "adventure.txt";
+        public const int Slots = 3;
+        public const int PracticeSlot = 0;
+        const string SlotKey = "save_slot";
 
-        static string FilePath => Path.Combine(Application.persistentDataPath, FileName);
-
-        public static bool Exists
+        // The slot the adventure on screen saves to (and the title's continue opens), kept on the device.
+        public static int Slot
         {
-            get
+            get => Mathf.Clamp(PlayerPrefs.GetInt(SlotKey, 1), 0, Slots);
+            set
             {
-                try
-                {
-                    return File.Exists(FilePath);
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
+                PlayerPrefs.SetInt(SlotKey, Mathf.Clamp(value, 0, Slots));
+                PlayerPrefs.Save();
             }
         }
 
-        public static string Read()
+        static string FileOf(int slot) => slot == PracticeSlot ? "practice.txt" : slot == 1 ? "adventure.txt" : $"adventure{slot}.txt";
+
+        static string PathOf(int slot) => Path.Combine(Application.persistentDataPath, FileOf(slot));
+
+        public static bool Exists => ExistsIn(Slot);
+
+        public static bool ExistsIn(int slot)
         {
             try
             {
-                return File.Exists(FilePath) ? File.ReadAllText(FilePath) : null;
+                return File.Exists(PathOf(slot));
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        // Any slot with an adventure in it (the title shows the slots then).
+        public static bool Any
+        {
+            get
+            {
+                for (int slot = 0; slot <= Slots; slot++)
+                    if (ExistsIn(slot)) return true;
+                return false;
+            }
+        }
+
+        public static string Read() => ReadSlot(Slot);
+
+        public static string ReadSlot(int slot)
+        {
+            try
+            {
+                string path = PathOf(slot);
+                return File.Exists(path) ? File.ReadAllText(path) : null;
             }
             catch (Exception e)
             {
@@ -44,7 +74,7 @@ namespace Game.Client
         {
             try
             {
-                File.WriteAllText(FilePath, text);
+                File.WriteAllText(PathOf(Slot), text);
             }
             catch (Exception e)
             {
@@ -52,11 +82,14 @@ namespace Game.Client
             }
         }
 
-        public static void Delete()
+        public static void Delete() => DeleteSlot(Slot);
+
+        public static void DeleteSlot(int slot)
         {
             try
             {
-                if (File.Exists(FilePath)) File.Delete(FilePath);
+                string path = PathOf(slot);
+                if (File.Exists(path)) File.Delete(path);
             }
             catch (Exception e)
             {
@@ -94,13 +127,14 @@ namespace Game.Client
             }
         }
 
-        // "기사 · 사냥꾼 · 성직자, 명령 120개" for the title's continue button, from the save's header.
-        public static string Summary(Game.Core.GameData data)
+        // "기사 · 사냥꾼 · 성직자 · 3장 · 진행 120" for a slot, from the save's header and its chapter lines.
+        public static string Summary(Game.Core.GameData data, int slot)
         {
-            string text = Read();
+            string text = ReadSlot(slot);
             if (string.IsNullOrEmpty(text)) return null;
             string party = "";
             int commands = 0;
+            int first = 0;
             foreach (string line in text.Replace("\r", "").Split('\n'))
             {
                 if (line.StartsWith("party "))
@@ -109,9 +143,12 @@ namespace Game.Client
                     foreach (string id in line.Substring(6).Split(',')) names.Add(data.Classes.TryGetValue(id, out var cls) ? cls.Name : id);
                     party = string.Join(" · ", names);
                 }
-                else if (line.Length > 0 && !line.StartsWith("seed ") && !line.StartsWith("sheets ") && !line.StartsWith("perks") && !line.StartsWith(Game.Core.Adventure.SaveHeader)) commands++;
+                else if (line.StartsWith("chapters ")) int.TryParse(line.Split(' ')[1], out first);
+                else if (line.Length > 0 && !line.StartsWith("seed ") && !line.StartsWith("sheets ") && !line.StartsWith("perks") && !line.StartsWith("level ")
+                         && line != "hardcore" && !line.StartsWith(Game.Core.Adventure.SaveHeader)) commands++;
             }
-            return $"{party} · 진행 {commands}";
+            string from = first > 0 ? " · " + Strings.Format("slots.from", first + 1) : "";
+            return $"{party}{from} · {Strings.Format("slots.progress", commands)}";
         }
     }
 }

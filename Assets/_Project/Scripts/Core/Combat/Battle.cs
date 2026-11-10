@@ -162,11 +162,51 @@ namespace Game.Core
             throw new InvalidOperationException("The battle did not reach a hero's turn.");
         }
 
+        // The bosses' own rules on a hero they hit (Docs/Combat.md 보스): a sealed skill, every skill erased, frozen.
+        public const int SealTurns = 3;
+        public const int EraseTurns = 2;
+
+        void BossRule(Unit actor, MonsterSkillDef skill, Unit target)
+        {
+            var own = target.Hero.Skills.Where(s => s.Id != Hero.AttackId).ToList();
+            switch (skill.Effect)
+            {
+                case "seal":
+                    var best = own.Where(s => Cooldown(target, s) == 0).OrderByDescending(s => s.Power + s.Dice * 3).FirstOrDefault();
+                    if (best == null) break;
+                    target.AvailableAt[best.Id] = target.TurnsTaken + SealTurns + 1;
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Text = $"{actor.Name}: {target.Name}의 {Korean.Object(best.Name)} 빼앗았다 ({SealTurns}차례 못 쓴다)" });
+                    break;
+                case "erase":
+                    foreach (var s in own) target.AvailableAt[s.Id] = Math.Max(target.AvailableAt.TryGetValue(s.Id, out int at) ? at : 0, target.TurnsTaken + EraseTurns + 1);
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Text = $"{actor.Name}: {target.Name}의 이름이 흐려졌다 ({EraseTurns}차례 기본 공격만)" });
+                    break;
+                case "freeze":
+                    AddStatus(target, StatusKind.Stun, 1);
+                    break;
+            }
+        }
+
+        // Armor with thorns hurts back whoever struck the hero.
+        void Thorns(Unit target, Unit attacker)
+        {
+            if (!target.IsHero || attacker.Down) return;
+            int thorns = target.Hero.Equipment.Where(i => i.Effect == "thorns").Sum(i => i.EffectAmount);
+            if (thorns > 0) Hurt(attacker, thorns, target.Id, false, "가시");
+        }
+
         // The start of a unit's turn: what was set up until its turn ends, songs, burns, stuns. False when it cannot act.
         bool StartTurn(Unit unit)
         {
             unit.TurnsTaken++;
             Emit(new BattleEvent { Kind = BattleEventKind.Turn, Actor = unit.Id, Text = $"{unit.Name}의 차례" });
+            int regen = unit.IsHero && !unit.Down ? unit.Hero.Equipment.Where(i => i.Effect == "regen").Sum(i => i.EffectAmount) : 0;
+            if (regen > 0 && unit.Hp < unit.MaxHp)
+            {
+                int was = unit.Hp;
+                unit.Hero.Heal(regen);
+                Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = unit.Id, Target = unit.Id, Amount = unit.Hp - was, Text = $"{unit.Name}: +{unit.Hp - was} (되살아나는 힘)" });
+            }
 
             foreach (var guarded in _units.Where(u => u.GuardUntil == unit.Id).ToList()) EndGuard(guarded);
             if (unit.Statuses.Remove(StatusKind.Taunt))
@@ -457,6 +497,8 @@ namespace Game.Core
                     continue;
                 }
                 Hurt(target, damage, actor.Id, false, skill.Name);
+                if (check.Successes > 0 && target.IsHero && !target.Down) BossRule(actor, skill, target);
+                Thorns(target, actor);
                 if (skill.Effect == "burn" && check.Successes > 0) AddStatus(target, StatusKind.Burn, BurnTurns);
                 if (skill.Effect == "chill" && check.Successes > 0) AddStatus(target, StatusKind.Chill, 1);
                 if (skill.Effect == "weaken" && check.Successes > 0) AddStatus(target, StatusKind.Weak, WeakTurns);
@@ -478,13 +520,14 @@ namespace Game.Core
                 SkillTarget.Ally => Heroes.Where(h => !h.Down).ToList(),
                 SkillTarget.OtherAlly => Heroes.Where(h => !h.Down && h.Id != actor.Id).ToList(),
                 SkillTarget.DownedAlly => Heroes.Where(h => h.Down).ToList(),
+                SkillTarget.AllAllies => Heroes.Where(h => !h.Down).ToList(),
                 _ => new List<Unit> { actor },
             };
         }
 
         // The target a skill takes when there is nothing to choose (all enemies, self), else -1.
         public static int FixedTarget(Unit actor, SkillDef skill) =>
-            skill != null && (skill.Target == SkillTarget.Self || skill.Target == SkillTarget.AllEnemies) ? actor.Id : -1;
+            skill != null && (skill.Target == SkillTarget.Self || skill.Target == SkillTarget.AllEnemies || skill.Target == SkillTarget.AllAllies) ? actor.Id : -1;
 
         // What the command would do, without doing it. Error says why it cannot be given.
         public SkillPreview Preview(BattleCommand command)
@@ -558,7 +601,7 @@ namespace Game.Core
 
         Unit TargetOf(Unit actor, SkillDef skill, int targetId)
         {
-            if (skill.Target == SkillTarget.Self || skill.Target == SkillTarget.AllEnemies) return actor;
+            if (skill.Target == SkillTarget.Self || skill.Target == SkillTarget.AllEnemies || skill.Target == SkillTarget.AllAllies) return actor;
             var target = Unit(targetId);
             return target != null && Targets(actor, skill).Contains(target) ? target : null;
         }
@@ -647,6 +690,14 @@ namespace Game.Core
                     break;
                 case SkillKind.Heal:
                     int heal = RawValue(actor, skill, successes, check?.Dice ?? 0);
+                    // A heal on everyone (the alchemist's mist) touches every hero standing; the rest go on as one.
+                    if (skill.Target == SkillTarget.AllAllies)
+                        foreach (var other in Heroes.Where(h => !h.Down && h.Id != target.Id).ToList())
+                        {
+                            int was = other.Hp;
+                            other.Hero.Heal(heal);
+                            Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = other.Id, Amount = other.Hp - was, Perfect = perfect, Text = $"{other.Name}: +{other.Hp - was} 회복" });
+                        }
                     int before = target.Hp;
                     target.Hero.Heal(heal);
                     Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = target.Id, Amount = target.Hp - before, Perfect = perfect, Text = $"{target.Name}: +{target.Hp - before} 회복" });

@@ -640,9 +640,14 @@ namespace Game.Client
             foreach (var pair in hero.Consumables)
                 if (pair.Key != Hero.PotionId && pair.Value > 0) skills.Add(BattleCommand.Use(pair.Key));
             if (battle.CanFlee) skills.Add(BattleCommand.Flee);
+            // Two columns; three when two would push the roll button off a short panel (Docs/WebDemo.md 작은 화면).
             int columns = 2;
             float bh = Ui.Short ? 40 : 44;
-            float bw = (inner.width - 6) / columns;
+            float room = inner.yMax - 46 - 4 - 44 - y;
+            int rowsOf(int c) => (skills.Count + c - 1) / c;
+            if (rowsOf(2) * (bh + 5) > room && inner.width >= 300) columns = 3;
+            if (rowsOf(columns) * (bh + 5) > room) bh = Mathf.Max(38, room / rowsOf(columns) - 5);
+            float bw = (inner.width - 6 * (columns - 1)) / columns;
             for (int i = 0; i < skills.Count; i++)
             {
                 var cell = new Rect(inner.x + i % columns * (bw + 6), y + i / columns * (bh + 5), bw, bh);
@@ -656,7 +661,7 @@ namespace Game.Client
             var preview = battle.Preview(new BattleCommand(actor.Id, _skill, _target, _resolve));
             var skill = SkillDef(actor, _skill);
             float rollH = 46;
-            float room = inner.yMax - rollH - 4 - y;
+            room = inner.yMax - rollH - 4 - y;
 
             var item = ItemOf(_skill);
             string about = item != null ? item.Text + " 다음 차례가 빨리 온다."
@@ -670,7 +675,7 @@ namespace Game.Client
                 y += aboutH + 4;
             }
 
-            string targetLine = item != null ? (item.Use.Any(u => u.Verb == "bomb") ? "대상: 모든 적" : "대상: 자신") : _skill == BattleCommand.Flee ? "대상: 파티 전체" : skill == null ? "" : skill.Target == SkillTarget.AllEnemies ? "대상: 모든 적" : skill.Target == SkillTarget.Self ? "대상: 자신" : _target >= 0 && battle.Unit(_target) != null ? $"대상: {battle.Unit(_target).Name} (다른 대상을 눌러 바꾸기)" : "대상을 눌러 고르세요";
+            string targetLine = item != null ? (item.Use.Any(u => u.Verb == "bomb") ? "대상: 모든 적" : "대상: 자신") : _skill == BattleCommand.Flee ? "대상: 파티 전체" : skill == null ? "" : skill.Target == SkillTarget.AllEnemies ? "대상: 모든 적" : skill.Target == SkillTarget.Self ? "대상: 자신" : skill.Target == SkillTarget.AllAllies ? "대상: 모든 아군" : _target >= 0 && battle.Unit(_target) != null ? $"대상: {battle.Unit(_target).Name} (다른 대상을 눌러 바꾸기)" : "대상을 눌러 고르세요";
             Ui.Text(new Rect(inner.x, y, inner.width, 16), targetLine, 11.5f, Palette.Ink);
             y += 18;
 

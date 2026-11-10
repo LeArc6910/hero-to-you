@@ -12,6 +12,7 @@ namespace Game.Client
         Party,
         Journal,
         Settings,
+        Slots,
         Adventure,
     }
 
@@ -51,9 +52,16 @@ namespace Game.Client
             useGUILayout = false;
             Application.targetFrameRate = 60;
             EnsureCamera();
+            ReloadData();
+        }
+
+        // The sheets, in the language the settings name (Docs/Localization.md); again when it changes.
+        internal void ReloadData()
+        {
             try
             {
-                _data = GameData.Load(path => Sheet(path));
+                _data = GameData.Load(path => Sheet(path), Settings.Language);
+                _loadError = null;
             }
             catch (Exception e)
             {
@@ -253,6 +261,9 @@ namespace Game.Client
                 case ClientScreen.Settings:
                     DrawSettings();
                     break;
+                case ClientScreen.Slots:
+                    DrawSlots();
+                    break;
                 case ClientScreen.Adventure:
                     DrawAdventure();
                     break;
@@ -306,12 +317,16 @@ namespace Game.Client
 
         // ---- Starting, saving and leaving ----
 
-        internal void StartAdventure(IReadOnlyList<string> classes, ulong? seed = null)
+        // A new run with the party screen's choices: the perks taken along, difficulty, hardcore, the chapters.
+        internal void StartAdventure(IReadOnlyList<string> classes, ulong? seed = null) =>
+            StartRun(classes, seed, ChosenPerks(), _difficulty, _hardcore, _startChapter, _oneChapter ? _startChapter : -1);
+
+        internal void StartRun(IReadOnlyList<string> classes, ulong? seed, List<string> perks, Difficulty difficulty, bool hardcore, int firstChapter, int lastChapter)
         {
             ulong value = seed ?? _nextSeed ?? (ulong)DateTime.Now.Ticks;
             _nextSeed = null;
             _recorded = false;
-            _adventure = new Adventure(_data, classes.ToList(), value, ChosenPerks(), _difficulty, _hardcore);
+            _adventure = new Adventure(_data, classes.ToList(), value, perks, difficulty, hardcore, firstChapter, lastChapter);
             _talksShown = 0;
             _history.Clear();
             _autoBattle = false;
@@ -467,7 +482,8 @@ namespace Game.Client
             Ui.Text(new Rect(info.x + 24, info.y + 4, info.width - 28, 18), $"희망 {_adventure.Hope}", 12, Palette.Ink);
             Ui.Image(new Rect(info.x + 6, info.y + 24, 14, 14), PixelArt.Icon("coin"));
             Ui.Text(new Rect(info.x + 24, info.y + 22, info.width - 28, 18), $"금화 {_adventure.Gold}", 12, Palette.Ink);
-            Ui.Tip(info, $"희망: 쓰러진 영웅이 전투가 끝나거나 아침이 오면 희망 하나로 일어난다. 금화: 마을에서 쓴다. 명성 {_adventure.Renown} (「{_adventure.Rank.Title}」)");
+            string combos = _adventure.Combos.Count > 0 ? "\n" + Strings.Format("party.combos", string.Join(", ", _adventure.Combos.Select(c => c.Name))) : "";
+            Ui.Tip(info, $"희망: 쓰러진 영웅이 전투가 끝나거나 아침이 오면 희망 하나로 일어난다. 금화: 마을에서 쓴다. 명성 {_adventure.Renown} (「{_adventure.Rank.Title}」)" + combos);
         }
 
         // A hero in a few lines, for the long-press tip on the party strip.

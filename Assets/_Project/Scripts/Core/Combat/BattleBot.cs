@@ -32,6 +32,12 @@ namespace Game.Core
             {
                 var skill = battle.SkillOf(actor, own.Id);
                 if (battle.Cooldown(actor, skill) > 0) continue;
+                if (skill.Target == SkillTarget.AllAllies)
+                {
+                    var all = new BattleCommand(actor.Id, skill.Id, actor.Id);
+                    if (battle.Preview(all).Ok) options.Add(all);
+                    continue;
+                }
                 foreach (var target in battle.Targets(actor, skill))
                 {
                     var command = new BattleCommand(actor.Id, skill.Id, target.Id);
@@ -60,6 +66,13 @@ namespace Game.Core
             // Revive the fallen first.
             var revive = Find(nameof(SkillKind.Revive));
             if (revive != null) return revive;
+
+            // Heal everyone when several are hurt.
+            if (living.Count(h => h.Hp * 5 < h.MaxHp * 3) >= 2)
+            {
+                var mist = options.FirstOrDefault(o => SkillOf(o) is SkillDef s && s.Kind == SkillKind.Heal && s.Target == SkillTarget.AllAllies);
+                if (mist != null) return mist;
+            }
 
             // Heal whoever is lowest when someone is under half.
             var hurt = living.OrderBy(h => h.Hp * 100 / h.MaxHp).First();
@@ -97,6 +110,12 @@ namespace Game.Core
             }
             var raise = Find("raise");
             if (raise != null) return raise;
+            // The skeleton draws the blows when big ones are coming at the living.
+            if (threatened.Count >= 2 || enemies.Any(m => m.Monster.Boss && m.Intent != null && m.Intent.Skill.Power >= 14))
+            {
+                var wall = Find("bonewall");
+                if (wall != null) return wall;
+            }
             if (enemies.Count >= 2 && !enemies.Any(e => e.Has(StatusKind.Foretold)))
             {
                 var foretell = Find("foretell");
@@ -107,6 +126,13 @@ namespace Game.Core
             {
                 var twist = Find("twist");
                 if (twist != null) return twist;
+            }
+            // The seer guides whoever will strike hardest next.
+            if (!living.Any(h => h.Hero.Blessing > 0))
+            {
+                var striker = living.Where(h => h.Id != actor.Id).OrderByDescending(h => h.Hero.Level * 10 + h.Hp).FirstOrDefault();
+                var guide = striker == null ? null : Find("bless", striker.Id);
+                if (guide != null && SkillOf(guide).Id == "seer_guide") return guide;
             }
             var wolf = battle.Summons.FirstOrDefault(s => s.Owner == actor.Id);
             if (wolf != null && (wolf.Down || wolf.Hp * 2 < wolf.MaxHp))

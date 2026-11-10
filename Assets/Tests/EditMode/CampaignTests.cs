@@ -8,6 +8,8 @@ namespace Game.Core.Tests
     // Chapters, fog, avoiding and fleeing, consumables, rumors, map perks, renown and the journal.
     public class CampaignTests
     {
+        static readonly string[] NoReveal = { "knight", "rogue", "cleric" };
+
         static Adventure OnMap(ulong seed = 1, string[] classes = null, string[] perks = null)
         {
             var adventure = new Adventure(TestData.Data, classes ?? new[] { "knight", "hunter", "cleric" }, seed, perks);
@@ -106,7 +108,8 @@ namespace Game.Core.Tests
         [Test]
         public void FogHidesFarContentsButNotThePlaces()
         {
-            var a = OnMap();
+            // A party with no pairing that lights the map (combos.csv reveal).
+            var a = OnMap(1, NoReveal);
             var start = a.Map.Tile(Site.Start).Hex;
             var far = a.Map.Tiles.Where(t => t.Content != Content.None && t.Hex.Distance(start) > Adventure.Sight + 1).ToList();
             Assert.That(far, Is.Not.Empty);
@@ -131,7 +134,7 @@ namespace Game.Core.Tests
         [Test]
         public void WhatFogHidStopsTheWalkOnTheWay()
         {
-            var a = OnMap();
+            var a = OnMap(1, NoReveal);
             var at = FarGround(a);
             Clear(a, at, 2);
             a.Positions[0] = at;

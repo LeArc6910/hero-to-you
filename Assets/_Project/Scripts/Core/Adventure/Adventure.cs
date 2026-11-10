@@ -110,9 +110,11 @@ namespace Game.Core
 
         Then _then;
 
-        public Adventure(GameData data, IReadOnlyList<string> classIds, ulong seed, IReadOnlyList<string> perks = null, Difficulty difficulty = Difficulty.Normal, bool hardcore = false)
+        public Adventure(GameData data, IReadOnlyList<string> classIds, ulong seed, IReadOnlyList<string> perks = null, Difficulty difficulty = Difficulty.Normal, bool hardcore = false, int firstChapter = 0, int lastChapter = -1)
         {
             Hardcore = hardcore;
+            FirstChapter = Math.Max(0, Math.Min(firstChapter, data.Chapters.Count - 1));
+            LastChapter = lastChapter < 0 ? data.Chapters.Count - 1 : Math.Max(FirstChapter, Math.Min(lastChapter, data.Chapters.Count - 1));
             Data = data ?? throw new ArgumentNullException(nameof(data));
             if (classIds == null || classIds.Count != 3) throw new ArgumentException("A party is three heroes.", nameof(classIds));
             Seed = seed;
@@ -134,7 +136,8 @@ namespace Game.Core
             }
             Hope = StartHope + (difficulty == Difficulty.Easy ? 1 : 0);
             Gold = StartGold + (difficulty == Difficulty.Easy ? 10 : 0);
-            StartChapter(0);
+            StartChapter(FirstChapter);
+            StartLate();
             ApplyPerks();
         }
 
@@ -150,6 +153,38 @@ namespace Game.Core
         // The hardcore mode (Docs/Combat.md 하드코어): a hero who falls with no hope left is gone for good, and a new
         // companion can be taken on in town.
         public bool Hardcore { get; }
+
+        // The chapters this run plays (Docs/Map.md 짧은 판): from FirstChapter to LastChapter, 0-based.
+        public int FirstChapter { get; }
+        public int LastChapter { get; }
+        public bool FullRun => FirstChapter == 0 && LastChapter == Data.Chapters.Count - 1;
+
+        // The level a party starting at a later chapter begins with, and its gold to buy gear.
+        public static readonly int[] StartLevels = { 1, 5, 7, 9, 11 };
+        public const int LateGold = 40;
+
+        // A party starting at a later chapter comes with the levels, gear (of the chapter's tier, plain pieces in
+        // sheet order) and some gold a party would have gathered on the way.
+        void StartLate()
+        {
+            if (FirstChapter == 0) return;
+            int level = StartLevels[Math.Min(FirstChapter, StartLevels.Length - 1)];
+            int tier = FirstChapter + 1;
+            foreach (var h in Heroes)
+            {
+                GainXp(h, Hero.LevelXp[level - 1]);
+                var plain = Data.ItemList.Where(i => i.Price > 0 && !i.Consumable && i.Effect.Length == 0 && i.Tier <= tier).ToList();
+                var weapon = plain.Where(i => i.Slot == ItemSlot.Weapon && h.CanEquip(i) && (i.Attack == null || i.Attack.Effect.Length == 0))
+                    .OrderByDescending(i => i.Tier).FirstOrDefault();
+                string armorKind = h.Back ? "light" : "heavy";
+                var armor = plain.Where(i => i.Slot == ItemSlot.Armor && i.Kind == armorKind).OrderByDescending(i => i.Tier).FirstOrDefault();
+                var trinket = plain.Where(i => i.Slot == ItemSlot.Trinket).OrderByDescending(i => i.Tier).FirstOrDefault();
+                foreach (var item in new[] { weapon, armor, trinket })
+                    if (item != null) h.Equip(item.Clone());
+                h.Hp = h.MaxHp;
+            }
+            Gold += LateGold * FirstChapter;
+        }
 
         // What the run did, for the journal's achievements (Docs/Journal.md).
         public int Falls { get; private set; }
@@ -200,33 +235,65 @@ namespace Game.Core
             {
                 var perk = Data.Perks.FirstOrDefault(p => p.Id == id);
                 if (perk == null) throw new ArgumentException($"No journal perk '{id}'.");
-                var e = perk.Effect;
-                switch (e.Verb)
-                {
-                    case "gold":
-                        Gold += e.Amount;
-                        break;
-                    case "potion":
-                        foreach (var h in Heroes) h.AddConsumable(Hero.PotionId, e.Amount);
-                        break;
-                    case "tonic":
-                        foreach (var h in Heroes) h.AddConsumable("tonic", e.Amount);
-                        break;
-                    case "hope":
-                        Hope += e.Amount;
-                        break;
-                    case "doom":
-                        Doom = Math.Max(0, Doom + e.Amount);
-                        break;
-                    case "xp":
-                        foreach (var h in Heroes) GainXp(h, e.Amount);
-                        break;
-                    case "hard":
-                        Hard = true;
-                        break;
-                }
+                ApplyGift(perk.Effect);
+            }
+            // The pairings of classes the party has (Docs/Classes.md 조합).
+            foreach (var combo in Data.Combos.Where(c => c.Classes.All(cls => ClassIds.Contains(cls))))
+            {
+                _combos.Add(combo);
+                ApplyGift(combo.Effect);
             }
             Report.Clear();
+        }
+
+        readonly List<ComboDef> _combos = new List<ComboDef>();
+
+        // The class pairings this party makes, with their gifts.
+        public IReadOnlyList<ComboDef> Combos => _combos;
+
+        // What a journal perk or a class pairing gives at the start (GameData.PerkVerbs).
+        void ApplyGift(UpgradeEffect e)
+        {
+            switch (e.Verb)
+            {
+                case "gold":
+                    Gold += e.Amount;
+                    break;
+                case "potion":
+                    foreach (var h in Heroes) h.AddConsumable(Hero.PotionId, e.Amount);
+                    break;
+                case "tonic":
+                    foreach (var h in Heroes) h.AddConsumable("tonic", e.Amount);
+                    break;
+                case "hope":
+                    Hope += e.Amount;
+                    break;
+                case "doom":
+                    Doom = Math.Max(0, Doom + e.Amount);
+                    break;
+                case "xp":
+                    foreach (var h in Heroes) GainXp(h, e.Amount);
+                    break;
+                case "hard":
+                    Hard = true;
+                    break;
+                case "reveal":
+                    // The nearest hexes to the start the party does not know yet.
+                    var start = Map.Tile(Site.Start).Hex;
+                    foreach (var tile in Map.Tiles.Where(t => !Knows(t)).OrderBy(t => t.Hex.Distance(start)).ThenBy(t => t.Hex.Row).ThenBy(t => t.Hex.Col).Take(e.Amount).ToList())
+                        _revealed.Add(tile.Hex);
+                    break;
+                case "bless":
+                    foreach (var h in Heroes) h.Blessing += Math.Max(1, e.Amount);
+                    break;
+                case "forge":
+                    foreach (var h in Heroes)
+                        for (int n = 0; n < Math.Max(1, e.Amount); n++) ForgeFree(h, ItemSlot.Weapon);
+                    break;
+                case "renown":
+                    Renown += e.Amount;
+                    break;
+            }
         }
 
         // Journal pages this run earned, once it is over: three for each chapter cleared, one for each middle boss,
@@ -254,7 +321,7 @@ namespace Game.Core
         {
             if (Hardcore || Hard) return null;
             var lines = Save().Replace("\r", "").Split('\n').ToList();
-            int header = lines.FindIndex(l => !(l.StartsWith(SaveHeader) || l.StartsWith("seed ") || l.StartsWith("party ") || l.StartsWith("perks") || l.StartsWith("level ") || l == "hardcore" || l.StartsWith("sheets ")));
+            int header = lines.FindIndex(l => !(l.StartsWith(SaveHeader) || l.StartsWith("seed ") || l.StartsWith("party ") || l.StartsWith("perks") || l.StartsWith("level ") || l == "hardcore" || l.StartsWith("chapters ") || l.StartsWith("sheets ")));
             if (header < 0) header = lines.Count;
             return string.Join("\n", lines.Take(header + ChapterStart)) + "\n";
         }
@@ -329,7 +396,7 @@ namespace Game.Core
                             Screen = AdventureScreen.Defeat;
                             break;
                         default:
-                            if (Chapter.Index + 1 < Data.Chapters.Count) StartChapter(Chapter.Index + 1);
+                            if (Chapter.Index + 1 <= LastChapter) StartChapter(Chapter.Index + 1);
                             else Screen = AdventureScreen.Victory;
                             break;
                     }

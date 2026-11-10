@@ -21,7 +21,7 @@ fight 0 attack 3 1
 ...
 ```
 
-`perks`는 그 판이 들고 시작한 일지의 장(`Docs/Journal.md`), `level`은 난이도(`easy`, `normal`), `hardcore`가 있으면 하드코어다. `Adventure`의 공개 메서드(Continue, RollMove, Reroll, Move, Camp, Stay, Join, Avoid, Scare, Fight, Choose, Rest, Buy, Sell, Rumor, Donate, TakeContract, Elder, LeaveTown, Equip, Unequip, UseItem, SetRow, Delve, LeaveDungeon, Forge, Recruit, ChooseUpgrade)는 성공할 때마다 한 줄을 `Log`에 쓴다. 불러오기(`Adventure.Load`)는 같은 시드와 파티로 새 모험을 만들고 그 줄들을 차례로 다시 준다. 같은 상태가 된다(`SaveTests`가 확인한다).
+`perks`는 그 판이 들고 시작한 일지의 장(`Docs/Journal.md`), `level`은 난이도(`easy`, `normal`), `hardcore`가 있으면 하드코어다. 짧은 판(`Docs/Map.md`)이면 `chapters 1 1`처럼 처음과 마지막 장 번호(0부터)가 붙는다(2026-11-10, 머리 줄만 더해서 `SaveVersion`은 그대로 3이다). 언어는 저장본에 없다: 한국어로 저장한 판을 영어로 이어도 똑같이 돈다(`Docs/Localization.md`). `Adventure`의 공개 메서드(Continue, RollMove, Reroll, Move, Camp, Stay, Join, Avoid, Scare, Fight, Choose, Rest, Buy, Sell, Rumor, Donate, TakeContract, Elder, LeaveTown, Equip, Unequip, UseItem, SetRow, Delve, LeaveDungeon, Forge, Recruit, ChooseUpgrade)는 성공할 때마다 한 줄을 `Log`에 쓴다. 불러오기(`Adventure.Load`)는 같은 시드와 파티로 새 모험을 만들고 그 줄들을 차례로 다시 준다. 같은 상태가 된다(`SaveTests`가 확인한다).
 
 - 좋은 점: 저장 형식이 작고 단순하다. 협동의 명령 동기화(M4)와 같은 길이다. 버그를 저장본 하나로 그대로 재현한다
 - `sheets`: 데이터 시트의 지문. 저장한 뒤 시트가 바뀌었으면 불러올 때 "결과가 조금 다를 수 있다"고 알린다
@@ -39,7 +39,16 @@ fight 0 attack 3 1
 
 ## 클라이언트
 
-- 모험을 시작할 때와 명령이 받아들여질 때마다 `persistentDataPath/adventure.txt`에 쓴다. 웹에서는 그 폴더가 사이트의 IndexedDB이고 페이지가 쓸 때마다 옮긴다(`autoSyncPersistentDataPath`, 웹 템플릿)
+### 저장 슬롯 (2026-11-10)
+
+- 슬롯 셋(`adventure.txt`, `adventure2.txt`, `adventure3.txt`)과 연습 판의 슬롯(`practice.txt`)이 있다. 슬롯 1은 예전의 하나뿐이던 저장본과 이름이 같아서, 슬롯이 생기기 전의 판은 슬롯 1로 이어진다
+- 지금 쓰는 슬롯은 기기에 기억한다(`SaveStore.Slot`, PlayerPrefs `save_slot`). 타이틀의 [이어하기]는 그 슬롯을 연다. 그 슬롯이 비었고 다른 슬롯에 판이 있으면 슬롯 화면이 열린다
+- [새 모험]은 첫 빈 슬롯에 시작한다. 셋이 다 차면 슬롯 화면에서 하나를 지우거나 이어 하게 한다(지우기는 두 번 눌러야 한다)
+- 슬롯 화면은 슬롯마다 파티, 시작 장(짧은 판이면), 진행(명령 수)을 보인다
+
+### 파일
+
+- 모험을 시작할 때와 명령이 받아들여질 때마다 지금 슬롯의 파일에 쓴다(`persistentDataPath`). 웹에서는 그 폴더가 사이트의 IndexedDB이고 페이지가 쓸 때마다 옮긴다(`autoSyncPersistentDataPath`, 웹 템플릿)
 - 타이틀에 저장본이 있으면 [이어하기]와 파티·진행 줄이 보인다. 이어하면 전투 중이었어도 그 전투의 지금 모습으로 바로 보인다(지난 연출은 건너뛴다)
-- 모험이 끝나면(승리·패배) 저장본을 지운다. [새 모험]을 고르면 이어하던 것은 시작할 때 덮어쓴다
+- 모험이 끝나면(승리·패배) 그 슬롯의 저장본을 지운다
 - 브라우저의 사이트 데이터를 지우면 저장본도 지워진다

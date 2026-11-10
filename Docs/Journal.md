@@ -14,7 +14,7 @@
 | 다정한 결말마다 | 1 |
 | 가시밭길로 캠페인을 이기면 | 모두 두 배 |
 
-## 장 (`perks.csv`: `id, name, pages, effect, text`)
+## 장 (`perks.csv`: `id, name, pages, effect, text, requires`)
 
 페이지로 한 번 펼치면 계속 쓸 수 있다. 펼친 장 가운데 다음 모험에 가져갈 것을 고른다(여럿 가능). 가져간 장은 저장본의 `perks` 줄에 남는다(`Docs/Saving.md`).
 
@@ -27,8 +27,20 @@
 | 서두른 출발 | 4 | `doom -1`: 첫 장 균열 −1 |
 | 선배의 가르침 | 5 | `xp 10`: 영웅마다 경험치 10(레벨 2) |
 | 가시밭길 | 6 | `hard`: 몬스터 생명력 +25%, 이기면 페이지 두 배 |
+| 손으로 그린 지도 | 3 | `reveal 6`: 시작할 때 출발점에서 가까운 모르는 칸 6개가 밝혀져 있다 |
+| 새벽 기도 | 4 | `bless 1`: 영웅마다 축복 하나 |
+| 먼저 난 소문 | 5 | `renown 2`: 명성 +2 |
+| 잘 벼린 날 | 6 | `forge 1`: 영웅마다 무기가 한 번 벼려져 있다(대장간 +1과 같다) |
+| 은행가의 편지 | 8 | `gold 40`, 업적 「의뢰꾼」이 있어야 펼친다 |
+| 던전꾼의 짐 | 7 | `tonic 1`, 업적 「깊은 곳까지」 |
+| 모닥불 곁의 이야기 | 7 | `hope 1`, 업적 「모닥불 이야기꾼」 |
+| 봉인의 기억 | 9 | `doom -1`, 업적 「첫 봉인」 |
 
-`effect`는 `gold, potion, tonic, hope, doom, xp, hard` 가운데 하나다. 장은 데이터라 이름과 숫자를 시트에서 바꾼다. 새 효과가 필요하면 `Adventure.ApplyPerks`와 `GameData.ReadPerks`에 더한다.
+`effect`는 `gold, potion, tonic, hope, doom, xp, hard, reveal, bless, forge, renown` 가운데 하나다(`GameData.PerkVerbs`, 직업 조합 `combos.csv`도 같은 말을 쓴다). `requires`에 업적 id가 있으면 그 업적을 이룬 일지만 그 장을 펼칠 수 있다(2026-11-10, 지금 15장). 장은 데이터라 이름과 숫자를 시트에서 바꾼다. 새 효과가 필요하면 `Adventure.ApplyGift`와 `GameData.PerkVerbs`에 더한다.
+
+## 다다른 장 (`reached`, 2026-11-10)
+
+일지는 어느 판이든 가장 멀리 간 장을 기억한다. 파티 고르기 화면에서 그 장까지는 어디서든 시작할 수 있다(`Docs/Map.md` 짧은 판). 짧은 판은 지난 장·페이지·업적(승리가 필요 없는 것)은 남지만, **캠페인 승리로 치지 않는다**: 「일지의 끝」 같은 승리 업적, 끝까지 간 판 수, 직업의 끝까지 기록에 들지 않는다(`Adventure.FullRun`).
 
 ## 찾은 옛 메모
 

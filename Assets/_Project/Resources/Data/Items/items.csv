@@ -1,93 +1,106 @@
-id,name,slot,kind,tier,price,attack,stat,dice,power,floor,damage,delay,perfect,armor,hp,resolve,bonus,use,text
-sword_old,낡은 장검,weapon,sword,1,0,베기,str,3,8,0,physical,100,crit150,0,0,0,,,기사단의 녹슨 검.
-sword_steel,강철 장검,weapon,sword,2,40,베기,str,3,10,0,physical,100,crit150,0,0,0,,,
-sword_knight,맹세의 검,weapon,sword,3,85,베기,str,4,11,0,physical,100,crit150,0,0,0,wil 5,,손잡이에 옛 맹세가 새겨져 있다.
-axe_hand,손도끼,weapon,axe,1,0,도끼질,str,3,9,0,physical,100,crit150,0,0,0,,,
-axe_war,전투 도끼,weapon,axe,2,45,도끼질,str,3,12,0,physical,100,crit150,0,0,0,,,
-axe_great,대도끼,weapon,axe,3,85,도끼질,str,4,14,0,physical,120,crit150,0,0,0,,,무겁다. 다음 차례가 늦다.
-bow_short,짧은 활,weapon,bow,1,0,사격,per,3,8,0,physical,100,crit150,0,0,0,,,
-bow_long,장궁,weapon,bow,2,40,사격,per,3,10,0,physical,100,crit150,0,0,0,,,
-bow_forest,숲의 활,weapon,bow,3,85,사격,per,4,10,0,physical,100,crit200,0,0,0,agi 5,,
-staff_oak,참나무 지팡이,weapon,staff,1,0,마력탄,int,2,6,25,magic,100,crit150,0,0,0,,,
-staff_ember,잿불 지팡이,weapon,staff,2,45,마력탄,int,3,7,25,magic,100,crit150,0,0,0,,,
-staff_bone,뼈 지팡이,weapon,staff,1,0,망령의 손길,wil,3,7,25,magic,100,crit150,0,0,0,,,
-staff_grave,무덤 지팡이,weapon,staff,2,45,망령의 손길,wil,3,8,25,magic,100,crit150,0,0,0,,,
-orb_glass,유리 구슬,weapon,orb,1,0,별빛,int,3,7,25,magic,100,crit150,0,0,0,,,
-orb_star,별 구슬,weapon,orb,2,50,별빛,int,3,8,25,magic,100,crit150,0,0,1,,,
-mace_small,축복받은 철퇴,weapon,mace,1,0,성스러운 일격,wil,2,5,0,magic,100,crit150,0,0,0,,,
-mace_iron,쇠철퇴,weapon,mace,2,40,성스러운 일격,wil,2,7,0,magic,100,crit150,0,0,0,,,
-cards_old,낡은 카드,weapon,cards,1,0,카드 던지기,fixed50,4,10,0,physical,100,crit300,0,0,0,,,
-cards_marked,표시된 카드,weapon,cards,2,50,카드 던지기,fixed55,4,10,0,physical,100,crit300,0,0,0,,,뒷면에 작은 표시가 있다. 확률 55%.
-dagger_rusty,녹슨 단검,weapon,dagger,1,0,찌르기,agi,2,5,0,physical,70,crit200,0,0,0,,,가볍다. 다음 차례가 빨리 온다.
-dagger_fine,날렵한 단검,weapon,dagger,2,40,찌르기,agi,2,7,0,physical,70,crit200,0,0,0,,,
-lute_old,낡은 류트,weapon,lute,1,0,현 튕기기,cha,2,5,25,magic,100,crit150,0,0,0,,,
-lute_silver,은빛 류트,weapon,lute,2,40,현 튕기기,cha,2,7,25,magic,100,crit150,0,0,0,,,
-sling_old,투석 주머니,weapon,sling,1,0,투석,int,3,7,0,physical,100,crit150,0,0,0,,,
-sling_iron,쇠구슬 투석,weapon,sling,2,40,투석,int,3,8,0,physical,100,crit150,0,0,0,,,
-spear_hunting,사냥 창,weapon,spear,1,0,찌르기,str,3,8,0,physical,100,crit150,0,0,0,,,
-spear_boar,멧돼지 창,weapon,spear,2,40,찌르기,str,3,10,0,physical,100,crit150,0,0,0,,,
-armor_leather,가죽 갑옷,armor,light,1,15,,,0,0,0,,100,,1,0,0,,,
-armor_chain,사슬 갑옷,armor,heavy,2,45,,,0,0,0,,100,,2,0,0,agi -5,,
-armor_plate,판금 갑옷,armor,heavy,3,100,,,0,0,0,,100,,3,0,0,agi -10,,
-robe_star,별무늬 로브,armor,light,2,40,,,0,0,0,,100,,0,4,1,,,결의 +1.
-ring_strength,힘의 반지,trinket,ring,1,25,,,0,0,0,,100,,0,0,0,str 5,,
-ring_wind,바람의 반지,trinket,ring,1,25,,,0,0,0,,100,,0,0,0,agi 5,,
-amulet_mind,지혜의 목걸이,trinket,amulet,1,25,,,0,0,0,,100,,0,0,0,int 5,,
-amulet_faith,믿음의 목걸이,trinket,amulet,1,25,,,0,0,0,,100,,0,0,0,wil 5,,
-eye_hawk,매의 눈,trinket,charm,1,25,,,0,0,0,,100,,0,0,0,per 5,,
-brooch_silver,은 브로치,trinket,charm,1,25,,,0,0,0,,100,,0,0,0,cha 5,,
-heart_stone,심장석,trinket,charm,2,40,,,0,0,0,,100,,0,8,0,,,
-candle_old,오래된 초,trinket,charm,2,45,,,0,0,0,,100,,0,0,1,,,리엔의 이름이 새겨진 초. 결의 +1.
-staff_storm,폭풍 지팡이,weapon,staff,3,90,마력탄,int,3,9,25,magic,100,crit150,0,0,0,int 5,,등대 꼭대기에서 번개를 맞고도 멀쩡했던 지팡이.
-staff_soul,넋의 지팡이,weapon,staff,3,90,망령의 손길,wil,3,10,25,magic,100,crit150,0,0,0,,,
-orb_moon,달 구슬,weapon,orb,3,95,달빛,int,4,8,25,magic,100,crit150,0,0,1,,,
-mace_tide,물결 철퇴,weapon,mace,3,85,성스러운 일격,wil,3,8,0,magic,100,crit150,0,0,0,,,
-cards_fate,운명의 카드,weapon,cards,3,95,카드 던지기,fixed60,4,11,0,physical,100,crit300,0,0,0,,,확률 60%.
-dagger_eel,뱀장어 단검,weapon,dagger,3,85,찌르기,agi,2,9,0,physical,70,crit200,0,0,0,agi 5,,
-lute_shell,소라 류트,weapon,lute,3,85,현 튕기기,cha,3,7,25,magic,100,crit150,0,0,1,,,
-sling_storm,폭풍 투석,weapon,sling,3,85,투석,int,3,10,0,physical,100,crit150,0,0,0,,,
-spear_tide,작살,weapon,spear,3,85,찌르기,str,4,11,0,physical,100,crit150,0,0,0,,,
-coat_tide,물결 외투,armor,light,3,90,,,0,0,0,,100,,1,6,1,,,결의 +1.
-pearl_amulet,진주 목걸이,trinket,amulet,3,80,,,0,0,0,,100,,0,0,0,wil 5 int 5,,
-anchor_ring,닻 반지,trinket,ring,3,80,,,0,0,0,,100,,0,0,0,str 5 agi 5,,
-sword_frost,서리 장검,weapon,sword,4,140,베기,str,4,13,0,physical,100,crit150,0,0,0,wil 5,,얼음 속에서 백 년을 기다린 검.
-axe_rune,룬 도끼,weapon,axe,4,140,베기,str,4,16,0,physical,100,crit150,0,0,0,,,
-bow_ice,얼음 활,weapon,bow,4,140,사격,per,4,12,0,physical,100,crit200,0,0,0,agi 5,,
-staff_aurora,오로라 지팡이,weapon,staff,4,145,마력탄,int,3,11,25,magic,100,crit150,0,0,0,int 5,,
-staff_requiem,진혼 지팡이,weapon,staff,4,145,망령의 손길,wil,3,12,25,magic,100,crit150,0,0,0,,,
-orb_sun,해 구슬,weapon,orb,4,150,별빛,int,4,10,25,magic,100,crit150,0,0,1,,,
-mace_bell,종 철퇴,weapon,mace,4,140,성스러운 일격,wil,3,10,0,magic,100,crit150,0,0,1,,,
-cards_last,마지막 패,weapon,cards,4,150,카드 던지기,fixed65,4,12,0,physical,100,crit300,0,0,0,,,확률 65%.
-dagger_frost,서리 단검,weapon,dagger,4,140,찌르기,agi,3,10,0,physical,70,crit200,0,0,0,agi 5,,
-lute_aurora,오로라 류트,weapon,lute,4,140,현 튕기기,cha,3,9,25,magic,100,crit150,0,0,1,cha 5,,
-sling_star,별 투석,weapon,sling,4,140,투석,int,3,12,0,physical,100,crit150,0,0,0,,,
-spear_glacier,빙하 창,weapon,spear,4,140,찌르기,str,4,13,0,physical,100,crit150,0,0,0,,,
-armor_rune,룬 갑옷,armor,heavy,4,160,,,0,0,0,,100,,4,0,0,agi -5,,
-coat_snow,눈표범 외투,armor,light,4,150,,,0,0,0,,100,,1,10,1,,,결의 +1.
-heart_ice,얼음 심장석,trinket,charm,4,130,,,0,0,0,,100,,0,14,0,,,
-ring_vow,맹세의 반지,trinket,ring,4,130,,,0,0,0,,100,,0,0,1,str 5 wil 5,,결의 +1.
-fist_wraps,낡은 손싸개,weapon,fist,1,0,연타,agi,3,7,0,physical,80,crit150,0,0,0,,,빠르다(지연 80%).
-fist_iron,쇠 손싸개,weapon,fist,2,45,연타,agi,3,9,0,physical,80,crit150,0,0,0,,,
-fist_tiger,호랑이 발톱,weapon,fist,3,90,연타,agi,4,9,0,physical,80,crit200,0,0,0,str 5,,
-fist_dragon,용의 손,weapon,fist,4,145,연타,agi,4,11,0,physical,80,crit200,0,0,0,wil 5,,
-crossbow_light,가벼운 석궁,weapon,crossbow,1,0,석궁,per,3,9,0,physical,110,crit150,0,0,0,,,무겁지만 멀리서 정확하다.
-crossbow_heavy,무거운 석궁,weapon,crossbow,2,45,석궁,per,3,11,0,physical,110,crit150,0,0,0,,,
-crossbow_repeat,연발 석궁,weapon,crossbow,3,90,석궁,per,4,11,0,physical,110,crit150,0,0,0,,,
-crossbow_siege,공성 석궁,weapon,crossbow,4,145,석궁,per,4,14,0,physical,120,crit200,0,0,0,,,
-tome_worn,닳은 책,weapon,tome,1,0,기억의 빛,int,3,7,25,magic,100,crit150,0,0,0,,,남의 기억이 적힌 책.
-tome_bound,가죽 장정 책,weapon,tome,2,45,기억의 빛,int,3,9,25,magic,100,crit150,0,0,0,,,
-tome_silver,은빛 책,weapon,tome,3,90,기억의 빛,int,3,10,25,magic,100,crit150,0,0,1,,,
-tome_ancient,옛 왕의 책,weapon,tome,4,145,기억의 빛,int,4,10,25,magic,100,crit150,0,0,1,int 5,,
-sword_king,왕의 장검,weapon,sword,5,200,베기,str,4,15,0,physical,100,crit200,0,0,0,wil 5,,왕릉에서 나온 검.
-bow_star,별 활,weapon,bow,5,200,사격,per,4,14,0,physical,100,crit200,0,0,0,agi 5,,
-staff_rift,균열 지팡이,weapon,staff,5,205,마력탄,int,3,13,25,magic,100,crit150,0,0,0,int 5,,
-orb_dawn,새벽 구슬,weapon,orb,5,205,별빛,int,4,12,25,magic,100,crit150,0,0,1,,,
-armor_king,왕의 갑옷,armor,heavy,5,220,,,0,0,0,,100,,5,0,0,agi -5,,
-robe_dawn,새벽 로브,armor,light,5,200,,,0,0,0,,100,,1,14,2,,,결의 +2.
-amulet_names,이름의 목걸이,trinket,amulet,5,180,,,0,0,0,,100,,0,10,1,,,잊힌 이름들이 새겨져 있다.
-potion,회복 물약,consumable,consumable,1,8,,,0,0,0,,50,,0,0,0,,heal 15,생명력 15 회복(연금술사는 1.5배).
-tonic,결의 물약,consumable,consumable,1,12,,,0,0,0,,50,,0,0,0,,resolve 2,결의 +2.
-antidote,해독초,consumable,consumable,1,6,,,0,0,0,,50,,0,0,0,,cleanse;heal 5,화상·약화·부식을 걷고 생명력 5 회복.
-smoke,연막탄,consumable,consumable,1,10,,,0,0,0,,50,,0,0,0,,flee,보스가 아니면 반드시 도망친다.
-firebomb,화염병,consumable,consumable,1,14,,,0,0,0,,50,,0,0,0,,bomb 8,모든 적에게 8 피해와 화상(주사위 없이).
-charm,행운 부적,consumable,consumable,1,10,,,0,0,0,,50,,0,0,0,,luck 2,다음 판정에 확정 성공 +2.
+id,name,slot,kind,tier,price,attack,stat,dice,power,floor,damage,delay,perfect,armor,hp,resolve,bonus,use,text,effect
+sword_old,낡은 장검,weapon,sword,1,0,베기,str,3,8,0,physical,100,crit150,0,0,0,,,기사단의 녹슨 검.,
+sword_steel,강철 장검,weapon,sword,2,40,베기,str,3,10,0,physical,100,crit150,0,0,0,,,,
+sword_knight,맹세의 검,weapon,sword,3,85,베기,str,4,11,0,physical,100,crit150,0,0,0,wil 5,,손잡이에 옛 맹세가 새겨져 있다.,
+axe_hand,손도끼,weapon,axe,1,0,도끼질,str,3,9,0,physical,100,crit150,0,0,0,,,,
+axe_war,전투 도끼,weapon,axe,2,45,도끼질,str,3,12,0,physical,100,crit150,0,0,0,,,,
+axe_great,대도끼,weapon,axe,3,85,도끼질,str,4,14,0,physical,120,crit150,0,0,0,,,무겁다. 다음 차례가 늦다.,
+bow_short,짧은 활,weapon,bow,1,0,사격,per,3,8,0,physical,100,crit150,0,0,0,,,,
+bow_long,장궁,weapon,bow,2,40,사격,per,3,10,0,physical,100,crit150,0,0,0,,,,
+bow_forest,숲의 활,weapon,bow,3,85,사격,per,4,10,0,physical,100,crit200,0,0,0,agi 5,,,
+staff_oak,참나무 지팡이,weapon,staff,1,0,마력탄,int,2,6,25,magic,100,crit150,0,0,0,,,,
+staff_ember,잿불 지팡이,weapon,staff,2,45,마력탄,int,3,7,25,magic,100,crit150,0,0,0,,,,
+staff_bone,뼈 지팡이,weapon,staff,1,0,망령의 손길,wil,3,7,25,magic,100,crit150,0,0,0,,,,
+staff_grave,무덤 지팡이,weapon,staff,2,45,망령의 손길,wil,3,8,25,magic,100,crit150,0,0,0,,,,
+orb_glass,유리 구슬,weapon,orb,1,0,별빛,int,3,7,25,magic,100,crit150,0,0,0,,,,
+orb_star,별 구슬,weapon,orb,2,50,별빛,int,3,8,25,magic,100,crit150,0,0,1,,,,
+mace_small,축복받은 철퇴,weapon,mace,1,0,성스러운 일격,wil,2,5,0,magic,100,crit150,0,0,0,,,,
+mace_iron,쇠철퇴,weapon,mace,2,40,성스러운 일격,wil,2,7,0,magic,100,crit150,0,0,0,,,,
+cards_old,낡은 카드,weapon,cards,1,0,카드 던지기,fixed50,4,10,0,physical,100,crit300,0,0,0,,,,
+cards_marked,표시된 카드,weapon,cards,2,50,카드 던지기,fixed55,4,10,0,physical,100,crit300,0,0,0,,,뒷면에 작은 표시가 있다. 확률 55%.,
+dagger_rusty,녹슨 단검,weapon,dagger,1,0,찌르기,agi,2,5,0,physical,70,crit200,0,0,0,,,가볍다. 다음 차례가 빨리 온다.,
+dagger_fine,날렵한 단검,weapon,dagger,2,40,찌르기,agi,2,7,0,physical,70,crit200,0,0,0,,,,
+lute_old,낡은 류트,weapon,lute,1,0,현 튕기기,cha,2,5,25,magic,100,crit150,0,0,0,,,,
+lute_silver,은빛 류트,weapon,lute,2,40,현 튕기기,cha,2,7,25,magic,100,crit150,0,0,0,,,,
+sling_old,투석 주머니,weapon,sling,1,0,투석,int,3,7,0,physical,100,crit150,0,0,0,,,,
+sling_iron,쇠구슬 투석,weapon,sling,2,40,투석,int,3,8,0,physical,100,crit150,0,0,0,,,,
+spear_hunting,사냥 창,weapon,spear,1,0,찌르기,str,3,8,0,physical,100,crit150,0,0,0,,,,
+spear_boar,멧돼지 창,weapon,spear,2,40,찌르기,str,3,10,0,physical,100,crit150,0,0,0,,,,
+armor_leather,가죽 갑옷,armor,light,1,15,,,0,0,0,,100,,1,0,0,,,,
+armor_chain,사슬 갑옷,armor,heavy,2,45,,,0,0,0,,100,,2,0,0,agi -5,,,
+armor_plate,판금 갑옷,armor,heavy,3,100,,,0,0,0,,100,,3,0,0,agi -10,,,
+robe_star,별무늬 로브,armor,light,2,40,,,0,0,0,,100,,0,4,1,,,결의 +1.,
+ring_strength,힘의 반지,trinket,ring,1,25,,,0,0,0,,100,,0,0,0,str 5,,,
+ring_wind,바람의 반지,trinket,ring,1,25,,,0,0,0,,100,,0,0,0,agi 5,,,
+amulet_mind,지혜의 목걸이,trinket,amulet,1,25,,,0,0,0,,100,,0,0,0,int 5,,,
+amulet_faith,믿음의 목걸이,trinket,amulet,1,25,,,0,0,0,,100,,0,0,0,wil 5,,,
+eye_hawk,매의 눈,trinket,charm,1,25,,,0,0,0,,100,,0,0,0,per 5,,,
+brooch_silver,은 브로치,trinket,charm,1,25,,,0,0,0,,100,,0,0,0,cha 5,,,
+heart_stone,심장석,trinket,charm,2,40,,,0,0,0,,100,,0,8,0,,,,
+candle_old,오래된 초,trinket,charm,2,45,,,0,0,0,,100,,0,0,1,,,리엔의 이름이 새겨진 초. 결의 +1.,
+staff_storm,폭풍 지팡이,weapon,staff,3,90,마력탄,int,3,9,25,magic,100,crit150,0,0,0,int 5,,등대 꼭대기에서 번개를 맞고도 멀쩡했던 지팡이.,
+staff_soul,넋의 지팡이,weapon,staff,3,90,망령의 손길,wil,3,10,25,magic,100,crit150,0,0,0,,,,
+orb_moon,달 구슬,weapon,orb,3,95,달빛,int,4,8,25,magic,100,crit150,0,0,1,,,,
+mace_tide,물결 철퇴,weapon,mace,3,85,성스러운 일격,wil,3,8,0,magic,100,crit150,0,0,0,,,,
+cards_fate,운명의 카드,weapon,cards,3,95,카드 던지기,fixed60,4,11,0,physical,100,crit300,0,0,0,,,확률 60%.,
+dagger_eel,뱀장어 단검,weapon,dagger,3,85,찌르기,agi,2,9,0,physical,70,crit200,0,0,0,agi 5,,,
+lute_shell,소라 류트,weapon,lute,3,85,현 튕기기,cha,3,7,25,magic,100,crit150,0,0,1,,,,
+sling_storm,폭풍 투석,weapon,sling,3,85,투석,int,3,10,0,physical,100,crit150,0,0,0,,,,
+spear_tide,작살,weapon,spear,3,85,찌르기,str,4,11,0,physical,100,crit150,0,0,0,,,,
+coat_tide,물결 외투,armor,light,3,90,,,0,0,0,,100,,1,6,1,,,결의 +1.,
+pearl_amulet,진주 목걸이,trinket,amulet,3,80,,,0,0,0,,100,,0,0,0,wil 5 int 5,,,
+anchor_ring,닻 반지,trinket,ring,3,80,,,0,0,0,,100,,0,0,0,str 5 agi 5,,,
+sword_frost,서리 장검,weapon,sword,4,140,베기,str,4,13,0,physical,100,crit150,0,0,0,wil 5,,얼음 속에서 백 년을 기다린 검.,
+axe_rune,룬 도끼,weapon,axe,4,140,베기,str,4,16,0,physical,100,crit150,0,0,0,,,,
+bow_ice,얼음 활,weapon,bow,4,140,사격,per,4,12,0,physical,100,crit200,0,0,0,agi 5,,,
+staff_aurora,오로라 지팡이,weapon,staff,4,145,마력탄,int,3,11,25,magic,100,crit150,0,0,0,int 5,,,
+staff_requiem,진혼 지팡이,weapon,staff,4,145,망령의 손길,wil,3,12,25,magic,100,crit150,0,0,0,,,,
+orb_sun,해 구슬,weapon,orb,4,150,별빛,int,4,10,25,magic,100,crit150,0,0,1,,,,
+mace_bell,종 철퇴,weapon,mace,4,140,성스러운 일격,wil,3,10,0,magic,100,crit150,0,0,1,,,,
+cards_last,마지막 패,weapon,cards,4,150,카드 던지기,fixed65,4,12,0,physical,100,crit300,0,0,0,,,확률 65%.,
+dagger_frost,서리 단검,weapon,dagger,4,140,찌르기,agi,3,10,0,physical,70,crit200,0,0,0,agi 5,,,
+lute_aurora,오로라 류트,weapon,lute,4,140,현 튕기기,cha,3,9,25,magic,100,crit150,0,0,1,cha 5,,,
+sling_star,별 투석,weapon,sling,4,140,투석,int,3,12,0,physical,100,crit150,0,0,0,,,,
+spear_glacier,빙하 창,weapon,spear,4,140,찌르기,str,4,13,0,physical,100,crit150,0,0,0,,,,
+armor_rune,룬 갑옷,armor,heavy,4,160,,,0,0,0,,100,,4,0,0,agi -5,,,
+coat_snow,눈표범 외투,armor,light,4,150,,,0,0,0,,100,,1,10,1,,,결의 +1.,
+heart_ice,얼음 심장석,trinket,charm,4,130,,,0,0,0,,100,,0,14,0,,,,
+ring_vow,맹세의 반지,trinket,ring,4,130,,,0,0,0,,100,,0,0,1,str 5 wil 5,,결의 +1.,
+fist_wraps,낡은 손싸개,weapon,fist,1,0,연타,agi,3,7,0,physical,80,crit150,0,0,0,,,빠르다(지연 80%).,
+fist_iron,쇠 손싸개,weapon,fist,2,45,연타,agi,3,9,0,physical,80,crit150,0,0,0,,,,
+fist_tiger,호랑이 발톱,weapon,fist,3,90,연타,agi,4,9,0,physical,80,crit200,0,0,0,str 5,,,
+fist_dragon,용의 손,weapon,fist,4,145,연타,agi,4,11,0,physical,80,crit200,0,0,0,wil 5,,,
+crossbow_light,가벼운 석궁,weapon,crossbow,1,0,석궁,per,3,9,0,physical,110,crit150,0,0,0,,,무겁지만 멀리서 정확하다.,
+crossbow_heavy,무거운 석궁,weapon,crossbow,2,45,석궁,per,3,11,0,physical,110,crit150,0,0,0,,,,
+crossbow_repeat,연발 석궁,weapon,crossbow,3,90,석궁,per,4,11,0,physical,110,crit150,0,0,0,,,,
+crossbow_siege,공성 석궁,weapon,crossbow,4,145,석궁,per,4,14,0,physical,120,crit200,0,0,0,,,,
+tome_worn,닳은 책,weapon,tome,1,0,기억의 빛,int,3,7,25,magic,100,crit150,0,0,0,,,남의 기억이 적힌 책.,
+tome_bound,가죽 장정 책,weapon,tome,2,45,기억의 빛,int,3,9,25,magic,100,crit150,0,0,0,,,,
+tome_silver,은빛 책,weapon,tome,3,90,기억의 빛,int,3,10,25,magic,100,crit150,0,0,1,,,,
+tome_ancient,옛 왕의 책,weapon,tome,4,145,기억의 빛,int,4,10,25,magic,100,crit150,0,0,1,int 5,,,
+sword_king,왕의 장검,weapon,sword,5,200,베기,str,4,15,0,physical,100,crit200,0,0,0,wil 5,,왕릉에서 나온 검.,
+bow_star,별 활,weapon,bow,5,200,사격,per,4,14,0,physical,100,crit200,0,0,0,agi 5,,,
+staff_rift,균열 지팡이,weapon,staff,5,205,마력탄,int,3,13,25,magic,100,crit150,0,0,0,int 5,,,
+orb_dawn,새벽 구슬,weapon,orb,5,205,별빛,int,4,12,25,magic,100,crit150,0,0,1,,,,
+armor_king,왕의 갑옷,armor,heavy,5,220,,,0,0,0,,100,,5,0,0,agi -5,,,
+robe_dawn,새벽 로브,armor,light,5,200,,,0,0,0,,100,,1,14,2,,,결의 +2.,
+amulet_names,이름의 목걸이,trinket,amulet,5,180,,,0,0,0,,100,,0,10,1,,,잊힌 이름들이 새겨져 있다.,
+potion,회복 물약,consumable,consumable,1,8,,,0,0,0,,50,,0,0,0,,heal 15,생명력 15 회복(연금술사는 1.5배).,
+tonic,결의 물약,consumable,consumable,1,12,,,0,0,0,,50,,0,0,0,,resolve 2,결의 +2.,
+antidote,해독초,consumable,consumable,1,6,,,0,0,0,,50,,0,0,0,,cleanse;heal 5,화상·약화·부식을 걷고 생명력 5 회복.,
+smoke,연막탄,consumable,consumable,1,10,,,0,0,0,,50,,0,0,0,,flee,보스가 아니면 반드시 도망친다.,
+firebomb,화염병,consumable,consumable,1,14,,,0,0,0,,50,,0,0,0,,bomb 8,모든 적에게 8 피해와 화상(주사위 없이).,
+charm,행운 부적,consumable,consumable,1,10,,,0,0,0,,50,,0,0,0,,luck 2,다음 판정에 확정 성공 +2.,
+sword_ember,잉걸 장검,weapon,sword,3,95,베기,str,3,11,0,physical,100,crit150,0,0,0,,,벤 자리에 불씨가 남는다. 성공하면 화상.,burn
+dagger_leech,거머리 단검,weapon,dagger,3,90,찌르기,agi,2,8,0,physical,70,crit200,0,0,0,,,준 피해의 절반만큼 생명력을 되찾는다.,lifesteal
+mail_thorn,가시 사슬갑옷,armor,heavy,3,105,,,0,0,0,,100,,2,0,0,agi -5,,때린 적이 가시에 3 피해를 입는다.,thorns 3
+coat_moss,이끼 외투,armor,light,3,95,,,0,0,0,,100,,1,4,0,,,차례마다 생명력 +2.,regen 2
+bow_frostbite,서리 깃 활,weapon,bow,4,150,사격,per,4,11,0,physical,100,crit200,0,0,0,,,성공하면 냉기(다음 차례가 늦다).,chill
+staff_wither,시드는 지팡이,weapon,staff,4,150,망령의 손길,wil,3,11,25,magic,100,crit150,0,0,0,,,성공하면 약화(위력 감소).,weaken
+fist_ember,잉걸 손싸개,weapon,fist,4,150,연타,agi,4,10,0,physical,80,crit150,0,0,0,,,성공하면 화상.,burn
+ring_bramble,가시덤불 반지,trinket,ring,4,140,,,0,0,0,,100,,0,4,0,,,때린 적이 가시에 4 피해를 입는다.,thorns 4
+charm_spring,샘물 부적,trinket,charm,4,140,,,0,0,0,,100,,0,6,0,,,차례마다 생명력 +3.,regen 3
+blade_hunger,굶주린 검,weapon,sword,5,215,베기,str,4,14,0,physical,100,crit200,0,0,0,,,준 피해의 절반만큼 생명력을 되찾는다.,lifesteal
+spear_acid,산성 작살,weapon,spear,5,210,찌르기,str,4,14,0,physical,100,crit150,0,0,0,,,성공하면 부식(방어도 −2).,corrode
+plate_briar,가시 판금,armor,heavy,5,230,,,0,0,0,,100,,4,0,0,agi -5,,때린 적이 가시에 5 피해를 입는다.,thorns 5
+robe_life,생명의 로브,armor,light,5,215,,,0,0,0,,100,,1,10,1,,,차례마다 생명력 +4. 결의 +1.,regen 4

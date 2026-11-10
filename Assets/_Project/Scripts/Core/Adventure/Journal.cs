@@ -25,6 +25,12 @@ namespace Game.Core
         public int Victories { get; private set; }
         public int ChaptersCleared { get; private set; }
         public int BestRenown { get; private set; }
+
+        // The furthest chapter (1-based) any run has reached: runs may start at any chapter up to it.
+        public int Reached { get; private set; } = 1;
+
+        // For the playtests (Client/Playtest.cs "reached").
+        internal void ReachForTest(int chapter) => Reached = Math.Max(1, chapter);
         public IReadOnlyCollection<string> Unlocked => _unlocked;
 
         // The events whose old notes were found in some run.
@@ -43,13 +49,14 @@ namespace Game.Core
         // Pages given outside a run (playtests).
         internal void AddPages(int pages) => Pages = Math.Max(0, Pages + pages);
 
-        public bool CanUnlock(PerkDef perk) => perk != null && !Has(perk.Id) && Pages >= perk.Pages;
+        public bool CanUnlock(PerkDef perk) => perk != null && !Has(perk.Id) && Pages >= perk.Pages && (perk.Requires.Length == 0 || _achieved.Contains(perk.Requires));
 
         public string Unlock(PerkDef perk)
         {
             if (perk == null) return "그런 장은 없습니다.";
             if (Has(perk.Id)) return "이미 펼친 장입니다.";
             if (Pages < perk.Pages) return $"페이지가 모자랍니다 (필요 {perk.Pages}).";
+            if (perk.Requires.Length > 0 && !_achieved.Contains(perk.Requires)) return "이 장은 업적을 먼저 이뤄야 펼칠 수 있습니다.";
             Pages -= perk.Pages;
             _unlocked.Add(perk.Id);
             return null;
@@ -64,11 +71,13 @@ namespace Game.Core
             Pages += pages;
             PagesEarned += pages;
             Runs++;
-            if (adventure.Screen == AdventureScreen.Victory) Victories++;
+            // A short run's victory counts its chapters and pages but not as a won campaign (Docs/Journal.md).
+            bool won = adventure.Screen == AdventureScreen.Victory && adventure.FullRun;
+            if (won) Victories++;
             ChaptersCleared += adventure.ChaptersCleared;
             BestRenown = Math.Max(BestRenown, adventure.Renown);
+            Reached = Math.Max(Reached, adventure.Chapter.Index + 1);
             foreach (var card in adventure.Footsteps) _notes.Add(card.Id);
-            bool won = adventure.Screen == AdventureScreen.Victory;
             foreach (var hero in adventure.Heroes)
             {
                 _classRuns[hero.Class.Id] = RunsWith(hero.Class.Id) + 1;
@@ -116,6 +125,7 @@ namespace Game.Core
             Line("victories", Victories);
             Line("chapters", ChaptersCleared);
             Line("renown", BestRenown);
+            Line("reached", Reached);
             text.Append("unlocked ").Append(string.Join(",", _unlocked.OrderBy(s => s, StringComparer.Ordinal))).Append('\n');
             text.Append("notes ").Append(string.Join(",", _notes.OrderBy(s => s, StringComparer.Ordinal))).Append('\n');
             text.Append("achieved ").Append(string.Join(",", _achieved.OrderBy(s => s, StringComparer.Ordinal))).Append('\n');
@@ -145,6 +155,7 @@ namespace Game.Core
                     case "victories": journal.Victories = n; break;
                     case "chapters": journal.ChaptersCleared = n; break;
                     case "renown": journal.BestRenown = n; break;
+                    case "reached": journal.Reached = Math.Max(1, n); break;
                     case "unlocked":
                         foreach (string id in value.Split(',').Where(s => s.Length > 0)) journal._unlocked.Add(id);
                         break;

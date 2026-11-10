@@ -270,7 +270,10 @@ namespace Game.Client
             Ui.Text(new Rect(r.x + 58, r.y + 10, w - 70, 24), $"{hero.Name} 레벨 {choice.Level}!", 20, Palette.Gold, TextAnchor.MiddleLeft, true);
             Ui.Text(new Rect(r.x + 58, r.y + 34, w - 70, 18), "강화 하나를 고르세요. 판마다 다르게 자란다.", 12, Palette.Journal);
             float cy = r.y + 62;
-            float ch = (r.yMax - cy - 12 - 8 * (choice.Options.Count - 1)) / choice.Options.Count;
+            // Many waiting (a later start): one button takes the first card of each of the rest.
+            int waiting = a.LevelUpsWaiting;
+            float bottom = waiting > 0 ? 54 : 0;
+            float ch = (r.yMax - cy - 12 - bottom - 8 * (choice.Options.Count - 1)) / choice.Options.Count;
             for (int i = 0; i < choice.Options.Count; i++)
             {
                 var upgrade = choice.Options[i];
@@ -284,6 +287,12 @@ namespace Game.Client
                     if (Act(() => a.ChooseUpgrade(option)) == null) Sounds.Play(Sound.Level);
                 }
                 cy += Mathf.Min(ch, 120) + 8;
+            }
+            if (waiting > 0 && Ui.Button(new Rect(r.x + 12, r.yMax - 56, w - 24, 46), Strings.Format("levelup.auto", waiting + 1), 14, true, Look.Quiet, "강화"))
+            {
+                for (int guard = 0; guard < 200 && a.LevelUp != null; guard++)
+                    if (Act(() => a.ChooseUpgrade(0)) != null) break;
+                Sounds.Play(Sound.Level);
             }
         }
     }

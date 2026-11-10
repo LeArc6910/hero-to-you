@@ -7,9 +7,9 @@ cleric,성직자,회복,32,1,3,5,50,45,50,75,50,60,mace_small,mace staff,cler_he
 gambler,도박사,변칙,30,0,2,3,45,65,50,45,55,70,cards_old,cards dagger,gamb_allin gamb_coin,#D6A23C,승부사: 공격 확률은 언제나 50%. 대신 주사위가 많고 완벽하면 세 배,일지를 노름판에서 땄다고 주장한다.,yes,back
 rogue,도적,기습,30,1,3,5,50,75,50,40,60,50,dagger_rusty,dagger,rogue_hide rogue_finisher,#5B5F73,연계: 행동할 때마다 연계가 쌓이고 급소 찌르기가 그만큼 주사위를 더한다. 첫 차례가 빠르다,일지를 훔치려다 말려들었다.,yes,front
 bard,음유시인,강화,30,0,3,5,40,55,55,50,50,75,lute_old,lute,bard_discord bard_courage bard_rest bard_encore,#C86FA8,연주: 켜 둔 노래가 파티 전체에 효과를 준다(용기: 확률 +10 / 안식: 차례마다 회복 3),영웅의 노래를 다시 쓰고 싶다.,yes,back
-alchemist,연금술사,소모품,32,0,3,5,40,50,70,50,60,45,sling_old,sling,alch_bomb alch_acid alch_brew,#5FB3A1,조합: 재료를 써서 폭탄·산성 병·물약을 만든다. 재료는 지도와 전투에서 모은다. 물약 효과 1.5배,잿가루가 약이 될지도 모른다.,yes,back
-necromancer,사령술사,소환,32,0,3,5,35,45,60,75,50,35,staff_bone,staff,necro_drain necro_raise necro_mark,#7A8C7A,영혼: 적이 쓰러질 때마다 영혼을 모아 해골을 일으킨다,리엔의 망령과 말하고 싶다.,yes,back
-seer,점성술사,예지,30,0,4,5,35,50,70,55,70,50,orb_glass,orb staff,seer_star seer_foretell seer_twist,#4F7FC8,별의 눈: 다음에 나올 주사위 세 개가 보인다. 나쁜 수는 운명 바꾸기로 버린다,별이 이 셋을 골랐다.,yes,back
+alchemist,연금술사,소모품,32,0,3,5,40,50,70,50,60,45,sling_old,sling,alch_bomb alch_acid alch_brew alch_mist,#5FB3A1,조합: 재료를 써서 폭탄·산성 병·물약을 만든다. 재료는 지도와 전투에서 모은다. 물약 효과 1.5배,잿가루가 약이 될지도 모른다.,yes,back
+necromancer,사령술사,소환,32,0,3,5,35,45,60,75,50,35,staff_bone,staff,necro_drain necro_raise necro_mark necro_wall,#7A8C7A,영혼: 적이 쓰러질 때마다 영혼을 모아 해골을 일으킨다,리엔의 망령과 말하고 싶다.,yes,back
+seer,점성술사,예지,30,0,4,5,35,50,70,55,70,50,orb_glass,orb staff,seer_star seer_foretell seer_twist seer_guide,#4F7FC8,별의 눈: 다음에 나올 주사위 세 개가 보인다. 나쁜 수는 운명 바꾸기로 버린다,별이 이 셋을 골랐다.,yes,back
 beastmaster,야수조련사,동료,34,1,3,5,60,55,40,45,70,45,spear_hunting,spear bow,beast_command beast_guard beast_call,#A0784F,늑대: 전투마다 자기 차례가 있는 동료 늑대가 함께 싸운다,숲의 짐승들이 미쳐 가는 것을 볼 수 없었다.,yes,front
 monk,수도승,연타,40,1,4,5,55,70,40,65,50,40,fist_wraps,fist,monk_palm monk_meditate monk_sweep,#D9A441,"기: 맞힌 공격마다 기가 쌓이고(최대 5), 기를 써서 방어를 꿰뚫는 장풍을 쏜다. 명상으로 기와 생명력을 되찾는다",산을 내려온 이유를 아직 말하지 않는다.,yes,front
 engineer,기술자,장치,32,1,3,5,45,50,65,45,70,45,crossbow_light,crossbow,engi_turret engi_snare engi_flash,#7F8C5A,포탑: 앞줄에 서서 적을 쏘고 대신 맞는 포탑을 세운다. 올가미로 적을 묶고(성공 2개면 기절) 섬광탄으로 약하게 만든다,봉인석의 구조가 궁금해서 따라왔다.,yes,back

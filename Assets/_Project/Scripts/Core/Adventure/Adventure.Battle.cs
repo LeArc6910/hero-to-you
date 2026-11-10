@@ -29,6 +29,9 @@ namespace Game.Core
         }
 
         readonly Queue<(int hero, int level)> _levels = new Queue<(int, int)>();
+
+        // Level-ups still waiting behind the one on screen (a late start brings many, Docs/Map.md 짧은 판).
+        public int LevelUpsWaiting => _levels.Count;
         List<Hero> _fighters = new List<Hero>();
         bool _weakNext;
         bool _joinTried;

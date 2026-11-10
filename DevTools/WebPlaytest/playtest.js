@@ -66,6 +66,16 @@ async function playSlice(game, wholeRun) {
   run.check((await game.allText()).includes('히어로 투 유'), '타이틀에 게임 이름이 한글로 보인다');
   run.check(state.touch === game.touch, `터치 화면 인식 (${state.touch})`);
   await game.shot('title', '타이틀');
+  run.check((await game.find('연습 판')).length === 1 && (await game.find('저장 슬롯')).length === 1, '타이틀에 [연습 판]과 [저장 슬롯]이 있다');
+  run.check(noOverlap(await game.buttons()), '타이틀 단추가 서로 겹치지 않는다');
+
+  // The save slots: three empty slots at first.
+  run.check(await game.press('저장 슬롯'), '[저장 슬롯]을 누를 수 있다');
+  state = await game.until(s => s.screen === 'Slots', 4000);
+  run.check(!!state && (await game.find('새 모험')).length === 3, '저장 슬롯 화면에 빈 슬롯 셋');
+  await game.shot('slots', '저장 슬롯');
+  await game.press('뒤로');
+  state = await game.until(s => s.screen === 'Title', 4000);
 
   // Settings: text size and language, then back as they were.
   run.check(await game.press('설정'), '타이틀에서 [설정]을 누를 수 있다');
@@ -92,6 +102,8 @@ async function playSlice(game, wholeRun) {
   run.check(!!state, '파티 고르기 화면');
   for (const name of ['기사', '사냥꾼', '성직자']) await game.press(name, '직업');
   await game.shot('party', '파티 고르기(기사·사냥꾼·성직자)');
+  run.check((await game.allText()).includes('조합:'), '고른 직업의 조합(보너스)이 보인다');
+  run.check(noOverlap((await game.buttons()).filter(b => b.row !== '직업')), '파티 화면 아래 단추(난이도·하드코어·시작)가 서로 겹치지 않는다');
   await game.press('모험 시작');
   state = await game.until(s => s.adventure === 'Story', 5000);
   run.check(!!state, '프롤로그 이야기 화면');
@@ -278,6 +290,10 @@ async function playSlice(game, wholeRun) {
   run.check(!state.saved, '끝나면 저장이 지워진다');
   run.check(state.pages > 0, `일지 페이지를 받는다 (${state.pages}장)`);
   await game.shot('end', '끝 화면');
+  // The run summary to pass on.
+  run.check(await game.press('기록 복사', '기록'), '끝 화면에 [기록 복사]가 있다');
+  const shared = (await game.send('share')).reverse().find(l => l.startsWith('share ')) || '';
+  run.check(/기사 Lv\d+/.test(shared) && shared.includes('이긴 전투'), `복사되는 기록에 파티와 전적이 있다 (${shared.slice(0, 120)})`);
 
   // The journal on the title.
   await game.press('처음으로');
@@ -287,6 +303,41 @@ async function playSlice(game, wholeRun) {
   await game.shot('journal', '일지: 페이지, 장, 찾은 옛 메모');
   run.check((await game.allText()).includes('업적'), '일지에 업적과 직업별 기록이 있다');
   await game.press('뒤로');
+
+  // A later start: the chapter reached shows on the party screen and the run starts there.
+  await game.send('reached 3');
+  run.check(await game.press(/^(혼자 시작|새 모험)/), '두 번째 모험도 [새 모험]으로');
+  state = await game.until(s => s.screen === 'Party', 5000);
+  run.check(await game.press(/^시작: 1장/, '시작 장'), '다다른 장이 있으면 [시작: 1장] 단추가 있다');
+  state = await game.state();
+  run.check(state.startChapter === 1, `시작 장을 2장으로 바꾼다 (${state.startChapter + 1}장)`);
+  await game.press(/^길이/, '길이');
+  run.check(noOverlap((await game.buttons()).filter(b => b.row !== '직업')), '선택지가 넷이어도 파티 화면 단추가 겹치지 않는다');
+  await game.shot('party-chapters', '파티 고르기: 시작 장과 길이');
+  for (const name of ['도적', '음유시인', '성직자']) await game.press(name, '직업');
+  await game.press('모험 시작');
+  state = await game.until(s => s.adventure === 'Story', 5000);
+  run.check(state && state.firstChapter === 1 && state.lastChapter === 1 && state.heroes.every(h => h.level >= 5), `2장 한 장짜리 판이 레벨 5로 시작한다 (${state && state.chapter}, 레벨 ${state && state.heroes.map(h => h.level).join('/')})`);
+  run.check(state && state.slot === 1, `끝난 모험이 비운 슬롯 1을 다시 쓴다 (슬롯 ${state && state.slot})`);
+  await game.send('title');
+
+  // The practice run: chapter 1 only, easy, its own slot, the tips again.
+  run.check(await game.press('연습 판'), '[연습 판]을 누를 수 있다');
+  state = await game.until(s => s.adventure === 'Story', 5000);
+  run.check(state && state.slot === 0 && state.difficulty === 'Easy' && state.lastChapter === 0, '연습 판은 쉬움, 1장만, 따로 저장된다');
+  await game.send('tips off; title');
+}
+
+// No two buttons on screen cover each other (the layout audit, Docs/WebDemo.md 작은 화면).
+function noOverlap(buttons) {
+  const shown = buttons.filter(b => b.shown);
+  for (let i = 0; i < shown.length; i++)
+    for (let j = i + 1; j < shown.length; j++) {
+      const [ax, ay, aw, ah] = shown[i].rect || [...shown[i].at, ...shown[i].size];
+      const [bx, by, bw, bh] = shown[j].rect || [...shown[j].at, ...shown[j].size];
+      if (ax + 1 < bx + bw && bx + 1 < ax + aw && ay + 1 < by + bh && by + 1 < ay + ah) return false;
+    }
+  return true;
 }
 
 main().catch(e => {

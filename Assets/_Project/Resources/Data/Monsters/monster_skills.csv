@@ -80,3 +80,6 @@ nameless_forget,망각,2,10,0,magic,all,random,110,weaken,모두의 이름이 �
 nameless_gather,모든 이름 모으기,0,0,0,buff,self,random,80,charge,잊힌 이름들이 모여든다. 다음 차례에 공허가 터진다!
 nameless_void,공허,4,16,0,magic,all,random,130,chill,모아 둔 이름들이 터진다. 모두 냉기.
 nameless_crush,짓눌러 지우기,4,25,0,physical,one,strongest,130,,
+abbess_freeze,얼음 감옥,3,9,0,magic,one,random,100,freeze,한 사람을 얼음 속에 가둔다. 맞으면 한 차례 쉰다.
+sern_seal,일지 찢기,3,11,0,magic,one,random,100,seal,가장 아끼는 기술이 적힌 장을 찢어 간다. 맞으면 그 기술을 3차례 못 쓴다.
+nameless_erase,지우기,3,12,0,magic,one,random,100,erase,이름을 지운다. 맞으면 2차례 기본 공격만 할 수 있다.

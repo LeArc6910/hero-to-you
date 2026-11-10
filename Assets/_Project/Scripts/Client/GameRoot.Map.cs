@@ -65,10 +65,27 @@ namespace Game.Client
             if (!_gearOpen && a.LevelUp == null) DragMap(area);
             Ui.BeginArea(area);
             var local = new Rect(0, 0, area.width, area.height);
-            var reach = _gearOpen || a.LevelUp != null ? new Dictionary<Hex, int>() : a.Reachable();
+            var reach = _gearOpen || a.LevelUp != null ? NoReach : ReachNow();
             DrawHexes(local, origin, size, reach);
             Ui.EndArea();
             DrawMapPanel(panel, reach);
+        }
+
+        // Where the current hero can go, worked out once until something changes (OnGUI runs several times a frame).
+        static readonly Dictionary<Hex, int> NoReach = new Dictionary<Hex, int>();
+        Dictionary<Hex, int> _reach;
+        (Adventure, int, int, int, Hex, AdventureScreen) _reachKey;
+
+        Dictionary<Hex, int> ReachNow()
+        {
+            var a = _adventure;
+            var key = (a, a.Log.Count, a.MapHero, a.MovePoints, a.Positions[a.MapHero], a.Screen);
+            if (_reach == null || !_reachKey.Equals(key))
+            {
+                _reach = a.Reachable();
+                _reachKey = key;
+            }
+            return _reach;
         }
 
         void DrawDayLine(Rect r)

@@ -247,6 +247,21 @@ namespace Game.Core
             return null;
         }
 
+        // A free level for a journal perk.
+        void ForgeFree(Hero hero, ItemSlot slot)
+        {
+            var item = slot == ItemSlot.Weapon ? hero.Weapon : slot == ItemSlot.Armor ? hero.Armor : hero.Trinket;
+            if (!CanForge(item)) return;
+            var forged = item.Clone();
+            forged.Plus = item.Plus + 1;
+            string baseName = item.Plus > 0 ? item.Name.Substring(0, item.Name.LastIndexOf(" +", StringComparison.Ordinal)) : item.Name;
+            forged.Name = $"{baseName} +{forged.Plus}";
+            if (slot == ItemSlot.Weapon) forged.Attack.Power += 2;
+            else if (slot == ItemSlot.Armor) forged.Armor += 1;
+            else forged.Hp += 4;
+            hero.Equip(forged);
+        }
+
         // ---- New companions (the hardcore mode) ----
 
         // Classes that could take a fallen hero's place: playable and not in the party now.

@@ -11,22 +11,37 @@ namespace Game.Core
         readonly List<string> _header;
         readonly List<string> _fields;
 
-        public CsvRow(int line, List<string> header, List<string> fields)
+        readonly string _language;
+
+        public CsvRow(int line, List<string> header, List<string> fields, string language)
         {
             Line = line;
             _header = header;
             _fields = fields;
+            _language = language;
         }
 
         public int Line { get; }
 
+        // A cell; in another language, its `<column>_<language>` cell when the sheet has one filled in
+        // (Docs/Localization.md 데이터의 영어).
         public string this[string column]
         {
             get
             {
-                int index = _header.IndexOf(column);
-                return index >= 0 && index < _fields.Count ? _fields[index].Trim() : "";
+                if (_language != null)
+                {
+                    string local = Cell(column + "_" + _language);
+                    if (local.Length > 0) return local;
+                }
+                return Cell(column);
             }
+        }
+
+        string Cell(string column)
+        {
+            int index = _header.IndexOf(column);
+            return index >= 0 && index < _fields.Count ? _fields[index].Trim() : "";
         }
     }
 
@@ -41,6 +56,9 @@ namespace Game.Core
         public List<string> Header { get; }
         public List<CsvRow> Rows { get; }
 
+        // The language the rows read their text in (null for Korean, the sheets' own). Set by GameData.Load.
+        [System.ThreadStatic] internal static string Language;
+
         public static CsvTable Read(string csv)
         {
             var records = ReadRecords(csv ?? "");
@@ -49,7 +67,7 @@ namespace Game.Core
             var header = records[0].Fields.Select(h => h.Trim().ToLowerInvariant()).ToList();
             var rows = records.Skip(1)
                 .Where(r => !r.Fields.All(string.IsNullOrWhiteSpace) && !r.Fields[0].TrimStart().StartsWith("#"))
-                .Select(r => new CsvRow(r.Line, header, r.Fields))
+                .Select(r => new CsvRow(r.Line, header, r.Fields, Language))
                 .ToList();
             return new CsvTable(header, rows);
         }

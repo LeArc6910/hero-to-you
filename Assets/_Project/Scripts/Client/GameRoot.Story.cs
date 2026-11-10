@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Game.Core;
 using UnityEngine;
@@ -293,15 +294,38 @@ namespace Game.Client
             if (Ui.Button(Footer(48), "계속", 17, true, Look.Primary)) Act(a.Continue);
         }
 
+        string _shareNote;
+
+        // What the end screen's [기록 복사] copies: the run in a few plain lines.
+        internal string RunSummary(Adventure a)
+        {
+            var lines = new List<string> { $"{Strings.Get("title.name")} · {BuildInfo.Version}" };
+            bool won = a.Screen == AdventureScreen.Victory;
+            lines.Add(won ? Strings.Format(a.FullRun ? "share.won" : "share.won_short", a.FirstChapter + 1, a.LastChapter + 1, a.Rank.Title)
+                : Strings.Format("share.lost", a.Chapter.Index + 1, a.Chapter.Title));
+            lines.Add(string.Join(" · ", a.Heroes.Select(h => $"{h.Class.Name} Lv{h.Level}")));
+            lines.Add(Strings.Format("share.stats", a.ChaptersCleared, a.BattlesWon, a.Day, a.Renown));
+            var marks = new List<string>();
+            if (a.Difficulty == Difficulty.Easy) marks.Add(Strings.Get("difficulty.easy"));
+            if (a.Hardcore) marks.Add(Strings.Get("party.hardcore_on"));
+            if (a.Hard) marks.Add(_data.Perks.FirstOrDefault(p => p.Effect.Verb == "hard")?.Name ?? "hard");
+            if (a.Combos.Count > 0) marks.Add(Strings.Format("party.combos", string.Join(", ", a.Combos.Select(c => c.Name))));
+            if (a.Endings.Count > 0) marks.Add(Strings.Format("share.endings", a.Endings.Count(e => e == "kind"), a.Endings.Count(e => e == "grim")));
+            if (marks.Count > 0) lines.Add(string.Join(" · ", marks));
+            return string.Join("\n", lines);
+        }
+
         void DrawEnd()
         {
             var a = _adventure;
             bool won = a.Screen == AdventureScreen.Victory;
             var column = BeginColumn("end:" + a.Screen, 56);
-            string title = won ? "지금까지의 이야기 끝" : a.Story?.Id == a.Chapter.Rift ? "균열이 열렸다" : "모두 쓰러졌다";
+            string title = won ? (a.FullRun ? "이야기의 끝" : "짧은 길의 끝") : a.Story?.Id == a.Chapter.Rift ? "균열이 열렸다" : "모두 쓰러졌다";
             float y = Heading(column, 4, title, won ? Palette.Gold : Palette.Damage);
             y = Paragraph(column, y, won
-                ? $"{a.ChaptersCleared}개의 장을 모두 지났다. 사람들은 너희를 「{a.Rank.Title}」라 부른다. 다음 장은 준비 중이다."
+                ? (a.FullRun
+                    ? $"{a.ChaptersCleared}개의 장을 모두 지났다. 사람들은 너희를 「{a.Rank.Title}」라 부른다. 옛 영웅의 발자취는 여기서 너희의 것이 되었다."
+                    : $"{a.FirstChapter + 1}장부터 {a.LastChapter + 1}장까지 걸었다. 짧은 판은 일지에 장과 페이지로 남고, 캠페인 승리로는 치지 않는다.")
                 : $"{a.Chapter.Index + 1}장 「{a.Chapter.Title}」에서 길이 끊겼다. 하지만 일지는 언제나 다음 사람을 찾는다.", 14, Palette.Journal);
             y = Paragraph(column, y, $"지난 장 {a.ChaptersCleared} · 중간 보스 {a.MidbossesBeaten} · 이긴 전투 {a.BattlesWon} · 명성 {a.Renown} 「{a.Rank.Title}」 · 금화 {a.Gold} · 남은 희망 {a.Hope}");
             if (_recorded) y = Paragraph(column, y, $"일지 페이지 +{_lastPages} (모두 {JournalNow.Pages}장). 타이틀의 [일지]에서 장을 펼칠 수 있다." + (a.Hard && won ? " 가시밭길로 이겨 두 배!" : ""), 14, Palette.Gold);
@@ -311,6 +335,13 @@ namespace Game.Client
                     y = Paragraph(column, y, $"★ {Strings.Get("journal.new_achievement")}: {achievement.Name} — {achievement.Text}", 13.5f, Palette.Gold);
             foreach (var hero in a.Heroes)
                 y = Paragraph(column, y, $"· {hero.Name} 레벨 {hero.Level}, 생명력 {hero.Hp}/{hero.MaxHp}, 강화: {(hero.Upgrades.Count == 0 ? "없음" : string.Join(", ", hero.Upgrades.Select(u => u.Name)))}", 13);
+            // The run in a few lines to copy and pass on (Docs/WebDemo.md 기록 나누기).
+            y += 4;
+            float sw = Mathf.Min(260, column.width);
+            if (Ui.Button(new Rect(column.x, y, sw, 44), Strings.Get("end.copy"), 14, true, Look.Normal, "기록"))
+                _shareNote = WebBridge.Copy(RunSummary(a)) ? Strings.Get("end.copied") : Strings.Get("end.copy_failed");
+            y += 48;
+            if (_shareNote != null) y = Paragraph(column, y, _shareNote, 12, Palette.Journal);
             EndColumn(y);
             var footer = Footer(48);
             float third = (footer.width - 16) / 3;
@@ -318,7 +349,11 @@ namespace Game.Client
             float bw = retry ? third : (footer.width - 8) / 2;
             if (Ui.Button(new Rect(footer.x, footer.y, bw, footer.height), "처음으로", 15, true, Look.Quiet)) BackToTitle();
             if (Ui.Button(new Rect(footer.x + bw + 8, footer.y, bw, footer.height), "같은 파티로 다시", 15, true, retry ? Look.Normal : Look.Primary))
-                StartAdventure(a.ClassIds.ToList());
+            {
+                _shareNote = null;
+                var perks = SaveStore.Slot == SaveStore.PracticeSlot ? new List<string>() : ChosenPerks();
+                StartRun(a.ClassIds.ToList(), SaveStore.Slot == SaveStore.PracticeSlot ? PracticeSeed : (ulong?)null, perks, a.Difficulty, a.Hardcore, a.FirstChapter, a.LastChapter);
+            }
             if (retry && Ui.Button(new Rect(footer.x + (bw + 8) * 2, footer.y, bw, footer.height), Strings.Get("end.retry"), 15, true, Look.Primary)) _titleError = RetryChapter();
         }
     }

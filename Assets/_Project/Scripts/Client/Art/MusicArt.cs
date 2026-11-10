@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Game.Client
 {
@@ -77,8 +78,22 @@ namespace Game.Client
 
         public static float[] Make(Tune tune)
         {
+            float[] made = null;
+            foreach (var step in MakeInSteps(tune)) made = step ?? made;
+            return made ?? new float[1];
+        }
+
+        // The same tune a part at a time (each chord's pad voices, bass and melody, then the drums): null after each
+        // part, the samples at the end. Music makes a tune over several frames this way so the screen never stops
+        // while it is made (the web build has one thread).
+        public static IEnumerable<float[]> MakeInSteps(Tune tune)
+        {
             var style = StyleOf(tune);
-            if (style == null) return new float[1];
+            if (style == null)
+            {
+                yield return new float[1];
+                yield break;
+            }
             int beats = style.Chords.Length * style.BeatsPerChord;
             int perBeat = Rate * 60 / style.Bpm;
             int length = beats * perBeat;
@@ -95,6 +110,7 @@ namespace Game.Client
                 {
                     double freq = Frequency(Note(style, degree + voice * 2, 1));
                     Add(output, start, span, i => Triangle(freq, i) * Swell(i, span) * style.Pad / 3);
+                    yield return null;
                 }
                 // The bass: the chord's root on every beat (every other beat when slow), plucked.
                 double root = Frequency(Note(style, degree, -1));
@@ -105,6 +121,7 @@ namespace Game.Client
                     int len = perBeat * bassEvery;
                     Add(output, at, len, i => (Triangle(root, i) * 0.7f + Square(root, i) * 0.3f) * Pluck(i, len, 5f) * style.Bass);
                 }
+                yield return null;
                 // The melody: eighth notes from the scale, mostly the chord's own notes, with rests.
                 int eighth = perBeat / 2;
                 int last = degree + 4;
@@ -121,6 +138,7 @@ namespace Game.Client
                     if (style.SquareLead) Add(output, at, len, i => Square(freq, i) * Pluck(i, len, 4f) * style.Lead);
                     else Add(output, at, len, i => Triangle(freq, i) * Pluck(i, len, 3f) * style.Lead);
                 }
+                yield return null;
             }
 
             // Drums: a kick on the beats, a soft hat on the off-beats, a snare on two and four.
@@ -143,7 +161,7 @@ namespace Game.Client
             }
 
             Normalize(output, 0.55f);
-            return output;
+            yield return output;
         }
 
         // A few seconds of the place's sound, looping: filtered noise shaped by slow swells (and for the harbor, waves).
