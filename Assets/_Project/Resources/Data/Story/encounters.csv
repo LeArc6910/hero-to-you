@@ -53,9 +53,9 @@ moths,ash_moth ash_moth goblin_archer,forest ruins,1,1,잿빛 나방 떼가 날�
 moths_big,ash_moth ash_moth goblin goblin_archer,forest ruins,2,1,하늘이 잿빛 날개로 덮인다. 고블린 하나가 그 아래에서 웃는다.,The sky fills with ash-grey wings. A goblin grins beneath them.
 eels,reef_eel reef_eel gull,shallows sand,1,2,얕은 물이 꿈틀거린다. 뱀장어 둘이 고개를 든다.,The shallows writhe. Two eels raise their heads.
 eels_big,reef_eel reef_eel reef_eel crab,shallows,2,2,잠긴 골목마다 뱀장어가 솟는다. 게 한 마리가 길을 막는다.,Eels rise from every drowned alley. A crab blocks the way.
-hollow,hollow_monk cultist,ruins road snow,1,3,빈 수도사가 염불을 외며 다가온다. 그 뒤에 신도가 있다.,"A hollow monk approaches, chanting. A cultist follows behind it."
+hollow,hollow_monk cultist frost_wolf,ruins road snow,1,3,빈 수도사가 염불을 외며 다가온다. 신도와 서리 늑대가 그 뒤를 따른다.,"A hollow monk approaches, chanting, a cultist and a frost wolf at its heels."
 hollow_big,hollow_monk hollow_monk cultist,ruins road,2,3,이름을 빼앗긴 수도사 둘이 나란히 길을 막는다.,Two monks stripped of their names block the road side by side.
-scarabs,scarab scarab scarab,sand ruins,1,4,붉은 모래가 들썩이더니 풍뎅이 셋이 기어 나온다.,"The red sand heaves, and three scarabs crawl out."
-scarabs_big,scarab scarab scarab red_shade,sand ruins,2,4,풍뎅이 떼가 붉은 그림자를 따라 몰려온다.,"A swarm of scarabs comes on, following a red shade."
+scarabs,scarab scarab scarab scarab,sand ruins,1,4,붉은 모래가 들썩이더니 풍뎅이 넷이 기어 나온다.,"The red sand heaves, and four scarabs crawl out."
+scarabs_big,scarab scarab scarab order_knight,sand ruins,2,4,풍뎅이 떼가 붉은 그림자를 따라 몰려온다.,"A swarm of scarabs comes on, following a red shade."
 forgotten,forgotten forgotten rift_spawn,rift ruins road,1,5,이름 없는 그림자 둘이 너희 이름을 부르며 다가온다.,"Two nameless shadows come closer, calling your names."
-forgotten_big,forgotten forgotten forgotten rift_spawn,rift ruins,2,5,잊힌 자들이 무리 지어 온다. 메아리가 그 뒤를 따른다.,"The Forgotten come in a crowd, an echo trailing them."
+forgotten_big,forgotten forgotten echo_shade,rift ruins,2,5,잊힌 자들이 무리 지어 온다. 메아리가 그 뒤를 따른다.,"The Forgotten come in a crowd, an echo trailing them."
