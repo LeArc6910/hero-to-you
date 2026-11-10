@@ -1,51 +1,51 @@
-id,monsters,terrain,danger,chapter,text
-goblins,goblin goblin goblin_archer,plains forest,1,1,잿빛 덤불에서 고블린 셋이 튀어나온다.
-wolves,wolf wolf wolf,forest plains,1,1,잿빛 늑대 무리가 길을 막는다. 눈이 붉다.
-bandits,bandit cutthroat,road,1,1,“일지를 내놓으면 보내 주지.” 산적들이 길을 막는다.
-wisps,ash_wisp ash_wisp goblin,ruins forest,1,1,폐허 사이로 잿불 정령들이 떠다닌다.
-lurker,bog_lurker goblin,swamp,1,1,늪이 끓더니 무언가가 솟아오른다.
-goblins_big,goblin goblin goblin_archer goblin_archer,plains forest,2,1,고블린 패거리가 몰려온다. 균열이 그들을 부풀렸다.
-wolves_big,wolf wolf wolf wolf,forest plains,2,1,늑대 넷이 둘러싼다.
-bandits_big,bandit bandit cutthroat,road,2,1,산적 두목이 직접 나섰다.
-lurkers,bog_lurker bog_lurker,swamp,2,1,늪 괴물 둘이 솟아오른다.
-bandit_chief,bandit_chief bandit cutthroat,,0,1,산적 두목이 도끼를 어깨에 걸친다. “일지를 가져오면 균열이 우리를 살려 준댔지.”
-ambush,goblin goblin_archer goblin_archer,,0,1,덤불 속에서 화살이 날아온다!
-warden,ash_warden,,0,1,봉인석 앞에 돌 파수꾼이 눈을 뜬다.
-drowned,drowned drowned gull,shallows sand,1,2,물에 잠긴 거리에서 익사자들이 일어선다.
-smugglers,smuggler smuggler gull,road ruins plains,1,2,“일지라고? 값 좀 나가겠는데.” 밀수꾼들이 칼을 뽑는다.
-crabs,crab crab gull,sand shallows,1,2,모래톱이 들썩이더니 껍데기 게가 솟는다.
-gulls,gull gull gull gull,sand plains forest,1,2,폭풍 갈매기 떼가 비명처럼 울며 내리꽂힌다.
-drowned_big,drowned drowned drowned smuggler,shallows sand ruins,2,2,밀물과 함께 익사자 무리가 몰려온다.
-smugglers_big,smuggler smuggler smuggler gull,road ruins plains,2,2,밀수꾼 패거리가 길을 막았다. 균열이 그들을 부풀렸다.
-crabs_big,crab crab crab,sand shallows,2,2,껍데기 게 셋이 둘러싼다.
-captain,tide_captain smuggler smuggler,,0,2,녹슨 닻 선장이 갈고리를 휘두른다. “리엔의 일지? 그걸 가져가면 균열이 배 한 척을 통째로 준대.”
-harbor_ambush,smuggler smuggler gull,,0,2,창고 그늘에서 밀수꾼들이 덮친다!
-bell,bell_ringer,,0,2,물속에서 거대한 종이 울린다. 종지기가 고개를 든다.
-frost_wolves,frost_wolf frost_wolf frost_wolf,snow forest plains,1,3,눈보라 사이로 서리 늑대들의 눈이 번뜩인다.
-wraiths,ice_wraith ice_wraith frost_wolf,ruins snow,1,3,얼어붙은 회랑에서 망령들이 떠오른다.
-troll,snow_troll frost_wolf,snow plains forest,1,3,눈더미가 일어서더니 트롤이 된다.
-cultists,cultist cultist ice_wraith,road ruins plains,1,3,“일지를 균열에 바쳐라.” 신도들이 칼을 뽑는다.
-frost_wolves_big,frost_wolf frost_wolf frost_wolf frost_wolf,snow forest plains,2,3,서리 늑대 넷이 둘러싼다.
-trolls_big,snow_troll snow_troll,snow plains,2,3,트롤 둘이 길을 막는다.
-cultists_big,cultist cultist cultist ice_wraith,road ruins plains,2,3,신도 무리가 노래를 부르며 다가온다.
-priest,rift_priest cultist cultist,,0,3,균열 사제가 사슬을 휘감는다. “찢긴 장은 균열의 것이다.”
-monastery_ambush,cultist cultist frost_wolf,,0,3,눈 속에 숨어 있던 신도들이 덮친다!
-abbess,frozen_abbess,,0,3,얼음 속에서 원장이 눈을 뜬다.
-tomb_guards,tomb_guard tomb_guard sand_serpent,ruins road sand,1,4,왕릉의 돌 병사들이 창을 겨눈다.
-serpents,sand_serpent sand_serpent sand_serpent,sand plains,1,4,모래가 꿈틀대더니 뱀들이 솟는다.
-order_patrol,order_knight order_knight red_shade,road plains ruins,1,4,“이름을 내놓아라.” 기억 기사들이 길을 막는다.
-shades,red_shade red_shade tomb_guard,ruins sand,1,4,붉은 망령들이 곡을 하며 떠오른다.
-order_big,order_knight order_knight order_knight red_shade,road plains ruins,2,4,기억 기사단의 한 무리가 진을 쳤다.
-tomb_big,tomb_guard tomb_guard tomb_guard sand_serpent,ruins road sand,2,4,왕릉 깊은 곳의 수호병들이 깨어난다.
-captain4,knight_captain order_knight order_knight,,0,4,기사단장 칼라가 검을 뽑는다. “세른 님께 가는 길은 여기서 끝난다.”
-tomb_ambush,order_knight sand_serpent sand_serpent,,0,4,모래 속에서 기사들과 뱀이 동시에 덮친다!
-sern,sern,,0,4,붉은 왕의 관 앞에서 세른이 돌아선다. 그의 손에도 일지가 들려 있다.
-spawns,rift_spawn rift_spawn void_eye,rift ruins plains,1,5,갈라진 땅에서 균열 새끼들이 기어 나온다.
-eyes,void_eye void_eye echo_shade,rift ruins,1,5,공허의 눈들이 너희 이름을 바라본다.
-colossus,ash_colossus rift_spawn,plains rift road,1,5,잊힌 도시가 일어선다. 거상이다.
-echoes,echo_shade echo_shade rift_spawn,ruins road rift,1,5,메아리들이 잊힌 사람들의 마지막 말을 되풀이한다.
-spawns_big,rift_spawn rift_spawn rift_spawn void_eye,rift ruins plains,2,5,균열 새끼 떼가 몰려온다.
-colossus_big,ash_colossus ash_colossus,plains rift road,2,5,거상 둘이 땅을 흔든다.
-shadow,rien_shadow echo_shade echo_shade,,0,5,리엔의 그림자가 일어선다. 얼굴이 없다.
-gate_ambush,echo_shade rift_spawn rift_spawn,,0,5,메아리 속에서 균열 새끼들이 튀어나온다!
-nameless,nameless,,0,5,"균열의 문이 열리고, 이름 없는 것이 너희를 본다."
+id,monsters,terrain,danger,chapter,text,text_en
+goblins,goblin goblin goblin_archer,plains forest,1,1,잿빛 덤불에서 고블린 셋이 튀어나온다.,Three goblins burst out of the ashen thicket.
+wolves,wolf wolf wolf,forest plains,1,1,잿빛 늑대 무리가 길을 막는다. 눈이 붉다.,A pack of ash wolves blocks the road. Their eyes are red.
+bandits,bandit cutthroat,road,1,1,“일지를 내놓으면 보내 주지.” 산적들이 길을 막는다.,“Hand over the journal and we let you go.” Bandits block the road.
+wisps,ash_wisp ash_wisp goblin,ruins forest,1,1,폐허 사이로 잿불 정령들이 떠다닌다.,Ember wisps drift among the ruins.
+lurker,bog_lurker goblin,swamp,1,1,늪이 끓더니 무언가가 솟아오른다.,"The swamp boils, and something rises."
+goblins_big,goblin goblin goblin_archer goblin_archer,plains forest,2,1,고블린 패거리가 몰려온다. 균열이 그들을 부풀렸다.,A goblin gang swarms in. The Rift has swollen them.
+wolves_big,wolf wolf wolf wolf,forest plains,2,1,늑대 넷이 둘러싼다.,Four wolves close in.
+bandits_big,bandit bandit cutthroat,road,2,1,산적 두목이 직접 나섰다.,The bandit chief has come in person.
+lurkers,bog_lurker bog_lurker,swamp,2,1,늪 괴물 둘이 솟아오른다.,Two swamp lurkers rise.
+bandit_chief,bandit_chief bandit cutthroat,,0,1,산적 두목이 도끼를 어깨에 걸친다. “일지를 가져오면 균열이 우리를 살려 준댔지.”,"The bandit chief rests an axe on one shoulder. “They said if we bring the journal, the Rift will spare us.”"
+ambush,goblin goblin_archer goblin_archer,,0,1,덤불 속에서 화살이 날아온다!,Arrows fly out of the thicket!
+warden,ash_warden,,0,1,봉인석 앞에 돌 파수꾼이 눈을 뜬다.,"Before the seal stone, the stone warden opens its eyes."
+drowned,drowned drowned gull,shallows sand,1,2,물에 잠긴 거리에서 익사자들이 일어선다.,The drowned rise from the flooded street.
+smugglers,smuggler smuggler gull,road ruins plains,1,2,“일지라고? 값 좀 나가겠는데.” 밀수꾼들이 칼을 뽑는다.,"“A journal, you say? That should fetch a price.” The smugglers draw their knives."
+crabs,crab crab gull,sand shallows,1,2,모래톱이 들썩이더니 껍데기 게가 솟는다.,"The sandbar heaves, and a shell crab rises."
+gulls,gull gull gull gull,sand plains forest,1,2,폭풍 갈매기 떼가 비명처럼 울며 내리꽂힌다.,"A flock of storm gulls dives in, shrieking."
+drowned_big,drowned drowned drowned smuggler,shallows sand ruins,2,2,밀물과 함께 익사자 무리가 몰려온다.,A crowd of the drowned comes in with the tide.
+smugglers_big,smuggler smuggler smuggler gull,road ruins plains,2,2,밀수꾼 패거리가 길을 막았다. 균열이 그들을 부풀렸다.,A smuggler gang blocks the way. The Rift has swollen them.
+crabs_big,crab crab crab,sand shallows,2,2,껍데기 게 셋이 둘러싼다.,Three shell crabs close in.
+captain,tide_captain smuggler smuggler,,0,2,녹슨 닻 선장이 갈고리를 휘두른다. “리엔의 일지? 그걸 가져가면 균열이 배 한 척을 통째로 준대.”,"The Rusty Anchor Captain swings a hook. “Rien’s journal? Bring it, and the Rift gives me a whole ship.”"
+harbor_ambush,smuggler smuggler gull,,0,2,창고 그늘에서 밀수꾼들이 덮친다!,Smugglers leap out of the warehouse shadows!
+bell,bell_ringer,,0,2,물속에서 거대한 종이 울린다. 종지기가 고개를 든다.,A huge bell tolls under the water. The bellringer raises its head.
+frost_wolves,frost_wolf frost_wolf frost_wolf,snow forest plains,1,3,눈보라 사이로 서리 늑대들의 눈이 번뜩인다.,Frost wolves’ eyes flash through the blizzard.
+wraiths,ice_wraith ice_wraith frost_wolf,ruins snow,1,3,얼어붙은 회랑에서 망령들이 떠오른다.,Wraiths drift up from the frozen cloister.
+troll,snow_troll frost_wolf,snow plains forest,1,3,눈더미가 일어서더니 트롤이 된다.,A snowdrift stands up and becomes a troll.
+cultists,cultist cultist ice_wraith,road ruins plains,1,3,“일지를 균열에 바쳐라.” 신도들이 칼을 뽑는다.,“Give the journal to the Rift.” The cultists draw their blades.
+frost_wolves_big,frost_wolf frost_wolf frost_wolf frost_wolf,snow forest plains,2,3,서리 늑대 넷이 둘러싼다.,Four frost wolves close in.
+trolls_big,snow_troll snow_troll,snow plains,2,3,트롤 둘이 길을 막는다.,Two trolls block the road.
+cultists_big,cultist cultist cultist ice_wraith,road ruins plains,2,3,신도 무리가 노래를 부르며 다가온다.,"A band of cultists comes on, singing."
+priest,rift_priest cultist cultist,,0,3,균열 사제가 사슬을 휘감는다. “찢긴 장은 균열의 것이다.”,The Rift priest winds his chains. “The torn page belongs to the Rift.”
+monastery_ambush,cultist cultist frost_wolf,,0,3,눈 속에 숨어 있던 신도들이 덮친다!,Cultists hidden in the snow leap at you!
+abbess,frozen_abbess,,0,3,얼음 속에서 원장이 눈을 뜬다.,"In the ice, the Abbess opens her eyes."
+tomb_guards,tomb_guard tomb_guard sand_serpent,ruins road sand,1,4,왕릉의 돌 병사들이 창을 겨눈다.,The tomb’s stone soldiers level their spears.
+serpents,sand_serpent sand_serpent sand_serpent,sand plains,1,4,모래가 꿈틀대더니 뱀들이 솟는다.,"The sand writhes, and serpents rise."
+order_patrol,order_knight order_knight red_shade,road plains ruins,1,4,“이름을 내놓아라.” 기억 기사들이 길을 막는다.,“Give us your names.” Knights of Memory block the road.
+shades,red_shade red_shade tomb_guard,ruins sand,1,4,붉은 망령들이 곡을 하며 떠오른다.,"Red shades rise, wailing."
+order_big,order_knight order_knight order_knight red_shade,road plains ruins,2,4,기억 기사단의 한 무리가 진을 쳤다.,A company of the Knights of Memory has made camp.
+tomb_big,tomb_guard tomb_guard tomb_guard sand_serpent,ruins road sand,2,4,왕릉 깊은 곳의 수호병들이 깨어난다.,The guardians deep in the tomb awaken.
+captain4,knight_captain order_knight order_knight,,0,4,기사단장 칼라가 검을 뽑는다. “세른 님께 가는 길은 여기서 끝난다.”,Commander Kalla draws a sword. “The road to Sern ends here.”
+tomb_ambush,order_knight sand_serpent sand_serpent,,0,4,모래 속에서 기사들과 뱀이 동시에 덮친다!,Knights and serpents strike from the sand at once!
+sern,sern,,0,4,붉은 왕의 관 앞에서 세른이 돌아선다. 그의 손에도 일지가 들려 있다.,"Before the Red King’s coffin, Sern turns around. He holds a journal too."
+spawns,rift_spawn rift_spawn void_eye,rift ruins plains,1,5,갈라진 땅에서 균열 새끼들이 기어 나온다.,Riftspawn crawl out of the riven ground.
+eyes,void_eye void_eye echo_shade,rift ruins,1,5,공허의 눈들이 너희 이름을 바라본다.,The eyes of the void look upon your names.
+colossus,ash_colossus rift_spawn,plains rift road,1,5,잊힌 도시가 일어선다. 거상이다.,The forgotten city stands up. A colossus.
+echoes,echo_shade echo_shade rift_spawn,ruins road rift,1,5,메아리들이 잊힌 사람들의 마지막 말을 되풀이한다.,Echoes repeat the last words of the forgotten.
+spawns_big,rift_spawn rift_spawn rift_spawn void_eye,rift ruins plains,2,5,균열 새끼 떼가 몰려온다.,A swarm of riftspawn pours in.
+colossus_big,ash_colossus ash_colossus,plains rift road,2,5,거상 둘이 땅을 흔든다.,Two colossi shake the ground.
+shadow,rien_shadow echo_shade echo_shade,,0,5,리엔의 그림자가 일어선다. 얼굴이 없다.,Rien’s shadow rises. It has no face.
+gate_ambush,echo_shade rift_spawn rift_spawn,,0,5,메아리 속에서 균열 새끼들이 튀어나온다!,Riftspawn leap out of the echoes!
+nameless,nameless,,0,5,"균열의 문이 열리고, 이름 없는 것이 너희를 본다.","The Rift Gate opens, and the Nameless looks at you."

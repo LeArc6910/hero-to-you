@@ -73,6 +73,25 @@ namespace Game.Core.Tests
             }
         }
 
+        // Every sheet column with Korean in it has its English beside it, filled wherever the Korean is.
+        [Test]
+        public void EveryKoreanColumnOfTheSheetsHasEnglish()
+        {
+            foreach (string file in GameData.Files)
+            {
+                var table = CsvTable.Read(File.ReadAllText(Path.Combine(TestData.DataFolder, file)));
+                foreach (string column in table.Header.Where(c => !c.EndsWith("_en")))
+                {
+                    if (!table.Rows.Any(r => r[column].Any(IsHangul))) continue;
+                    Assert.That(table.Header, Has.Member(column + "_en"), $"{file}: '{column}'에 영어 열이 없다");
+                    foreach (var row in table.Rows.Where(r => r[column].Any(IsHangul)))
+                        Assert.That(row[column + "_en"], Is.Not.Empty, $"{file} {row.Line}행: '{column}_en'이 비었다");
+                }
+            }
+        }
+
+        static bool IsHangul(char c) => c >= 0xAC00 && c <= 0xD7A3;
+
         static string[] Values(string template) =>
             Regex.Matches(template, @"\{(\d+)(:[^}]*)?\}").Cast<Match>().Select(m => m.Groups[1].Value).Distinct().OrderBy(v => v).ToArray();
     }

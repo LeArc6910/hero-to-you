@@ -482,6 +482,14 @@ namespace Game.Client
             if (!Probing || Event.current.type != EventType.Repaint) return;
             var screen = new Rect(Origins.Peek() + r.position, r.size);
             bool shown = Views.Count == 0 || Views.Peek().Contains(screen.center);
+            // Inside a scrolled list only the part in view can be pressed: that is the button's rect for the tests.
+            if (shown && Views.Count > 0)
+            {
+                var view = Views.Peek();
+                float x0 = Mathf.Max(screen.xMin, view.xMin), y0 = Mathf.Max(screen.yMin, view.yMin);
+                float x1 = Mathf.Min(screen.xMax, view.xMax), y1 = Mathf.Min(screen.yMax, view.yMax);
+                if (x1 > x0 && y1 > y0) screen = Rect.MinMaxRect(x0, y0, x1, y1);
+            }
             Drawing.Add(new Drawn(label, row, screen, enabled, shown));
         }
     }

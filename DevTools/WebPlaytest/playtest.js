@@ -133,7 +133,8 @@ async function playSlice(game, wholeRun) {
   await game.wait(400);
   await game.shot('tip', '처음 보는 화면의 도움말 카드');
   run.check(await game.press('알겠다', '도움말'), '도움말 카드를 [알겠다]로 닫는다');
-  run.check(!(await game.state()).tip, '도움말 카드가 닫혔다');
+  const tipAfter = await game.until(s => !s.tip, 2000);
+  run.check(!!tipAfter, `도움말 카드가 닫혔다${tipAfter ? '' : ' (' + (await game.state()).tip + ')'}`);
   await game.send('tips off');
   run.check(await game.press(/^이동 굴리기/), '[이동 굴리기]를 누를 수 있다');
   state = await game.until(s => s.movePoints >= 1 && s.reachable > 0, 5000);
