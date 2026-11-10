@@ -29,7 +29,7 @@ namespace Game.Core.Tests
             string core = Path.GetFullPath(Path.Combine(TestData.DataFolder, "..", "..", "Scripts", "Core"));
             Assert.That(Directory.Exists(core), Is.True, core);
             var used = Directory.GetFiles(core, "*.cs", SearchOption.AllDirectories)
-                .SelectMany(f => Regex.Matches(File.ReadAllText(f), @"\.Line\(\s*""([A-Za-z0-9_.]+)""").Cast<Match>().Select(m => m.Groups[1].Value))
+                .SelectMany(f => Regex.Matches(File.ReadAllText(f), @"\.Line\(\s*""([A-Za-z0-9_.]+)""\s*[,)]").Cast<Match>().Select(m => m.Groups[1].Value))
                 .Distinct().ToList();
             var ko = TestData.Data.Lines;
             var en = English.Lines;
@@ -40,6 +40,26 @@ namespace Game.Core.Tests
             }
             foreach (string id in ko.Ids)
                 Assert.That(en.Template(id).Any(c => c >= 0xAC00 && c <= 0xD7A3), Is.False, $"{id}: 영어 칸이 비었거나 한글이 섞였다");
+        }
+
+        [Test]
+        public void StatsTerrainsAndStatusesHaveNamesInBothLanguages()
+        {
+            for (int i = 0; i < Stats.Count; i++)
+            {
+                Assert.That(Stats.Name((Stat)i, TestData.Data), Is.EqualTo(Stats.Name((Stat)i)));
+                Assert.That(Stats.Name((Stat)i, English), Does.Not.Contain("stat."));
+            }
+            foreach (Terrain terrain in System.Enum.GetValues(typeof(Terrain)))
+            {
+                Assert.That(TerrainInfo.Name(terrain, TestData.Data), Is.EqualTo(TerrainInfo.Name(terrain)));
+                Assert.That(TerrainInfo.Name(terrain, English), Does.Not.StartWith("terrain."));
+            }
+            foreach (StatusKind kind in System.Enum.GetValues(typeof(StatusKind)))
+            {
+                Assert.That(StatusNames.Name(kind, TestData.Data), Is.EqualTo(StatusNames.Name(kind)));
+                Assert.That(StatusNames.Name(kind, English), Does.Not.StartWith("status."));
+            }
         }
 
         static string[] Values(string template) =>

@@ -104,6 +104,9 @@ namespace Game.Core
             _ => terrain.ToString(),
         };
 
+        // The name in the sheets' language (Data/Text/common.csv terrain.<name in lower case>).
+        public static string Name(Terrain terrain, GameData data) => data == null ? Name(terrain) : data.Line("terrain." + terrain.ToString().ToLowerInvariant());
+
         // Movement points to step into it; 0 for a hex nobody can enter.
         public static int Cost(Terrain terrain) => terrain switch
         {

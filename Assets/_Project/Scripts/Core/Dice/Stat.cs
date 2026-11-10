@@ -28,6 +28,9 @@ namespace Game.Core
             _ => stat.ToString(),
         };
 
+        // The name in the sheets' language (Data/Text/common.csv stat.<code>); the one above is the Korean.
+        public static string Name(Stat stat, GameData data) => data == null ? Name(stat) : data.Line("stat." + Code(stat));
+
         // The short codes the sheets use: str, agi, int, wil, per, cha.
         public static string Code(Stat stat) => stat switch
         {

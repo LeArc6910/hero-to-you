@@ -1,2 +1,31 @@
 id,ko,en
 common.example,{0:이} {1:을} 지킨다,{0} guards {1}
+stat.str,힘,Strength
+stat.agi,민첩,Agility
+stat.int,지능,Intellect
+stat.wil,의지,Will
+stat.per,감각,Perception
+stat.cha,매력,Charm
+terrain.plains,들판,Plains
+terrain.forest,숲,Forest
+terrain.swamp,늪,Swamp
+terrain.road,길,Road
+terrain.ruins,폐허,Ruins
+terrain.shallows,얕은 물,Shallows
+terrain.sand,모래톱,Sand
+terrain.water,물,Water
+terrain.mountain,산,Mountain
+terrain.snow,눈밭,Snow
+terrain.rift,갈라진 땅,Riven Ground
+status.burn,화상,Burn
+status.chill,냉기,Chill
+status.mark,표식,Mark
+status.stun,기절,Stun
+status.weak,약화,Weakened
+status.taunt,도발,Taunt
+status.howl,울부짖음,Howl
+status.hidden,숨음,Hidden
+status.corrode,부식,Corrode
+status.foretold,예언,Foretold
+status.deathmark,죽음의 표,Death Mark
+status.daze,멍함,Dazed

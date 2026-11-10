@@ -26,6 +26,9 @@ namespace Game.Core
 
     public static class StatusNames
     {
+        // The name in the sheets' language (Data/Text/common.csv status.<name in lower case>); the one below is the Korean.
+        public static string Name(StatusKind kind, GameData data) => data == null ? Name(kind) : data.Line("status." + kind.ToString().ToLowerInvariant());
+
         public static string Name(StatusKind kind) => kind switch
         {
             StatusKind.Burn => "화상",
