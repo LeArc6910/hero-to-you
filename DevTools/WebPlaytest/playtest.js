@@ -76,7 +76,13 @@ async function playSlice(game, wholeRun) {
   // The save slots: three empty slots at first.
   run.check(await game.press('저장 슬롯'), '[저장 슬롯]을 누를 수 있다');
   state = await game.until(s => s.screen === 'Slots', 4000);
-  run.check(!!state && (await game.find('새 모험')).length === 3, '저장 슬롯 화면에 빈 슬롯 셋');
+  // A slow phone may report the screen a frame before its buttons are drawn: count again for a moment.
+  let emptySlots = 0;
+  for (let i = 0; i < 10 && emptySlots !== 3; i++) {
+    emptySlots = (await game.find('새 모험')).length;
+    if (emptySlots !== 3) await game.wait(200);
+  }
+  run.check(!!state && emptySlots === 3, `저장 슬롯 화면에 빈 슬롯 셋 (${emptySlots})`);
   await game.shot('slots', '저장 슬롯');
   await game.press('뒤로');
   state = await game.until(s => s.screen === 'Title', 4000);
@@ -206,14 +212,14 @@ async function playSlice(game, wholeRun) {
     // battle plays on by itself for a few seconds until a blow lands.
     let art = await game.ask('art');
     run.check(!!art.backdrop, `전투 뒤에 장의 장소 그림이 깔린다 (${art.backdrop})`);
-    if (!(art.flashes > 0)) {
-      await game.send('autobattle');
-      for (let i = 0; i < 20 && !(art.flashes > 0); i++) {
-        await game.wait(400);
-        art = await game.ask('art');
-      }
+    // Played slowly (an effect lasts 0.24 s at speed 1) so the photo catches the next blow's effect.
+    const before = art.flashes || 0;
+    await game.send('speed 0.15; autobattle');
+    for (let i = 0; i < 60 && !(art.flashes > before); i++) {
+      await game.wait(150);
+      art = await game.ask('art');
     }
-    if (art.flashes > 0) await game.shot('battle-hit', '맞을 때의 효과');
+    if (art.flashes > before) await game.shot('battle-hit', '맞을 때의 효과(느리게)');
     run.check(art.flashes > 0, `맞으면 타격 효과가 뜬다 (${art.flashes}번)`);
   }
   await game.send('speed 0');
