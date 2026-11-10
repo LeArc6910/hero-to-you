@@ -115,9 +115,11 @@ namespace Game.Client
             float textW = w - 104;
             float h = Mathf.Max(48, Ui.TextHeight(text, 12.5f, textW) + 14);
             var r = new Rect(sideways ? 8 : (Ui.Width - w) / 2, Ui.Height - 58 - h, w, h);
-            if (sideways && !battle) r.y = Ui.Height - h - 8;
-            if (battle) r.y = 50;
-            else if (Ui.Portrait && _adventure.Screen == AdventureScreen.Map) r.y = 96;
+            if (sideways) r.y = Ui.Height - h - 8;
+            // In a battle it sits at the bottom of the field, clear of the turn bar and the enemies' intents at the top
+            // (upright, the field is the top 47% under the turn bar; GameRoot.Battle.cs).
+            if (battle && Ui.Portrait) r.y = 46 + (Ui.Height - 46) * 0.47f - h - 4;
+            else if (!battle && Ui.Portrait && _adventure.Screen == AdventureScreen.Map) r.y = 96;
             Ui.Panel(r, new Color(0.10f, 0.08f, 0.16f, 0.94f), Palette.Gold);
             Ui.Text(new Rect(r.x + 10, r.y + 6, textW, h - 12), text, 12.5f, Palette.Ink, TextAnchor.MiddleLeft, false, true);
             if (Ui.Button(new Rect(r.xMax - 92, r.y + (h - 44) / 2, 86, 44), Strings.Get("tutorial.off"), 12, true, Look.Quiet, "안내"))

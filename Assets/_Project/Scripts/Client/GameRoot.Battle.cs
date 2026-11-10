@@ -931,7 +931,8 @@ namespace Game.Client
                 var bar = new Rect(x0 + s * cw + 3, top + height - bh, cw - 6, bh);
                 Ui.Fill(new Rect(x0 + s * cw + 3, top, cw - 6, height), Palette.BarBack);
                 Ui.Fill(bar, s == n ? Palette.Gold : s == 0 ? Settings.Fail : Settings.Success);
-                if (p >= 0.005) Ui.Text(new Rect(x0 + s * cw, top + height - bh - 14, cw, 14), Percent(p), 9, Palette.Ink, TextAnchor.MiddleCenter);
+                // The chance over its bar, or inside the bar's top when the bar reaches the summary line above.
+                if (p >= 0.005) Ui.Text(new Rect(x0 + s * cw, Mathf.Max(top, top + height - bh - 14), cw, 14), Percent(p), 9, Palette.Ink, TextAnchor.MiddleCenter);
                 Ui.Text(new Rect(x0 + s * cw, top + height + 1, cw, 12), Strings.Format("battle.successes_n", s), 9, Palette.Dim, TextAnchor.MiddleCenter);
                 Ui.Text(new Rect(x0 + s * cw, top + height + 12, cw, 13), preview.ValueBySuccesses.Length > s ? preview.ValueBySuccesses[s].ToString() : "", 11, Palette.Ink, TextAnchor.MiddleCenter, true);
             }
