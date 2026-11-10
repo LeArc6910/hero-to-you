@@ -70,8 +70,18 @@ def shade(color, amount=0.35):
 def pictures(source):
     """Each named picture: a ["name"] = new[] { rows } entry, or a static readonly string[] Name = { rows }."""
     found = {}
-    for match in re.finditer(r'\["(\w+)"\]\s*=\s*new\[\]\s*\{(.*?)\}', source, re.S):
-        found[match.group(1)] = re.findall(r'"([^"]*)"', match.group(2))
+    # Rows are read string by string up to the closing brace, so palette letters like { } in a row do no harm.
+    for match in re.finditer(r'\["(\w+)"\]\s*=\s*new\[\]\s*\{', source):
+        i, rows = match.end(), []
+        while True:
+            while source[i] in " \t\r\n,":
+                i += 1
+            if source[i] != '"':
+                break
+            j = source.index('"', i + 1)
+            rows.append(source[i + 1:j])
+            i = j + 1
+        found[match.group(1)] = rows
     for match in re.finditer(r'static readonly string\[\] (\w+)\s*=\s*\{(.*?)\};', source, re.S):
         found[match.group(1)] = re.findall(r'"([^"]*)"', match.group(2))
     return found
