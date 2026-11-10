@@ -158,6 +158,8 @@ async function playSlice(game, wholeRun) {
   await game.send('autoplay 0');
   state = await autoplayUntil(game, s => s.adventure === 'Map' && !s.levelUp, 40);
   if (state && (await game.press('장비·소모품', null, { quiet: true }))) {
+    // A tap can land in the frame the map turn is still settling after the bot's last step: press once more.
+    if (!(await game.state()).gearOpen) await game.press('장비·소모품', null, { quiet: true });
     await game.shot('gear', '장비·소모품 창');
     run.check((await game.state()).gearOpen, '장비·소모품 창이 열린다');
     await game.press('닫기');
