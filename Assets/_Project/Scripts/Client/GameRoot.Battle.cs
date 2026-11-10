@@ -192,7 +192,7 @@ namespace Game.Client
                     if (_speed > 0) Sounds.Play(Sound.Hit);
                     break;
                 case BattleEventKind.Miss:
-                    Float(e.Target, "빗나감", Palette.Dim);
+                    Float(e.Target, Strings.Get("battle.float_miss"), Palette.Dim);
                     if (_speed > 0) Sounds.Play(Sound.Miss);
                     break;
                 case BattleEventKind.Heal:
@@ -203,7 +203,7 @@ namespace Game.Client
                     break;
                 case BattleEventKind.Revive:
                     _shownHp[e.Target] = e.Amount;
-                    Float(e.Target, "일어남", Palette.Heal);
+                    Float(e.Target, Strings.Get("battle.float_up"), Palette.Heal);
                     break;
                 case BattleEventKind.Down:
                     _shownHp[e.Target] = 0;
@@ -213,10 +213,10 @@ namespace Game.Client
                     Float(e.Target, StatusFloat(e), Palette.Gold);
                     break;
                 case BattleEventKind.ResolveGained:
-                    Float(e.Actor, "결의 +" + e.Amount, Palette.Resolve);
+                    Float(e.Actor, Strings.Format("battle.float_resolve", e.Amount), Palette.Resolve);
                     break;
                 case BattleEventKind.Guard:
-                    Float(e.Target, "수호", Palette.Gold);
+                    Float(e.Target, Strings.Get("battle.float_guard"), Palette.Gold);
                     break;
                 case BattleEventKind.Phase:
                 case BattleEventKind.Victory:
@@ -333,7 +333,7 @@ namespace Game.Client
         void DrawTimeline(Rect r, Battle battle)
         {
             Ui.Panel(r);
-            Ui.Text(new Rect(r.x + 6, r.y, 34, r.height), "순서", 12, Palette.Dim);
+            Ui.Text(new Rect(r.x + 6, r.y, 34, r.height), Strings.Get("battle.order"), 12, Palette.Dim);
             float infoW = Ui.Width < 500 ? 96 : 150;
             var order = BattlePlaying ? new List<Unit>() : battle.Timeline(8);
             float size = r.height - 8;
@@ -353,7 +353,7 @@ namespace Game.Client
             Ui.Text(new Rect(info.x + 16, info.y, 40, r.height), _adventure.Hope.ToString(), 13, Palette.Ink);
             Ui.Image(new Rect(info.x + 44, info.y + (r.height - 14) / 2, 14, 14), PixelArt.Icon("coin"));
             Ui.Text(new Rect(info.x + 60, info.y, 50, r.height), _adventure.Gold.ToString(), 13, Palette.Ink);
-            if (infoW > 120) Ui.Text(new Rect(info.x + 90, info.y, 60, r.height), _adventure.BossBattle ? "보스" : $"{_adventure.Day}일째", 12, _adventure.BossBattle ? Palette.Damage : Palette.Dim, TextAnchor.MiddleRight);
+            if (infoW > 120) Ui.Text(new Rect(info.x + 90, info.y, 60, r.height), _adventure.BossBattle ? Strings.Get("battle.boss") : Strings.Format("common.day", _adventure.Day), 12, _adventure.BossBattle ? Palette.Damage : Palette.Dim, TextAnchor.MiddleRight);
         }
 
         static Texture2D Sprite(Unit unit) => unit.IsHero
@@ -449,21 +449,26 @@ namespace Game.Client
             var bar = new Rect(slot.x + (slot.width - barW) / 2, y + 1, barW, 7);
             Ui.Bar(bar, unit.MaxHp > 0 ? (float)hp / unit.MaxHp : 0, unit.IsHero ? Palette.HpHero : Palette.Hp);
             y += 9;
-            string line = down ? "쓰러짐" : $"{hp}/{unit.MaxHp}";
-            if (unit.IsHero && !down) line += $" · 결의 {unit.Hero.Resolve}" + (unit.Hero.Blessing + unit.Hero.Luck > 0 ? $" · 확정+{unit.Hero.Blessing + unit.Hero.Luck}" : "");
+            string line = down ? Strings.Get("hero.down") : $"{hp}/{unit.MaxHp}";
+            if (unit.IsHero && !down) line += " · " + Strings.Format("hero.resolve", unit.Hero.Resolve) + (unit.Hero.Blessing + unit.Hero.Luck > 0 ? " · " + Strings.Format("battle.sure_plus", unit.Hero.Blessing + unit.Hero.Luck) : "");
             string statuses = StatusLine(unit, battle);
             if (statuses.Length > 0) line += " · " + statuses;
             Ui.Text(new Rect(slot.x, y, slot.width, 15), line, 10.5f, down ? Palette.Damage : Palette.Dim, TextAnchor.MiddleCenter);
 
             if (targetable && Ui.Hit(slot, unit.Name, true, "대상")) _target = unit.Id;
-            if (!unit.IsHero) Ui.Tip(slot, $"{unit.Name}: {unit.Monster.Text} (방어도 {unit.Monster.Armor}" + (unit.Monster.Ward > 0 ? $", 마법 방어 {unit.Monster.Ward}" : "") + ")" + (unit.Intent != null && !down ? $"\n다음 행동: {unit.Intent.Skill.Name}. {unit.Intent.Skill.Text}" : ""));
+            if (!unit.IsHero)
+            {
+                string about = unit.Monster.Ward > 0 ? Strings.Format("battle.monster_ward", unit.Name, unit.Monster.Text, unit.Monster.Armor, unit.Monster.Ward)
+                    : Strings.Format("battle.monster", unit.Name, unit.Monster.Text, unit.Monster.Armor);
+                Ui.Tip(slot, about + (unit.Intent != null && !down ? "\n" + Strings.Format("battle.next_action", unit.Intent.Skill.Name, unit.Intent.Skill.Text) : ""));
+            }
         }
 
         static string StatusLine(Unit unit, Battle battle)
         {
-            var parts = unit.Status.Keys.Select(k => k == StatusKind.Taunt ? $"도발(방어+{unit.TauntArmor})" : StatusNames.Name(k, Sheets)).ToList();
-            if (unit.GuardedBy >= 0) parts.Add("수호받음");
-            if (unit.GuardTarget >= 0) parts.Add("수호 중");
+            var parts = unit.Status.Keys.Select(k => k == StatusKind.Taunt ? Strings.Format("battle.status_taunt", StatusNames.Name(k, Sheets), unit.TauntArmor) : StatusNames.Name(k, Sheets)).ToList();
+            if (unit.GuardedBy >= 0) parts.Add(Strings.Get("battle.guarded"));
+            if (unit.GuardTarget >= 0) parts.Add(Strings.Get("battle.guarding"));
             return string.Join(" ", parts);
         }
 
@@ -472,12 +477,12 @@ namespace Game.Client
             var intent = monster.Intent;
             string whom = intent.Skill.Target switch
             {
-                MonsterTarget.All => "모두",
-                MonsterTarget.Self => "자신",
+                MonsterTarget.All => Strings.Get("battle.intent_all"),
+                MonsterTarget.Self => Strings.Get("battle.intent_self"),
                 _ => battle.IntentTarget(monster)?.Name ?? "?",
             };
             string what = intent.Skill.Damages ? $"{intent.Skill.Name} → {whom}" : intent.Skill.Name;
-            string dice = intent.Skill.Damages ? $"{intent.Skill.Dice}개 × {intent.Skill.Power + (monster.Status.TryGetValue(StatusKind.Howl, out int howl) ? howl : 0)}" : "강화";
+            string dice = intent.Skill.Damages ? Strings.Format("battle.intent_dice", intent.Skill.Dice, intent.Skill.Power + (monster.Status.TryGetValue(StatusKind.Howl, out int howl) ? howl : 0)) : Strings.Get("battle.intent_buff");
             Ui.Fill(r, new Color(0.25f, 0.12f, 0.08f, 0.85f));
             Ui.Frame(r, Palette.WithAlpha(Palette.Intent, 0.7f), 1);
             Ui.Text(new Rect(r.x + 3, r.y, r.width - 6, r.height * 0.55f), what, 10.5f, Palette.Intent, TextAnchor.MiddleCenter, true);
@@ -524,7 +529,7 @@ namespace Game.Client
             var r = new Rect(field.x + (field.width - w) / 2, field.y + field.height * 0.36f, w, die + 52);
             Ui.Panel(r, new Color(0.08f, 0.07f, 0.1f, 0.94f), Palette.Gold);
             var actor = battle.Unit(e.Actor);
-            Ui.Text(new Rect(r.x, r.y + 2, r.width, 18), $"{actor?.Name}: {e.SkillName} · {check.Chance}% 아래면 성공", 12, Palette.Ink, TextAnchor.MiddleCenter, true);
+            Ui.Text(new Rect(r.x, r.y + 2, r.width, 18), $"{actor?.Name}: {e.SkillName} · {Strings.Format("dice.under", check.Chance)}", 12, Palette.Ink, TextAnchor.MiddleCenter, true);
             bool rolling = _diceAge < 0.45f;
             float x = r.x + (r.width - (die * check.Dice + 8 * (check.Dice - 1))) / 2;
             for (int i = 0; i < check.Dice; i++)
@@ -539,7 +544,7 @@ namespace Game.Client
             }
             if (!rolling)
             {
-                string result = check.Perfect ? $"완벽! 성공 {check.Successes}/{check.Dice}" : $"성공 {check.Successes}/{check.Dice}";
+                string result = Strings.Format(check.Perfect ? "battle.dice_perfect" : "dice.successes_of", check.Successes, check.Dice);
                 Ui.Text(new Rect(r.x, r.yMax - 22, r.width, 20), result, 13, check.Perfect ? Palette.Gold : Palette.Ink, TextAnchor.MiddleCenter, true);
             }
         }
@@ -628,7 +633,7 @@ namespace Game.Client
             Ui.Tip(autoRect, Strings.Get("battle.auto_tip"));
             if (!AwaitingHero)
             {
-                string title = battle.Over ? (battle.State == BattleState.Won ? "승리!" : battle.State == BattleState.Fled ? "도망쳤다" : "패배…") : _turnActor >= 0 && !battle.Unit(_turnActor).IsHero ? "적의 차례" : "…";
+                string title = battle.Over ? Strings.Get(battle.State == BattleState.Won ? "battle.won" : battle.State == BattleState.Fled ? "battle.fled" : "battle.lost") : _turnActor >= 0 && !battle.Unit(_turnActor).IsHero ? Strings.Get("battle.enemy_turn") : "…";
                 Ui.Text(new Rect(inner.x, inner.y, inner.width - 96, 44), title, 16, Palette.Ink, TextAnchor.MiddleLeft, true);
                 DrawLog(new Rect(inner.x, inner.y + 48, inner.width, inner.height - 48));
                 return;
@@ -638,7 +643,7 @@ namespace Game.Client
             var hero = actor.Hero;
             float y = inner.y;
             Ui.Image(new Rect(inner.x, y, 26, 26), Sprite(actor));
-            Ui.Text(new Rect(inner.x + 30, y, inner.width - 126, 44), $"{hero.Name}의 차례", 16, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.Text(new Rect(inner.x + 30, y, inner.width - 126, 44), Strings.Format("common.turn", hero.Name), 16, Palette.Gold, TextAnchor.MiddleLeft, true);
             y += 46;
             DrawResources(new Rect(inner.x, y, inner.width, 16), hero);
             y += 18;
@@ -691,8 +696,8 @@ namespace Game.Client
             room = inner.yMax - rollH - 4 - y;
 
             var item = ItemOf(_skill);
-            string about = item != null ? item.Text + " 다음 차례가 빨리 온다."
-                : _skill == BattleCommand.Flee ? $"민첩 주사위 {Battle.FleeDice}개 중 {Battle.FleeNeed}개 성공이면 모두 빠져나간다. 실패하면 차례만 쓴다. 보상은 없고 적은 그 자리에 남는다."
+            string about = item != null ? item.Text + " " + Strings.Get("battle.item_quick")
+                : _skill == BattleCommand.Flee ? Strings.Format("battle.flee_about", Battle.FleeDice, Battle.FleeNeed)
                 : skill?.Text;
             if (skill != null && skill.PerfectText.Length > 0) about += " " + skill.PerfectText + ".";
             float aboutH = Mathf.Min(Ui.TextHeight(about ?? "", 11.5f, inner.width), 34);
@@ -702,25 +707,32 @@ namespace Game.Client
                 y += aboutH + 4;
             }
 
-            string targetLine = item != null ? (item.Use.Any(u => u.Verb == "bomb") ? "대상: 모든 적" : "대상: 자신") : _skill == BattleCommand.Flee ? "대상: 파티 전체" : skill == null ? "" : skill.Target == SkillTarget.AllEnemies ? "대상: 모든 적" : skill.Target == SkillTarget.Self ? "대상: 자신" : skill.Target == SkillTarget.AllAllies ? "대상: 모든 아군" : _target >= 0 && battle.Unit(_target) != null ? $"대상: {battle.Unit(_target).Name} (다른 대상을 눌러 바꾸기)" : "대상을 눌러 고르세요";
+            string targetLine = item != null ? Strings.Get(item.Use.Any(u => u.Verb == "bomb") ? "battle.target_enemies" : "battle.target_self")
+                : _skill == BattleCommand.Flee ? Strings.Get("battle.target_party")
+                : skill == null ? ""
+                : skill.Target == SkillTarget.AllEnemies ? Strings.Get("battle.target_enemies")
+                : skill.Target == SkillTarget.Self ? Strings.Get("battle.target_self")
+                : skill.Target == SkillTarget.AllAllies ? Strings.Get("battle.target_allies")
+                : _target >= 0 && battle.Unit(_target) != null ? Strings.Format("battle.target_unit", battle.Unit(_target).Name)
+                : Strings.Get("battle.target_pick");
             Ui.Text(new Rect(inner.x, y, inner.width, 16), targetLine, 11.5f, Palette.Ink);
             y += 18;
 
             if (preview.Ok && preview.Dice > 0 && preview.Need > 0)
             {
                 float rh = 34;
-                Ui.Text(new Rect(inner.x, y, 70, rh), "결의 쓰기", 12, Palette.Resolve, TextAnchor.MiddleLeft, true);
+                Ui.Text(new Rect(inner.x, y, 70, rh), Strings.Get("common.spend_resolve"), 12, Palette.Resolve, TextAnchor.MiddleLeft, true);
                 if (Ui.Button(new Rect(inner.x + 72, y, 44, rh), "−", 18, _resolve > 0, Look.Normal, null, KeyCode.Minus)) _resolve--;
                 Ui.Text(new Rect(inner.x + 118, y, 54, rh), $"{_resolve}/{preview.ResolveRoom}", 14, Palette.Ink, TextAnchor.MiddleCenter, true);
                 if (Ui.Button(new Rect(inner.x + 174, y, 44, rh), "+", 18, _resolve < preview.ResolveRoom, Look.Normal, null, KeyCode.Equals)) _resolve++;
                 y += rh + 4;
-                Ui.Text(new Rect(inner.x, y, inner.width, 16), $"성공 {preview.Need}개 이상일 확률 {Percent(preview.Odds.AtLeast(preview.Need))}", 13, Palette.Ink, TextAnchor.MiddleLeft, true);
+                Ui.Text(new Rect(inner.x, y, inner.width, 16), Strings.Format("battle.need_odds", preview.Need, Percent(preview.Odds.AtLeast(preview.Need))), 13, Palette.Ink, TextAnchor.MiddleLeft, true);
             }
             else if (preview.Ok && preview.Dice > 0)
             {
                 // Resolve: − n/room +
                 float rh = 34;
-                Ui.Text(new Rect(inner.x, y, 70, rh), "결의 쓰기", 12, Palette.Resolve, TextAnchor.MiddleLeft, true);
+                Ui.Text(new Rect(inner.x, y, 70, rh), Strings.Get("common.spend_resolve"), 12, Palette.Resolve, TextAnchor.MiddleLeft, true);
                 if (Ui.Button(new Rect(inner.x + 72, y, 44, rh), "−", 18, _resolve > 0, Look.Normal, null, KeyCode.Minus)) _resolve--;
                 Ui.Text(new Rect(inner.x + 118, y, 54, rh), $"{_resolve}/{preview.ResolveRoom}", 14, Palette.Ink, TextAnchor.MiddleCenter, true);
                 if (Ui.Button(new Rect(inner.x + 174, y, 44, rh), "+", 18, _resolve < preview.ResolveRoom, Look.Normal, null, KeyCode.Equals)) _resolve++;
@@ -733,11 +745,11 @@ namespace Game.Client
             }
             else if (skill != null && !skill.Rolls)
             {
-                Ui.Text(new Rect(inner.x, y, inner.width, 20), "주사위 없이 바로 된다.", 12, Palette.Dim);
+                Ui.Text(new Rect(inner.x, y, inner.width, 20), Strings.Get("battle.no_roll"), 12, Palette.Dim);
             }
 
             if (_battleError != null) Ui.Text(new Rect(inner.x, inner.yMax - rollH - 20, inner.width, 18), _battleError, 11, Palette.Damage);
-            string go = preview.Ok && preview.Dice > 0 ? $"{Strings.Get("battle.roll")} ({preview.Dice}개)" : Strings.Get("battle.use");
+            string go = preview.Ok && preview.Dice > 0 ? Strings.Format("battle.roll_dice", Strings.Get("battle.roll"), preview.Dice) : Strings.Get("battle.use");
             if (Ui.Button(new Rect(inner.x, inner.yMax - rollH, inner.width, rollH), go, 17, preview.Ok, Look.Primary, null, KeyCode.Space))
             {
                 var command = new BattleCommand(actor.Id, _skill, _target, _resolve);
@@ -758,37 +770,40 @@ namespace Game.Client
             switch (actor.Hero.Class.Id)
             {
                 case "rogue":
-                    parts.Add($"연계 {actor.Combo}/{battle.ComboMax(actor)}" + (actor.Has(StatusKind.Hidden) ? " · 숨음(기습 +1)" : ""));
+                    parts.Add(Strings.Format("battle.class_combo", actor.Combo, battle.ComboMax(actor)) + (actor.Has(StatusKind.Hidden) ? " · " + Strings.Get("battle.class_hidden") : ""));
                     break;
                 case "necromancer":
-                    parts.Add($"영혼 {actor.Souls}");
+                    parts.Add(Strings.Format("battle.class_souls", actor.Souls));
                     break;
                 case "alchemist":
-                    parts.Add($"재료 {actor.Hero.Reagents}/{actor.Hero.ReagentMax}");
+                    parts.Add(Strings.Format("battle.class_reagents", actor.Hero.Reagents, actor.Hero.ReagentMax));
                     break;
                 case "monk":
-                    parts.Add($"기 {actor.Ki}");
+                    parts.Add(Strings.Format("battle.class_ki", actor.Ki));
                     break;
                 case "engineer":
                     var turret = battle.Summons.FirstOrDefault(u => u.Owner == actor.Id);
-                    parts.Add(turret == null ? "포탑 없음" : turret.Down ? "포탑 부서짐" : $"포탑 {turret.Hp}/{turret.MaxHp}");
+                    parts.Add(turret == null ? Strings.Get("battle.turret_none") : turret.Down ? Strings.Get("battle.turret_broken") : Strings.Format("battle.turret_hp", turret.Hp, turret.MaxHp));
                     break;
                 case "mnemonist":
                     var echo = battle.SkillOf(actor, Battle.EchoId);
-                    parts.Add(echo.Effect == "echo" ? "되새길 기술 없음" : $"되새김: {echo.Name}");
+                    parts.Add(echo.Effect == "echo" ? Strings.Get("battle.echo_none") : Strings.Format("battle.echo", echo.Name));
                     break;
             }
-            if (battle.Song != Song.None) parts.Add(battle.Song == Song.Courage ? "용기의 노래" : "안식의 노래");
+            if (battle.Song != Song.None) parts.Add(Strings.Get(battle.Song == Song.Courage ? "battle.song_courage" : "battle.song_rest"));
             var foresight = battle.Foresee();
-            if (foresight.Count > 0) parts.Add("다음 주사위: " + string.Join(" · ", foresight));
+            if (foresight.Count > 0) parts.Add(Strings.Format("battle.foresight", string.Join(" · ", foresight)));
             return string.Join(" · ", parts);
         }
 
         static void DrawResources(Rect r, Hero hero)
         {
             float x = r.x;
-            Ui.Text(new Rect(x, r.y, 34, r.height), "결의", 11, Palette.Resolve, TextAnchor.MiddleLeft, true);
-            x += 30;
+            // The labels make room for a longer word (English) but keep the Korean layout.
+            string resolve = Strings.Get("hero.resolve_label");
+            float resolveW = Mathf.Max(30, Ui.TextWidth(resolve, 11, true) + 4);
+            Ui.Text(new Rect(x, r.y, resolveW + 4, r.height), resolve, 11, Palette.Resolve, TextAnchor.MiddleLeft, true);
+            x += resolveW;
             for (int i = 0; i < hero.MaxResolve; i++)
             {
                 var pip = new Rect(x + i * 13, r.y + 3, 10, 10);
@@ -796,8 +811,10 @@ namespace Game.Client
                 Ui.Frame(pip, Palette.Edge, 1);
             }
             x += hero.MaxResolve * 13 + 10;
-            Ui.Text(new Rect(x, r.y, 34, r.height), "끈기", 11, Palette.Grit, TextAnchor.MiddleLeft, true);
-            x += 30;
+            string grit = Strings.Get("hero.grit_label");
+            float gritW = Mathf.Max(30, Ui.TextWidth(grit, 11, true) + 4);
+            Ui.Text(new Rect(x, r.y, gritW + 4, r.height), grit, 11, Palette.Grit, TextAnchor.MiddleLeft, true);
+            x += gritW;
             Ui.Bar(new Rect(x, r.y + 4, 50, 8), (float)hero.Grit / hero.GritCap, Palette.Grit);
             Ui.Text(new Rect(x + 54, r.y, 40, r.height), $"{hero.Grit}/{hero.GritCap}", 10, Palette.Dim);
         }
@@ -815,18 +832,18 @@ namespace Game.Client
             }
             if (id == BattleCommand.Flee)
             {
-                if (Ui.Button(cell, $"{Strings.Get("battle.flee")} (민첩 {Dice.ClampChance(actor.Hero.Stat(Stat.Agility))}%)", 13, true, selected ? Look.Selected : Look.Danger, null, key)) Select(battle, id);
+                if (Ui.Button(cell, $"{Strings.Get("battle.flee")} ({Stats.Name(Stat.Agility, Sheets)} {Dice.ClampChance(actor.Hero.Stat(Stat.Agility))}%)", 13, true, selected ? Look.Selected : Look.Danger, null, key)) Select(battle, id);
                 return;
             }
             var skill = SkillDef(actor, id);
             int wait = battle.Cooldown(actor, skill);
             int dice = battle.DiceOf(actor, skill);
-            string detail = !skill.Rolls ? "주사위 없음" : skill.FixedChance > 0 ? $"{skill.FixedChance}% × {dice}" : $"{Stats.Name(skill.Stat.Value, Sheets)} {battle.ChanceOf(actor, skill)}% × {dice}";
-            if (skill.CostKind == "reagent") detail += $" · 재료 {skill.CostAmount}";
-            if (skill.CostKind == "soul") detail += $" · 영혼 {skill.CostAmount}";
+            string detail = !skill.Rolls ? Strings.Get("battle.no_dice") : skill.FixedChance > 0 ? $"{skill.FixedChance}% × {dice}" : $"{Stats.Name(skill.Stat.Value, Sheets)} {battle.ChanceOf(actor, skill)}% × {dice}";
+            if (skill.CostKind == "reagent") detail += " · " + Strings.Format("battle.cost_reagent", skill.CostAmount);
+            if (skill.CostKind == "soul") detail += " · " + Strings.Format("battle.cost_soul", skill.CostAmount);
             // A skill a boss took away says so, with its mark (Docs/Combat.md 보스의 고유 규칙).
             string blocked = battle.BlockedBy(actor, skill);
-            if (wait > 0) detail = blocked != null ? Strings.Format("battle.blocked_" + blocked, wait) : $"대기 {wait}";
+            if (wait > 0) detail = blocked != null ? Strings.Format("battle.blocked_" + blocked, wait) : Strings.Format("battle.cooldown", wait);
             Ui.Face(cell, selected ? Look.Selected : Look.Normal, wait == 0);
             if (blocked != null)
             {
@@ -843,14 +860,14 @@ namespace Game.Client
         void DrawOdds(Rect r, SkillPreview preview, SkillDef skill)
         {
             var odds = preview.Odds;
-            string unit = skill == null ? "" : skill.Kind == SkillKind.Heal ? " 회복" : skill.Kind == SkillKind.Revive ? " 생명력" : skill.Damages ? " 피해" : "";
+            string expect = skill == null ? "battle.expect" : skill.Kind == SkillKind.Heal ? "battle.expect_heal" : skill.Kind == SkillKind.Revive ? "battle.expect_revive" : skill.Damages ? "battle.expect_damage" : "battle.expect";
             string sure = preview.Reasons.Count > 0 || preview.Resolve > 0
-                ? "확정: " + string.Join(" · ", preview.Reasons.Concat(preview.Resolve > 0 ? new[] { $"결의 {preview.Resolve}" } : new string[0]))
-                : "확정 성공 없음";
+                ? Strings.Format("battle.sure", string.Join(" · ", preview.Reasons.Concat(preview.Resolve > 0 ? new[] { Strings.Format("hero.resolve", preview.Resolve) } : new string[0])))
+                : Strings.Get("battle.sure_none");
             Ui.Text(new Rect(r.x, r.y, r.width, 15), sure, 11, Palette.Sure);
-            string summary = skill != null && skill.Damages
-                ? $"예상{unit} {preview.Expected:0.0} · 빗나감 {Percent(odds.None)} · 완벽 {Percent(odds.Perfect)}"
-                : $"예상{unit} {preview.Expected:0.0} · 완벽 {Percent(odds.Perfect)}";
+            string summary = Strings.Format(expect, preview.Expected.ToString("0.0"))
+                + (skill != null && skill.Damages ? " · " + Strings.Format("battle.odds_miss", Percent(odds.None)) : "")
+                + " · " + Strings.Format("battle.odds_perfect", Percent(odds.Perfect));
             Ui.Text(new Rect(r.x, r.y + 15, r.width, 15), summary, 11, Palette.Ink);
             float top = r.y + 34;
             float height = r.height - 34 - 26;
@@ -867,7 +884,7 @@ namespace Game.Client
                 Ui.Fill(new Rect(x0 + s * cw + 3, top, cw - 6, height), Palette.BarBack);
                 Ui.Fill(bar, s == n ? Palette.Gold : s == 0 ? Settings.Fail : Settings.Success);
                 if (p >= 0.005) Ui.Text(new Rect(x0 + s * cw, top + height - bh - 14, cw, 14), Percent(p), 9, Palette.Ink, TextAnchor.MiddleCenter);
-                Ui.Text(new Rect(x0 + s * cw, top + height + 1, cw, 12), $"{s}개", 9, Palette.Dim, TextAnchor.MiddleCenter);
+                Ui.Text(new Rect(x0 + s * cw, top + height + 1, cw, 12), Strings.Format("battle.successes_n", s), 9, Palette.Dim, TextAnchor.MiddleCenter);
                 Ui.Text(new Rect(x0 + s * cw, top + height + 12, cw, 13), preview.ValueBySuccesses.Length > s ? preview.ValueBySuccesses[s].ToString() : "", 11, Palette.Ink, TextAnchor.MiddleCenter, true);
             }
         }

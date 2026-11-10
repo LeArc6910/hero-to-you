@@ -15,7 +15,9 @@ namespace Game.Client
                 if (_version != null) return _version;
                 var asset = Resources.Load<TextAsset>("BuildInfo");
                 string text = asset != null ? asset.text.Trim() : "";
-                _version = text.Length >= 7 ? text.Substring(0, 7) : "개발판";
+                // A build without a commit (the editor) says so in the title's language; it is not kept.
+                if (text.Length < 7) return Strings.Get("title.dev_build");
+                _version = text.Substring(0, 7);
                 return _version;
             }
         }

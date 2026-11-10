@@ -72,7 +72,7 @@ history.heading,지난 일,What happened
 history.empty,아직 기록이 없다.,Nothing yet.
 history.button,지난 일 보기,What happened
 report.heading,버그 제보,Report a bug
-report.about,"지금 판의 저장(명령 {0}줄, {1})을 보내면 클라우드가 똑같이 다시 돌려 고친다. 무엇이 이상했는지 한 줄 같이 적어 주세요.","Send this runs save ({0} lines, {1}) and the cloud replays it exactly to fix the bug. Add a line on what went wrong."
+report.about,"지금 판의 저장(명령 {0}줄, {1})을 보내면 클라우드가 똑같이 다시 돌려 고친다. 무엇이 이상했는지 한 줄 같이 적어 주세요.","Send this run’s save ({0} lines, {1}) and the cloud replays it exactly to fix the bug. Add a line on what went wrong."
 report.none,이어할 판이 없다. 모험 중에 열면 그 판의 저장이 들어간다.,No run in progress. Open this during an adventure to include its save.
 report.copy,복사,Copy
 report.download,파일로 받기,Download
@@ -81,9 +81,9 @@ report.copy_failed,이 브라우저는 복사를 막았다. [파일로 받기]�
 report.downloaded,파일을 받았다(hero-to-you-report.txt).,Saved hero-to-you-report.txt.
 battle.auto_on,자동: 켬,Auto: on
 battle.auto_off,자동: 끔,Auto: off
-battle.auto_tip,켜면 봇이 영웅들의 명령을 대신 고른다. 언제든 다시 끌 수 있다.,"When on, the bot picks the heroes commands. Switch it off any time."
+battle.auto_tip,켜면 봇이 영웅들의 명령을 대신 고른다. 언제든 다시 끌 수 있다.,"When on, the bot picks the heroes’ commands. Switch it off any time."
 town.smithy,대장간,Smithy
-town.recruit,새 동료 맞이하기: 쓰러진 영웅의 자리에 일지를 이어받을 동료,A new companion takes up the fallen heros journal
+town.recruit,새 동료 맞이하기: 쓰러진 영웅의 자리에 일지를 이어받을 동료,A new companion takes up the fallen hero’s journal
 settings.colors_on,색약 표시: 켬,Color marks: on
 settings.colors_off,색약 표시: 끔,Color marks: off
 settings.motion_on,움직임: 보통,Motion: normal
@@ -183,3 +183,233 @@ tutorial.levelup,레벨이 올랐다. 강화 카드 하나를 고르세요. 판�
 tutorial.off,안내 끄기,Hide guide
 battle.float_bless,축복,Blessed
 battle.float_lucky,행운,Lucky
+common.turn,{0}의 차례,{0}’s turn
+common.day,{0}일째,Day {0}
+common.none,없음,none
+common.spend_resolve,결의 쓰기,Resolve
+hero.down,쓰러짐,Down
+hero.name_down,{0}(쓰러짐),{0} (down)
+hero.hp,생명력 {0}/{1},HP {0}/{1}
+hero.resolve,결의 {0},Resolve {0}
+hero.wounds,상처 {0},Wounds {0}
+hero.resolve_label,결의,Resolve
+hero.grit_label,끈기,Grit
+hero.tip_head,"{0} Lv{1} (경험치 {2}, 다음까지 {3}) · {4}","{0} Lv{1} (XP {2}, {3} to next) · {4}"
+hero.tip_stats,방어도 {0} · 결의 {1}/{2} · 끈기 {3}/{4},Armor {0} · Resolve {1}/{2} · Grit {3}/{4}
+hero.tip_wounds,상처 {0}/{1}: 최대 생명력 −{2}% (여관에서 낫는다),Wounds {0}/{1}: max HP −{2}% (an inn heals them)
+hero.tip_items,소모품: {0},Items: {0}
+dice.under,{0}% 아래면 성공,under {0}% succeeds
+dice.successes,성공 {0},{0} successes
+dice.successes_of,성공 {0}/{1},{0}/{1} successes
+dice.need,필요 {0},need {0}
+error.sheet_missing,시트가 없습니다: {0},Missing sheet: {0}
+error.load,데이터를 불러오지 못했습니다.,Could not load the game data.
+strip.hero,{0}/{1} · 결의 {2}/{3} · 물약 {4},{0}/{1} · Resolve {2}/{3} · Potions {4}
+strip.hope,희망 {0},Hope {0}
+strip.gold,금화 {0},Gold {0}
+strip.tip,희망: 쓰러진 영웅이 전투가 끝나거나 아침이 오면 희망 하나로 일어난다. 금화: 마을에서 쓴다. 명성 {0} (「{1}」),Hope: a fallen hero gets up with one hope when the battle ends or morning comes. Gold: spent in town. Renown {0} (“{1}”)
+talk.dawn,{0} · {1}일째 새벽,{0} · dawn of day {1}
+end.retry_none,다시 할 수 없습니다.,This chapter can’t be retried.
+battle.float_miss,빗나감,Miss
+battle.float_up,일어남,Back up
+battle.float_resolve,결의 +{0},Resolve +{0}
+battle.float_guard,수호,Guard
+battle.order,순서,Order
+battle.boss,보스,Boss
+battle.sure_plus,확정+{0},Sure+{0}
+battle.monster,{0}: {1} (방어도 {2}),{0}: {1} (armor {2})
+battle.monster_ward,"{0}: {1} (방어도 {2}, 마법 방어 {3})","{0}: {1} (armor {2}, ward {3})"
+battle.next_action,다음 행동: {0}. {1},Next: {0}. {1}
+battle.status_taunt,{0}(방어+{1}),{0} (armor +{1})
+battle.guarded,수호받음,Guarded
+battle.guarding,수호 중,Guarding
+battle.intent_all,모두,all
+battle.intent_self,자신,itself
+battle.intent_dice,{0}개 × {1},{0} dice × {1}
+battle.intent_buff,강화,Buff
+battle.dice_perfect,완벽! 성공 {0}/{1},Perfect! {0}/{1} successes
+battle.won,승리!,Victory!
+battle.fled,도망쳤다,Got away
+battle.lost,패배…,Defeat…
+battle.enemy_turn,적의 차례,Enemy turn
+battle.result_won,전투 승리,Victory
+battle.item_quick,다음 차례가 빨리 온다.,Your next turn comes sooner.
+battle.flee_about,민첩 주사위 {0}개 중 {1}개 성공이면 모두 빠져나간다. 실패하면 차례만 쓴다. 보상은 없고 적은 그 자리에 남는다.,"If {1} of {0} Agility dice succeed, everyone gets away. A failure only spends the turn. No rewards, and the enemies stay where they are."
+battle.target_enemies,대상: 모든 적,Target: all enemies
+battle.target_self,대상: 자신,Target: self
+battle.target_party,대상: 파티 전체,Target: the whole party
+battle.target_allies,대상: 모든 아군,Target: all allies
+battle.target_unit,대상: {0} (다른 대상을 눌러 바꾸기),Target: {0} (tap another to change)
+battle.target_pick,대상을 눌러 고르세요,Tap a target
+battle.need_odds,성공 {0}개 이상일 확률 {1},Chance of {0}+ successes: {1}
+battle.no_roll,주사위 없이 바로 된다.,"Works at once, no dice."
+battle.roll_dice,{0} ({1}개),{0} ({1} dice)
+battle.class_combo,연계 {0}/{1},Combo {0}/{1}
+battle.class_hidden,숨음(기습 +1),Hidden (ambush +1)
+battle.class_souls,영혼 {0},Souls {0}
+battle.class_reagents,재료 {0}/{1},Reagents {0}/{1}
+battle.class_ki,기 {0},Ki {0}
+battle.turret_none,포탑 없음,No turret
+battle.turret_broken,포탑 부서짐,Turret broken
+battle.turret_hp,포탑 {0}/{1},Turret {0}/{1}
+battle.echo_none,되새길 기술 없음,Nothing to echo
+battle.echo,되새김: {0},Echo: {0}
+battle.song_courage,용기의 노래,Song of Courage
+battle.song_rest,안식의 노래,Song of Rest
+battle.foresight,다음 주사위: {0},Next dice: {0}
+battle.no_dice,주사위 없음,No dice
+battle.cost_reagent,재료 {0},{0} reagents
+battle.cost_soul,영혼 {0},{0} souls
+battle.cooldown,대기 {0},Cooldown {0}
+battle.expect,예상 {0},Expected {0}
+battle.expect_heal,예상 회복 {0},Expected healing {0}
+battle.expect_revive,예상 생명력 {0},Expected HP {0}
+battle.expect_damage,예상 피해 {0},Expected damage {0}
+battle.odds_miss,빗나감 {0},miss {0}
+battle.odds_perfect,완벽 {0},perfect {0}
+battle.sure,확정: {0},Sure: {0}
+battle.sure_none,확정 성공 없음,No sure successes
+battle.successes_n,{0}개,{0}
+map.time,{0}장 · {1}일째 {2},"Ch. {0} · Day {1}, {2}"
+map.night,(밤: 이동 −1),(night: move −1)
+map.rift,균열,Rift
+map.rank,「{0}」 명성 {1},“{0}” · Renown {1}
+map.objective,목표: {0},Goal: {0}
+map.fog,{0} · 안개 속: 무엇이 있는지 모른다,{0} · In the fog: nobody knows what is there
+map.enemies,적: {0},Enemies: {0}
+map.event,무슨 일이 일어난다(?),Something happens (?)
+map.treasure,보물,Treasure
+map.herb,약초,Herbs
+map.town,"{0}: 여관, 상점, 장로","{0}: inn, shop, elder"
+map.shrine,성소,Shrine
+map.shrine_used,성소(이미 다녀감),Shrine (visited)
+map.visited,{0}(다녀감),{0} (visited)
+map.midboss,{0} (중간 보스),{0} (mid-boss)
+map.midboss_beaten,{0}(쓰러뜨림),{0} (beaten)
+map.dungeon,"{0} (던전, 방 {1}/{2} 지남)","{0} (dungeon, {1}/{2} rooms cleared)"
+map.dungeon_done,{0}(끝까지 감),{0} (cleared)
+map.boss,보스: {0},Boss: {0}
+map.start,출발한 곳,Where you set out
+map.contract_group,의뢰한 무리,the contract’s group
+map.downed,쓰러진 {0}(부축하면 일어난다),Fallen: {0} (help them up)
+map.levelup_first,레벨업 강화를 먼저 고르세요.,Pick the level-up upgrade first.
+map.roll_hint,이동력 = 2 + 성공 수. 야영은 움직이지 않고 생명력 20%와 결의 1을 회복한다.,Move = 2 + successes. Camping stays put and restores 20% HP and 1 resolve.
+map.move_points,이동력 {0} · 갈 칸을 누르세요 (금색 테두리),Move {0} · tap a hex to go to (gold edge)
+map.move_cost,이동 비용 {0},Move cost {0}
+map.goals,{0}의 목표,Goals: {0}
+map.perk.hunter,숲을 들판처럼 걷고 한 칸 더 본다.,Walks forests like plains and sees one hex farther.
+map.perk.beastmaster,숲·늪을 들판처럼 걷고 4칸 안의 적을 느낀다.,Walks forests and swamps like plains and senses enemies within 4 hexes.
+map.perk.elementalist,이동 판정에 지능을 쓸 수 있다.,Can roll Intellect to move.
+map.perk.gambler,하루 한 번 이동을 다시 굴린다.,Rerolls the move once a day.
+map.perk.necromancer,밤에도 느려지지 않는다.,Is not slowed at night.
+map.perk.seer,안개 속 사건과 보물을 느낀다.,Senses events and treasure in the fog.
+map.perk.knight,야영하면 같은 칸 동료도 결의 +1.,Camping gives allies on the same hex +1 resolve too.
+map.perk.cleric,"야영 회복이 두 배, 같은 칸 동료도 돌본다.",Camping heals twice as much and tends allies on the same hex.
+map.perk.alchemist,야영하면 재료를 모은다.,Gathers reagents when camping.
+map.perk.bard,마을 값이 20% 싸다.,Town prices are 20% lower.
+map.perk.rogue,무리를 피할 때 확정 성공 1.,One sure success when slipping past a group.
+map.perk.berserker,들판의 무리를 겁줘 쫓을 수 있다.,Can scare off groups in the open.
+join.ambush,기습!,Ambush!
+join.battle,전투,Battle
+join.monster,{0}(생명력 {1}),{0} (HP {1})
+join.who,함께 싸울 영웅 (전투가 난 칸에서 {0}칸 안). 싸운 영웅만 경험치를 받는다.,Who fights (heroes within {0} hexes of the battle). Only those who fight get experience.
+join.mover,(이 칸에 들어간 영웅),(entered this hex)
+join.far,멀어서 못 오는 영웅: {0},Too far to join: {0}
+join.avoid,"피해 간다 ({0} {1}% × {2}, {3}개 이상 {4})","Slip past ({0} {1}% × {2}, {3}+ {4})"
+join.scare,"겁줘 쫓는다 ({0} {1}% × {2}, {3}) · 경험치 절반","Scare them off ({0} {1}% × {2}, {3}) · half XP"
+join.avoid_hint,실패하면 싸워야 한다. 피하면 온 칸으로 물러나고 무리는 남는다.,"If it fails, you must fight. Slipping past steps back to the hex you came from, and the group stays."
+join.fight_count,{0} ({1}명),{0} ({1})
+town.heroes,마을에 있는 영웅: {0} · 금화 {1},Heroes in town: {0} · Gold {1}
+town.discount,음유시인 덕에 값이 20% 싸다,20% off thanks to the bard
+town.inn,여관에서 쉬기 (금화 {0}),Rest at the inn ({0} gold)
+town.elder,장로를 만난다,Meet the elder
+town.elder_done,장로(이미 만남),Elder (already met)
+town.rumor,소문을 듣는다 (금화 {0}),Hear rumors ({0} gold)
+town.rumor_done,소문(오늘은 끝),Rumors (done for today)
+town.donate,마을을 돕는다 (금화 {0}),Help the town ({0} gold)
+town.donate_done,돕기(오늘은 끝),Help (done for today)
+town.contract_take,의뢰를 맡는다,Take a contract
+town.contract_none,의뢰 없음,No contracts
+town.contract_done,의뢰 완료(보상을 받았다),Contract done (paid)
+town.contract_on,의뢰 중: {0} 칸의 무리 (보상 {1}),Contract: the group at hex {0} (pays {1})
+town.help,여관: 마을에 있는 영웅이 모두 일어나 생명력 {0}%와 결의를 모두 회복하고 상처가 낫는다. 소문: 마을에서 가까운 안개 속 {1}곳을 알게 된다. 돕기: 명성 +1. 의뢰: 지도에 깃발로 표시한 무리를 쫓아내고 돌아오면 금화와 명성 +1.,"Inn: every hero in town gets up, recovers {0}% HP and all resolve, and their wounds heal. Rumors: learn {1} places in the fog near town. Help: renown +1. Contract: drive off the group flagged on the map and come back for gold and renown +1."
+town.shop,상점 ({0}일째 물건),Shop (day {0} goods)
+town.reagents,연금술사의 재료 +2,Alchemist’s reagents +2
+town.sold,(팔림),(sold)
+town.buy,사기 {0},Buy {0}
+town.price,{0} · 금화 {1},{0} · {1} gold
+town.buy_for,{0}에게 ({1}),For {0} ({1})
+town.forge,{0} → +{1} (금화 {2}),{0} → +{1} ({2} gold)
+town.forge_max,{0} (끝까지 벼렸다),{0} (fully forged)
+town.forge_weapon,무기: 위력 +2,Weapon: power +2
+town.forge_armor,갑옷: 방어도 +1,Armor: armor +1
+town.forge_trinket,장신구: 생명력 +4,Trinket: HP +4
+town.bag,가방 (팔기),Bag (sell)
+town.sell,팔기 {0},Sell {0}
+item.attack,{0} · {1}: {2} {3}개 · 위력 {4},{0} · {1}: {2} {3} dice · power {4}
+item.delay,지연 {0}%,delay {0}%
+item.kind.sword,검,Sword
+item.kind.axe,도끼,Axe
+item.kind.bow,활,Bow
+item.kind.staff,지팡이,Staff
+item.kind.orb,구슬,Orb
+item.kind.mace,철퇴,Mace
+item.kind.cards,카드,Cards
+item.kind.dagger,단검,Dagger
+item.kind.lute,류트,Lute
+item.kind.sling,투석,Sling
+item.kind.spear,창,Spear
+gear.hero,{0} Lv{1} · 생명력 {2}/{3} · 방어도 {4} · 결의 {5},{0} Lv{1} · HP {2}/{3} · Armor {4} · Resolve {5}
+gear.row_tip,앞줄은 적의 무작위 공격을 받는다. 뒷줄은 힘·민첩 근접 공격의 위력이 25% 줄어든다.,"The front row takes the enemies’ random blows. In the back row, Strength and Agility melee attacks lose 25% power."
+gear.weapon,무기: {0} ({1}),Weapon: {0} ({1})
+gear.armor,갑옷: {0},Armor: {0}
+gear.trinket,장신구: {0},Trinket: {0}
+gear.unequip,벗기,Remove
+gear.use,{0} {1} · 쓰기,{0} {1} · Use
+gear.battle_only,{0} {1} (전투용),{0} {1} (battle)
+gear.bag_empty,가방이 비었다. 사건과 상점에서 물건을 얻는다.,The bag is empty. Events and shops bring new things.
+gear.bag,가방: 누구에게 끼울지 고르세요,Bag: choose who equips it
+gear.give,{0}에게,To {0}
+gear.nobody,이 파티에는 들 수 있는 영웅이 없다,Nobody in this party can use it
+levelup.heading,{0} 레벨 {1}!,{0} reaches level {1}!
+levelup.hint,강화 하나를 고르세요. 판마다 다르게 자란다.,Pick one upgrade. Every run grows differently.
+event.journal,일지: {0},Journal: {0}
+event.who_for,「{0}」 누가 해 볼까?,“{0}”: who tries it?
+event.hero_odds,{0}: {1} × {2} → 성공 확률 {3},{0}: {1} × {2} → {3} to succeed
+event.free,확정 성공 {0} (축복·행운),"Sure successes {0} (blessing, luck)"
+event.other,다른 선택지,Other choices
+event.roll,굴려 본다,Try it
+event.cost,금화 {0},{0} gold
+event.short,(모자람),(not enough)
+event.no_check_class,판정 없이 된다,Works without a check
+event.no_check,판정 없음,No check
+event.check,{0} 주사위 {1}개 · 성공 {2}개 이상 · 가장 잘하는 영웅 {3},{0} · {1} dice · {2}+ successes · best hero {3}
+event.success,성공!,Success!
+event.failure,실패…,Failure…
+end.won,이야기의 끝,The end of the story
+end.won_short,짧은 길의 끝,The end of a short road
+end.rift,균열이 열렸다,The Rift opened
+end.fallen,모두 쓰러졌다,Everyone fell
+end.won_text,{0}개의 장을 모두 지났다. 사람들은 너희를 「{1}」라 부른다. 옛 영웅의 발자취는 여기서 너희의 것이 되었다.,You crossed all {0} chapters. People call you “{1}”. Here the old hero’s footsteps became your own.
+end.won_short_text,"{0}장부터 {1}장까지 걸었다. 짧은 판은 일지에 장과 페이지로 남고, 캠페인 승리로는 치지 않는다.","You walked from chapter {0} to chapter {1}. A short run stays in the journal as chapters and pages, not as a won campaign."
+end.lost_text,{0}장 「{1}」에서 길이 끊겼다. 하지만 일지는 언제나 다음 사람을 찾는다.,"The road ended in chapter {0}, “{1}”. But the journal always finds its next bearer."
+end.stats,지난 장 {0} · 중간 보스 {1} · 이긴 전투 {2} · 명성 {3} 「{4}」 · 금화 {5} · 남은 희망 {6},Chapters {0} · mid-bosses {1} · battles won {2} · renown {3} “{4}” · gold {5} · hope left {6}
+end.pages,일지 페이지 +{0} (모두 {1}장). 타이틀의 [일지]에서 장을 펼칠 수 있다.,Journal pages +{0} ({1} in all). Open perks with them from [Journal] on the title screen.
+end.pages_double,가시밭길로 이겨 두 배!,Won on the Thorny Road: double!
+end.notes,이번 길에서 찾은 옛 메모 {0}개,Old notes found on this road: {0}
+end.hero,"· {0} 레벨 {1}, 생명력 {2}/{3}, 강화: {4}","· {0} level {1}, HP {2}/{3}, upgrades: {4}"
+end.title,처음으로,To the title
+end.again,같은 파티로 다시,"Again, same party"
+journal.heading,일지,The journal
+journal.summary,남은 페이지 {0}장 (모두 {1}장) · 모험 {2}번 · 끝까지 간 모험 {3}번 · 지난 장 {4} · 가장 높은 명성 {5},Pages left {0} ({1} earned) · adventures {2} · finished {3} · chapters crossed {4} · best renown {5}
+journal.hint,"페이지로 장을 펼치고, 펼친 장 가운데 다음 모험에 가져갈 것을 고른다.","Spend pages to open perks, then choose which open perks to take on the next adventure."
+journal.perk,{0} · {1}장,{0} · {1} pages
+journal.unlock,펼치기 ({0}장),Open ({0} pages)
+journal.take,가져간다 ✓,Taking ✓
+journal.leave,두고 간다,Leave it
+journal.notes,찾은 옛 메모 {0}/{1},Old notes found {0}/{1}
+journal.notes_left,아직 찾지 못한 메모가 {0}개 있다. 길 위의 사건에서 찾는다.,"{0} notes are still to be found, in events on the road."
+journal.class,{0}: 모험 {1} · 끝까지 {2},{0}: adventures {1} · finished {2}
+party.class_stats,생명력 {0} · 결의 {1},HP {0} · Resolve {1}
+party.class_soon,준비 중 (M5),Coming soon (M5)
+title.dev_build,개발판,dev build

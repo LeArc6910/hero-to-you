@@ -79,7 +79,7 @@ namespace Game.Client
             // Resources paths drop the extension: Data/Classes/classes for Classes/classes.csv.
             string resource = "Data/" + path.Substring(0, path.LastIndexOf('.'));
             var asset = Resources.Load<TextAsset>(resource);
-            if (asset == null) throw new InvalidOperationException($"시트가 없습니다: Resources/{resource}");
+            if (asset == null) throw new InvalidOperationException(Strings.Format("error.sheet_missing", "Resources/" + resource));
             return asset.text;
         }
 
@@ -243,7 +243,7 @@ namespace Game.Client
             DrawBackground();
             if (_loadError != null)
             {
-                Ui.Text(new Rect(20, 20, Ui.Width - 40, Ui.Height - 40), "데이터를 불러오지 못했습니다.\n" + _loadError, 14, Palette.Damage, TextAnchor.UpperLeft, false, true);
+                Ui.Text(new Rect(20, 20, Ui.Width - 40, Ui.Height - 40), Strings.Get("error.load") + "\n" + _loadError, 14, Palette.Damage, TextAnchor.UpperLeft, false, true);
                 return;
             }
             // A tip card, a campfire talk, the history or the bug report is modal: the screen under it is drawn but
@@ -476,8 +476,8 @@ namespace Game.Client
                 float w = cell.xMax - x - 4;
                 Ui.Text(new Rect(x, cell.y + 2, w, 16), $"{hero.Name} Lv{hero.Level}", 12, Palette.Ink, TextAnchor.MiddleLeft, true);
                 Ui.Bar(new Rect(x, cell.y + 20, w, 6), hero.MaxHp > 0 ? (float)hero.Hp / hero.MaxHp : 0, Palette.HpHero);
-                string line = hero.Down ? "쓰러짐" : w >= 150 ? $"{hero.Hp}/{hero.MaxHp} · 결의 {hero.Resolve}/{hero.MaxResolve} · 물약 {hero.Potions}" : $"{hero.Hp}/{hero.MaxHp} · 결의 {hero.Resolve}";
-                if (hero.Wounds > 0) line += $" · 상처 {hero.Wounds}";
+                string line = hero.Down ? Strings.Get("hero.down") : w >= 150 ? Strings.Format("strip.hero", hero.Hp, hero.MaxHp, hero.Resolve, hero.MaxResolve, hero.Potions) : $"{hero.Hp}/{hero.MaxHp} · {Strings.Format("hero.resolve", hero.Resolve)}";
+                if (hero.Wounds > 0) line += " · " + Strings.Format("hero.wounds", hero.Wounds);
                 Ui.Text(new Rect(x, cell.y + 26, w, 14), line, 10, hero.Down ? Palette.Damage : hero.Wounds > 0 ? Palette.Intent : Palette.Dim);
                 if (w >= 120) Ui.Text(new Rect(x, cell.y + 2, w, 16), Strings.Get(hero.Back ? "row.back" : "row.front"), 9.5f, Palette.Dim, TextAnchor.MiddleRight);
                 Ui.Tip(cell, HeroTip(hero));
@@ -485,11 +485,11 @@ namespace Game.Client
             var info = new Rect(r.xMax - infoWidth, r.y, infoWidth, r.height);
             Ui.Panel(info);
             Ui.Image(new Rect(info.x + 6, info.y + 6, 14, 14), PixelArt.Icon("heart"));
-            Ui.Text(new Rect(info.x + 24, info.y + 4, info.width - 28, 18), $"희망 {_adventure.Hope}", 12, Palette.Ink);
+            Ui.Text(new Rect(info.x + 24, info.y + 4, info.width - 28, 18), Strings.Format("strip.hope", _adventure.Hope), 12, Palette.Ink);
             Ui.Image(new Rect(info.x + 6, info.y + 24, 14, 14), PixelArt.Icon("coin"));
-            Ui.Text(new Rect(info.x + 24, info.y + 22, info.width - 28, 18), $"금화 {_adventure.Gold}", 12, Palette.Ink);
+            Ui.Text(new Rect(info.x + 24, info.y + 22, info.width - 28, 18), Strings.Format("strip.gold", _adventure.Gold), 12, Palette.Ink);
             string combos = _adventure.Combos.Count > 0 ? "\n" + Strings.Format("party.combos", string.Join(", ", _adventure.Combos.Select(c => c.Name))) : "";
-            Ui.Tip(info, $"희망: 쓰러진 영웅이 전투가 끝나거나 아침이 오면 희망 하나로 일어난다. 금화: 마을에서 쓴다. 명성 {_adventure.Renown} (「{_adventure.Rank.Title}」)" + combos);
+            Ui.Tip(info, Strings.Format("strip.tip", _adventure.Renown, _adventure.Rank.Title) + combos);
         }
 
         // A hero in a few lines, for the long-press tip on the party strip.
@@ -497,8 +497,10 @@ namespace Game.Client
         {
             string stats = string.Join(" ", Enumerable.Range(0, Stats.Count).Select(i => $"{Stats.Name((Stat)i, Sheets)} {hero.Stat((Stat)i)}"));
             string carried = string.Join(", ", hero.Consumables.Where(c => c.Value > 0).Select(c => $"{(_data.Items.TryGetValue(c.Key, out var item) ? item.Name : c.Key)} {c.Value}"));
-            string wounds = hero.Wounds > 0 ? $"\n상처 {hero.Wounds}/{Hero.MaxWounds}: 최대 생명력 −{Hero.WoundPercent * hero.Wounds}% (여관에서 낫는다)" : "";
-            return $"{hero.Name} Lv{hero.Level} (경험치 {hero.Xp}, 다음까지 {hero.XpToNext}) · {Strings.Get(hero.Back ? "row.back" : "row.front")}\n{stats}\n방어도 {hero.ArmorValue} · 결의 {hero.Resolve}/{hero.MaxResolve} · 끈기 {hero.Grit}/{hero.GritCap}{wounds}\n{hero.Class.Mechanic}" + (carried.Length > 0 ? "\n소모품: " + carried : "");
+            string wounds = hero.Wounds > 0 ? "\n" + Strings.Format("hero.tip_wounds", hero.Wounds, Hero.MaxWounds, Hero.WoundPercent * hero.Wounds) : "";
+            return Strings.Format("hero.tip_head", hero.Name, hero.Level, hero.Xp, hero.XpToNext, Strings.Get(hero.Back ? "row.back" : "row.front"))
+                + "\n" + stats + "\n" + Strings.Format("hero.tip_stats", hero.ArmorValue, hero.Resolve, hero.MaxResolve, hero.Grit, hero.GritCap) + wounds
+                + "\n" + hero.Class.Mechanic + (carried.Length > 0 ? "\n" + Strings.Format("hero.tip_items", carried) : "");
         }
 
         // ---- Campfire talks (Docs/Narrative.md 동료 대화) ----
@@ -510,7 +512,7 @@ namespace Game.Client
         internal string RetryChapter()
         {
             string save = _retrySave;
-            if (save == null) return "다시 할 수 없습니다.";
+            if (save == null) return Strings.Get("end.retry_none");
             SaveStore.Write(save);
             _retrySave = null;
             return Resume();
@@ -534,7 +536,7 @@ namespace Game.Client
             h = Mathf.Min(h, Ui.Height - 24);
             var r = new Rect((Ui.Width - w) / 2, (Ui.Height - h) / 2, w, h);
             Ui.Panel(r, new Color(0.13f, 0.09f, 0.07f, 0.98f), Palette.Gold);
-            Ui.Text(new Rect(r.x + 16, r.y + 10, w - 32, 26), $"{Strings.Get("talk.heading")} · {day}일째 새벽", 17, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.Text(new Rect(r.x + 16, r.y + 10, w - 32, 26), Strings.Format("talk.dawn", Strings.Get("talk.heading"), day), 17, Palette.Gold, TextAnchor.MiddleLeft, true);
             float y = r.y + 44;
             foreach (var (speaker, text) in talk.Lines)
             {

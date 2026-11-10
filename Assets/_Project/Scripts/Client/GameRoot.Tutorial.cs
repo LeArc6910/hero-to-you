@@ -87,7 +87,7 @@ namespace Game.Client
                         break;
                     case AdventureScreen.Event:
                         step = "event_roll";
-                        Ui.GlowLabel = "굴려 본다";
+                        Ui.GlowLabel = Strings.Get("event.roll");
                         break;
                     case AdventureScreen.Town:
                         step = "town";

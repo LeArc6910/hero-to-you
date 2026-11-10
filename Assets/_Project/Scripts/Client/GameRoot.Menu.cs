@@ -358,9 +358,9 @@ namespace Game.Client
             _journalScroll = Ui.Scroll(area, _journalScroll, _journalHeight - area.height, ref _journalDragging, ref _journalLastY);
             Ui.BeginArea(area, _journalScroll);
             var column = new Rect(0, 0, w, area.height);
-            float y = Heading(column, 4, "일지");
-            y = Paragraph(column, y, $"남은 페이지 {journal.Pages}장 (모두 {journal.PagesEarned}장) · 모험 {journal.Runs}번 · 끝까지 간 모험 {journal.Victories}번 · 지난 장 {journal.ChaptersCleared} · 가장 높은 명성 {journal.BestRenown}", 13, Palette.Journal);
-            y = Paragraph(column, y, "페이지로 장을 펼치고, 펼친 장 가운데 다음 모험에 가져갈 것을 고른다.", 12, Palette.Dim);
+            float y = Heading(column, 4, Strings.Get("journal.heading"));
+            y = Paragraph(column, y, Strings.Format("journal.summary", journal.Pages, journal.PagesEarned, journal.Runs, journal.Victories, journal.ChaptersCleared, journal.BestRenown), 13, Palette.Journal);
+            y = Paragraph(column, y, Strings.Get("journal.hint"), 12, Palette.Dim);
             var chosen = ChosenPerks();
             foreach (var perk in _data.Perks)
             {
@@ -368,12 +368,12 @@ namespace Game.Client
                 bool taking = chosen.Contains(perk.Id);
                 var box = new Rect(0, y, w, 58);
                 Ui.Panel(box, taking ? Palette.Selected : (Color?)null, taking ? Palette.Gold : (Color?)null);
-                Ui.Text(new Rect(10, y + 4, w - 150, 20), $"{perk.Name} · {perk.Pages}장", 14, open ? Palette.Ink : Palette.Dim, TextAnchor.MiddleLeft, true);
+                Ui.Text(new Rect(10, y + 4, w - 150, 20), Strings.Format("journal.perk", perk.Name, perk.Pages), 14, open ? Palette.Ink : Palette.Dim, TextAnchor.MiddleLeft, true);
                 Ui.Text(new Rect(10, y + 26, w - 150, 28), perk.Text, 11, Palette.Journal, TextAnchor.UpperLeft, false, true);
                 var button = new Rect(w - 134, y + 8, 126, 42);
                 if (!open)
                 {
-                    if (Ui.Button(button, $"펼치기 ({perk.Pages}장)", 12.5f, journal.CanUnlock(perk), Look.Normal, perk.Name))
+                    if (Ui.Button(button, Strings.Format("journal.unlock", perk.Pages), 12.5f, journal.CanUnlock(perk), Look.Normal, perk.Name))
                     {
                         _journalError = journal.Unlock(perk, _data);
                         if (_journalError == null)
@@ -384,7 +384,7 @@ namespace Game.Client
                         }
                     }
                 }
-                else if (Ui.Button(button, taking ? "가져간다 ✓" : "두고 간다", 13, true, taking ? Look.Selected : Look.Quiet, perk.Name))
+                else if (Ui.Button(button, Strings.Get(taking ? "journal.take" : "journal.leave"), 13, true, taking ? Look.Selected : Look.Quiet, perk.Name))
                 {
                     SetPerkChosen(perk.Id, !taking);
                     Sounds.Play(Sound.Click);
@@ -396,13 +396,13 @@ namespace Game.Client
             // The old hero's notes found so far, in the sheets' order; the rest are blank lines to find.
             var noted = _data.Events.Where(e => !string.IsNullOrEmpty(e.Journal)).ToList();
             int found = noted.Count(e => journal.Notes.Contains(e.Id));
-            y = Heading(column, y, $"찾은 옛 메모 {found}/{noted.Count}");
+            y = Heading(column, y, Strings.Format("journal.notes", found, noted.Count));
             foreach (var card in noted)
             {
                 if (!journal.Notes.Contains(card.Id)) continue;
                 y = Paragraph(column, y, $"{card.Title} — {card.Journal}", 12.5f, Palette.Journal);
             }
-            if (found < noted.Count) y = Paragraph(column, y, $"아직 찾지 못한 메모가 {noted.Count - found}개 있다. 길 위의 사건에서 찾는다.", 12, Palette.Dim);
+            if (found < noted.Count) y = Paragraph(column, y, Strings.Format("journal.notes_left", noted.Count - found), 12, Palette.Dim);
             // The codex (Docs/Journal.md 도감): what any run has met, the rest still ???.
             y += 6;
             y = DrawCodex(column, y, journal);
@@ -418,7 +418,7 @@ namespace Game.Client
             y += 6;
             y = Heading(column, y, Strings.Get("journal.classes"));
             foreach (var cls in _data.PlayableClasses)
-                y = Paragraph(column, y, $"{cls.Name}: 모험 {journal.RunsWith(cls.Id)} · 끝까지 {journal.WinsWith(cls.Id)}", 12.5f, journal.WinsWith(cls.Id) > 0 ? Palette.Journal : Palette.Dim);
+                y = Paragraph(column, y, Strings.Format("journal.class", cls.Name, journal.RunsWith(cls.Id), journal.WinsWith(cls.Id)), 12.5f, journal.WinsWith(cls.Id) > 0 ? Palette.Journal : Palette.Dim);
             Ui.EndArea(_journalScroll);
             _journalHeight = y + 8;
             if (Ui.Button(new Rect((Ui.Width - 200) / 2, Ui.Height - 56, 200, 46), Strings.Get("common.back"), 16, true, Look.Primary, null, KeyCode.Escape)) _screen = ClientScreen.Title;
@@ -464,8 +464,8 @@ namespace Game.Client
             float tw = card.xMax - tx - 4;
             Ui.Text(new Rect(tx, card.y + 6, tw, 20), cls.Name, 16, cls.Playable ? Palette.Ink : Palette.Dim, TextAnchor.MiddleLeft, true);
             Ui.Text(new Rect(tx, card.y + 26, tw, 16), cls.Role, 12, Palette.Journal);
-            if (cls.Playable) Ui.Text(new Rect(tx, card.y + 42, tw, 16), $"생명력 {cls.Hp} · 결의 {cls.Resolve}", 11, Palette.Dim);
-            else Ui.Text(new Rect(tx, card.y + 42, tw, 16), "준비 중 (M5)", 11, Palette.Dim);
+            if (cls.Playable) Ui.Text(new Rect(tx, card.y + 42, tw, 16), Strings.Format("party.class_stats", cls.Hp, cls.Resolve), 11, Palette.Dim);
+            else Ui.Text(new Rect(tx, card.y + 42, tw, 16), Strings.Get("party.class_soon"), 11, Palette.Dim);
             Ui.Text(new Rect(card.x + 6, card.y + icon + 10, card.width - 12, card.height - icon - 14), cls.Mechanic, 11, cls.Playable ? Palette.Ink : Palette.Dim, TextAnchor.UpperLeft, false, true);
             if (chosen)
             {
