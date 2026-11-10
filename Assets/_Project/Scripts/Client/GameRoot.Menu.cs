@@ -15,12 +15,12 @@ namespace Game.Client
 
         void DrawTitle()
         {
-            // The title picture (Art/scenes.txt "title") over the whole screen, cropped to fit, a little dimmed under the menu.
-            var picture = PixelArt.Picture("title");
-            if (picture != null)
+            // The title picture (Art/scenes.txt "title") over the whole screen, a little dimmed under the menu.
+            if (PixelArt.Picture("title") != null)
             {
+                // At least the statue, the road and the seal stone (170 of its 256 columns) show on a phone held upright.
                 var screen = new Rect(0, 0, Ui.Width, Ui.Height);
-                SceneArt.DrawWide(screen, picture, 0.7f, picture.height);
+                SceneArt.DrawCover(screen, "title", 170);
                 Ui.Fill(screen, new Color(0.05f, 0.04f, 0.07f, 0.3f));
             }
             float w = Mathf.Min(420, Ui.Width - 32);

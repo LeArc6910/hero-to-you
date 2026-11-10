@@ -57,6 +57,28 @@ namespace Game.Client
             return true;
         }
 
+        // A picture over a whole screen: as big as covering it needs, but never so big that fewer than `minColumns` of
+        // its columns show (a phone held upright would see only the middle, blown up). Then it sits at the bottom and
+        // its sky goes on above it, darkening upward.
+        public static void DrawCover(Rect r, string scene, int minColumns)
+        {
+            var picture = PixelArt.Picture(scene);
+            if (picture == null || Event.current.type != EventType.Repaint) return;
+            float w = picture.width, h = picture.height;
+            float s = Mathf.Min(Mathf.Max(r.width / w, r.height / h), r.width / Mathf.Min(minColumns, w));
+            float shownH = h * s;
+            if (shownH >= r.height)
+            {
+                DrawWide(r, picture, 0.7f, picture.height);
+                return;
+            }
+            float cols = r.width / s;
+            var sky = PixelArt.PictureEdge(scene, true);
+            float above = r.height - shownH;
+            Ui.Image(new Rect(r.x, r.y, r.width, above + 1), PixelArt.Sky(GamePalette.Darker(sky), sky, r.width / Mathf.Max(1, above)));
+            GUI.DrawTextureWithTexCoords(Ui.ToPixels(new Rect(r.x, r.yMax - shownH, r.width, shownH)), picture, new Rect((w - cols) / 2 / w, 0, cols / w, 1));
+        }
+
         public static void Draw(Rect r, string scene, IReadOnlyList<(string id, string color)> party, float time)
         {
             var picture = PixelArt.Picture(scene);
