@@ -223,7 +223,9 @@ async function playSlice(game, wholeRun) {
     run.check(art.flashes > 0, `맞으면 타격 효과가 뜬다 (${art.flashes}번)`);
   }
   await game.send('speed 0');
-  await game.send('autobattle; skip');
+  // The slow look at a hit effect may have played the battle to its end already.
+  const stillFighting = (await game.state()).adventure === 'Battle';
+  await game.send(stillFighting ? 'autobattle; skip' : 'skip');
   state = await game.until(s => s.adventure !== 'Battle' && !s.playing, 10000);
   run.check(state && ['BattleResult', 'Defeat', 'Story'].includes(state.adventure), `전투가 끝난다 (${state && state.adventure})`);
   await game.shot('battle-result', '전투 결과');
