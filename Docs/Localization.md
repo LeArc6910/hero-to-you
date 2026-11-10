@@ -12,9 +12,9 @@
 
 - 시트의 아무 열 `X` 옆에 `X_en` 열을 두면, 언어가 영어일 때 그 칸을 읽는다. 칸이 비면 한국어 칸을 쓴다(`CsvRow`의 열 읽기). `GameData.Load(read, "en")`이 그 언어로 읽고, 클라이언트는 설정의 [언어]를 바꾸면 시트를 다시 읽는다(`GameRoot.ReloadData`)
 - 시트의 지문(`Fingerprint`)은 파일 글 전체로 만들어서 언어와 상관없다. 한국어로 저장한 판을 영어로 이어도 똑같이 돈다(`RunShapeTests`가 확인한다). 규칙은 id로만 움직이고 이름을 보지 않는다
-- 영어가 있는 시트: `classes.csv`(name, role, mechanic, blurb), `skills.csv`, `upgrades.csv`, `combos.csv`(name, text), `monsters.csv`(name, text, phase2_line), `monster_skills.csv`(name, text), `items.csv`(name, attack, text), `chapters.csv`(제목과 장소·보스·목표 이름, 약해짐·소환 막힘 글), `stories.csv`(title, text), `renown.csv`(title, text), `perks.csv`, `achievements.csv`(name, text)
+- 영어가 있는 시트: `classes.csv`(name, role, mechanic, blurb), `skills.csv`, `upgrades.csv`, `combos.csv`(name, text), `monsters.csv`(name, text, phase2_line), `monster_skills.csv`(name, text), `items.csv`(name, attack, text), `chapters.csv`(제목, 마을, 장소·던전·보스 이름, 목표, 약해짐·소환 막힘 글), `stories.csv`(title, text), `renown.csv`(title, text), `perks.csv`, `achievements.csv`(name, text)
 - 새 줄을 더할 때 `_en` 칸은 비워 둬도 된다(한국어가 나온다). 영어 글을 쓰면 글꼴을 다시 만들 필요는 없다(ASCII와 “ ” — … 은 들어 있다)
-- 옮긴 말: 리엔 Rien, 세른 Sern, 일지 the journal, 균열 the Rift, 봉인석 seal stone, 희망 hope, 결의 resolve, 끈기 grit, 명성 renown. 직업: Knight, Berserker, Hunter, Elementalist, Cleric, Gambler, Rogue, Bard, Alchemist, Necromancer, Seer, Beastmaster, Monk, Engineer, Mnemonist
+- 옮긴 말: 리엔 Rien(대명사를 쓰지 않는다), 세른 Sern, 칼라 Kalla(기사단장 Commander Kalla), 마렌 Maren, 마을: Woodsedge Village, Tiderock Village, Foothill Village, Oasis Village, The Last Village, 명성 단계: Nameless Wayfarers, Bearers of the Journal, Sealkeepers, Names in the Songs, Heroes, 확정 성공 sure success, 바닥 floor, 대기 cooldown, 일지 the journal, 균열 the Rift, 봉인석 seal stone, 희망 hope, 결의 resolve, 끈기 grit, 명성 renown. 직업: Knight, Berserker, Hunter, Elementalist, Cleric, Gambler, Rogue, Bard, Alchemist, Necromancer, Seer, Beastmaster, Monk, Engineer, Mnemonist
 
 ## 아직 한국어로만 있는 것
 

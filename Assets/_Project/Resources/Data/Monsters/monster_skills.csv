@@ -1,85 +1,85 @@
-id,name,dice,power,floor,kind,target,aim,delay,effect,text
-gob_stab,찌르기,2,10,0,physical,one,random,100,,녹슨 칼로 찌른다.
-gob_arrow,화살,2,11,0,physical,one,weakest,100,,가장 약한 쪽을 노린다.
-wolf_bite,물어뜯기,3,9,0,physical,one,random,100,,
-wolf_howl,울부짖기,0,0,0,buff,self,random,60,howl,다음 공격의 위력 +3.
-bandit_slash,베기,2,12,0,physical,one,random,100,,
-bandit_heavy,내려찍기,3,16,0,physical,one,strongest,120,,힘을 모아 가장 튼튼한 쪽을 내려찍는다.
-cut_throw,단검 던지기,2,11,0,physical,one,weakest,90,,
-warden_strike,돌주먹,3,15,0,physical,one,random,100,,
-warden_sweep,휩쓸기,2,10,0,physical,all,random,110,,모두를 휩쓴다.
-warden_ember,잿불 폭발,3,10,0,magic,all,random,120,burn,잿불이 터진다. 화상.
-warden_crush,짓누르기,4,20,0,physical,one,strongest,130,,
-skel_slash,녹슨 칼,2,6,0,physical,one,random,100,,해골의 칼질.
-ally_bite,물어뜯기,3,6,0,physical,one,weakest,100,,늑대가 약한 적을 문다.
-wisp_flare,잿불,2,8,25,magic,one,random,100,burn,잿불을 뿜는다. 화상.
-lurker_slam,내려치기,3,14,0,physical,one,strongest,120,,늪에서 솟아 내려친다.
-lurker_grab,끌어당기기,2,9,0,physical,one,weakest,100,,
-warden_charge,잿불 모으기,0,0,0,buff,self,random,80,charge,잿불을 모은다. 다음 차례에 모두를 태운다!
-warden_storm,잿불 폭풍,4,12,0,magic,all,random,130,burn,모아 둔 잿불이 터진다. 모두 화상.
-chief_cleave,쪼개기,3,14,0,physical,one,strongest,110,,가장 튼튼한 쪽을 도끼로 쪼갠다.
-chief_rally,호령,2,7,0,physical,all,random,100,,“밀어붙여!” 모두를 휩쓴다.
-drown_grab,움켜쥐기,2,13,0,physical,one,random,100,,차가운 손이 붙잡는다.
-drown_pull,끌어들이기,2,11,0,physical,one,weakest,110,chill,물속으로 끌어당긴다. 냉기.
-smug_knife,갈고리칼,2,14,0,physical,one,weakest,90,,
-smug_bottle,불붙은 병,2,11,0,magic,one,random,100,burn,불붙은 병을 던진다. 화상.
-crab_pinch,집게,2,14,0,physical,one,random,100,,
-crab_snap,으스러뜨리기,3,20,0,physical,one,strongest,120,,큰 집게로 으스러뜨린다.
-gull_peck,쪼기,2,9,0,physical,one,weakest,80,,
-captain_hook,갈고리,3,18,0,physical,one,strongest,110,,
-captain_cannon,작은 대포,2,10,0,physical,all,random,120,,모두에게 산탄을 쏜다.
-bell_strike,종채,3,20,0,physical,one,random,100,,
-bell_toll,종소리,2,11,0,magic,all,random,110,chill,물속의 종이 울린다. 모두 냉기.
-bell_raise,종 들어 올리기,0,0,0,buff,self,random,80,charge,거대한 종을 들어 올린다. 다음 차례에 해일이 온다!
-bell_wave,해일,4,16,0,magic,all,random,130,,들어 올린 종이 떨어지며 해일이 덮친다.
-bell_crush,종으로 짓누르기,4,26,0,physical,one,strongest,130,,
-frost_bite,서리 이빨,3,14,0,physical,one,random,100,,
-frost_howl,울부짖기,0,0,0,buff,self,random,60,howl,다음 공격의 위력 +3.
-wraith_touch,얼음 손길,2,13,0,magic,one,weakest,100,chill,차가운 손이 스친다. 냉기.
-wraith_wail,통곡,2,9,0,magic,all,random,110,,모두에게 울음이 스민다.
-troll_smash,내려치기,3,22,0,physical,one,strongest,120,,가장 튼튼한 쪽을 내려친다.
-troll_quake,땅 울리기,2,12,0,physical,all,random,130,,발을 굴러 모두를 흔든다.
-cult_knife,제의 칼,2,15,0,physical,one,weakest,90,,
-cult_flame,균열의 불,2,12,0,magic,one,random,100,burn,검은 불꽃. 화상.
-priest_lash,사슬 채찍,3,16,0,physical,one,strongest,110,,
-priest_flame,검은 불길,2,11,0,magic,all,random,120,burn,모두에게 검은 불길. 화상.
-abbess_staff,지팡이,3,17,0,physical,one,random,100,,
-abbess_frost,서리 기도,2,10,0,magic,all,random,110,chill,모두 냉기.
-abbess_gather,눈보라 모으기,0,0,0,buff,self,random,80,charge,눈보라를 모은다. 다음 차례에 모두를 얼린다!
-abbess_blizzard,눈보라,4,14,0,magic,all,random,130,chill,모아 둔 눈보라가 몰아친다. 모두 냉기.
-abbess_crush,얼음 기둥,4,21,0,physical,one,strongest,130,,
-turret_shot,쏘기,2,8,0,physical,one,weakest,100,,포탑이 가장 약한 적을 쏜다.
-guard_spear,창 찌르기,3,17,0,physical,one,random,100,,
-guard_wall,방패 벽,2,12,0,physical,all,random,120,,방패로 모두를 밀친다.
-serpent_bite,물기,3,15,0,physical,one,weakest,90,,
-serpent_venom,독니,2,13,0,physical,one,random,100,weaken,독니에 물리면 약해진다.
-oknight_cut,베기,3,15,0,physical,one,random,100,,
-oknight_shout,이름 부르기,2,7,0,magic,all,random,110,weaken,빼앗은 이름들을 외친다. 모두 약화.
-shade_flame,붉은 불,2,13,0,magic,one,random,100,burn,화상.
-shade_wail,곡소리,2,9,0,magic,all,random,110,,
-captain4_blade,단장의 검,3,17,0,physical,one,strongest,110,,
-captain4_rend,갑옷 쪼개기,4,21,0,physical,one,strongest,130,,
-sern_blade,세른의 검,3,18,0,physical,one,random,100,,
-sern_steal,이름 빼앗기,2,9,0,magic,all,random,110,weaken,너희의 이름을 빼앗으려 한다. 모두 약화.
-sern_gather,붉은 왕의 힘,0,0,0,buff,self,random,80,charge,붉은 왕의 힘을 모은다. 다음 차례에 왕관이 떨어진다!
-sern_crown,붉은 왕관,4,14,0,magic,all,random,130,burn,왕관의 불이 모두를 태운다.
-sern_rend,두 손 베기,4,22,0,physical,one,strongest,130,,
-spawn_claw,할퀴기,3,14,0,physical,one,random,90,,
-spawn_leap,덮치기,3,17,0,physical,one,weakest,120,,
-void_gaze,지우는 눈길,2,13,0,magic,one,random,100,chill,냉기.
-void_blink,깜빡임,2,8,0,magic,all,random,110,weaken,모두 약화.
-colossus_fist,거상의 주먹,3,26,0,physical,one,strongest,120,,
-colossus_stomp,짓밟기,2,16,0,physical,all,random,130,,
-echo_mock,흉내,3,14,0,physical,one,random,100,,
-echo_cry,마지막 말,2,9,0,magic,all,random,110,chill,냉기.
-shadow_blade,그림자 검,3,18,0,physical,one,random,100,,
-shadow_name,이름 없는 울음,2,10,0,magic,all,random,110,weaken,모두 약화.
-shadow_rend,그림자 가르기,4,22,0,physical,one,strongest,130,,
-nameless_touch,지우는 손,3,20,0,physical,one,random,100,,
-nameless_forget,망각,2,10,0,magic,all,random,110,weaken,모두의 이름이 흐려진다. 약화.
-nameless_gather,모든 이름 모으기,0,0,0,buff,self,random,80,charge,잊힌 이름들이 모여든다. 다음 차례에 공허가 터진다!
-nameless_void,공허,4,16,0,magic,all,random,130,chill,모아 둔 이름들이 터진다. 모두 냉기.
-nameless_crush,짓눌러 지우기,4,25,0,physical,one,strongest,130,,
-abbess_freeze,얼음 감옥,3,9,0,magic,one,random,100,freeze,한 사람을 얼음 속에 가둔다. 맞으면 한 차례 쉰다.
-sern_seal,일지 찢기,3,11,0,magic,one,random,100,seal,가장 아끼는 기술이 적힌 장을 찢어 간다. 맞으면 그 기술을 3차례 못 쓴다.
-nameless_erase,지우기,3,12,0,magic,one,random,100,erase,이름을 지운다. 맞으면 2차례 기본 공격만 할 수 있다.
+id,name,dice,power,floor,kind,target,aim,delay,effect,text,name_en,text_en
+gob_stab,찌르기,2,10,0,physical,one,random,100,,녹슨 칼로 찌른다.,Stab,Stabs with a rusty blade.
+gob_arrow,화살,2,11,0,physical,one,weakest,100,,가장 약한 쪽을 노린다.,Arrow,Aims at the weakest.
+wolf_bite,물어뜯기,3,9,0,physical,one,random,100,,,Bite,
+wolf_howl,울부짖기,0,0,0,buff,self,random,60,howl,다음 공격의 위력 +3.,Howl,Next attack power +3.
+bandit_slash,베기,2,12,0,physical,one,random,100,,,Slash,
+bandit_heavy,내려찍기,3,16,0,physical,one,strongest,120,,힘을 모아 가장 튼튼한 쪽을 내려찍는다.,Overhead Chop,Gathers strength and chops down at the sturdiest.
+cut_throw,단검 던지기,2,11,0,physical,one,weakest,90,,,Knife Throw,
+warden_strike,돌주먹,3,15,0,physical,one,random,100,,,Stone Fist,
+warden_sweep,휩쓸기,2,10,0,physical,all,random,110,,모두를 휩쓴다.,Sweep,Sweeps through everyone.
+warden_ember,잿불 폭발,3,10,0,magic,all,random,120,burn,잿불이 터진다. 화상.,Ember Burst,Embers burst. Burn.
+warden_crush,짓누르기,4,20,0,physical,one,strongest,130,,,Crush,
+skel_slash,녹슨 칼,2,6,0,physical,one,random,100,,해골의 칼질.,Rusty Blade,A skeleton's slash.
+ally_bite,물어뜯기,3,6,0,physical,one,weakest,100,,늑대가 약한 적을 문다.,Bite,The wolf bites the weakest enemy.
+wisp_flare,잿불,2,8,25,magic,one,random,100,burn,잿불을 뿜는다. 화상.,Embers,Spits embers. Burn.
+lurker_slam,내려치기,3,14,0,physical,one,strongest,120,,늪에서 솟아 내려친다.,Slam,Rises from the bog and slams down.
+lurker_grab,끌어당기기,2,9,0,physical,one,weakest,100,,,Drag,
+warden_charge,잿불 모으기,0,0,0,buff,self,random,80,charge,잿불을 모은다. 다음 차례에 모두를 태운다!,Gather Embers,"Gathers embers. Next turn, it burns everyone!"
+warden_storm,잿불 폭풍,4,12,0,magic,all,random,130,burn,모아 둔 잿불이 터진다. 모두 화상.,Ember Storm,The gathered embers burst. Burn on all.
+chief_cleave,쪼개기,3,14,0,physical,one,strongest,110,,가장 튼튼한 쪽을 도끼로 쪼갠다.,Cleave,Cleaves the sturdiest with an axe.
+chief_rally,호령,2,7,0,physical,all,random,100,,“밀어붙여!” 모두를 휩쓴다.,War Cry,“Push forward!” Sweeps through everyone.
+drown_grab,움켜쥐기,2,13,0,physical,one,random,100,,차가운 손이 붙잡는다.,Clutch,Cold hands take hold.
+drown_pull,끌어들이기,2,11,0,physical,one,weakest,110,chill,물속으로 끌어당긴다. 냉기.,Drag Under,Drags you under the water. Chill.
+smug_knife,갈고리칼,2,14,0,physical,one,weakest,90,,,Hook Knife,
+smug_bottle,불붙은 병,2,11,0,magic,one,random,100,burn,불붙은 병을 던진다. 화상.,Burning Bottle,Throws a burning bottle. Burn.
+crab_pinch,집게,2,14,0,physical,one,random,100,,,Pinch,
+crab_snap,으스러뜨리기,3,20,0,physical,one,strongest,120,,큰 집게로 으스러뜨린다.,Shatter,Crushes with its great claw.
+gull_peck,쪼기,2,9,0,physical,one,weakest,80,,,Peck,
+captain_hook,갈고리,3,18,0,physical,one,strongest,110,,,Hook,
+captain_cannon,작은 대포,2,10,0,physical,all,random,120,,모두에게 산탄을 쏜다.,Small Cannon,Fires grapeshot at everyone.
+bell_strike,종채,3,20,0,physical,one,random,100,,,Bell Mallet,
+bell_toll,종소리,2,11,0,magic,all,random,110,chill,물속의 종이 울린다. 모두 냉기.,Toll,The bell tolls beneath the water. Chill on all.
+bell_raise,종 들어 올리기,0,0,0,buff,self,random,80,charge,거대한 종을 들어 올린다. 다음 차례에 해일이 온다!,Raise the Bell,"Lifts the great bell. Next turn, a tidal wave comes!"
+bell_wave,해일,4,16,0,magic,all,random,130,,들어 올린 종이 떨어지며 해일이 덮친다.,Tidal Wave,"The raised bell drops, and a tidal wave crashes in."
+bell_crush,종으로 짓누르기,4,26,0,physical,one,strongest,130,,,Bell Crush,
+frost_bite,서리 이빨,3,14,0,physical,one,random,100,,,Frost Fang,
+frost_howl,울부짖기,0,0,0,buff,self,random,60,howl,다음 공격의 위력 +3.,Howl,Next attack power +3.
+wraith_touch,얼음 손길,2,13,0,magic,one,weakest,100,chill,차가운 손이 스친다. 냉기.,Icy Touch,A cold hand brushes past. Chill.
+wraith_wail,통곡,2,9,0,magic,all,random,110,,모두에게 울음이 스민다.,Wail,A wailing seeps into everyone.
+troll_smash,내려치기,3,22,0,physical,one,strongest,120,,가장 튼튼한 쪽을 내려친다.,Smash,Smashes down on the sturdiest.
+troll_quake,땅 울리기,2,12,0,physical,all,random,130,,발을 굴러 모두를 흔든다.,Quake,Stamps and shakes everyone.
+cult_knife,제의 칼,2,15,0,physical,one,weakest,90,,,Ritual Knife,
+cult_flame,균열의 불,2,12,0,magic,one,random,100,burn,검은 불꽃. 화상.,Rift Fire,Black flame. Burn.
+priest_lash,사슬 채찍,3,16,0,physical,one,strongest,110,,,Chain Lash,
+priest_flame,검은 불길,2,11,0,magic,all,random,120,burn,모두에게 검은 불길. 화상.,Black Blaze,Black fire on everyone. Burn.
+abbess_staff,지팡이,3,17,0,physical,one,random,100,,,Staff,
+abbess_frost,서리 기도,2,10,0,magic,all,random,110,chill,모두 냉기.,Frost Prayer,Chill on all.
+abbess_gather,눈보라 모으기,0,0,0,buff,self,random,80,charge,눈보라를 모은다. 다음 차례에 모두를 얼린다!,Gather Blizzard,"Gathers a blizzard. Next turn, it freezes everyone!"
+abbess_blizzard,눈보라,4,14,0,magic,all,random,130,chill,모아 둔 눈보라가 몰아친다. 모두 냉기.,Blizzard,The gathered blizzard sweeps in. Chill on all.
+abbess_crush,얼음 기둥,4,21,0,physical,one,strongest,130,,,Ice Pillar,
+turret_shot,쏘기,2,8,0,physical,one,weakest,100,,포탑이 가장 약한 적을 쏜다.,Shoot,The turret shoots the weakest enemy.
+guard_spear,창 찌르기,3,17,0,physical,one,random,100,,,Spear Thrust,
+guard_wall,방패 벽,2,12,0,physical,all,random,120,,방패로 모두를 밀친다.,Shield Wall,Shoves everyone back with its shield.
+serpent_bite,물기,3,15,0,physical,one,weakest,90,,,Bite,
+serpent_venom,독니,2,13,0,physical,one,random,100,weaken,독니에 물리면 약해진다.,Venom Fang,Its venomous fang weakens.
+oknight_cut,베기,3,15,0,physical,one,random,100,,,Slash,
+oknight_shout,이름 부르기,2,7,0,magic,all,random,110,weaken,빼앗은 이름들을 외친다. 모두 약화.,Call of Names,Shouts the stolen names. Weaken on all.
+shade_flame,붉은 불,2,13,0,magic,one,random,100,burn,화상.,Red Fire,Burn.
+shade_wail,곡소리,2,9,0,magic,all,random,110,,,Keening,
+captain4_blade,단장의 검,3,17,0,physical,one,strongest,110,,,Commander's Blade,
+captain4_rend,갑옷 쪼개기,4,21,0,physical,one,strongest,130,,,Split Armor,
+sern_blade,세른의 검,3,18,0,physical,one,random,100,,,Sern's Blade,
+sern_steal,이름 빼앗기,2,9,0,magic,all,random,110,weaken,너희의 이름을 빼앗으려 한다. 모두 약화.,Steal Names,Tries to steal your names. Weaken on all.
+sern_gather,붉은 왕의 힘,0,0,0,buff,self,random,80,charge,붉은 왕의 힘을 모은다. 다음 차례에 왕관이 떨어진다!,Red King's Might,"Gathers the Red King's might. Next turn, the crown falls!"
+sern_crown,붉은 왕관,4,14,0,magic,all,random,130,burn,왕관의 불이 모두를 태운다.,Red Crown,The crown's fire burns everyone.
+sern_rend,두 손 베기,4,22,0,physical,one,strongest,130,,,Two-Handed Cut,
+spawn_claw,할퀴기,3,14,0,physical,one,random,90,,,Claw,
+spawn_leap,덮치기,3,17,0,physical,one,weakest,120,,,Pounce,
+void_gaze,지우는 눈길,2,13,0,magic,one,random,100,chill,냉기.,Erasing Gaze,Chill.
+void_blink,깜빡임,2,8,0,magic,all,random,110,weaken,모두 약화.,Blink,Weaken on all.
+colossus_fist,거상의 주먹,3,26,0,physical,one,strongest,120,,,Colossus Fist,
+colossus_stomp,짓밟기,2,16,0,physical,all,random,130,,,Stomp,
+echo_mock,흉내,3,14,0,physical,one,random,100,,,Mimic,
+echo_cry,마지막 말,2,9,0,magic,all,random,110,chill,냉기.,Last Words,Chill.
+shadow_blade,그림자 검,3,18,0,physical,one,random,100,,,Shadow Blade,
+shadow_name,이름 없는 울음,2,10,0,magic,all,random,110,weaken,모두 약화.,Nameless Cry,Weaken on all.
+shadow_rend,그림자 가르기,4,22,0,physical,one,strongest,130,,,Shadow Rend,
+nameless_touch,지우는 손,3,20,0,physical,one,random,100,,,Erasing Hand,
+nameless_forget,망각,2,10,0,magic,all,random,110,weaken,모두의 이름이 흐려진다. 약화.,Oblivion,Everyone's names blur. Weaken.
+nameless_gather,모든 이름 모으기,0,0,0,buff,self,random,80,charge,잊힌 이름들이 모여든다. 다음 차례에 공허가 터진다!,Gather All Names,"Forgotten names gather. Next turn, the void bursts!"
+nameless_void,공허,4,16,0,magic,all,random,130,chill,모아 둔 이름들이 터진다. 모두 냉기.,Void,The gathered names burst. Chill on all.
+nameless_crush,짓눌러 지우기,4,25,0,physical,one,strongest,130,,,Crush and Erase,
+abbess_freeze,얼음 감옥,3,9,0,magic,one,random,100,freeze,한 사람을 얼음 속에 가둔다. 맞으면 한 차례 쉰다.,Ice Prison,"Traps one hero in ice. If hit, they lose a turn."
+sern_seal,일지 찢기,3,11,0,magic,one,random,100,seal,가장 아끼는 기술이 적힌 장을 찢어 간다. 맞으면 그 기술을 3차례 못 쓴다.,Tear the Journal,"Tears out the page with your favorite skill. If hit, that skill cannot be used for 3 turns."
+nameless_erase,지우기,3,12,0,magic,one,random,100,erase,이름을 지운다. 맞으면 2차례 기본 공격만 할 수 있다.,Erase,"Erases a name. If hit, only basic attacks for 2 turns."

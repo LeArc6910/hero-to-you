@@ -1,46 +1,46 @@
-id,class,name,stat,dice,power,floor,kind,target,delay,cooldown,element,effect,perfect,cost,text
-knight_bash,knight,방패 치기,str,2,5,0,physical,enemy,90,2,,,stun,,방패로 친다. 완벽하면 기절시킨다.
-knight_guard,knight,수호,,0,0,0,support,other_ally,60,2,,guard,,,다음 차례까지 아군 하나를 대신 맞아 준다. 지키는 동안 방어도 +2.
-knight_taunt,knight,도발,wil,2,0,0,support,self,80,3,,taunt,armor1,,모든 적이 기사를 노린다. 성공 수만큼 방어도 +.
-bers_frenzy,berserker,난도질,str,5,15,0,physical,enemy,130,2,,,crit150,,정신없이 휘두른다. 다음 차례가 늦다.
-bers_thirst,berserker,피의 갈증,str,3,8,0,physical,enemy,100,2,,lifesteal,crit150,,준 피해의 절반만큼 회복한다.
-hunt_mark,hunter,표식,,0,0,0,support,enemy,50,2,,mark,,,적에게 표식을 남긴다. 그 적을 치는 모두에게 확정 성공 +1(그 적의 차례 3번).
-hunt_aimed,hunter,조준 사격,per,4,11,0,physical,enemy,120,2,,,crit200,,숨을 고르고 쏜다. 완벽하면 두 배.
-elem_fire,elementalist,화염구,int,3,9,25,magic,enemy,100,1,fire,burn,crit150,,불덩이. 성공하면 화상(차례마다 3 피해 2번).
-elem_frost,elementalist,서리 창,int,3,8,25,magic,enemy,100,1,frost,chill,crit150,,얼음 창. 성공하면 냉기(다음 차례가 늦다).
-elem_chain,elementalist,연쇄 번개,int,3,6,25,magic,all_enemies,110,2,lightning,,crit150,,모든 적에게 번개가 튄다.
-cler_heal,cleric,치유의 빛,wil,3,14,50,heal,ally,100,1,,,crit150,,아군 하나를 회복한다. 기도는 헛되지 않다(바닥 50%).
-cler_bless,cleric,축복,,0,0,0,support,ally,60,2,,bless,,,아군 하나의 다음 판정에 확정 성공 +1. 화상과 약화를 걷는다.
-cler_revive,cleric,부활 기도,wil,3,40,30,revive,downed_ally,120,3,,,,,쓰러진 아군을 일으킨다(최대 생명력의 %로).
-gamb_allin,gambler,올인,fixed50,7,20,0,physical,enemy,120,3,,backfire,crit200,,전부 건다. 성공이 2개 이하면 도박사가 4 피해.
-gamb_coin,gambler,행운의 동전,,0,0,0,support,ally,60,2,,lucky,,,아군 하나의 다음 판정에 확정 성공 +2.
-rogue_hide,rogue,그림자 숨기,,0,0,0,support,self,60,3,,hide,,,다음 공격까지 적의 대상이 되지 않는다. 숨은 채 하는 공격은 확정 성공 +1(기습).
-rogue_finisher,rogue,급소 찌르기,agi,2,9,0,physical,enemy,100,2,,finisher,crit200,,쌓인 연계를 모두 써서 연계 하나에 주사위 +1·위력 +5.
-bard_discord,bard,불협화음,cha,2,6,25,magic,enemy,100,1,,weaken,crit150,,귀를 찢는 소리. 성공하면 약화(위력 −30%).
-bard_courage,bard,용기의 노래,,0,0,0,support,self,60,1,,song_courage,,,노래가 이어지는 동안 모든 아군의 확률 +10.
-bard_rest,bard,안식의 노래,,0,0,0,support,self,60,1,,song_rest,,,노래가 이어지는 동안 아군이 차례마다 생명력 3 회복.
-bard_encore,bard,앙코르,,0,0,0,support,other_ally,60,3,,encore,,,아군 하나가 바로 다음 차례를 얻는다.
-alch_bomb,alchemist,투척 폭탄,int,3,9,0,physical,all_enemies,110,1,,,crit150,reagent 1,재료 1. 모든 적에게 터진다.
-alch_acid,alchemist,산성 병,int,2,7,25,magic,enemy,100,1,,corrode,crit150,reagent 1,재료 1. 성공하면 부식(방어도 −2).
-alch_brew,alchemist,즉석 물약,int,3,12,50,heal,ally,100,1,,,crit150,reagent 1,재료 1. 그 자리에서 물약을 섞어 먹인다.
-necro_drain,necromancer,생명 흡수,wil,3,9,25,magic,enemy,100,1,,lifesteal,crit150,,준 피해의 절반만큼 회복한다.
-necro_raise,necromancer,해골 일으키기,,0,0,0,support,self,80,0,,raise,,soul 2,영혼 2. 해골 하나를 일으켜 함께 싸운다(한 번에 하나).
-necro_mark,necromancer,죽음의 표,,0,0,0,support,enemy,50,2,,deathmark,,,표가 남은 채 쓰러지면 영혼 +2.
-seer_star,seer,별똥별,int,3,10,25,magic,enemy,100,1,,,crit150,,별이 떨어진다.
-seer_foretell,seer,예언,,0,0,0,support,self,70,2,,foretell,,,모든 적의 다음 공격 확률 −30.
-seer_twist,seer,운명 바꾸기,,0,0,0,support,self,40,1,,twist,,,운명의 흐름에서 다음 주사위 하나를 버린다. 별의 눈으로 본 나쁜 수를 치운다.
-beast_command,beastmaster,협공 명령,per,2,6,0,physical,enemy,100,1,,command,crit150,,조련사가 찌르고 늑대가 바로 같은 적을 문다(협공).
-beast_guard,beastmaster,지켜라,,0,0,0,support,other_ally,60,2,,wolfguard,,,늑대가 아군 하나를 대신 맞아 준다(조련사의 다음 차례까지).
-beast_call,beastmaster,야성의 부름,,0,0,0,support,self,70,3,,call,,,늑대가 생명력 8을 회복하고 다음 공격 위력 +3. 쓰러졌으면 절반으로 일어난다.
-monk_palm,monk,장풍,wil,3,10,25,magic,enemy,100,1,,pierce,crit150,ki 2,기 2. 방어도와 마법 방어를 꿰뚫는다.
-monk_meditate,monk,명상,,0,0,0,support,self,60,2,,meditate,,,"기 +2, 생명력 6 회복."
-monk_sweep,monk,휩쓸기 차기,agi,2,6,0,physical,all_enemies,110,2,,,crit150,,모든 적을 걷어찬다.
-engi_turret,engineer,포탑 세우기,,0,0,0,support,self,90,3,,turret,,,앞줄에 포탑을 세운다(이미 있으면 고친다). 포탑은 스스로 쏘고 대신 맞는다.
-engi_snare,engineer,올가미,per,3,7,0,physical,enemy,100,2,,snare,crit150,,성공 2개 이상이면 적이 다음 차례를 쉰다.
-engi_flash,engineer,섬광탄,int,2,4,0,magic,all_enemies,100,2,,weaken,crit150,,모든 적에게 섬광. 성공하면 약화.
-mnem_echo,mnemonist,되새김,,0,0,0,support,self,80,2,,echo,,,동료가 마지막으로 쓴 기술을 비용 없이 한 번 더 쓴다(해골·늑대·포탑을 부르는 기술은 빼고).
-mnem_recall,mnemonist,회상,wil,3,12,50,heal,ally,100,1,,,crit150,,좋았던 날을 떠올리게 해 생명력을 되찾게 한다.
-mnem_forget,mnemonist,망각,int,2,6,25,magic,enemy,90,1,,chill,crit150,,적이 하려던 일을 잊게 한다. 성공하면 다음 차례가 늦어진다.
-alch_mist,alchemist,치유의 안개,int,2,7,50,heal,all_allies,110,2,,,crit150,reagent 2,재료 2. 약을 안개로 뿌려 모두를 조금씩 회복한다.
-necro_wall,necromancer,뼈의 벽,,0,0,0,support,self,60,2,,bonewall,,soul 1,영혼 1. 해골이 도발한다: 모든 적이 해골을 노리고 해골의 방어도 +3.
-seer_guide,seer,별의 인도,,0,0,0,support,ally,60,2,,bless,,,아군 하나의 다음 판정에 확정 성공 +1. 화상과 약화를 걷는다.
+id,class,name,stat,dice,power,floor,kind,target,delay,cooldown,element,effect,perfect,cost,text,name_en,text_en
+knight_bash,knight,방패 치기,str,2,5,0,physical,enemy,90,2,,,stun,,방패로 친다. 완벽하면 기절시킨다.,Shield Bash,Strike with your shield. A perfect roll stuns.
+knight_guard,knight,수호,,0,0,0,support,other_ally,60,2,,guard,,,다음 차례까지 아군 하나를 대신 맞아 준다. 지키는 동안 방어도 +2.,Guard,Take the blows meant for one ally until your next turn. +2 armor while guarding.
+knight_taunt,knight,도발,wil,2,0,0,support,self,80,3,,taunt,armor1,,모든 적이 기사를 노린다. 성공 수만큼 방어도 +.,Taunt,Every enemy goes for the knight. +1 armor for each success.
+bers_frenzy,berserker,난도질,str,5,15,0,physical,enemy,130,2,,,crit150,,정신없이 휘두른다. 다음 차례가 늦다.,Frenzy,Swing wildly. Your next turn comes later.
+bers_thirst,berserker,피의 갈증,str,3,8,0,physical,enemy,100,2,,lifesteal,crit150,,준 피해의 절반만큼 회복한다.,Bloodthirst,Heal half the damage dealt.
+hunt_mark,hunter,표식,,0,0,0,support,enemy,50,2,,mark,,,적에게 표식을 남긴다. 그 적을 치는 모두에게 확정 성공 +1(그 적의 차례 3번).,Mark,Mark an enemy. Anyone who strikes it gets +1 sure success (for 3 of its turns).
+hunt_aimed,hunter,조준 사격,per,4,11,0,physical,enemy,120,2,,,crit200,,숨을 고르고 쏜다. 완벽하면 두 배.,Aimed Shot,Steady your breath and shoot. Double damage on a perfect roll.
+elem_fire,elementalist,화염구,int,3,9,25,magic,enemy,100,1,fire,burn,crit150,,불덩이. 성공하면 화상(차례마다 3 피해 2번).,Fireball,"A ball of fire. On a success, burn (3 damage a turn, twice)."
+elem_frost,elementalist,서리 창,int,3,8,25,magic,enemy,100,1,frost,chill,crit150,,얼음 창. 성공하면 냉기(다음 차례가 늦다).,Frost Lance,"A lance of ice. On a success, chill (its next turn comes later)."
+elem_chain,elementalist,연쇄 번개,int,3,6,25,magic,all_enemies,110,2,lightning,,crit150,,모든 적에게 번개가 튄다.,Chain Lightning,Lightning leaps to every enemy.
+cler_heal,cleric,치유의 빛,wil,3,14,50,heal,ally,100,1,,,crit150,,아군 하나를 회복한다. 기도는 헛되지 않다(바닥 50%).,Healing Light,Heal one ally. No prayer is wasted (floor 50%).
+cler_bless,cleric,축복,,0,0,0,support,ally,60,2,,bless,,,아군 하나의 다음 판정에 확정 성공 +1. 화상과 약화를 걷는다.,Blessing,+1 sure success on one ally's next roll. Clears burn and weaken.
+cler_revive,cleric,부활 기도,wil,3,40,30,revive,downed_ally,120,3,,,,,쓰러진 아군을 일으킨다(최대 생명력의 %로).,Prayer of Rising,Raise a fallen ally (with a % of their max life).
+gamb_allin,gambler,올인,fixed50,7,20,0,physical,enemy,120,3,,backfire,crit200,,전부 건다. 성공이 2개 이하면 도박사가 4 피해.,All In,"Bet everything. With 2 successes or fewer, the gambler takes 4 damage."
+gamb_coin,gambler,행운의 동전,,0,0,0,support,ally,60,2,,lucky,,,아군 하나의 다음 판정에 확정 성공 +2.,Lucky Coin,+2 sure successes on one ally's next roll.
+rogue_hide,rogue,그림자 숨기,,0,0,0,support,self,60,3,,hide,,,다음 공격까지 적의 대상이 되지 않는다. 숨은 채 하는 공격은 확정 성공 +1(기습).,Hide in Shadow,Enemies cannot target you until your next attack. An attack from hiding gets +1 sure success (ambush).
+rogue_finisher,rogue,급소 찌르기,agi,2,9,0,physical,enemy,100,2,,finisher,crit200,,쌓인 연계를 모두 써서 연계 하나에 주사위 +1·위력 +5.,Vital Strike,Spend all your combo: +1 die and +5 power for each.
+bard_discord,bard,불협화음,cha,2,6,25,magic,enemy,100,1,,weaken,crit150,,귀를 찢는 소리. 성공하면 약화(위력 −30%).,Discord,"An ear-splitting noise. On a success, weaken (power −30%)."
+bard_courage,bard,용기의 노래,,0,0,0,support,self,60,1,,song_courage,,,노래가 이어지는 동안 모든 아군의 확률 +10.,Song of Courage,"While the song plays, every ally gets +10 chance."
+bard_rest,bard,안식의 노래,,0,0,0,support,self,60,1,,song_rest,,,노래가 이어지는 동안 아군이 차례마다 생명력 3 회복.,Song of Rest,"While the song plays, allies heal 3 life each turn."
+bard_encore,bard,앙코르,,0,0,0,support,other_ally,60,3,,encore,,,아군 하나가 바로 다음 차례를 얻는다.,Encore,One ally takes the very next turn.
+alch_bomb,alchemist,투척 폭탄,int,3,9,0,physical,all_enemies,110,1,,,crit150,reagent 1,재료 1. 모든 적에게 터진다.,Bomb Toss,1 reagent. Bursts over every enemy.
+alch_acid,alchemist,산성 병,int,2,7,25,magic,enemy,100,1,,corrode,crit150,reagent 1,재료 1. 성공하면 부식(방어도 −2).,Acid Flask,"1 reagent. On a success, corrode (armor −2)."
+alch_brew,alchemist,즉석 물약,int,3,12,50,heal,ally,100,1,,,crit150,reagent 1,재료 1. 그 자리에서 물약을 섞어 먹인다.,Quick Brew,1 reagent. Mix a potion on the spot and give it to an ally.
+necro_drain,necromancer,생명 흡수,wil,3,9,25,magic,enemy,100,1,,lifesteal,crit150,,준 피해의 절반만큼 회복한다.,Life Drain,Heal half the damage dealt.
+necro_raise,necromancer,해골 일으키기,,0,0,0,support,self,80,0,,raise,,soul 2,영혼 2. 해골 하나를 일으켜 함께 싸운다(한 번에 하나).,Raise Skeleton,2 souls. Raise a skeleton to fight beside you (one at a time).
+necro_mark,necromancer,죽음의 표,,0,0,0,support,enemy,50,2,,deathmark,,,표가 남은 채 쓰러지면 영혼 +2.,Death Mark,"If the enemy falls while marked, +2 souls."
+seer_star,seer,별똥별,int,3,10,25,magic,enemy,100,1,,,crit150,,별이 떨어진다.,Falling Star,A star falls.
+seer_foretell,seer,예언,,0,0,0,support,self,70,2,,foretell,,,모든 적의 다음 공격 확률 −30.,Prophecy,Every enemy's next attack: chance −30.
+seer_twist,seer,운명 바꾸기,,0,0,0,support,self,40,1,,twist,,,운명의 흐름에서 다음 주사위 하나를 버린다. 별의 눈으로 본 나쁜 수를 치운다.,Twist Fate,Throw away the next die in the flow of fate. Clears a bad roll seen with Star Sight.
+beast_command,beastmaster,협공 명령,per,2,6,0,physical,enemy,100,1,,command,crit150,,조련사가 찌르고 늑대가 바로 같은 적을 문다(협공).,Pack Attack,"You strike, and the wolf bites the same enemy at once (pack attack)."
+beast_guard,beastmaster,지켜라,,0,0,0,support,other_ally,60,2,,wolfguard,,,늑대가 아군 하나를 대신 맞아 준다(조련사의 다음 차례까지).,Protect!,The wolf takes the blows for one ally (until your next turn).
+beast_call,beastmaster,야성의 부름,,0,0,0,support,self,70,3,,call,,,늑대가 생명력 8을 회복하고 다음 공격 위력 +3. 쓰러졌으면 절반으로 일어난다.,Wild Call,"The wolf heals 8 life and gets +3 power on its next attack. If down, it rises at half life."
+monk_palm,monk,장풍,wil,3,10,25,magic,enemy,100,1,,pierce,crit150,ki 2,기 2. 방어도와 마법 방어를 꿰뚫는다.,Palm Blast,2 ki. Pierces armor and magic ward.
+monk_meditate,monk,명상,,0,0,0,support,self,60,2,,meditate,,,"기 +2, 생명력 6 회복.",Meditate,"+2 ki, heal 6 life."
+monk_sweep,monk,휩쓸기 차기,agi,2,6,0,physical,all_enemies,110,2,,,crit150,,모든 적을 걷어찬다.,Sweeping Kick,Kick every enemy.
+engi_turret,engineer,포탑 세우기,,0,0,0,support,self,90,3,,turret,,,앞줄에 포탑을 세운다(이미 있으면 고친다). 포탑은 스스로 쏘고 대신 맞는다.,Build Turret,Build a turret in the front row (or repair the one there). It shoots on its own and takes hits in your place.
+engi_snare,engineer,올가미,per,3,7,0,physical,enemy,100,2,,snare,crit150,,성공 2개 이상이면 적이 다음 차례를 쉰다.,Snare,"With 2 or more successes, the enemy loses its next turn."
+engi_flash,engineer,섬광탄,int,2,4,0,magic,all_enemies,100,2,,weaken,crit150,,모든 적에게 섬광. 성공하면 약화.,Flashbang,"A flash at every enemy. On a success, weaken."
+mnem_echo,mnemonist,되새김,,0,0,0,support,self,80,2,,echo,,,동료가 마지막으로 쓴 기술을 비용 없이 한 번 더 쓴다(해골·늑대·포탑을 부르는 기술은 빼고).,Echo,"Use the skill an ally used last once more, at no cost (not skills that call a skeleton, wolf or turret)."
+mnem_recall,mnemonist,회상,wil,3,12,50,heal,ally,100,1,,,crit150,,좋았던 날을 떠올리게 해 생명력을 되찾게 한다.,Recall,Bring back the memory of a good day to restore life.
+mnem_forget,mnemonist,망각,int,2,6,25,magic,enemy,90,1,,chill,crit150,,적이 하려던 일을 잊게 한다. 성공하면 다음 차례가 늦어진다.,Forget,"Make an enemy forget what it meant to do. On a success, its next turn comes later."
+alch_mist,alchemist,치유의 안개,int,2,7,50,heal,all_allies,110,2,,,crit150,reagent 2,재료 2. 약을 안개로 뿌려 모두를 조금씩 회복한다.,Healing Mist,2 reagents. Spray medicine as a mist to heal everyone a little.
+necro_wall,necromancer,뼈의 벽,,0,0,0,support,self,60,2,,bonewall,,soul 1,영혼 1. 해골이 도발한다: 모든 적이 해골을 노리고 해골의 방어도 +3.,Bone Wall,"1 soul. Your skeleton taunts: every enemy targets it, and it gets +3 armor."
+seer_guide,seer,별의 인도,,0,0,0,support,ally,60,2,,bless,,,아군 하나의 다음 판정에 확정 성공 +1. 화상과 약화를 걷는다.,Guiding Star,+1 sure success on one ally's next roll. Clears burn and weaken.

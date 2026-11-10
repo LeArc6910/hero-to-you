@@ -1,37 +1,37 @@
-id,name,hp,speed,accuracy,armor,ward,xp,gold,pattern,pattern2,phase2,phase2_line,boss,color,size,text,phase2_summon
-goblin,고블린,18,11,70,0,0,4,3,gob_stab,,0,,no,#6E8F3A,1,잿빛에 물든 고블린.,
-goblin_archer,고블린 궁수,14,12,70,0,0,4,4,gob_arrow,,0,,no,#8A9A4A,1,뒤에서 약한 쪽을 노린다.,
-wolf,잿빛 늑대,16,15,65,0,0,4,0,wolf_bite wolf_bite wolf_howl,,0,,no,#8C8C94,1,빠르다. 울부짖으면 다음 이빨이 깊다.,
-bandit,산적,26,11,70,1,0,6,8,bandit_slash bandit_slash bandit_heavy,,0,,no,#A06A48,1,세 번째 차례마다 크게 내려찍는다.,
-cutthroat,단검잡이,18,14,70,0,0,5,6,cut_throw,,0,,no,#7A4A5A,1,빠르고 약한 쪽을 노린다.,
-ash_warden,잿빛 파수꾼,175,13,70,2,1,30,40,warden_strike warden_sweep warden_charge warden_storm warden_strike,warden_crush warden_charge warden_storm warden_ember warden_sweep,50,"봉인은… 지켜야 한다… 잿불이여, 일어나라!",yes,#9A8F86,2,봉인을 지키던 돌 파수꾼. 균열에 물들었다.,ash_wisp ash_wisp
-ash_wisp,잿불 정령,12,16,70,0,0,4,2,wisp_flare,,0,,no,#E8873A,1,빠르게 날아다니며 잿불을 뿜는다.,
-bog_lurker,늪 괴물,34,9,65,1,0,8,6,lurker_grab lurker_slam,,0,,no,#4E6B4A,1,느리지만 무겁다. 두 번째 차례마다 크게 내려친다.,
-bandit_chief,산적 두목,60,11,70,2,0,16,30,chief_cleave bandit_slash chief_rally,chief_cleave chief_cleave chief_rally,40,“다들 뭐 해! 덤벼!”,no,#8A3B2E,1,균열에 사람을 팔아넘기던 산적들의 두목.,cutthroat
-skeleton,해골,16,10,70,1,0,0,0,skel_slash,,0,,no,#D8D2C0,1,사령술사가 일으킨 해골.,
-companion_wolf,늑대,18,14,70,0,0,0,0,ally_bite,,0,,no,#9C8A6A,1,야수조련사의 동료.,
-drowned,익사자,44,9,65,0,0,6,3,drown_grab drown_grab drown_pull,,0,,no,#5E7A80,1,물에 잠긴 거리에서 걸어 나온 사람의 그림자.,
-smuggler,밀수꾼,36,13,70,1,0,6,10,smug_knife smug_bottle,,0,,no,#7A5E3A,1,균열의 물건을 사고파는 자들. 불붙은 병을 던진다.,
-crab,껍데기 게,46,8,65,3,0,6,2,crab_pinch crab_pinch crab_snap,,0,,no,#B0573E,1,껍데기가 두껍다. 마법이 잘 듣는다.,
-gull,폭풍 갈매기,18,17,75,0,0,3,0,gull_peck,,0,,no,#C8CED6,1,빠르고 약한 쪽을 쪼아 댄다.,
-tide_captain,녹슨 닻 선장,125,11,70,2,0,18,35,captain_hook captain_cannon smug_knife,captain_hook captain_cannon captain_cannon,40,“닻을 내려라! 다 같이 가라앉자!”,no,#3E5A6E,1,항구를 균열에 팔아넘긴 밀수 선장.,drowned
-bell_ringer,가라앉은 종지기,420,12,70,2,2,40,50,bell_strike bell_toll bell_raise bell_wave bell_strike,bell_crush bell_raise bell_wave bell_toll bell_strike,50,“리엔… 왜 돌아오지 않았지… 종은… 내가 계속 울렸는데…”,yes,#4A6C8C,2,백 년 동안 물속에서 종을 울려 온 리엔의 옛 동료. 균열에 물들었다.,drowned drowned
-frost_wolf,서리 늑대,46,15,70,0,0,7,2,frost_bite frost_bite frost_howl,,0,,no,#A8C4D8,1,눈보라 속에서 무리 지어 사냥한다.,
-ice_wraith,얼음 망령,34,14,75,0,2,8,4,wraith_touch wraith_wail,,0,,no,#CFE6F2,1,얼어 죽은 수도사의 넋. 마법이 잘 듣지 않는다.,
-snow_troll,눈 트롤,90,8,65,2,0,12,8,troll_smash troll_smash troll_quake,,0,,no,#8FA3A8,1,느리지만 한 방이 무겁다. 세 번째 차례에 땅을 울린다.,
-cultist,균열 신도,42,12,72,1,0,9,14,cult_knife cult_flame,,0,,no,#6B3A5A,1,균열을 신으로 섬기는 자들. 약한 쪽을 노린다.,
-rift_priest,균열 사제,150,12,72,2,1,24,45,priest_lash priest_flame cult_knife,priest_lash priest_flame priest_flame,40,“균열이 열리면 아무도 잊히지 않는다! 모두 하나가 된다!”,no,#4A2440,1,수도원을 차지한 신도들의 우두머리.,cultist
-frozen_abbess,얼어붙은 원장,400,12,72,1,2,50,70,abbess_freeze abbess_frost abbess_gather abbess_blizzard abbess_staff,abbess_crush abbess_gather abbess_blizzard abbess_freeze abbess_staff,50,“리엔… 너는 이름을 버리고 갔지… 나는 기억을 버리지 못했다…”,yes,#9FB8D0,2,리엔에게 봉인 의식을 가르친 수도원장. 백 년 동안 얼음 속에서 기억을 지켰다.,ice_wraith ice_wraith
-turret,포탑,20,9,75,2,0,0,0,turret_shot,,0,,no,#8C8C7A,1,기술자의 포탑.,
-tomb_guard,무덤 수호병,62,9,70,3,0,12,10,guard_spear guard_spear guard_wall,,0,,no,#8A5A3A,1,왕릉을 지키는 돌 병사. 방어도가 높다.,
-sand_serpent,모래 뱀,55,15,72,0,0,11,6,serpent_bite serpent_venom,,0,,no,#C8A050,1,모래 속에서 튀어나온다. 독니에 물리면 약해진다.,
-order_knight,기억 기사,65,11,72,2,0,13,18,oknight_cut oknight_shout oknight_cut,,0,,no,#5A2A3A,1,남의 이름을 빼앗아 영원히 기억되려는 기사단.,
-red_shade,붉은 망령,50,13,75,0,3,12,8,shade_flame shade_wail,,0,,no,#C84A3A,1,왕과 함께 묻힌 신하들의 넋.,
-knight_captain,기사단장 칼라,170,12,74,3,1,30,60,captain4_blade oknight_shout captain4_blade,captain4_blade captain4_rend oknight_shout,40,“이름은 빼앗는 자의 것이다!”,no,#7A2030,1,기억 기사단의 단장. 빼앗은 이름이 갑옷에 새겨져 있다.,order_knight
-sern,일지를 훔친 자 세른,430,13,74,2,2,60,90,sern_seal sern_steal sern_gather sern_crown sern_blade,sern_rend sern_gather sern_crown sern_seal sern_blade,50,“나도 리엔의 길을 걸었다! 그런데 왜 너희만 이름을 얻지?”,yes,#4A1A2A,2,리엔의 일지를 베껴 그 길을 먼저 걸은 사람. 혼자 영웅이 되려 했다.,order_knight order_knight
-rift_spawn,균열 새끼,52,16,74,0,0,13,6,spawn_claw spawn_claw spawn_leap,,0,,no,#5A3A6A,1,균열에서 기어 나온 것. 빠르다.,
-void_eye,공허의 눈,48,13,78,0,3,14,8,void_gaze void_blink,,0,,no,#2A2A4A,1,바라보는 것의 이름을 지운다.,
-ash_colossus,잿빛 거상,130,8,68,3,0,18,12,colossus_fist colossus_fist colossus_stomp,,0,,no,#6A6A70,1,잊힌 도시가 모여 일어선 거상.,
-echo_shade,메아리,58,12,74,1,1,13,8,echo_mock echo_cry,,0,,no,#8A8AAA,1,잊힌 사람의 마지막 말만 남은 그림자.,
-rien_shadow,리엔의 그림자,190,13,76,2,2,34,70,shadow_blade shadow_name shadow_blade,shadow_blade shadow_rend shadow_name,40,"“이름을… 돌려줘… 아니, 가져가지 마…”",no,#3A3A5A,1,이름을 내놓은 영웅에게서 떨어져 나온 그림자.,echo_shade
-nameless,이름 없는 것,520,13,76,2,2,80,120,nameless_erase nameless_forget nameless_gather nameless_void nameless_touch,nameless_crush nameless_gather nameless_void nameless_erase nameless_touch,50,“우리는… 잊힌… 모든… 이름… 너희도… 곧…”,yes,#1A1A2A,2,균열 그 자체. 잊힌 모든 이름이 뭉친 것.,rift_spawn rift_spawn
+id,name,hp,speed,accuracy,armor,ward,xp,gold,pattern,pattern2,phase2,phase2_line,boss,color,size,text,phase2_summon,name_en,text_en,phase2_line_en
+goblin,고블린,18,11,70,0,0,4,3,gob_stab,,0,,no,#6E8F3A,1,잿빛에 물든 고블린.,,Goblin,A goblin tainted by the ash.,
+goblin_archer,고블린 궁수,14,12,70,0,0,4,4,gob_arrow,,0,,no,#8A9A4A,1,뒤에서 약한 쪽을 노린다.,,Goblin Archer,Picks off the weakest from behind.,
+wolf,잿빛 늑대,16,15,65,0,0,4,0,wolf_bite wolf_bite wolf_howl,,0,,no,#8C8C94,1,빠르다. 울부짖으면 다음 이빨이 깊다.,,Ashen Wolf,"Fast. After a howl, its next bite goes deep.",
+bandit,산적,26,11,70,1,0,6,8,bandit_slash bandit_slash bandit_heavy,,0,,no,#A06A48,1,세 번째 차례마다 크게 내려찍는다.,,Bandit,"Every third turn, it brings down a heavy blow.",
+cutthroat,단검잡이,18,14,70,0,0,5,6,cut_throw,,0,,no,#7A4A5A,1,빠르고 약한 쪽을 노린다.,,Cutthroat,"Fast, and goes for the weakest.",
+ash_warden,잿빛 파수꾼,175,13,70,2,1,30,40,warden_strike warden_sweep warden_charge warden_storm warden_strike,warden_crush warden_charge warden_storm warden_ember warden_sweep,50,"봉인은… 지켜야 한다… 잿불이여, 일어나라!",yes,#9A8F86,2,봉인을 지키던 돌 파수꾼. 균열에 물들었다.,ash_wisp ash_wisp,Ashen Warden,"A stone warden that once guarded the seal, now tainted by the Rift.","The seal… must be kept… Embers, rise!"
+ash_wisp,잿불 정령,12,16,70,0,0,4,2,wisp_flare,,0,,no,#E8873A,1,빠르게 날아다니며 잿불을 뿜는다.,,Ember Wisp,"Darts about, spitting embers.",
+bog_lurker,늪 괴물,34,9,65,1,0,8,6,lurker_grab lurker_slam,,0,,no,#4E6B4A,1,느리지만 무겁다. 두 번째 차례마다 크게 내려친다.,,Bog Lurker,"Slow but heavy. Every second turn, it slams down hard.",
+bandit_chief,산적 두목,60,11,70,2,0,16,30,chief_cleave bandit_slash chief_rally,chief_cleave chief_cleave chief_rally,40,“다들 뭐 해! 덤벼!”,no,#8A3B2E,1,균열에 사람을 팔아넘기던 산적들의 두목.,cutthroat,Bandit Chief,Leader of the bandits who sold people to the Rift.,“What are you all standing around for? Get them!”
+skeleton,해골,16,10,70,1,0,0,0,skel_slash,,0,,no,#D8D2C0,1,사령술사가 일으킨 해골.,,Skeleton,A skeleton raised by the necromancer.,
+companion_wolf,늑대,18,14,70,0,0,0,0,ally_bite,,0,,no,#9C8A6A,1,야수조련사의 동료.,,Wolf,The beastmaster's companion.,
+drowned,익사자,44,9,65,0,0,6,3,drown_grab drown_grab drown_pull,,0,,no,#5E7A80,1,물에 잠긴 거리에서 걸어 나온 사람의 그림자.,,Drowned One,The shade of someone who walked out of the drowned streets.,
+smuggler,밀수꾼,36,13,70,1,0,6,10,smug_knife smug_bottle,,0,,no,#7A5E3A,1,균열의 물건을 사고파는 자들. 불붙은 병을 던진다.,,Smuggler,Deals in goods from the Rift. Throws burning bottles.,
+crab,껍데기 게,46,8,65,3,0,6,2,crab_pinch crab_pinch crab_snap,,0,,no,#B0573E,1,껍데기가 두껍다. 마법이 잘 듣는다.,,Shell Crab,A thick shell. Magic works well on it.,
+gull,폭풍 갈매기,18,17,75,0,0,3,0,gull_peck,,0,,no,#C8CED6,1,빠르고 약한 쪽을 쪼아 댄다.,,Storm Gull,"Fast, and pecks away at the weakest.",
+tide_captain,녹슨 닻 선장,125,11,70,2,0,18,35,captain_hook captain_cannon smug_knife,captain_hook captain_cannon captain_cannon,40,“닻을 내려라! 다 같이 가라앉자!”,no,#3E5A6E,1,항구를 균열에 팔아넘긴 밀수 선장.,drowned,Rusty Anchor Captain,The smuggler captain who sold the harbor to the Rift.,“Drop anchor! We all go down together!”
+bell_ringer,가라앉은 종지기,420,12,70,2,2,40,50,bell_strike bell_toll bell_raise bell_wave bell_strike,bell_crush bell_raise bell_wave bell_toll bell_strike,50,“리엔… 왜 돌아오지 않았지… 종은… 내가 계속 울렸는데…”,yes,#4A6C8C,2,백 년 동안 물속에서 종을 울려 온 리엔의 옛 동료. 균열에 물들었다.,drowned drowned,Sunken Bellringer,"Rien's old companion, who rang the bell beneath the water for a hundred years. Tainted by the Rift.",“Rien… why didn't you come back… I kept… ringing the bell…”
+frost_wolf,서리 늑대,46,15,70,0,0,7,2,frost_bite frost_bite frost_howl,,0,,no,#A8C4D8,1,눈보라 속에서 무리 지어 사냥한다.,,Frost Wolf,Hunts in packs inside the blizzard.,
+ice_wraith,얼음 망령,34,14,75,0,2,8,4,wraith_touch wraith_wail,,0,,no,#CFE6F2,1,얼어 죽은 수도사의 넋. 마법이 잘 듣지 않는다.,,Ice Wraith,The spirit of a monk who froze to death. Magic barely touches it.,
+snow_troll,눈 트롤,90,8,65,2,0,12,8,troll_smash troll_smash troll_quake,,0,,no,#8FA3A8,1,느리지만 한 방이 무겁다. 세 번째 차례에 땅을 울린다.,,Snow Troll,"Slow, but every blow is heavy. On its third turn, it shakes the ground.",
+cultist,균열 신도,42,12,72,1,0,9,14,cult_knife cult_flame,,0,,no,#6B3A5A,1,균열을 신으로 섬기는 자들. 약한 쪽을 노린다.,,Rift Cultist,Worships the Rift as a god. Goes for the weakest.,
+rift_priest,균열 사제,150,12,72,2,1,24,45,priest_lash priest_flame cult_knife,priest_lash priest_flame priest_flame,40,“균열이 열리면 아무도 잊히지 않는다! 모두 하나가 된다!”,no,#4A2440,1,수도원을 차지한 신도들의 우두머리.,cultist,Rift Priest,Leader of the cultists who seized the abbey.,"“When the Rift opens, no one is forgotten! All become one!”"
+frozen_abbess,얼어붙은 원장,400,12,72,1,2,50,70,abbess_freeze abbess_frost abbess_gather abbess_blizzard abbess_staff,abbess_crush abbess_gather abbess_blizzard abbess_freeze abbess_staff,50,“리엔… 너는 이름을 버리고 갔지… 나는 기억을 버리지 못했다…”,yes,#9FB8D0,2,리엔에게 봉인 의식을 가르친 수도원장. 백 년 동안 얼음 속에서 기억을 지켰다.,ice_wraith ice_wraith,Frozen Abbess,The abbess who taught Rien the sealing rite. For a hundred years she kept her memories in the ice.,“Rien… you cast off your name and left… I could not cast off my memories…”
+turret,포탑,20,9,75,2,0,0,0,turret_shot,,0,,no,#8C8C7A,1,기술자의 포탑.,,Turret,The engineer's turret.,
+tomb_guard,무덤 수호병,62,9,70,3,0,12,10,guard_spear guard_spear guard_wall,,0,,no,#8A5A3A,1,왕릉을 지키는 돌 병사. 방어도가 높다.,,Tomb Guard,A stone soldier guarding the royal tomb. High armor.,
+sand_serpent,모래 뱀,55,15,72,0,0,11,6,serpent_bite serpent_venom,,0,,no,#C8A050,1,모래 속에서 튀어나온다. 독니에 물리면 약해진다.,,Sand Serpent,Bursts out of the sand. Its venomous fangs weaken.,
+order_knight,기억 기사,65,11,72,2,0,13,18,oknight_cut oknight_shout oknight_cut,,0,,no,#5A2A3A,1,남의 이름을 빼앗아 영원히 기억되려는 기사단.,,Knight of Memory,Of the order that steals other people's names to be remembered forever.,
+red_shade,붉은 망령,50,13,75,0,3,12,8,shade_flame shade_wail,,0,,no,#C84A3A,1,왕과 함께 묻힌 신하들의 넋.,,Red Shade,The spirits of servants buried with their king.,
+knight_captain,기사단장 칼라,170,12,74,3,1,30,60,captain4_blade oknight_shout captain4_blade,captain4_blade captain4_rend oknight_shout,40,“이름은 빼앗는 자의 것이다!”,no,#7A2030,1,기억 기사단의 단장. 빼앗은 이름이 갑옷에 새겨져 있다.,order_knight,Commander Kalla,Leader of the Knights of Memory. Stolen names are carved all over the armor.,“A name belongs to whoever takes it!”
+sern,일지를 훔친 자 세른,430,13,74,2,2,60,90,sern_seal sern_steal sern_gather sern_crown sern_blade,sern_rend sern_gather sern_crown sern_seal sern_blade,50,“나도 리엔의 길을 걸었다! 그런데 왜 너희만 이름을 얻지?”,yes,#4A1A2A,2,리엔의 일지를 베껴 그 길을 먼저 걸은 사람. 혼자 영웅이 되려 했다.,order_knight order_knight,Sern the Journal Thief,Copied Rien's journal and walked the road before you. Wanted to be the hero alone.,“I walked Rien's road too! So why do only you get a name?”
+rift_spawn,균열 새끼,52,16,74,0,0,13,6,spawn_claw spawn_claw spawn_leap,,0,,no,#5A3A6A,1,균열에서 기어 나온 것. 빠르다.,,Riftspawn,Something that crawled out of the Rift. Fast.,
+void_eye,공허의 눈,48,13,78,0,3,14,8,void_gaze void_blink,,0,,no,#2A2A4A,1,바라보는 것의 이름을 지운다.,,Eye of the Void,Erases the name of whatever it looks upon.,
+ash_colossus,잿빛 거상,130,8,68,3,0,18,12,colossus_fist colossus_fist colossus_stomp,,0,,no,#6A6A70,1,잊힌 도시가 모여 일어선 거상.,,Ashen Colossus,A colossus risen from the pieces of a forgotten city.,
+echo_shade,메아리,58,12,74,1,1,13,8,echo_mock echo_cry,,0,,no,#8A8AAA,1,잊힌 사람의 마지막 말만 남은 그림자.,,Echo,A shadow left with nothing but a forgotten person's last words.,
+rien_shadow,리엔의 그림자,190,13,76,2,2,34,70,shadow_blade shadow_name shadow_blade,shadow_blade shadow_rend shadow_name,40,"“이름을… 돌려줘… 아니, 가져가지 마…”",no,#3A3A5A,1,이름을 내놓은 영웅에게서 떨어져 나온 그림자.,echo_shade,Rien's Shadow,The shadow torn from the hero who gave their name away.,"“Give… my name back… No, don't take it…”"
+nameless,이름 없는 것,520,13,76,2,2,80,120,nameless_erase nameless_forget nameless_gather nameless_void nameless_touch,nameless_crush nameless_gather nameless_void nameless_erase nameless_touch,50,“우리는… 잊힌… 모든… 이름… 너희도… 곧…”,yes,#1A1A2A,2,균열 그 자체. 잊힌 모든 이름이 뭉친 것.,rift_spawn rift_spawn,The Nameless,"The Rift itself. Every forgotten name, clotted into one.",“We are… every… forgotten… name… You too… soon…”

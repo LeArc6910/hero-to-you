@@ -1,16 +1,16 @@
-id,name,pages,effect,text,requires
-coin_purse,두둑한 지갑,2,gold 20,모험을 금화 20 더 들고 시작한다.,
-spare_potions,넉넉한 물약,2,potion 1,영웅마다 회복 물약 하나를 더 들고 시작한다.,
-old_tonic,리엔의 결의,3,tonic 1,영웅마다 결의 물약 하나를 들고 시작한다.,
-hope_page,희망의 장,4,hope 1,희망을 하나 더 들고 시작한다.,
-quick_start,서두른 출발,4,doom -1,균열이 하나 덜 찬 채로 시작한다(첫 챕터).,
-veterans,선배의 가르침,5,xp 10,영웅마다 경험치 10을 들고 시작한다(레벨 2).,
-hard_road,가시밭길,6,hard,몬스터 생명력 +25%. 대신 이기면 일지 페이지를 두 배로 받는다.,
-map_page,손으로 그린 지도,3,reveal 6,시작할 때 주변 여섯 칸이 밝혀져 있다.,
-blessed_start,새벽 기도,4,bless 1,영웅마다 축복 하나(다음 판정에 확정 성공 하나)를 들고 시작한다.,
-known_names,먼저 난 소문,5,renown 2,명성 2를 들고 시작한다.,
-fine_edge,잘 벼린 날,6,forge 1,영웅마다 무기가 한 번 벼려진 채 시작한다.,
-deep_purse,은행가의 편지,8,gold 40,금화 40을 더 들고 시작한다. 업적 '의뢰꾼'이 필요하다.,for_hire
-delver_kit,던전꾼의 짐,7,tonic 1,영웅마다 결의 물약 하나를 더 든다. 업적 '깊은 곳까지'가 필요하다.,delver
-fireside,모닥불 곁의 이야기,7,hope 1,희망을 하나 더 든다. 업적 '모닥불 이야기꾼'이 필요하다.,campfire
-seal_memory,봉인의 기억,9,doom -1,균열이 하나 덜 찬 채로 시작한다. 업적 '첫 봉인'이 필요하다.,first_seal
+id,name,pages,effect,text,requires,name_en,text_en
+coin_purse,두둑한 지갑,2,gold 20,모험을 금화 20 더 들고 시작한다.,,Heavy Purse,Start the adventure with 20 more gold.
+spare_potions,넉넉한 물약,2,potion 1,영웅마다 회복 물약 하나를 더 들고 시작한다.,,Spare Potions,Each hero starts with one more healing potion.
+old_tonic,리엔의 결의,3,tonic 1,영웅마다 결의 물약 하나를 들고 시작한다.,,Rien's Resolve,Each hero starts with a tonic.
+hope_page,희망의 장,4,hope 1,희망을 하나 더 들고 시작한다.,,Page of Hope,Start with one more hope.
+quick_start,서두른 출발,4,doom -1,균열이 하나 덜 찬 채로 시작한다(첫 챕터).,,Hasty Start,Start with the Rift one step lower (first chapter).
+veterans,선배의 가르침,5,xp 10,영웅마다 경험치 10을 들고 시작한다(레벨 2).,,A Veteran's Lessons,Each hero starts with 10 XP (level 2).
+hard_road,가시밭길,6,hard,몬스터 생명력 +25%. 대신 이기면 일지 페이지를 두 배로 받는다.,,The Thorny Road,Monster life +25%. But a win earns double journal pages.
+map_page,손으로 그린 지도,3,reveal 6,시작할 때 주변 여섯 칸이 밝혀져 있다.,,Hand-Drawn Map,You start with the six hexes around you revealed.
+blessed_start,새벽 기도,4,bless 1,영웅마다 축복 하나(다음 판정에 확정 성공 하나)를 들고 시작한다.,,Dawn Prayer,Each hero starts with one blessing (one sure success on the next roll).
+known_names,먼저 난 소문,5,renown 2,명성 2를 들고 시작한다.,,Word Travels Ahead,Start with 2 renown.
+fine_edge,잘 벼린 날,6,forge 1,영웅마다 무기가 한 번 벼려진 채 시작한다.,,A Keen Edge,Each hero starts with their weapon honed once.
+deep_purse,은행가의 편지,8,gold 40,금화 40을 더 들고 시작한다. 업적 '의뢰꾼'이 필요하다.,for_hire,Banker's Letter,Start with 40 more gold. Requires the achievement “For Hire”.
+delver_kit,던전꾼의 짐,7,tonic 1,영웅마다 결의 물약 하나를 더 든다. 업적 '깊은 곳까지'가 필요하다.,delver,Delver's Kit,Each hero carries one more tonic. Requires the achievement “All the Way Down”.
+fireside,모닥불 곁의 이야기,7,hope 1,희망을 하나 더 든다. 업적 '모닥불 이야기꾼'이 필요하다.,campfire,Fireside Tales,Carry one more hope. Requires the achievement “Fireside Storyteller”.
+seal_memory,봉인의 기억,9,doom -1,균열이 하나 덜 찬 채로 시작한다. 업적 '첫 봉인'이 필요하다.,first_seal,Memory of the Seal,Start with the Rift one step lower. Requires the achievement “First Seal”.
