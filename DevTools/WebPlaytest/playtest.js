@@ -246,7 +246,12 @@ async function playSlice(game, wholeRun) {
     const answer = (await game.send('goto town')).reverse().find(l => l.startsWith('goto ')) || '';
     const townHex = answer.trim().split(' ').pop();
     await game.send('roll');
-    const town = await game.find(townHex, '칸');
+    // The reachable hexes become buttons on the frame after the roll.
+    let town = [];
+    for (let i = 0; i < 10 && town.length === 0; i++) {
+      town = await game.find(townHex, '칸');
+      if (town.length === 0) await game.wait(200);
+    }
     run.check(town.length > 0, `마을 칸(${townHex})이 지도에 있다`);
     if (town.length > 0) {
       await game.press(townHex, '칸');
@@ -268,8 +273,14 @@ async function playSlice(game, wholeRun) {
       const forgeButtons = await game.find(/→ \+1/, '대장간');
       run.check(forgeButtons.length >= 3, `대장간에 벼릴 장비 단추가 있다 (${forgeButtons.length}개)`);
       if (forgeButtons.length > 0) {
-        await game.press(forgeButtons[0].label, '대장간');
-        run.check((await game.state()).heroes.some(h => h.plus > 0), '대장간에서 무기를 벼리면 +1이 된다');
+        // The forge is at the bottom of the town's list: the press scrolls there first, and a tap while the list is
+        // still gliding can miss. Wait for the +1, and press again if it did not come.
+        let forged = null;
+        for (let i = 0; i < 3 && !forged; i++) {
+          await game.press(forgeButtons[0].label, '대장간', { quiet: true });
+          forged = await game.until(s => s.heroes.some(h => h.plus > 0), 2000);
+        }
+        run.check(!!forged, '대장간에서 무기를 벼리면 +1이 된다');
       }
       await game.shot('town-after', '소문·물약·대장간 뒤 마을');
       await game.press('마을을 떠난다', null, { quiet: true });
