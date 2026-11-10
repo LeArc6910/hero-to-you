@@ -79,6 +79,10 @@ async function playSlice(game, wholeRun) {
   run.check((await game.state()).language === 'en' && (await game.allText()).includes('Settings'), '언어를 영어로 바꾸면 메뉴가 영어로 나온다');
   await game.shot('settings-en', '설정을 영어로');
   await game.send('language ko; textsize 100');
+  // The bug report window opens from the settings (no run yet, so it says so).
+  run.check(await game.press('버그 제보', '설정'), '설정에서 [버그 제보]를 누를 수 있다');
+  run.check((await game.state()).screen === 'Settings' && (await game.allText()).includes('버그 제보'), '버그 제보 창이 열린다');
+  await game.press('닫기', '제보');
   await game.press('뒤로');
   state = await game.until(s => s.screen === 'Title', 4000);
 
@@ -157,6 +161,7 @@ async function playSlice(game, wholeRun) {
     const targets = await game.find(/.+/, '대상');
     if (targets.length > 1) await game.press(targets[targets.length - 1].label, '대상');
     await game.shot('battle-skill', '기술과 대상, 확률 미리 보기');
+    run.check((await game.find(/^자동/, '자동')).length === 1, '전투에 [자동] 단추가 있다');
     run.check((await game.find(/^회복 물약/, '소모품')).length === 1, '전투에서 물약(소모품) 단추가 있다');
     run.check((await game.find(/^도망/)).length === 1, '보스가 아니면 [도망] 단추가 있다');
     // The long-press (phone) or hover (PC) explanation of a skill.
@@ -220,7 +225,14 @@ async function playSlice(game, wholeRun) {
         state = await game.state();
         run.check(state.heroes.some(h => h.potions > potions) || state.gold >= 0, '상점에서 영웅에게 물약을 사 준다');
       }
-      await game.shot('town-after', '소문과 물약 뒤 마을');
+      await game.send('gold 500');
+      const forgeButtons = await game.find(/→ \+1/, '대장간');
+      run.check(forgeButtons.length >= 3, `대장간에 벼릴 장비 단추가 있다 (${forgeButtons.length}개)`);
+      if (forgeButtons.length > 0) {
+        await game.press(forgeButtons[0].label, '대장간');
+        run.check((await game.state()).heroes.some(h => h.plus > 0), '대장간에서 무기를 벼리면 +1이 된다');
+      }
+      await game.shot('town-after', '소문·물약·대장간 뒤 마을');
       await game.press('마을을 떠난다', null, { quiet: true });
     }
   }
@@ -273,6 +285,7 @@ async function playSlice(game, wholeRun) {
   state = await game.until(s => s.screen === 'Journal', 4000);
   run.check(!!state, '일지 화면');
   await game.shot('journal', '일지: 페이지, 장, 찾은 옛 메모');
+  run.check((await game.allText()).includes('업적'), '일지에 업적과 직업별 기록이 있다');
   await game.press('뒤로');
 }
 

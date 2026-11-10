@@ -30,6 +30,7 @@ namespace Game.Client
             [Terrain.Shallows] = Palette.Hex("#3F6E7A"),
             [Terrain.Sand] = Palette.Hex("#9C8A5E"),
             [Terrain.Snow] = Palette.Hex("#AEB9C4"),
+            [Terrain.Rift] = Palette.Hex("#3A2A44"),
             [Terrain.Water] = Palette.Hex("#2A425C"),
             [Terrain.Mountain] = Palette.Hex("#4A4550"),
         };
@@ -215,6 +216,7 @@ namespace Game.Client
             Terrain.Shallows => "wave",
             Terrain.Sand => "dunes",
             Terrain.Snow => "snowflake",
+            Terrain.Rift => "crack",
             _ => null,
         };
 
@@ -312,15 +314,17 @@ namespace Game.Client
 
             if (a.MovePoints < 0)
             {
-                if (Ui.Button(new Rect(inner.x, y, inner.width, bh), $"이동 굴리기 ({a.MoveChance(hero)}% × {Adventure.MoveDice})", 15, true, Look.Primary))
+                if (Ui.Button(new Rect(inner.x, y, inner.width, bh), $"{Strings.Get("map.roll")} ({a.MoveChance(hero)}% × {Adventure.MoveDice})", 15, true, Look.Primary))
                 {
                     _picked = null;
                     if (Act(a.RollMove) == null) Sounds.Play(Sound.Dice);
                 }
                 y += bh + 6;
-                if (Ui.Button(new Rect(inner.x, y, half, bh), "야영", 14, true, Look.Quiet)) Act(a.Camp);
-                if (Ui.Button(new Rect(inner.x + half + 6, y, half, bh), "장비·소모품", 14, true, Look.Quiet)) _gearOpen = true;
+                if (Ui.Button(new Rect(inner.x, y, half, bh), Strings.Get("map.camp"), 14, true, Look.Quiet)) Act(a.Camp);
+                if (Ui.Button(new Rect(inner.x + half + 6, y, half, bh), Strings.Get("map.gear"), 14, true, Look.Quiet)) _gearOpen = true;
                 y += bh + 4;
+                if (Ui.Button(new Rect(inner.x, y, inner.width, bh - 4), Strings.Get("history.button"), 13, true, Look.Quiet, "기록")) _historyOpen = true;
+                y += bh;
                 Ui.Text(new Rect(inner.x, y, inner.width, 30), "이동력 = 2 + 성공 수. 야영은 움직이지 않고 생명력 20%와 결의 1을 회복한다." + PerkLine(hero), 10.5f, Palette.Dim, TextAnchor.UpperLeft, false, true);
                 y += 32;
             }
@@ -330,7 +334,7 @@ namespace Game.Client
                 y += 32;
                 if (a.CanReroll)
                 {
-                    if (Ui.Button(new Rect(inner.x, y, inner.width, bh - 4), "다시 굴리기 (도박사, 하루 한 번)", 13, true, Look.Normal))
+                    if (Ui.Button(new Rect(inner.x, y, inner.width, bh - 4), Strings.Get("map.reroll"), 13, true, Look.Normal))
                     {
                         _picked = null;
                         if (Act(a.Reroll) == null) Sounds.Play(Sound.Dice);
@@ -347,7 +351,7 @@ namespace Game.Client
                     y += ah + 2;
                     Ui.Text(new Rect(inner.x, y, inner.width, 16), $"이동 비용 {cost}", 11, Palette.Dim);
                     y += 18;
-                    if (Ui.Button(new Rect(inner.x, y, inner.width, bh), "이동", 16, true, Look.Primary))
+                    if (Ui.Button(new Rect(inner.x, y, inner.width, bh), Strings.Get("map.move"), 16, true, Look.Primary))
                     {
                         var to = _picked.Value;
                         _picked = null;
@@ -355,12 +359,12 @@ namespace Game.Client
                     }
                     y += bh + 6;
                 }
-                if (Ui.Button(new Rect(inner.x, y, half, bh), "여기 머물기", 14, true, Look.Quiet))
+                if (Ui.Button(new Rect(inner.x, y, half, bh), Strings.Get("map.stay"), 14, true, Look.Quiet))
                 {
                     _picked = null;
                     Act(a.Stay);
                 }
-                if (Ui.Button(new Rect(inner.x + half + 6, y, half, bh), "장비·소모품", 14, true, Look.Quiet)) _gearOpen = true;
+                if (Ui.Button(new Rect(inner.x + half + 6, y, half, bh), Strings.Get("map.gear"), 14, true, Look.Quiet)) _gearOpen = true;
                 y += bh + 4;
             }
             if (_actError != null)
@@ -417,8 +421,8 @@ namespace Game.Client
             {
                 var cell = new Rect(r.x + i * (die + 4), r.y, die, die);
                 bool sure = roll.Faces[i] < 0;
-                Ui.Fill(cell, sure ? Palette.Sure : roll.Hits[i] ? Palette.Success : Palette.Fail);
-                Ui.Text(cell, sure ? "★" : roll.Faces[i].ToString(), 12, sure || roll.Hits[i] ? Palette.Back : Palette.Ink, TextAnchor.MiddleCenter, true);
+                Ui.Fill(cell, sure ? Palette.Sure : roll.Hits[i] ? Settings.Success : Settings.Fail);
+                Ui.Text(cell, sure ? "★" : Settings.Face(roll.Faces[i], roll.Hits[i]), 12, sure || roll.Hits[i] ? Palette.Back : Palette.Ink, TextAnchor.MiddleCenter, true);
             }
             Ui.Text(new Rect(r.x + roll.Dice * (die + 4) + 4, r.y, r.width - roll.Dice * (die + 4), die), $"{roll.Chance}% 아래면 성공 · 성공 {roll.Successes}", 11, Palette.Dim);
         }
@@ -494,7 +498,7 @@ namespace Game.Client
             }
             if (_actError != null) y = Paragraph(column, y, _actError, 12, Palette.Damage);
             EndColumn(y);
-            if (Ui.Button(Footer(48), $"싸운다 ({_joining.Count}명)", 17, true, Look.Primary))
+            if (Ui.Button(Footer(48), $"{Strings.Get("join.fight")} ({_joining.Count}명)", 17, true, Look.Primary))
             {
                 var chosen = _joining.ToList();
                 if (Act(() => a.Join(chosen)) == null)

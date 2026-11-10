@@ -88,15 +88,133 @@ namespace Game.Client
         {
             TickBattle(Time.unscaledDeltaTime);
             Music.Play(MusicFor());
+            Music.Ambient(AmbienceFor());
             Music.Tick(Time.unscaledDeltaTime);
+            if (_autoBattle && AwaitingHero && _tipOpen == null) AutoCommand();
         }
+
+        // The place's sound on the map and in events (the chapter's music name: forest, harbor, snow, tomb, rift).
+        Ambience AmbienceFor()
+        {
+            var a = _adventure;
+            if (_screen != ClientScreen.Adventure || a == null) return Ambience.None;
+            if (a.Screen != AdventureScreen.Map && a.Screen != AdventureScreen.Event && a.Screen != AdventureScreen.EventResult) return Ambience.None;
+            return System.Enum.TryParse(a.Chapter.Music, true, out Ambience ambience) ? ambience : Ambience.None;
+        }
+
+        // ---- Auto battle (Docs/WebDemo.md 편의): the battle bot gives the heroes' commands until switched off ----
+
+        bool _autoBattle;
+        float _autoAt;
+
+        void AutoCommand()
+        {
+            if (Time.unscaledTime - _autoAt < 0.25f) return;
+            _autoAt = Time.unscaledTime;
+            var battle = _adventure.Battle;
+            Act(() => _adventure.Fight(BattleBot.Choose(battle, AutoRandom)));
+            _selectedFor = -1;
+        }
+
+        static readonly GameRandom AutoRandom = new GameRandom(7, 7);
+
+        // ---- What happened (the history window) ----
+
+        readonly List<string> _history = new List<string>();
+        bool _historyOpen;
+        float _historyScroll;
+        bool _historyDragging;
+        float _historyLastY;
+
+        void Remember(IEnumerable<string> lines)
+        {
+            foreach (string line in lines)
+            {
+                if (string.IsNullOrEmpty(line) || (_history.Count > 0 && _history[_history.Count - 1] == line)) continue;
+                _history.Add(line);
+            }
+            if (_history.Count > 300) _history.RemoveRange(0, _history.Count - 300);
+        }
+
+        void DrawHistory()
+        {
+            Ui.Fill(new Rect(0, 0, Ui.Width, Ui.Height), new Color(0, 0, 0, 0.6f));
+            float w = Mathf.Min(640, Ui.Width - 24);
+            var r = new Rect((Ui.Width - w) / 2, 12, w, Ui.Height - 24);
+            Ui.Panel(r, Palette.Panel, Palette.Gold);
+            Ui.Text(new Rect(r.x + 14, r.y + 8, w - 28, 26), Strings.Get("history.heading"), 19, Palette.Gold, TextAnchor.MiddleLeft, true);
+            var area = new Rect(r.x + 14, r.y + 40, w - 28, r.height - 104);
+            float total = _history.Sum(l => Ui.TextHeight(l, 12, area.width) + 4);
+            _historyScroll = Ui.Scroll(area, _historyScroll, total - area.height, ref _historyDragging, ref _historyLastY);
+            Ui.BeginArea(area, _historyScroll);
+            float y = 0;
+            foreach (string line in _history)
+            {
+                float h = Ui.TextHeight(line, 12, area.width);
+                Ui.Text(new Rect(0, y, area.width, h), line, 12, Palette.Journal, TextAnchor.UpperLeft, false, true);
+                y += h + 4;
+            }
+            Ui.EndArea(_historyScroll);
+            if (_history.Count == 0) Ui.Text(area, Strings.Get("history.empty"), 13, Palette.Dim, TextAnchor.MiddleCenter);
+            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 56, 180, 46), Strings.Get("common.close"), 16, true, Look.Primary, "기록")) _historyOpen = false;
+        }
+
+        // ---- Bug report (Docs/Playtest.md 버그 제보): the save as text, to copy or download and send ----
+
+        bool _reportOpen;
+        string _reportNote;
+
+        void DrawBugReport()
+        {
+            string save = SaveStore.Read() ?? (_adventure?.Save());
+            Ui.Fill(new Rect(0, 0, Ui.Width, Ui.Height), new Color(0, 0, 0, 0.6f));
+            float w = Mathf.Min(560, Ui.Width - 24);
+            var r = new Rect((Ui.Width - w) / 2, 12, w, Ui.Height - 24);
+            Ui.Panel(r, Palette.Panel, Palette.Gold);
+            Ui.Text(new Rect(r.x + 14, r.y + 8, w - 28, 26), Strings.Get("report.heading"), 19, Palette.Gold, TextAnchor.MiddleLeft, true);
+            float y = r.y + 40;
+            string about = save == null ? Strings.Get("report.none") : Strings.Format("report.about", save.Split('\n').Length, BuildInfo.Version);
+            float ah = Ui.TextHeight(about, 13, w - 28);
+            Ui.Text(new Rect(r.x + 14, y, w - 28, ah), about, 13, Palette.Ink, TextAnchor.UpperLeft, false, true);
+            y += ah + 8;
+            if (save != null)
+            {
+                string preview = string.Join("\n", save.Split('\n').Take(8)) + "\n…";
+                var box = new Rect(r.x + 14, y, w - 28, Mathf.Min(150, r.yMax - y - 170));
+                Ui.Fill(box, new Color(0, 0, 0, 0.35f));
+                Ui.Text(new Rect(box.x + 6, box.y + 4, box.width - 12, box.height - 8), preview, 11, Palette.Dim, TextAnchor.UpperLeft);
+                y = box.yMax + 10;
+                float half = (w - 36) / 2;
+                if (Ui.Button(new Rect(r.x + 14, y, half, 46), Strings.Get("report.copy"), 14, true, Look.Normal, "제보"))
+                {
+                    _reportNote = WebBridge.Copy(BugReport(save)) ? Strings.Get("report.copied") : Strings.Get("report.copy_failed");
+                }
+                if (Ui.Button(new Rect(r.x + 22 + half, y, half, 46), Strings.Get("report.download"), 14, true, Look.Normal, "제보"))
+                {
+                    WebBridge.Download("hero-to-you-report.txt", BugReport(save));
+                    _reportNote = Strings.Get("report.downloaded");
+                }
+                y += 54;
+            }
+            if (_reportNote != null) Ui.Text(new Rect(r.x + 14, y, w - 28, 40), _reportNote, 12, Palette.Journal, TextAnchor.UpperLeft, false, true);
+            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 56, 180, 46), Strings.Get("common.close"), 16, true, Look.Primary, "제보"))
+            {
+                _reportOpen = false;
+                _reportNote = null;
+            }
+        }
+
+        // The save with a line about the build and the screen, for the cloud to replay (CoreSandbox --replay).
+        string BugReport(string save) =>
+            $"# hero-to-you bug report · {BuildInfo.Version} · {Ui.Width:0}x{Ui.Height:0} · {(Ui.Touch ? "touch" : "mouse")} · {Settings.Language}\n" + save;
 
         // The tune for what is on the screen (Art/MusicArt.cs).
         Tune MusicFor()
         {
             var a = _adventure;
             if (_screen != ClientScreen.Adventure || a == null) return Tune.Title;
-            if (a.Battle != null && (a.Screen == AdventureScreen.Battle || BattlePlaying)) return a.BossBattle ? Tune.Boss : Tune.Battle;
+            if (a.Battle != null && (a.Screen == AdventureScreen.Battle || BattlePlaying))
+                return a.BossBattle ? (a.Chapter.Index == _data.Chapters.Count - 1 ? Tune.BossFinal : Tune.Boss) : Tune.Battle;
             return a.Screen switch
             {
                 AdventureScreen.Town => Tune.Town,
@@ -116,9 +234,10 @@ namespace Game.Client
                 Ui.Text(new Rect(20, 20, Ui.Width - 40, Ui.Height - 40), "데이터를 불러오지 못했습니다.\n" + _loadError, 14, Palette.Damage, TextAnchor.UpperLeft, false, true);
                 return;
             }
-            // A tip card or a campfire talk is modal: the screen under it is drawn but cannot be pressed.
+            // A tip card, a campfire talk, the history or the bug report is modal: the screen under it is drawn but
+            // cannot be pressed.
             bool talk = TalkWaiting;
-            bool modal = _tipOpen != null || talk;
+            bool modal = _tipOpen != null || talk || _historyOpen || _reportOpen;
             if (modal) GUI.enabled = false;
             switch (_screen)
             {
@@ -140,6 +259,8 @@ namespace Game.Client
             }
             GUI.enabled = true;
             if (_tipOpen != null) DrawTipCard();
+            else if (_reportOpen) DrawBugReport();
+            else if (_historyOpen) DrawHistory();
             else if (talk) DrawTalk();
             else Ui.DrawTip();
         }
@@ -190,8 +311,10 @@ namespace Game.Client
             ulong value = seed ?? _nextSeed ?? (ulong)DateTime.Now.Ticks;
             _nextSeed = null;
             _recorded = false;
-            _adventure = new Adventure(_data, classes.ToList(), value, ChosenPerks(), _difficulty);
+            _adventure = new Adventure(_data, classes.ToList(), value, ChosenPerks(), _difficulty, _hardcore);
             _talksShown = 0;
+            _history.Clear();
+            _autoBattle = false;
             _screen = ClientScreen.Adventure;
             ResetAdventureView();
             SaveStore.Write(_adventure.Save());
@@ -209,6 +332,8 @@ namespace Game.Client
             _adventure = adventure;
             _recorded = false;
             _talksShown = adventure.Talks.Count;
+            _history.Clear();
+            _autoBattle = false;
             _screen = ClientScreen.Adventure;
             ResetAdventureView();
             if (adventure.Battle != null)
@@ -226,6 +351,9 @@ namespace Game.Client
             string error = command();
             if (error == null)
             {
+                Remember(_adventure.Report);
+                if (_adventure.Result != null && _adventure.Screen == AdventureScreen.EventResult)
+                    Remember(new[] { $"[{_adventure.Event?.Title}] {_adventure.Result.Choice.Label}: {_adventure.Result.Text}" }.Concat(_adventure.Result.Changes));
                 if (_adventure.Over)
                 {
                     SaveStore.Delete();
@@ -354,6 +482,19 @@ namespace Game.Client
         // ---- Campfire talks (Docs/Narrative.md 동료 대화) ----
 
         int _talksShown;
+        bool _hardcore;
+
+        // After losing a chapter: the run as it was when the chapter began (Adventure.ChapterStartSave).
+        internal string RetryChapter()
+        {
+            string save = _retrySave;
+            if (save == null) return "다시 할 수 없습니다.";
+            SaveStore.Write(save);
+            _retrySave = null;
+            return Resume();
+        }
+
+        string _retrySave;
 
         bool TalkWaiting => _screen == ClientScreen.Adventure && _adventure != null && _adventure.LevelUp == null
             && _adventure.Screen == AdventureScreen.Map && _talksShown < _adventure.Talks.Count;
@@ -397,8 +538,10 @@ namespace Game.Client
         {
             if (_recorded || _adventure == null || !_adventure.Over) return;
             _recorded = true;
+            _retrySave = _adventure.Screen == AdventureScreen.Defeat ? _adventure.ChapterStartSave() : null;
             _lastPages = JournalNow.Record(_adventure);
             SaveStore.WriteJournal(JournalNow);
+            if (JournalNow.NewAchievements.Count > 0) Sounds.Play(Sound.Achievement);
         }
 
         // The perks the player picked on the journal screen and still has unlocked.

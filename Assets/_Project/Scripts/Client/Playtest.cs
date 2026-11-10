@@ -178,6 +178,29 @@ namespace Game.Client
                     // Puts consumables in a hero's pack: give hero item count.
                     _adventure.Heroes[Number(1)].AddConsumable(Arg(2, Hero.PotionId), Number(3, 1));
                     return "ok";
+                case "forge":
+                    return Act(() => _adventure.Forge(Number(1), (ItemSlot)System.Enum.Parse(typeof(ItemSlot), Arg(2, "weapon"), true))) ?? "ok";
+                case "recruit":
+                    return Act(() => _adventure.Recruit(Arg(1))) ?? "ok";
+                case "hardcore":
+                    _hardcore = Arg(1, "on") == "on";
+                    return "ok";
+                case "autobutton":
+                    _autoBattle = Arg(1, "on") == "on";
+                    return "ok";
+                case "history":
+                    _historyOpen = Arg(1, "on") == "on";
+                    return "ok " + _history.Count;
+                case "bugreport":
+                    // Opens the bug report window; "bugreport text" answers the report itself.
+                    if (Arg(1) == "text") return (BugReport(SaveStore.Read() ?? _adventure?.Save() ?? "")).Replace("\n", " | ");
+                    _reportOpen = Arg(1, "on") == "on";
+                    return "ok";
+                case "retry":
+                    return RetryChapter() ?? "ok " + _adventure.Chapter.Id;
+                case "gold":
+                    _adventure.Gold = Number(1, 500);
+                    return "ok";
                 case "talk":
                     // Shows the last campfire talk again as its card.
                     if (_adventure.Talks.Count == 0) return "error no talk yet";
@@ -288,7 +311,8 @@ namespace Game.Client
                 .Add("width", Ui.Width)
                 .Add("height", Ui.Height)
                 .Add("pages", JournalNow.Pages).Add("perks", string.Join(",", ChosenPerks()))
-                .Add("language", Settings.Language).Add("textSize", Settings.TextSize).Add("vibration", Settings.Vibration);
+                .Add("language", Settings.Language).Add("textSize", Settings.TextSize).Add("vibration", Settings.Vibration)
+                .Add("achievements", JournalNow.Achieved.Count).Add("colorMarks", Settings.ColorMarks).Add("lessMotion", Settings.LessMotion);
             var adventure = _adventure;
             if (adventure != null)
             {
@@ -302,13 +326,15 @@ namespace Game.Client
                     .Add("canAvoid", adventure.CanAvoid).Add("canScare", adventure.CanScare).Add("footsteps", adventure.Footsteps.Count)
                     .Add("tip", _tipOpen ?? "").Add("tooltip", Ui.ShownTip ?? "").Add("music", Music.Volume)
                     .Add("difficulty", adventure.Difficulty.ToString()).Add("dungeonRoom", adventure.DungeonRoom).Add("contract", adventure.Contract != null)
-                    .Add("talks", adventure.Talks.Count).Add("talkWaiting", TalkWaiting).Add("story", adventure.Story?.Id ?? "").Add("storyAll", _storyAll);
+                    .Add("talks", adventure.Talks.Count).Add("talkWaiting", TalkWaiting).Add("story", adventure.Story?.Id ?? "").Add("storyAll", _storyAll)
+                    .Add("hardcore", adventure.Hardcore).Add("auto", _autoBattle).Add("history", _history.Count).Add("canRetry", _retrySave != null)
+                    .Add("reportOpen", _reportOpen).Add("historyOpen", _historyOpen);
                 json.List("heroes");
                 foreach (var hero in adventure.Heroes)
                     json.Open().Add("class", hero.Class.Id).Add("level", hero.Level).Add("hp", hero.Hp).Add("max", hero.MaxHp)
                         .Add("resolve", hero.Resolve).Add("grit", hero.Grit).Add("potions", hero.Potions).Add("weapon", hero.Weapon.Id)
                         .Add("items", string.Join(",", hero.Consumables.Where(c => c.Value > 0).Select(c => c.Key + ":" + c.Value)))
-                        .Add("wounds", hero.Wounds).Add("back", hero.Back)
+                        .Add("wounds", hero.Wounds).Add("back", hero.Back).Add("dead", hero.Dead).Add("plus", hero.Weapon.Plus)
                         .Add("at", adventure.Positions[adventure.Heroes.IndexOf(hero)].ToString()).Close();
                 json.End();
                 if (adventure.Event != null && adventure.Screen == AdventureScreen.Event)

@@ -32,6 +32,34 @@ namespace Game.Client
 #endif
         }
 
+        // Puts text on the clipboard (the bug report). False when the browser refused.
+        public static bool Copy(string text)
+        {
+            GUIUtility.systemCopyBuffer = text;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return CopyText(text) != 0;
+#else
+            return true;
+#endif
+        }
+
+        // Saves text as a file: a download in the browser, a file next to the save elsewhere.
+        public static void Download(string name, string text)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            DownloadText(name, text);
+#else
+            try
+            {
+                System.IO.File.WriteAllText(System.IO.Path.Combine(Application.persistentDataPath, name), text);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("Could not write the report: " + e.Message);
+            }
+#endif
+        }
+
         // A short buzz (hits, the dice) when the settings allow; phones only.
         public static void Buzz(int ms)
         {
@@ -46,6 +74,12 @@ namespace Game.Client
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         static extern void Vibrate(int ms);
+
+        [DllImport("__Internal")]
+        static extern int CopyText(string text);
+
+        [DllImport("__Internal")]
+        static extern void DownloadText(string name, string text);
 
         [DllImport("__Internal")]
         static extern float GetDevicePixelRatio();

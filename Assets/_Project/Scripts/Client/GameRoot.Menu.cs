@@ -87,7 +87,11 @@ namespace Game.Client
                 _settingsNote = Strings.Get("settings.tips_done");
             }
             y += h + gap;
-            if (Ui.Button(new Rect(x, y, w, h), Strings.Get("settings.language"), 14, true, Look.Normal, "설정"))
+            if (Ui.Button(new Rect(x, y, half, h), Strings.Get(Settings.ColorMarks ? "settings.colors_on" : "settings.colors_off"), 14, true, Look.Normal, "설정")) Settings.ColorMarks = !Settings.ColorMarks;
+            if (Ui.Button(new Rect(x + half + 8, y, half, h), Strings.Get(Settings.LessMotion ? "settings.motion_off" : "settings.motion_on"), 14, true, Look.Normal, "설정")) Settings.LessMotion = !Settings.LessMotion;
+            y += h + gap;
+            if (Ui.Button(new Rect(x, y, half, h), Strings.Get("settings.report"), 14, true, Look.Normal, "설정")) _reportOpen = true;
+            if (Ui.Button(new Rect(x + half + 8, y, half, h), Strings.Get("settings.language"), 14, true, Look.Normal, "설정"))
             {
                 Settings.Language = Settings.Language == "en" ? "ko" : "en";
                 _settingsNote = Strings.Get("settings.language_note");
@@ -138,6 +142,10 @@ namespace Game.Client
             var levelRect = Ui.Width >= 640 ? new Rect(28 + bw * 2, by, Mathf.Min(170, Ui.Width - 52 - bw * 3), 44) : new Rect(Ui.Width - 12 - bw, by - 50, bw, 44);
             if (Ui.Button(levelRect, level, 13, true, _difficulty == Difficulty.Easy ? Look.Selected : Look.Normal, "난이도"))
                 _difficulty = _difficulty == Difficulty.Easy ? Difficulty.Normal : Difficulty.Easy;
+            // Hardcore beside it: a hero who falls with no hope is gone (Docs/Combat.md 하드코어).
+            var coreRect = new Rect(levelRect.x, levelRect.y - 50, levelRect.width, 44);
+            if (Ui.Button(coreRect, Strings.Get(_hardcore ? "party.hardcore_on" : "party.hardcore_off"), 13, true, _hardcore ? Look.Danger : Look.Quiet, "하드코어")) _hardcore = !_hardcore;
+            Ui.Tip(coreRect, Strings.Get("party.hardcore_tip"));
             Ui.Tip(levelRect, "쉬움: 몬스터 생명력 −25%, 희망 +1, 금화 +10. 보통이 이 게임이 맞춘 난이도다.");
             var perks = ChosenPerks();
             if (perks.Count > 0) Ui.Text(new Rect(12, by - 18, Ui.Width - 24, 16), Strings.Format("party.perks", string.Join(", ", perks.Select(p => _data.Perks.First(d => d.Id == p).Name))), 11, Palette.Gold);
@@ -206,9 +214,22 @@ namespace Game.Client
                 y = Paragraph(column, y, $"{card.Title} — {card.Journal}", 12.5f, Palette.Journal);
             }
             if (found < noted.Count) y = Paragraph(column, y, $"아직 찾지 못한 메모가 {noted.Count - found}개 있다. 길 위의 사건에서 찾는다.", 12, Palette.Dim);
+            // Achievements and the classes' records (Docs/Journal.md 업적).
+            y += 6;
+            var achievements = _data.Achievements;
+            y = Heading(column, y, $"{Strings.Get("journal.achievements")} {journal.Achieved.Count}/{achievements.Count}");
+            foreach (var achievement in achievements)
+            {
+                bool got = journal.Achieved.Contains(achievement.Id);
+                y = Paragraph(column, y, (got ? "★ " : "☆ ") + $"{achievement.Name} — {achievement.Text}", 12.5f, got ? Palette.Gold : Palette.Dim);
+            }
+            y += 6;
+            y = Heading(column, y, Strings.Get("journal.classes"));
+            foreach (var cls in _data.PlayableClasses)
+                y = Paragraph(column, y, $"{cls.Name}: 모험 {journal.RunsWith(cls.Id)} · 끝까지 {journal.WinsWith(cls.Id)}", 12.5f, journal.WinsWith(cls.Id) > 0 ? Palette.Journal : Palette.Dim);
             Ui.EndArea(_journalScroll);
             _journalHeight = y + 8;
-            if (Ui.Button(new Rect((Ui.Width - 200) / 2, Ui.Height - 56, 200, 46), "뒤로", 16, true, Look.Primary)) _screen = ClientScreen.Title;
+            if (Ui.Button(new Rect((Ui.Width - 200) / 2, Ui.Height - 56, 200, 46), Strings.Get("common.back"), 16, true, Look.Primary)) _screen = ClientScreen.Title;
         }
 
         void DrawClassCard(Rect card, ClassDef cls)

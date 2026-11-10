@@ -269,8 +269,8 @@ namespace Game.Client
                 {
                     var cell = new Rect(i * (die + 6), y, die, die);
                     bool sure = result.Check.Faces[i] < 0;
-                    Ui.Fill(cell, sure ? Palette.Sure : result.Check.Hits[i] ? Palette.Success : Palette.Fail);
-                    Ui.Text(cell, sure ? "★" : result.Check.Faces[i].ToString(), 14, sure || result.Check.Hits[i] ? Palette.Back : Palette.Ink, TextAnchor.MiddleCenter, true);
+                    Ui.Fill(cell, sure ? Palette.Sure : result.Check.Hits[i] ? Settings.Success : Settings.Fail);
+                    Ui.Text(cell, sure ? "★" : Settings.Face(result.Check.Faces[i], result.Check.Hits[i]), 14, sure || result.Check.Hits[i] ? Palette.Back : Palette.Ink, TextAnchor.MiddleCenter, true);
                 }
                 y += die + 10;
             }
@@ -306,14 +306,20 @@ namespace Game.Client
             y = Paragraph(column, y, $"지난 장 {a.ChaptersCleared} · 중간 보스 {a.MidbossesBeaten} · 이긴 전투 {a.BattlesWon} · 명성 {a.Renown} 「{a.Rank.Title}」 · 금화 {a.Gold} · 남은 희망 {a.Hope}");
             if (_recorded) y = Paragraph(column, y, $"일지 페이지 +{_lastPages} (모두 {JournalNow.Pages}장). 타이틀의 [일지]에서 장을 펼칠 수 있다." + (a.Hard && won ? " 가시밭길로 이겨 두 배!" : ""), 14, Palette.Gold);
             if (a.Footsteps.Count > 0) y = Paragraph(column, y, $"이번 길에서 찾은 옛 메모 {a.Footsteps.Count}개", 13, Palette.Journal);
+            if (_recorded)
+                foreach (var achievement in JournalNow.NewAchievements)
+                    y = Paragraph(column, y, $"★ {Strings.Get("journal.new_achievement")}: {achievement.Name} — {achievement.Text}", 13.5f, Palette.Gold);
             foreach (var hero in a.Heroes)
                 y = Paragraph(column, y, $"· {hero.Name} 레벨 {hero.Level}, 생명력 {hero.Hp}/{hero.MaxHp}, 강화: {(hero.Upgrades.Count == 0 ? "없음" : string.Join(", ", hero.Upgrades.Select(u => u.Name)))}", 13);
             EndColumn(y);
             var footer = Footer(48);
-            float half = (footer.width - 8) / 2;
-            if (Ui.Button(new Rect(footer.x, footer.y, half, footer.height), "처음으로", 15, true, Look.Quiet)) BackToTitle();
-            if (Ui.Button(new Rect(footer.x + half + 8, footer.y, half, footer.height), "같은 파티로 다시", 16, true, Look.Primary))
+            float third = (footer.width - 16) / 3;
+            bool retry = _retrySave != null && !won;
+            float bw = retry ? third : (footer.width - 8) / 2;
+            if (Ui.Button(new Rect(footer.x, footer.y, bw, footer.height), "처음으로", 15, true, Look.Quiet)) BackToTitle();
+            if (Ui.Button(new Rect(footer.x + bw + 8, footer.y, bw, footer.height), "같은 파티로 다시", 15, true, retry ? Look.Normal : Look.Primary))
                 StartAdventure(a.ClassIds.ToList());
+            if (retry && Ui.Button(new Rect(footer.x + (bw + 8) * 2, footer.y, bw, footer.height), Strings.Get("end.retry"), 15, true, Look.Primary)) _titleError = RetryChapter();
         }
     }
 }

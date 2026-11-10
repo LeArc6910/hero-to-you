@@ -57,10 +57,17 @@ node DevTools/WebPlaytest/playtest.js --url http://localhost:8000/
 | `pages <n>`, `screen journal\|settings\|party\|title` | 일지 페이지 더하기, 화면 바꾸기 |
 | `row <영웅> front\|back`, `delve`, `leavedungeon`, `contract`, `wound <영웅>` | 줄, 던전, 의뢰, 상처 |
 | `chapter <n>` | 앞 장의 보스를 이긴 것으로 치고 n장 시작으로 |
+| `forge <영웅> weapon\|armor\|trinket`, `recruit <직업>`, `gold <n>` | 대장간, 새 동료, 금화 |
+| `hardcore on\|off`, `autobutton on\|off`, `history on\|off`, `retry` | 다음 판의 하드코어, 자동 전투, 지난 일 창, 이 장 처음부터 |
+| `bugreport on\|off\|text` | 버그 제보 창, 또는 제보 글 자체를 답한다 |
 | `talk` | 마지막 동료 대화를 카드로 다시 보인다(`autoplay`는 봇이 들은 대화의 카드를 띄우지 않는다) |
 | `difficulty easy\|normal`, `language ko\|en`, `textsize <%>` | 다음 모험의 난이도, 언어, 글자 크기 |
 
 단추는 모두 `Ui.Button`이나 `Ui.Hit`를 거친다(`Ui.cs`). 시험이 `probe on`을 켜 두면 그린 단추를 기억하고, 시험 도구(`lib.js`의 `press`)는 그 자리를 진짜 클릭이나 탭으로 누른다. 새 단추도 이 둘로 만든다.
+
+## 버그 제보를 받으면
+
+사람이 설정의 [버그 제보]로 보낸 글(첫 줄이 `# hero-to-you bug report`)을 파일로 저장해 `dotnet run --project DevTools/CoreSandbox -- --replay report.txt`로 돌린다. 같은 상태(장, 날, 영웅, 전투의 마지막 일)가 나온다. 고친 뒤에는 그 저장본으로 시험을 하나 더한다.
 
 ## 사진으로 알 수 없는 것
 

@@ -16,6 +16,8 @@ namespace Game.Client
                 "harbor" => (Palette.Hex("#22384A"), Palette.Hex("#7895A0"), Palette.Hex("#3F6E7A"), "wave", "bell"),
                 "snow" => (Palette.Hex("#5C6E80"), Palette.Hex("#C9D6E0"), Palette.Hex("#AEB9C4"), "peak", "snowflake"),
                 "rift" => (Palette.Hex("#1A0C0C"), Palette.Hex("#6B2A1E"), Palette.Hex("#2A1A18"), "stones", "boss"),
+                "tomb" => (Palette.Hex("#3A1A10"), Palette.Hex("#C8784A"), Palette.Hex("#9C8A5E"), "stones", "crown"),
+                "gate" => (Palette.Hex("#0C0A18"), Palette.Hex("#4A2A5A"), Palette.Hex("#2A2030"), "crack", "boss"),
                 _ => (Palette.Hex("#2A2438"), Palette.Hex("#6E5A6E"), Palette.Hex("#3A3440"), null, null),
             };
             const int bands = 8;
@@ -38,7 +40,7 @@ namespace Game.Client
                     Ui.Image(new Rect(x, y, size, size), PixelArt.Icon(mark), new Color(1, 1, 1, i < 5 ? 0.35f : 0.7f));
                 }
             }
-            if (extra == "snowflake")
+            if (extra == "snowflake" && !Settings.LessMotion)
             {
                 // Snow falling slowly.
                 for (int i = 0; i < 24; i++)
@@ -55,6 +57,7 @@ namespace Game.Client
             // The party walking left to right, a step in time.
             if (party == null) return;
             float hero = Mathf.Min(r.height * 0.36f, 56);
+            if (Settings.LessMotion) time = 0;
             float walk = (time * 18) % (r.width * 0.25f);
             for (int i = 0; i < party.Count; i++)
             {

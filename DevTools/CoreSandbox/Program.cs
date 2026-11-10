@@ -8,7 +8,8 @@ using Game.Core;
 //   --dice                                  odds of the skills at level 1
 //   --battle N --party a,b,c --encounter id [--level L] [--random]
 //   --classes N [--encounter id] [--level L] every party of three playable classes
-//   --adventure N --party a,b,c [--random | --human] [--easy]  whole campaigns (--human: the smart bot with a
+//   --replay report.txt                         a bug report from the game's settings, replayed
+//   --adventure N --party a,b,c [--random | --human] [--easy] [--retries R]  whole campaigns (R: chapter retries) (--human: the smart bot with a
 //                                                              quarter of its choices random, like a person)
 static class Program
 {
@@ -34,7 +35,8 @@ static class Program
         if (args.Contains("--dice")) DiceTable();
         else if (args.Contains("--battle")) Battles(Count("--battle", 1000), party, Option("--encounter", "goblins"), level, smart, true);
         else if (args.Contains("--classes")) Classes(Count("--classes", 500), Option("--encounter", ""), level, smart);
-        else if (args.Contains("--adventure")) Adventures(Count("--adventure", 500), party, smart, args.Contains("--human") ? AdventureBot.HumanMistakes : 0, args.Contains("--easy") ? Difficulty.Easy : Difficulty.Normal);
+        else if (args.Contains("--replay")) Replay(Option("--replay", "report.txt"));
+        else if (args.Contains("--adventure")) Adventures(Count("--adventure", 500), party, smart, args.Contains("--human") ? AdventureBot.HumanMistakes : 0, args.Contains("--easy") ? Difficulty.Easy : Difficulty.Normal, Count("--retries", 0));
         else
         {
             Console.WriteLine("--dice | --battle N --party a,b,c --encounter id [--level L] | --classes N | --adventure N --party a,b,c  ([--random])");
@@ -152,7 +154,7 @@ static class Program
             Console.WriteLine($"  {string.Join("+", p.party.Select(id => _data.Classes[id].Name)),-24} {p.win:P0} {p.hp:P0}");
     }
 
-    static void Adventures(int runs, string[] party, bool smart, int mistakes, Difficulty difficulty)
+    static void Adventures(int runs, string[] party, bool smart, int mistakes, Difficulty difficulty, int retries)
     {
         int wins = 0;
         var endings = new Dictionary<string, int>();
@@ -160,15 +162,24 @@ static class Program
         var reached = new int[_data.Chapters.Count + 1];
         int quest = 0, clue = 0, midboss = 0;
         double firstLevel = 0, firstDay = 0, firstBattles = 0;
+        int usedRetries = 0;
         for (int run = 0; run < runs; run++)
         {
             var adventure = new Adventure(_data, party, (ulong)(run * 104729 + 7), null, difficulty);
             var bot = new GameRandom((ulong)run, 9);
             int cleared = 0;
-            for (int step = 0; step < 20000 && !adventure.Over; step++)
+            int tries = retries;
+            for (int step = 0; step < 60000 && !adventure.Over; step++)
             {
                 string error = AdventureBot.Step(adventure, bot, smart, mistakes);
                 if (error != null) throw new InvalidOperationException($"bot step {step} on {adventure.Screen}: {error}");
+                // A lost chapter tried again from its start, as a player would (the end screen's 이 장 처음부터).
+                if (adventure.Screen == AdventureScreen.Defeat && tries > 0 && adventure.ChapterStartSave() is string again)
+                {
+                    tries--;
+                    usedRetries++;
+                    adventure = Adventure.Load(_data, again, out _, out _);
+                }
                 if (adventure.ChaptersCleared > cleared)
                 {
                     cleared = adventure.ChaptersCleared;
@@ -203,7 +214,30 @@ static class Program
         }
         Console.WriteLine($"{string.Join("+", party.Select(p => _data.Classes[p].Name))} ({(smart ? mistakes > 0 ? "사람 같은" : "똑똑한" : "아무렇게나")} 봇, {(difficulty == Difficulty.Easy ? "쉬움, " : "")}{runs}판): 캠페인 승리 {(double)wins / runs:P1}, 1장 넘김 {(double)(runs - reached[0]) / runs:P0}, 레벨 {levels / runs:0.0}, 이긴 전투 {battles / runs:0.0}, 남은 금화 {gold / runs:0}, 명성 {renown / runs:0.0}, 일지 페이지 {pages / runs:0.0}");
         int past = Math.Max(1, runs - reached[0]);
+        if (retries > 0) Console.WriteLine($"  장 다시 하기: 판마다 {retries}번까지, 모두 {usedRetries}번 썼다");
         Console.WriteLine($"  1장 비석 {(double)quest / runs:P0}, 1장 단서 {(double)clue / runs:P0}, 중간 보스 {midboss / (double)runs:0.0} · 1장을 넘긴 판: {firstDay / past:0.0}일, 레벨 {firstLevel / past:0.0}, 이긴 전투 {firstBattles / past:0.0}");
         foreach (var pair in endings.OrderByDescending(p => p.Value)) Console.WriteLine($"  {pair.Key}: {pair.Value}");
+    }
+
+    // A bug report (the settings' 버그 제보, Docs/Playtest.md): the save is replayed and the state it reaches is
+    // printed, with how far the commands fitted.
+    static void Replay(string file)
+    {
+        string text = System.IO.File.ReadAllText(file);
+        string save = string.Join("\n", text.Replace("\r", "").Split('\n').Where(l => !l.StartsWith("#")));
+        var adventure = Adventure.Load(_data, save, out string error, out string note);
+        foreach (string line in text.Split('\n').Where(l => l.StartsWith("#"))) Console.WriteLine(line);
+        if (adventure == null)
+        {
+            Console.WriteLine($"불러오지 못했다: {error}");
+            return;
+        }
+        if (note != null) Console.WriteLine(note);
+        Console.WriteLine($"{adventure.Chapter.Index + 1}장 {adventure.Chapter.Title}, {adventure.Day}일째 {adventure.TimeName}, 화면 {adventure.Screen}, 명령 {adventure.Log.Count}개, 균열 {adventure.Doom}, 금화 {adventure.Gold}, 희망 {adventure.Hope}, 명성 {adventure.Renown}");
+        foreach (var hero in adventure.Heroes)
+            Console.WriteLine($"  {hero.Name} Lv{hero.Level} {hero.Hp}/{hero.MaxHp} 결의 {hero.Resolve} 상처 {hero.Wounds}{(hero.Dead ? " (떠남)" : "")} @{adventure.Positions[adventure.Heroes.IndexOf(hero)]} 무기 {hero.Weapon.Name}");
+        if (adventure.Battle != null && adventure.Screen == AdventureScreen.Battle)
+            foreach (var e in adventure.Battle.Events.Skip(Math.Max(0, adventure.Battle.Events.Count - 12))) Console.WriteLine("  · " + e.Text);
+        foreach (string line in adventure.Report) Console.WriteLine("  > " + line);
     }
 }

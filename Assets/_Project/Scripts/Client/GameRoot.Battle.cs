@@ -429,12 +429,13 @@ namespace Game.Client
             sprite = Mathf.Max(16, Mathf.Floor(sprite / 8) * 8);
             // Motion (Docs/Design.md 그림): a slow breath while standing, a lunge toward the other side when attacking,
             // a shake and a red flash when hit, lying low when down.
-            bool hit = _hitAt.TryGetValue(unit.Id, out float at) && _clock - at < 0.25f;
+            float at = -10;
+            bool hit = !Settings.LessMotion && _hitAt.TryGetValue(unit.Id, out at) && _clock - at < 0.25f;
             float shake = hit ? Mathf.Sin((_clock - at) * 80) * 3 : 0;
             float lunge = 0;
-            if (_lungeAt.TryGetValue(unit.Id, out float swung) && _clock - swung < 0.3f) lunge = Mathf.Sin((_clock - swung) / 0.3f * Mathf.PI) * sprite * 0.18f;
+            if (!Settings.LessMotion && _lungeAt.TryGetValue(unit.Id, out float swung) && _clock - swung < 0.3f) lunge = Mathf.Sin((_clock - swung) / 0.3f * Mathf.PI) * sprite * 0.18f;
             var toward = unit.IsHero || unit.Side == Side.Party ? (Ui.Portrait ? new Vector2(0, -1) : new Vector2(1, 0)) : (Ui.Portrait ? new Vector2(0, 1) : new Vector2(-1, 0));
-            float breath = down ? 0 : Mathf.Sin(_clock * 2.2f + unit.Id * 1.3f) * sprite * 0.015f;
+            float breath = down || Settings.LessMotion ? 0 : Mathf.Sin(_clock * 2.2f + unit.Id * 1.3f) * sprite * 0.015f;
             var spriteRect = new Rect(slot.x + (slot.width - sprite) / 2 + shake + toward.x * lunge, slot.y + intentH + 2 + toward.y * lunge + breath + (down ? sprite * 0.18f : 0), sprite, sprite - (down ? sprite * 0.18f : 0));
             _unitRects[unit.Id] = spriteRect;
             Ui.Fill(new Rect(spriteRect.x + sprite * 0.15f, spriteRect.yMax - sprite * 0.06f, sprite * 0.7f, sprite * 0.08f), new Color(0, 0, 0, 0.35f));
@@ -514,10 +515,10 @@ namespace Game.Client
             {
                 var cell = new Rect(x + i * (die + 8), r.y + 22, die, die);
                 bool sure = check.Faces[i] < 0;
-                Color fill = rolling && !sure ? Palette.Button : sure ? Palette.Sure : check.Hits[i] ? Palette.Success : Palette.Fail;
+                Color fill = rolling && !sure ? Palette.Button : sure ? Palette.Sure : check.Hits[i] ? Settings.Success : Settings.Fail;
                 Ui.Fill(cell, fill);
                 Ui.Frame(cell, Palette.Back, 2);
-                string face = sure ? "★" : rolling ? Random.Range(0, 100).ToString() : check.Faces[i].ToString();
+                string face = sure ? "★" : rolling ? Random.Range(0, 100).ToString() : Settings.Face(check.Faces[i], check.Hits[i]);
                 Ui.Text(cell, face, die * 0.42f, sure || (!rolling && check.Hits[i]) ? Palette.Back : Palette.Ink, TextAnchor.MiddleCenter, true);
             }
             if (!rolling)
@@ -579,7 +580,8 @@ namespace Game.Client
             };
         }
 
-        static SkillDef SkillDef(Unit actor, string id) => IsItemOrFlee(id) ? null : actor.Hero.Skill(id);
+        // The skill a button stands for, as the battle sees it (the mnemonist's echo becomes the ally's skill).
+        SkillDef SkillDef(Unit actor, string id) => IsItemOrFlee(id) ? null : _adventure?.Battle != null ? _adventure.Battle.SkillOf(actor, id) : actor.Hero.Skill(id);
 
         static bool IsItemOrFlee(string id) => BattleCommand.IsUse(id) || id == BattleCommand.Flee;
 
@@ -604,11 +606,15 @@ namespace Game.Client
         {
             Ui.Panel(r);
             var inner = new Rect(r.x + 8, r.y + 6, r.width - 16, r.height - 12);
+            // Auto battle: the bot gives the heroes' commands until it is switched off again.
+            var autoRect = new Rect(inner.xMax - 92, inner.y, 92, 44);
+            if (Ui.Button(autoRect, Strings.Get(_autoBattle ? "battle.auto_on" : "battle.auto_off"), 12.5f, !battle.Over, _autoBattle ? Look.Selected : Look.Quiet, "자동")) _autoBattle = !_autoBattle;
+            Ui.Tip(autoRect, Strings.Get("battle.auto_tip"));
             if (!AwaitingHero)
             {
                 string title = battle.Over ? (battle.State == BattleState.Won ? "승리!" : battle.State == BattleState.Fled ? "도망쳤다" : "패배…") : _turnActor >= 0 && !battle.Unit(_turnActor).IsHero ? "적의 차례" : "…";
-                Ui.Text(new Rect(inner.x, inner.y, inner.width, 22), title, 16, Palette.Ink, TextAnchor.MiddleLeft, true);
-                DrawLog(new Rect(inner.x, inner.y + 26, inner.width, inner.height - 26));
+                Ui.Text(new Rect(inner.x, inner.y, inner.width - 96, 44), title, 16, Palette.Ink, TextAnchor.MiddleLeft, true);
+                DrawLog(new Rect(inner.x, inner.y + 48, inner.width, inner.height - 48));
                 return;
             }
 
@@ -616,8 +622,8 @@ namespace Game.Client
             var hero = actor.Hero;
             float y = inner.y;
             Ui.Image(new Rect(inner.x, y, 26, 26), Sprite(actor));
-            Ui.Text(new Rect(inner.x + 30, y, inner.width - 30, 26), $"{hero.Name}의 차례", 16, Palette.Gold, TextAnchor.MiddleLeft, true);
-            y += 28;
+            Ui.Text(new Rect(inner.x + 30, y, inner.width - 126, 44), $"{hero.Name}의 차례", 16, Palette.Gold, TextAnchor.MiddleLeft, true);
+            y += 46;
             DrawResources(new Rect(inner.x, y, inner.width, 16), hero);
             y += 18;
             string special = ClassLine(battle, actor);
@@ -699,7 +705,7 @@ namespace Game.Client
             }
 
             if (_battleError != null) Ui.Text(new Rect(inner.x, inner.yMax - rollH - 20, inner.width, 18), _battleError, 11, Palette.Damage);
-            string go = preview.Ok && preview.Dice > 0 ? $"굴리기 ({preview.Dice}개)" : "사용";
+            string go = preview.Ok && preview.Dice > 0 ? $"{Strings.Get("battle.roll")} ({preview.Dice}개)" : Strings.Get("battle.use");
             if (Ui.Button(new Rect(inner.x, inner.yMax - rollH, inner.width, rollH), go, 17, preview.Ok, Look.Primary))
             {
                 var command = new BattleCommand(actor.Id, _skill, _target, _resolve);
@@ -727,6 +733,17 @@ namespace Game.Client
                     break;
                 case "alchemist":
                     parts.Add($"재료 {actor.Hero.Reagents}/{actor.Hero.ReagentMax}");
+                    break;
+                case "monk":
+                    parts.Add($"기 {actor.Ki}");
+                    break;
+                case "engineer":
+                    var turret = battle.Summons.FirstOrDefault(u => u.Owner == actor.Id);
+                    parts.Add(turret == null ? "포탑 없음" : turret.Down ? "포탑 부서짐" : $"포탑 {turret.Hp}/{turret.MaxHp}");
+                    break;
+                case "mnemonist":
+                    var echo = battle.SkillOf(actor, Battle.EchoId);
+                    parts.Add(echo.Effect == "echo" ? "되새길 기술 없음" : $"되새김: {echo.Name}");
                     break;
             }
             if (battle.Song != Song.None) parts.Add(battle.Song == Song.Courage ? "용기의 노래" : "안식의 노래");
@@ -766,7 +783,7 @@ namespace Game.Client
             }
             if (id == BattleCommand.Flee)
             {
-                if (Ui.Button(cell, $"도망 (민첩 {Dice.ClampChance(actor.Hero.Stat(Stat.Agility))}%)", 13, true, selected ? Look.Selected : Look.Danger)) Select(battle, id);
+                if (Ui.Button(cell, $"{Strings.Get("battle.flee")} (민첩 {Dice.ClampChance(actor.Hero.Stat(Stat.Agility))}%)", 13, true, selected ? Look.Selected : Look.Danger)) Select(battle, id);
                 return;
             }
             var skill = SkillDef(actor, id);
@@ -809,7 +826,7 @@ namespace Game.Client
                 float bh = max > 0 ? (float)(p / max) * height : 0;
                 var bar = new Rect(x0 + s * cw + 3, top + height - bh, cw - 6, bh);
                 Ui.Fill(new Rect(x0 + s * cw + 3, top, cw - 6, height), Palette.BarBack);
-                Ui.Fill(bar, s == n ? Palette.Gold : s == 0 ? Palette.Fail : Palette.Success);
+                Ui.Fill(bar, s == n ? Palette.Gold : s == 0 ? Settings.Fail : Settings.Success);
                 if (p >= 0.005) Ui.Text(new Rect(x0 + s * cw, top + height - bh - 14, cw, 14), Percent(p), 9, Palette.Ink, TextAnchor.MiddleCenter);
                 Ui.Text(new Rect(x0 + s * cw, top + height + 1, cw, 12), $"{s}개", 9, Palette.Dim, TextAnchor.MiddleCenter);
                 Ui.Text(new Rect(x0 + s * cw, top + height + 12, cw, 13), preview.ValueBySuccesses.Length > s ? preview.ValueBySuccesses[s].ToString() : "", 11, Palette.Ink, TextAnchor.MiddleCenter, true);

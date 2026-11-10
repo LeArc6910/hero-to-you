@@ -34,6 +34,16 @@ static class Program
             Console.WriteLine($"music {tune,-7} {samples.Length / (double)MusicArt.Rate,5:0.00}s peak {peak:0.00} {(ok ? "" : "BAD")}");
             Write(Path.Combine(folder, "music_" + tune.ToString().ToLowerInvariant() + ".wav"), samples);
         }
+        foreach (Ambience ambience in Enum.GetValues(typeof(Ambience)))
+        {
+            if (ambience == Ambience.None) continue;
+            float[] samples = MusicArt.MakeAmbience(ambience);
+            float peak = samples.Select(Math.Abs).DefaultIfEmpty(0).Max();
+            bool ok = !samples.Any(float.IsNaN) && peak > 0.05f && peak <= 1f;
+            if (!ok) bad++;
+            Console.WriteLine($"ambience {ambience,-7} {samples.Length / (double)MusicArt.Rate,5:0.00}s peak {peak:0.00} {(ok ? "" : "BAD")}");
+            Write(Path.Combine(folder, "ambience_" + ambience.ToString().ToLowerInvariant() + ".wav"), samples);
+        }
         return bad == 0 ? 0 : 1;
     }
 

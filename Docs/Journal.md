@@ -34,6 +34,14 @@
 
 사건의 메모(`events.csv`의 `journal`)를 처음 본 판이 끝나면 일지에 모인다. 일지 화면에 찾은 메모와 남은 개수가 보인다. 영웅의 발자취를 판을 넘어 모으는 것이 이 게임의 수집이다(`Docs/Narrative.md` 서사의 방향).
 
+## 업적 (`achievements.csv`: `id, name, rule, text`)
+
+판이 끝날 때 규칙을 보고 처음 이룬 업적을 일지에 남긴다(끝 화면에 보인다). 규칙: `win`, `chapters N`, `kind_ending`, `grim_ending`, `kind_all`, `renown N`, `dungeons N`, `contracts N`, `talks N`, `notes N`(여러 판에 걸쳐), `hard_win`, `hardcore_win`, `easy_win`, `classes N`(이긴 적이 있는 직업 수), `runs N`, `no_fall`. 지금 18개.
+
+## 직업별 기록
+
+직업마다 모험한 판과 끝까지 간 판을 센다(일지 화면 아래).
+
 ## 기록 (`journal.txt`)
 
 ```
@@ -46,6 +54,9 @@ chapters 3
 renown 16
 unlocked coin_purse,hope_page
 notes elder,hero_statue,pilgrim
+achieved first_seal,first_steps
+classruns cleric:2,hunter:2,knight:2
+classwins knight:1
 ```
 
 깨졌거나 없으면 빈 일지로 시작한다. 가져갈 장의 선택은 기기의 PlayerPrefs(`perks_chosen`)에 있다.

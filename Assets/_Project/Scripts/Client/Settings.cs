@@ -9,6 +9,36 @@ namespace Game.Client
         const string TextKey = "text_size";
         const string VibrationKey = "vibration";
         const string LanguageKey = "language";
+        const string ColorKey = "color_marks";
+        const string MotionKey = "less_motion";
+
+        // Colors that do not rely on red and green (blue for success, orange for failure) and a mark on every die.
+        public static bool ColorMarks
+        {
+            get => PlayerPrefs.GetInt(ColorKey, 0) == 1;
+            set
+            {
+                PlayerPrefs.SetInt(ColorKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+            }
+        }
+
+        // No shaking, lunging, flashing or falling snow.
+        public static bool LessMotion
+        {
+            get => PlayerPrefs.GetInt(MotionKey, 0) == 1;
+            set
+            {
+                PlayerPrefs.SetInt(MotionKey, value ? 1 : 0);
+                PlayerPrefs.Save();
+            }
+        }
+
+        public static Color Success => ColorMarks ? new Color(0.30f, 0.55f, 0.95f) : Palette.Success;
+        public static Color Fail => ColorMarks ? new Color(0.95f, 0.55f, 0.15f) : Palette.Fail;
+
+        // The face of a die: its number, with ✓ or × when marks are on.
+        public static string Face(int value, bool hit) => ColorMarks ? (hit ? "✓" : "×") + value : value.ToString();
 
         // How big everything is drawn, in percent of the usual size (Ui.Begin multiplies the zoom by it).
         public static readonly int[] TextSizes = { 90, 100, 115, 130 };

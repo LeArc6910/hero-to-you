@@ -21,7 +21,7 @@ fight 0 attack 3 1
 ...
 ```
 
-`perks`는 그 판이 들고 시작한 일지의 장(`Docs/Journal.md`), `level`은 난이도(`easy`, `normal`)다. `Adventure`의 공개 메서드(Continue, RollMove, Reroll, Move, Camp, Stay, Join, Avoid, Scare, Fight, Choose, Rest, Buy, Sell, Rumor, Donate, TakeContract, Elder, LeaveTown, Equip, Unequip, UseItem, SetRow, Delve, LeaveDungeon, ChooseUpgrade)는 성공할 때마다 한 줄을 `Log`에 쓴다. 불러오기(`Adventure.Load`)는 같은 시드와 파티로 새 모험을 만들고 그 줄들을 차례로 다시 준다. 같은 상태가 된다(`SaveTests`가 확인한다).
+`perks`는 그 판이 들고 시작한 일지의 장(`Docs/Journal.md`), `level`은 난이도(`easy`, `normal`), `hardcore`가 있으면 하드코어다. `Adventure`의 공개 메서드(Continue, RollMove, Reroll, Move, Camp, Stay, Join, Avoid, Scare, Fight, Choose, Rest, Buy, Sell, Rumor, Donate, TakeContract, Elder, LeaveTown, Equip, Unequip, UseItem, SetRow, Delve, LeaveDungeon, Forge, Recruit, ChooseUpgrade)는 성공할 때마다 한 줄을 `Log`에 쓴다. 불러오기(`Adventure.Load`)는 같은 시드와 파티로 새 모험을 만들고 그 줄들을 차례로 다시 준다. 같은 상태가 된다(`SaveTests`가 확인한다).
 
 - 좋은 점: 저장 형식이 작고 단순하다. 협동의 명령 동기화(M4)와 같은 길이다. 버그를 저장본 하나로 그대로 재현한다
 - `sheets`: 데이터 시트의 지문. 저장한 뒤 시트가 바뀌었으면 불러올 때 "결과가 조금 다를 수 있다"고 알린다
@@ -34,6 +34,8 @@ fight 0 attack 3 1
 - **맞는 데까지 이어한다**: 다시 돌리다 어떤 명령이 안 맞으면(그 칸에 갈 수 없다 등) 거절하지 않고 그 앞까지의 상태로 이어하며 "명령 N개 가운데 M개까지만 이어졌다"고 알린다. 첫 명령부터 안 맞을 때와 저장 형식(`SaveVersion`)이 다를 때만 거절한다
 - 명령의 글 형식을 바꾸면 `Adventure.SaveVersion`을 올린다(옛 저장본은 거절된다). 2(2026-11-09): `perks` 줄, `buy`에 영웅 번호, 새 명령(reroll, avoid, scare, rumor, donate, use). 3(2026-11-10): 난수 흐름을 나눴다, `level` 줄, 새 명령(row, delve, leavedungeon, contract)
 - 일지(`journal.txt`)는 저장본과 따로 있고 판이 끝나도 남는다
+- **이 장 처음부터**: `Adventure.ChapterStart`는 장이 시작할 때의 명령 수다. 장에서 지면 저장본을 그 수까지만 잘라(`ChapterStartSave`) 다시 불러온다. 하드코어와 가시밭길에는 없다
+- **버그 제보**: 설정의 [버그 제보]가 저장본에 빌드·화면 정보 한 줄을 붙여 복사하거나 파일로 받게 한다. 클라우드는 `dotnet run --project DevTools/CoreSandbox -- --replay report.txt`로 같은 상태를 다시 만든다
 
 ## 클라이언트
 

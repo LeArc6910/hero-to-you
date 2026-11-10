@@ -10,9 +10,24 @@ namespace Game.Client
         Forest,
         Harbor,
         Snow,
+        Tomb,
+        Rift,
         Town,
         Battle,
         Boss,
+        BossFinal,
+    }
+
+    // The sound of the place under the music (Music plays it on the map): wind through trees, waves, a snowstorm,
+    // desert wind, the rift's hum.
+    public enum Ambience
+    {
+        None,
+        Forest,
+        Harbor,
+        Snow,
+        Tomb,
+        Rift,
     }
 
     // The background music, composed and synthesized in code like the sound effects (no audio files): each tune is
@@ -51,6 +66,9 @@ namespace Game.Client
             Tune.Forest => new Style { Bpm = 88, Root = 52, Scale = Dorian, Chords = new[] { 0, 6, 3, 4 }, Rest = 0.4f, Seed = 37 },
             Tune.Harbor => new Style { Bpm = 80, Root = 50, Scale = Minor, Chords = new[] { 0, 5, 2, 6 }, BeatsPerChord = 3, Rest = 0.4f, Seed = 41 },
             Tune.Snow => new Style { Bpm = 70, Root = 49, Scale = Minor, Chords = new[] { 0, 5, 3, 6 }, Pad = 0.2f, Lead = 0.12f, Bass = 0.15f, Rest = 0.5f, Seed = 97 },
+            Tune.Tomb => new Style { Bpm = 84, Root = 50, Scale = Phrygian, Chords = new[] { 0, 1, 0, 5 }, Lead = 0.14f, Rest = 0.4f, Seed = 101 },
+            Tune.Rift => new Style { Bpm = 72, Root = 47, Scale = Minor, Chords = new[] { 0, 5, 1, 4 }, Pad = 0.22f, Lead = 0.1f, Bass = 0.2f, Rest = 0.5f, Seed = 113 },
+            Tune.BossFinal => new Style { Bpm = 150, Root = 45, Scale = Phrygian, Chords = new[] { 0, 1, 5, 6, 0, 1, 3, 4 }, BeatsPerChord = 2, Drums = 0.4f, SquareLead = true, Lead = 0.12f, Bass = 0.28f, Rest = 0.15f, Seed = 127 },
             Tune.Town => new Style { Bpm = 100, Root = 55, Scale = Major, Chords = new[] { 0, 3, 4, 0 }, Lead = 0.15f, Rest = 0.3f, Seed = 53 },
             Tune.Battle => new Style { Bpm = 132, Root = 45, Scale = Minor, Chords = new[] { 0, 0, 5, 6 }, Drums = 0.32f, SquareLead = true, Lead = 0.11f, Bass = 0.24f, Rest = 0.25f, Seed = 67 },
             Tune.Boss => new Style { Bpm = 144, Root = 43, Scale = Phrygian, Chords = new[] { 0, 1, 0, 6 }, Drums = 0.38f, SquareLead = true, Lead = 0.11f, Bass = 0.26f, Rest = 0.2f, Seed = 79 },
@@ -125,6 +143,38 @@ namespace Game.Client
             }
 
             Normalize(output, 0.55f);
+            return output;
+        }
+
+        // A few seconds of the place's sound, looping: filtered noise shaped by slow swells (and for the harbor, waves).
+        public static float[] MakeAmbience(Ambience ambience)
+        {
+            if (ambience == Ambience.None) return new float[1];
+            int length = Rate * 8;
+            var output = new float[length];
+            var random = new Random(41 + (int)ambience);
+            float smooth = ambience switch { Ambience.Harbor => 0.02f, Ambience.Snow => 0.08f, Ambience.Rift => 0.01f, Ambience.Tomb => 0.05f, _ => 0.04f };
+            double swell = ambience switch { Ambience.Harbor => 0.18, Ambience.Snow => 0.35, Ambience.Rift => 0.07, _ => 0.25 };
+            float last = 0;
+            for (int i = 0; i < length; i++)
+            {
+                float noise = (float)(random.NextDouble() * 2 - 1);
+                last += (noise - last) * smooth;
+                // Whole cycles over the loop so it joins without a seam.
+                double phase = 2 * Math.PI * i / length;
+                float gain = (float)(0.55 + 0.45 * Math.Sin(phase * Math.Round(swell * 8)));
+                float hum = ambience == Ambience.Rift ? (float)Math.Sin(2 * Math.PI * 55 * i / Rate) * 0.25f : 0;
+                output[i] = last * gain + hum * gain;
+            }
+            // Fade the very ends together.
+            int fade = Rate / 10;
+            for (int i = 0; i < fade; i++)
+            {
+                float t = i / (float)fade;
+                output[i] *= t;
+                output[length - 1 - i] *= t;
+            }
+            Normalize(output, 0.35f);
             return output;
         }
 

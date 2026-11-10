@@ -17,6 +17,9 @@ namespace Game.Client
         Defeat,
         Level,
         Step,
+        Forge,
+        Page,
+        Achievement,
     }
 
     // The game's sound effects, synthesized in code (no audio files): short tones, noise and sweeps, 8-bit in feel.
@@ -43,6 +46,9 @@ namespace Game.Client
                 case Sound.Defeat: return Join(Tone(392, 0.18f, 0.3f, Wave.Triangle), Tone(330, 0.18f, 0.3f, Wave.Triangle), Tone(262, 0.4f, 0.3f, Wave.Triangle));
                 case Sound.Level: return Join(Tone(659, 0.08f, 0.28f, Wave.Square), Tone(880, 0.08f, 0.28f, Wave.Square), Tone(1175, 0.08f, 0.28f, Wave.Square), Tone(1760, 0.2f, 0.25f, Wave.Triangle));
                 case Sound.Step: return Noise(0.05f, 0.25f, 3);
+                case Sound.Forge: return Join(Mix(Noise(0.05f, 0.4f, 11), Tone(1568, 0.05f, 0.3f, Wave.Square)), Mix(Noise(0.05f, 0.35f, 12), Tone(1397, 0.12f, 0.25f, Wave.Triangle)));
+                case Sound.Page: return Sweep(900, 1400, 0.12f, 0.15f, Wave.Triangle);
+                case Sound.Achievement: return Join(Tone(523, 0.08f, 0.28f, Wave.Triangle), Tone(784, 0.08f, 0.28f, Wave.Triangle), Tone(1047, 0.08f, 0.28f, Wave.Triangle), Tone(1568, 0.3f, 0.25f, Wave.Triangle));
                 default: return new float[1];
             }
         }

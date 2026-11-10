@@ -69,6 +69,51 @@ namespace Game.Client
                 }
                 y += 78;
             }
+            // The smithy (Docs/Map.md 대장간): each hero's worn gear, one level better for gold.
+            y += 4;
+            Ui.Text(new Rect(0, y, column.width, 22), Strings.Get("town.smithy"), 16, Palette.Gold, TextAnchor.MiddleLeft, true);
+            y += 26;
+            for (int h = 0; h < a.Heroes.Count; h++)
+            {
+                var hero = a.Heroes[h];
+                if (hero.Dead) continue;
+                int who = h;
+                var slots = new[] { (ItemSlot.Weapon, hero.Weapon), (ItemSlot.Armor, hero.Armor), (ItemSlot.Trinket, hero.Trinket) }.Where(x => x.Item2 != null).ToList();
+                var box = new Rect(0, y, column.width, 30 + 46 * ((slots.Count + 1) / 2));
+                Ui.Panel(box);
+                Ui.Text(new Rect(8, y + 2, column.width - 16, 24), hero.Name, 13, Palette.Ink, TextAnchor.MiddleLeft, true);
+                float sw = (column.width - 22) / 2;
+                for (int i = 0; i < slots.Count; i++)
+                {
+                    var (slot, item) = slots[i];
+                    bool can = Adventure.CanForge(item);
+                    int price = can ? a.ForgePrice(item) : 0;
+                    string label = can ? $"{item.Name} → +{item.Plus + 1} (금화 {price})" : $"{item.Name} (끝까지 벼렸다)";
+                    var cell = new Rect(8 + i % 2 * (sw + 6), y + 28 + i / 2 * 46, sw, 44);
+                    if (Ui.Button(cell, label, 11.5f, can && a.Gold >= price, Look.Normal, "대장간"))
+                    {
+                        var s2 = slot;
+                        if (Act(() => a.Forge(who, s2)) == null) Sounds.Play(Sound.Forge);
+                    }
+                    Ui.Tip(cell, slot == ItemSlot.Weapon ? "무기: 위력 +2" : slot == ItemSlot.Armor ? "갑옷: 방어도 +1" : "장신구: 생명력 +4");
+                }
+                y += box.height + 6;
+            }
+            // A new companion (hardcore): a class not in the party takes the fallen hero's place.
+            var recruits = a.Recruits();
+            if (recruits.Count > 0)
+            {
+                y = Paragraph(column, y, Strings.Get("town.recruit"), 13, Palette.Gold);
+                float rw = (column.width - 12) / 3;
+                for (int i = 0; i < recruits.Count; i++)
+                {
+                    var cls = recruits[i];
+                    var cell = new Rect(i % 3 * (rw + 6), y + i / 3 * 50, rw, 44);
+                    if (Ui.Button(cell, cls.Name, 13, true, Look.Normal, "새 동료")) Act(() => a.Recruit(cls.Id));
+                    Ui.Tip(cell, cls.Mechanic);
+                }
+                y += (recruits.Count + 2) / 3 * 50 + 4;
+            }
             if (a.Bag.Count > 0)
             {
                 y += 4;
@@ -87,8 +132,8 @@ namespace Game.Client
             EndColumn(y);
             var footer = Footer(48);
             float fh = (footer.width - 8) / 2;
-            if (Ui.Button(new Rect(footer.x, footer.y, fh, footer.height), "장비·소모품", 15, true, Look.Quiet)) _gearOpen = true;
-            if (Ui.Button(new Rect(footer.x + fh + 8, footer.y, fh, footer.height), "마을을 떠난다", 16, true, Look.Primary)) Act(a.LeaveTown);
+            if (Ui.Button(new Rect(footer.x, footer.y, fh, footer.height), Strings.Get("map.gear"), 15, true, Look.Quiet)) _gearOpen = true;
+            if (Ui.Button(new Rect(footer.x + fh + 8, footer.y, fh, footer.height), Strings.Get("town.leave"), 16, true, Look.Primary)) Act(a.LeaveTown);
         }
 
         // "베기 · 힘 3개 · 위력 10" for a weapon, its bonuses for the rest.
@@ -133,7 +178,7 @@ namespace Game.Client
             _gearScroll = Ui.Scroll(area, _gearScroll, _gearHeight - area.height, ref _gearDragging, ref _gearLastY);
             Ui.BeginArea(area, _gearScroll);
             float y = 0;
-            Ui.Text(new Rect(0, y, w, 26), "장비와 가방", 20, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.Text(new Rect(0, y, w, 26), Strings.Get("gear.heading"), 20, Palette.Gold, TextAnchor.MiddleLeft, true);
             y += 30;
             for (int h = 0; h < a.Heroes.Count; h++)
             {
@@ -201,7 +246,7 @@ namespace Game.Client
             }
             Ui.EndArea(_gearScroll);
             _gearHeight = y;
-            if (Ui.Button(new Rect((Ui.Width - 200) / 2, r.yMax - 54, 200, 46), "닫기", 16, true, Look.Primary)) _gearOpen = false;
+            if (Ui.Button(new Rect((Ui.Width - 200) / 2, r.yMax - 54, 200, 46), Strings.Get("common.close"), 16, true, Look.Primary)) _gearOpen = false;
         }
 
         float _gearScroll;
