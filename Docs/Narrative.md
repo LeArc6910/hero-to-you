@@ -63,8 +63,8 @@
 | 파일 | 한 줄이 | 열 |
 |---|---|---|
 | `chapters.csv` | 장 하나 | 아래 표 |
-| `stories.csv` | 이야기 한 장 | `id, title, text, art` |
-| `events.csv` | 사건 하나 | `id, pool, class, title, text, journal, requires` |
+| `stories.csv` | 이야기 한 장 | `id, title, text, art`(장면 이름, `journal`은 일지 종이, `journal+dawn`은 그림 아래 일지 종이) |
+| `events.csv` | 사건 하나 | `id, pool, class, title, text, journal, requires, art`(장면 이름, 비우면 그림 없음) |
 | `event_choices.csv` | 선택지 하나 | `event, label, class, requires, stat, dice, need, success, fail, success_text, fail_text` |
 | `encounters.csv` | 적 무리 하나 | `id, monsters, terrain, danger, chapter, text` |
 | `renown.csv` | 명성 단계 하나 | `need, title, text`(첫 줄 need 0, 아래로 갈수록 커진다) |

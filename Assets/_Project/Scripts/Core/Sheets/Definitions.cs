@@ -265,6 +265,9 @@ namespace Game.Core
         public string Text { get; internal set; }
         public string Journal { get; internal set; }
 
+        // A picture over the event (events.csv `art`, the scene names of Client/Art/SceneArt.cs); empty for none.
+        public string Art { get; internal set; } = "";
+
         // A flag the run must have (or, with a leading !, must not have) for this event to be drawn: what an
         // earlier chapter's choice brings back later (Docs/Narrative.md 장을 넘는 이야기).
         public string Requires { get; internal set; } = "";

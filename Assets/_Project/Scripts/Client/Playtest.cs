@@ -221,6 +221,14 @@ namespace Game.Client
                     Settings.Language = Arg(1, "ko");
                     ReloadData();
                     return "ok";
+                case "perf":
+                    // Frame times and memory since the last "perf reset" (GameRoot.Perf.cs).
+                    if (Arg(1) == "reset")
+                    {
+                        ResetPerf();
+                        return "ok";
+                    }
+                    return PerfReport();
                 case "slot":
                     // The save slot new and continued adventures use (0 is the practice run's).
                     SaveStore.Slot = Number(1, 1);

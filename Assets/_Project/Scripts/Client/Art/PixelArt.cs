@@ -38,9 +38,30 @@ namespace Game.Client
 
         static readonly Dictionary<string, Texture2D> Cache = new Dictionary<string, Texture2D>();
 
-        public static Texture2D Hero(string classId, string color) => Make("hero:" + classId, Heroes.TryGetValue(classId, out var rows) ? rows : Wanderer, color);
+        // Pictures are asked for many times a frame (every hex, every unit): found by (kind, name, color) without
+        // building a key string or a closure each time; made once.
+        static readonly Dictionary<(char, string, string), Texture2D> Found = new Dictionary<(char, string, string), Texture2D>();
 
-        public static Texture2D Monster(string monsterId, string color) => Make("monster:" + monsterId, Monsters.TryGetValue(monsterId, out var rows) ? rows : Monsters["goblin"], color);
+        static bool Known(char kind, string name, string color, out Texture2D texture) =>
+            Found.TryGetValue((kind, name, color), out texture) && texture != null;
+
+        static Texture2D Keep(char kind, string name, string color, Texture2D texture)
+        {
+            Found[(kind, name, color)] = texture;
+            return texture;
+        }
+
+        public static Texture2D Hero(string classId, string color)
+        {
+            if (Known('h', classId, color, out var known)) return known;
+            return Keep('h', classId, color, Make("hero:" + classId, Heroes.TryGetValue(classId, out var rows) ? rows : Wanderer, color));
+        }
+
+        public static Texture2D Monster(string monsterId, string color)
+        {
+            if (Known('m', monsterId, color, out var known)) return known;
+            return Keep('m', monsterId, color, Make("monster:" + monsterId, Monsters.TryGetValue(monsterId, out var rows) ? rows : Monsters["goblin"], color));
+        }
 
         public static Texture2D Make(string key, string[] rows, string color)
         {
@@ -1146,12 +1167,17 @@ namespace Game.Client
             "..kkkk..",
         };
 
-        public static Texture2D Icon(string name) => name switch
+        public static Texture2D Icon(string name)
         {
-            "heart" => Make("icon:heart", Heart, null),
-            "coin" => Make("icon:coin", Coin, null),
-            _ => MapIcons.TryGetValue(name, out var rows) ? Make("map:" + name, rows, null) : null,
-        };
+            if (Known('i', name, null, out var known)) return known;
+            var made = name switch
+            {
+                "heart" => Make("icon:heart", Heart, null),
+                "coin" => Make("icon:coin", Coin, null),
+                _ => MapIcons.TryGetValue(name, out var rows) ? Make("map:" + name, rows, null) : null,
+            };
+            return made == null ? null : Keep('i', name, null, made);
+        }
 
         // ---- The map (12×12 marks drawn on the hexes) ----
 

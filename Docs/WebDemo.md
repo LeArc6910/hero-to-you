@@ -8,6 +8,7 @@
 2. 시크릿 `UNITY_EMAIL`, `UNITY_PASSWORD`가 없으면 빌드를 건너뛰고 안내만 남긴다(실패로 표시하지 않는다)
 3. GameCI의 Unity 이미지(`unityci/editor:ubuntu-<ProjectVersion의 버전>-webgl-3`) 안에서 `.github/scripts/build-web.sh`가 돈다
    - **라이선스**: 에디터에 들어 있는 Licensing Client로 Unity Personal을 활성화하고(`--activate-ulf --include-personal`, 시리얼 없음) 빌드가 어떻게 끝나든 돌려준다. 계정은 소셜 로그인이나 2단계 인증 없이 이메일·비밀번호로 로그인할 수 있어야 한다. 사용자의 다른 프로젝트(pray-to)에서 2026-10-28에 맞춘 방식을 그대로 가져왔다
+   - **Unity 시험(2026-11-10)**: 같은 라이선스로 먼저 Unity의 시험 러너를 EditMode로 돌린다(`-runTests`, `dotnet test`와 같은 시험 파일을 Unity의 NUnit과 컴파일러로). 하나라도 실패하면 빌드하지 않아 웹 데모가 올라가지 않는다. 결과(`unity-tests.xml`)는 실행의 산출물 `unity-tests`로 남는다. `UNITY_TESTS=0`이면 건너뛴다
    - **빌드**: `Game.Client.Editor.WebBuild.RunBatch`. 먼저 `Game > Set Up Project`(`ProjectSetup`)를 해서 설정과 `Main` 씬을 코드로 만들고, 커밋 해시를 `Resources/BuildInfo.txt`에 써서(타이틀 오른쪽 아래에 보인다) WebGL로 `build/web`에 빌드한다. 저장소에는 `ProjectSettings/ProjectVersion.txt`와 `Packages/manifest.json`, 코드와 데이터만 있어도 빌드가 된다(에디터에서 손으로 만든 것이 없다)
 4. `version.txt`(커밋)를 넣어 GitHub Pages에 올린다. 클라우드의 플레이 시험이 이것을 보고 배포를 기다린다(`Docs/Playtest.md`)
 
@@ -59,8 +60,17 @@
 
 ## 성능 (2026-11-10)
 
+- **재는 법**: 게임이 프레임마다 걸린 시간, 가비지 수집 횟수, 프레임마다 새로 잡은 메모리를 센다(`GameRoot.Perf.cs`). 플레이 시험이 타이틀·지도·전투에서 3초씩 재서 보고서에 적는다(`perf reset`, `perf`). 지도와 전투는 프레임마다 256KB 아래여야 통과
+- **줄인 것**: 도트 그림을 찾을 때마다 열쇠 글자를 새로 만들던 것(칸마다, 유닛마다)을 (종류, 이름, 색) 짝으로 찾게 했다. 전투 패널의 미리보기(성공 수마다의 확률)는 명령이나 전투가 바뀔 때만 다시 구한다. 이야기·사건 그림의 파티 목록도 한 번만 만든다
+
 - 지도의 갈 수 있는 칸(`Adventure.Reachable`, 너비 우선 탐색)을 명령 수·지도 차례·이동력·위치가 바뀔 때만 다시 구한다(IMGUI는 한 프레임에 `OnGUI`를 여러 번 부른다)
 - 음악을 처음 틀 때 한 번에 합성하면 웹(스레드 하나)에서 화면이 잠깐 멈췄다. 이제 곡을 화음의 부분마다 나눠 한 프레임에 4ms까지만 만들고, 그동안 앞 곡이 계속 나온다. 아무 곡도 기다리지 않을 때는 다음에 쓸 곡(이야기·숲·전투·마을·보스…)을 미리 조금씩 만든다(`Music.Prepare`)
+
+## 소리와 그림 (2026-11-10)
+
+- 맞는 소리가 친 것을 따른다: 칼·도끼·창은 휘두르는 소리, 활·석궁·투석·카드는 날아가 꽂히는 소리, 마법은 반짝이는 소리, 손싸개는 둔탁한 소리. 몬스터도 물리·마법으로 나뉜다(`SoundArt`의 Slash, Arrow, Spell, Punch)
+- 보스 규칙이 맞으면 그 규칙의 소리가 난다: 봉인(자물쇠), 지우기(쓸려 나가는 소리), 얼림(얼음), 낙인(지글거림), 멍함(종)
+- 장면 그림 넷을 더했다: 새벽(다정한 결말), 해질녘(쓸쓸한 결말, 재가 내린다), 다시 만남(모닥불 곁에서 누군가 기다린다), 성소(빛이 숨 쉰다). 다시 만나는 사람들·성소·장의 본 줄거리 장소와 단서 사건(29개)에 그림이 붙는다(`events.csv`의 `art`)
 
 ## 웹 빌드 설정 (`Editor/ProjectSetup.cs`)
 

@@ -20,7 +20,7 @@ function option(name, fallback) {
 async function main() {
   const url = option('--url', DefaultUrl);
   const out = path.resolve(option('--out', path.join(__dirname, 'out')));
-  const profiles = option('--profiles', 'pc,phone,phone-wide').split(',').map(p => Profiles[p]).filter(Boolean);
+  const profiles = option('--profiles', 'pc,pc-small,phone,phone-wide').split(',').map(p => Profiles[p]).filter(Boolean);
   if (process.argv.includes('--wait')) {
     const sha = execSync('git rev-parse HEAD').toString().trim();
     await waitForCommit(url, sha);
@@ -61,11 +61,14 @@ async function autoplayUntil(game, test, limit = 200) {
 
 async function playSlice(game, wholeRun) {
   const { run } = game;
+  if (game.profile.textSize) await game.send(`textsize ${game.profile.textSize}`);
+  await game.wait(300);
   let state = await game.state();
   run.check(state.screen === 'Title', `첫 화면은 타이틀 (${state.screen})`);
   run.check((await game.allText()).includes('히어로 투 유'), '타이틀에 게임 이름이 한글로 보인다');
   run.check(state.touch === game.touch, `터치 화면 인식 (${state.touch})`);
   await game.shot('title', '타이틀');
+  await game.perf('타이틀');
   run.check((await game.find('연습 판')).length === 1 && (await game.find('저장 슬롯')).length === 1, '타이틀에 [연습 판]과 [저장 슬롯]이 있다');
   run.check(noOverlap(await game.buttons()), '타이틀 단추가 서로 겹치지 않는다');
 
@@ -88,7 +91,7 @@ async function playSlice(game, wholeRun) {
   await game.press(/^언어/, '설정');
   run.check((await game.state()).language === 'en' && (await game.allText()).includes('Settings'), '언어를 영어로 바꾸면 메뉴가 영어로 나온다');
   await game.shot('settings-en', '설정을 영어로');
-  await game.send('language ko; textsize 100');
+  await game.send(`language ko; textsize ${game.profile.textSize || 100}`);
   // The bug report window opens from the settings (no run yet, so it says so).
   run.check(await game.press('버그 제보', '설정'), '설정에서 [버그 제보]를 누를 수 있다');
   run.check((await game.state()).screen === 'Settings' && (await game.allText()).includes('버그 제보'), '버그 제보 창이 열린다');
@@ -119,6 +122,8 @@ async function playSlice(game, wholeRun) {
   run.check(state && state.saved, '모험을 시작하면 기기에 저장된다');
   run.check(state && state.unknown > 0 && state.explored > 0, `안개: 아직 모르는 칸 ${state && state.unknown}, 본 칸 ${state && state.explored}`);
   await game.shot('map', '지도, 첫 영웅의 차례(안개)');
+  const mapPerf = await game.perf('지도');
+  run.check(mapPerf.allocKbPerFrame < 256, `지도에서 프레임마다 쓰는 메모리가 적다 (${mapPerf.allocKbPerFrame} KB)`);
 
   // Rows in the gear window are set on the map; the strip shows them.
   run.check(state && state.heroes[0].back === false && state.heroes[1].back === true, '기사는 앞줄, 사냥꾼은 뒷줄로 시작한다');
@@ -172,6 +177,8 @@ async function playSlice(game, wholeRun) {
   if (state) {
     run.check(state.battle.monsters.every(m => m.intent), '적이 다음 행동(의도)을 보인다');
     await game.shot('battle', '전투, 영웅의 차례');
+    const battlePerf = await game.perf('전투(영웅의 차례)');
+    run.check(battlePerf.allocKbPerFrame < 256, `전투에서 프레임마다 쓰는 메모리가 적다 (${battlePerf.allocKbPerFrame} KB)`);
     const skills = await game.find(/.+/, '기술');
     run.check(skills.length >= 2, `기술 단추 ${skills.length}개`);
     run.check(skills.every(b => b.size[1] >= 38), '기술 단추가 손가락으로 누를 만큼 크다(높이 38점 이상)');
@@ -264,7 +271,7 @@ async function playSlice(game, wholeRun) {
   for (let guard = 0; guard < 6000; guard++) {
     state = await game.state();
     if (state.adventure === 'Victory' || state.adventure === 'Defeat') break;
-    const boss = state.adventure === 'Battle' && state.battle && ['warden', 'bell', 'abbess', 'bandit_chief', 'captain', 'priest'].includes(state.battle.encounter) ? state.battle.encounter : null;
+    const boss = state.adventure === 'Battle' && state.battle && ['warden', 'bell', 'abbess', 'sern', 'nameless', 'bandit_chief', 'captain', 'priest', 'captain4', 'shadow'].includes(state.battle.encounter) ? state.battle.encounter : null;
     if (boss && !shots[boss]) {
       shots[boss] = true;
       await game.send('speed 1');
@@ -368,6 +375,26 @@ async function playSlice(game, wholeRun) {
   english = await game.allText();
   run.check(!hangul(english), `영어로 하면 지도 화면에 한글이 없다 (${(english.match(/[^|]*[\uac00-\ud7a3][^|]*/) || [''])[0].slice(0, 60)})`);
   await game.shot('english-map', '영어: 지도');
+  await game.send('language ko; title');
+
+  // A chapter in English by the bot: every kind of screen it meets shows no Korean.
+  await game.send('language en; tips off; start knight,hunter,cleric 7; speed 0');
+  const seen = new Set();
+  for (let i = 0; i < 400 && seen.size < 7; i++) {
+    state = await game.state();
+    if (!state.adventure || state.adventure === 'Victory' || state.adventure === 'Defeat') break;
+    const kind = state.levelUp ? 'LevelUp' : state.adventure;
+    if (!seen.has(kind)) {
+      seen.add(kind);
+      await game.wait(250);
+      const text = await game.allText();
+      const korean = text.split(' | ').filter(t => hangul(t));
+      run.check(korean.length === 0, `영어: ${kind} 화면에 한글이 없다${korean.length ? ' (' + korean.slice(0, 2).join(' / ').slice(0, 100) + ')' : ''}`);
+      await game.shot(`english-${kind.toLowerCase()}`, `영어: ${kind}`);
+    }
+    await game.send('autoplay 1');
+  }
+  run.note(`- 영어로 본 화면: ${[...seen].join(', ')}`);
   await game.send('language ko; title');
 }
 

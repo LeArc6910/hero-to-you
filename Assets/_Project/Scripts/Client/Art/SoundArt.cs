@@ -20,6 +20,17 @@ namespace Game.Client
         Forge,
         Page,
         Achievement,
+        // A blow by what struck it (Docs/WebDemo.md 소리): blades, shots, spells, fists.
+        Slash,
+        Arrow,
+        Spell,
+        Punch,
+        // The bosses' rules landing: a skill sealed, skills erased, frozen, branded, dazed by the bell.
+        Seal,
+        Erase,
+        Freeze,
+        Brand,
+        Bell,
     }
 
     // The game's sound effects, synthesized in code (no audio files): short tones, noise and sweeps, 8-bit in feel.
@@ -48,6 +59,15 @@ namespace Game.Client
                 case Sound.Step: return Noise(0.05f, 0.25f, 3);
                 case Sound.Forge: return Join(Mix(Noise(0.05f, 0.4f, 11), Tone(1568, 0.05f, 0.3f, Wave.Square)), Mix(Noise(0.05f, 0.35f, 12), Tone(1397, 0.12f, 0.25f, Wave.Triangle)));
                 case Sound.Page: return Sweep(900, 1400, 0.12f, 0.15f, Wave.Triangle);
+                case Sound.Slash: return Mix(Noise(0.08f, 0.4f, 2), Sweep(1200, 300, 0.08f, 0.18f, Wave.Square));
+                case Sound.Arrow: return Join(Sweep(1800, 900, 0.05f, 0.18f, Wave.Triangle), Noise(0.05f, 0.35f, 4));
+                case Sound.Spell: return Join(Sweep(400, 1200, 0.12f, 0.22f, Wave.Triangle), Tone(1200, 0.08f, 0.15f, Wave.Triangle));
+                case Sound.Punch: return Mix(Noise(0.06f, 0.32f, 9), Tone(110, 0.08f, 0.26f, Wave.Square));
+                case Sound.Seal: return Join(Tone(1568, 0.04f, 0.28f, Wave.Square), Mix(Noise(0.04f, 0.3f, 6), Tone(784, 0.12f, 0.28f, Wave.Square)));
+                case Sound.Erase: return Mix(Sweep(1600, 200, 0.3f, 0.2f, Wave.Triangle), Noise(0.3f, 0.12f, 1));
+                case Sound.Freeze: return Join(Tone(2093, 0.05f, 0.2f, Wave.Triangle), Tone(2637, 0.05f, 0.2f, Wave.Triangle), Mix(Noise(0.1f, 0.25f, 1), Tone(3136, 0.1f, 0.15f, Wave.Triangle)));
+                case Sound.Brand: return Mix(Noise(0.25f, 0.32f, 1), Sweep(300, 150, 0.25f, 0.2f, Wave.Square));
+                case Sound.Bell: return Mix(Tone(880, 0.35f, 0.28f, Wave.Triangle), Tone(1320, 0.35f, 0.14f, Wave.Triangle));
                 case Sound.Achievement: return Join(Tone(523, 0.08f, 0.28f, Wave.Triangle), Tone(784, 0.08f, 0.28f, Wave.Triangle), Tone(1047, 0.08f, 0.28f, Wave.Triangle), Tone(1568, 0.3f, 0.25f, Wave.Triangle));
                 default: return new float[1];
             }

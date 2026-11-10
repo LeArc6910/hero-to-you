@@ -44,7 +44,7 @@ dotnet run --project DevTools/CoreSandbox -- --battle 2000 --party knight,hunter
 dotnet run --project DevTools/CoreSandbox -- --classes 1000
 dotnet run --project DevTools/CoreSandbox -- --classes 60 --encounter warden --level 4
 dotnet run --project DevTools/CoreSandbox -- --adventure 200 --party berserker,elementalist,gambler   # 캠페인 전체를 봇이
-dotnet run --project DevTools/CoreSandbox -- --adventure 60 --party knight,hunter,cleric --human [--easy] [--retries 3] [--chapters 4-5]  # 사람처럼 실수하는 봇(밸런스는 이것으로 잰다). --chapters는 짧은 판
+dotnet run --project DevTools/CoreSandbox -- --adventure 60 --party knight,hunter,cleric --human [--easy] [--retries 3] [--chapters 4-5] [--nocombos]  # 사람처럼 실수하는 봇(밸런스는 이것으로 잰다). --chapters는 짧은 판, --nocombos는 조합을 끈다
 dotnet run --project DevTools/CoreSandbox -- --replay report.txt   # 사람이 보낸 버그 제보(저장본)를 그대로 다시 돌린다
 dotnet run --project DevTools/SoundPreview -- /tmp/sounds
 

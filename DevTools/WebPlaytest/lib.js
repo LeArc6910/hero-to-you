@@ -35,7 +35,8 @@ function createRun(out) {
 
 const Profiles = {
   pc: { name: 'pc', context: { viewport: { width: 1280, height: 720 } } },
-  'pc-small': { name: 'pc-small', context: { viewport: { width: 800, height: 600 } } },
+  // The smallest PC window the game promises, with the biggest text setting (Docs/WebDemo.md 작은 화면).
+  'pc-small': { name: 'pc-small', textSize: 130, context: { viewport: { width: 800, height: 600 } } },
   phone: { name: 'phone', touch: true, context: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } },
   'phone-wide': { name: 'phone-wide', touch: true, context: { viewport: { width: 844, height: 390 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } },
 };
@@ -196,6 +197,34 @@ function helpers(game) {
     const file = path.join(run.out, `${profile.name}-${name}.png`);
     await page.screenshot({ path: file });
     run.note(`- 사진 ${caption}: \`${path.basename(file)}\``);
+    await h.layout(name);
+  };
+
+  // Every screenshot also checks the layout: no two buttons one can press cover each other. Hexes, cards in a
+  // scrolled list, the story's tap-anywhere and the units are hit areas that may touch by design; a window over the
+  // screen (tip, talk, level-up, gear, report, history) leaves the screen under it drawn, so those are skipped.
+  const LayoutIgnore = new Set(['칸', '직업', '이야기', '대상', '도움말']);
+  h.layout = async name => {
+    const state = await h.state();
+    if (state.tip || state.talkWaiting || state.levelUp || state.gearOpen || state.reportOpen || state.historyOpen) return;
+    const buttons = (await h.buttons()).filter(b => b.shown && b.enabled && !LayoutIgnore.has(b.row || ''));
+    const clash = [];
+    for (let i = 0; i < buttons.length; i++)
+      for (let j = i + 1; j < buttons.length; j++) {
+        const [ax, ay, aw, ah] = buttons[i].rect;
+        const [bx, by, bw, bh] = buttons[j].rect;
+        if (ax + 1 < bx + bw && bx + 1 < ax + aw && ay + 1 < by + bh && by + 1 < ay + ah) clash.push(`${buttons[i].label} / ${buttons[j].label}`);
+      }
+    run.check(clash.length === 0, `${name}: 단추가 겹치지 않는다${clash.length ? ' (' + clash.slice(0, 3).join(', ') + ')' : ''}`);
+  };
+
+  // Frame times and memory over a few seconds on the screen now (GameRoot.Perf.cs), noted in the report.
+  h.perf = async (name, ms = 3000) => {
+    await h.send('perf reset');
+    await page.waitForTimeout(ms);
+    const perf = await h.ask('perf');
+    run.note(`- 성능 ${name}: 프레임 ${perf.frames}, 평균 ${perf.avgMs} ms, 95% ${perf.p95Ms} ms, 최대 ${perf.maxMs} ms, GC ${perf.gc}번, 할당 ${perf.allocKbPerFrame} KB/프레임, 힙 ${perf.heapMb} MB`);
+    return perf;
   };
 
   // Polls the game's report until the test passes, up to `ms`.

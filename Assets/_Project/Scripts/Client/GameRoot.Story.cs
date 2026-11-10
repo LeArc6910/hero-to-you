@@ -83,14 +83,16 @@ namespace Game.Client
                 _storyStart = Time.unscaledTime;
                 _storyAll = _speed <= 0;
             }
-            bool journal = story.Art == "journal";
+            // "journal" is a page of the journal; "journal+dawn" the same page under a picture.
+            string art = story.Art ?? "";
+            bool journal = art.StartsWith("journal");
+            string scene = journal ? (art.Contains("+") ? art.Substring(art.IndexOf('+') + 1) : "") : art;
             var column = BeginColumn("story:" + story.Id, 56);
             float y = 4;
-            if (!journal && !string.IsNullOrEmpty(story.Art))
+            if (scene.Length > 0)
             {
-                float h = Mathf.Clamp(column.height * 0.3f, 90, 170);
-                var party = _adventure.Heroes.Select(hero => (hero.Class.Id, hero.Class.Color)).ToList();
-                SceneArt.Draw(new Rect(0, y, column.width, h), story.Art, party, Time.unscaledTime);
+                float h = Mathf.Clamp(column.height * (journal ? 0.22f : 0.3f), 80, 170);
+                SceneArt.Draw(new Rect(0, y, column.width, h), scene, PartyArt(), Time.unscaledTime);
                 y += h + 8;
             }
             float size = 15;
@@ -144,13 +146,35 @@ namespace Game.Client
             if (Ui.Button(new Rect(footer.x, footer.y + 56, footer.width, 48), Strings.Get("dungeon.leave"), 15, true, Look.Quiet, null, KeyCode.Escape)) Act(a.LeaveDungeon);
         }
 
+        System.Collections.Generic.List<(string, string)> _partyArt;
+        Adventure _partyArtFor;
+
+        // The heroes for a picture, as (class, color); made again only for another adventure.
+        System.Collections.Generic.List<(string, string)> PartyArt()
+        {
+            if (_partyArt == null || _partyArtFor != _adventure || _partyArt.Count != _adventure.Heroes.Count)
+            {
+                _partyArt = _adventure.Heroes.Select(hero => (hero.Class.Id, hero.Class.Color)).ToList();
+                _partyArtFor = _adventure;
+            }
+            return _partyArt;
+        }
+
         void DrawEvent()
         {
             var card = _adventure.Event;
             var choices = _adventure.Choices();
             var picking = choices.FirstOrDefault(c => c.Index == _choice);
             var column = BeginColumn($"event:{card.Id}:{_adventure.Log.Count}:{_choice}", picking != null ? 56 : 8);
-            float y = Heading(column, 4, card.Title);
+            float y = 4;
+            // The events that matter most (people coming back, shrines, the chapter's places) have a picture.
+            if (!string.IsNullOrEmpty(card.Art) && picking == null)
+            {
+                float h = Mathf.Clamp(column.height * 0.2f, 64, 120);
+                SceneArt.Draw(new Rect(0, y, column.width, h), card.Art, PartyArt(), Time.unscaledTime);
+                y += h + 6;
+            }
+            y = Heading(column, y, card.Title);
             y = Paragraph(column, y, card.Text);
             if (!string.IsNullOrEmpty(card.Journal)) y = Paragraph(column, y, Strings.Format("event.journal", card.Journal), 13, Palette.Journal);
             y += 4;

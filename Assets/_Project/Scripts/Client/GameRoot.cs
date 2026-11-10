@@ -98,6 +98,7 @@ namespace Game.Client
 
         void Update()
         {
+            TrackPerf(Time.unscaledDeltaTime);
             TickBattle(Time.unscaledDeltaTime);
             Music.Play(MusicFor());
             Music.Ambient(AmbienceFor());

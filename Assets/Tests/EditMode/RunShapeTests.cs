@@ -279,6 +279,17 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void TheEventsThatMatterHaveAPicture()
+        {
+            var events = TestData.Data.Events.ToDictionary(e => e.Id);
+            Assert.That(events["back_fox"].Art, Is.EqualTo("reunion"));
+            Assert.That(events["shrine"].Art, Is.EqualTo("shrine"));
+            Assert.That(events["seal_stone"].Art, Is.EqualTo("forest"));
+            Assert.That(events["deserter"].Art, Is.Empty, "보통 사건은 그림이 없다");
+            Assert.That(TestData.Data.Stories["epilogue_kind"].Art, Is.EqualTo("journal+dawn"));
+        }
+
+        [Test]
         public void SomeoneSavedEarlierComesBackLater()
         {
             var events = TestData.Data.Events.Where(e => e.Requires.Length > 0).ToList();

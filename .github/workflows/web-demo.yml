@@ -69,7 +69,8 @@ jobs:
           echo "image=$image" >> "$GITHUB_OUTPUT"
           docker pull --quiet "$image"
 
-      # Activates Unity Personal, builds into build/web and returns the license (.github/scripts/build-web.sh).
+      # Activates Unity Personal, runs Unity's EditMode tests, builds into build/web and returns the license
+      # (.github/scripts/build-web.sh).
       # Unity needs about 1 GB of shared memory; Docker gives a container 64 MB unless told otherwise. GITHUB_SHA
       # goes in for the title screen's version (Editor/WebBuild.cs).
       - name: Build
@@ -87,6 +88,15 @@ jobs:
       - name: Fix file ownership
         if: always()
         run: sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+
+      # Unity's EditMode test results (build-web.sh runs them before building), kept even when a test failed.
+      - name: Keep the Unity test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-tests
+          path: unity-tests.xml
+          if-no-files-found: ignore
 
       # Which commit the page is, for the cloud's playtests to wait for (Docs/Playtest.md).
       - name: Mark the commit

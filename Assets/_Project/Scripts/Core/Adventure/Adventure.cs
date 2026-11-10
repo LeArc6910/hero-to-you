@@ -245,7 +245,7 @@ namespace Game.Core
                 ApplyGift(perk.Effect);
             }
             // The pairings of classes the party has (Docs/Classes.md 조합).
-            foreach (var combo in Data.Combos.Where(c => c.Classes.All(cls => ClassIds.Contains(cls))))
+            foreach (var combo in Data.Combos.Where(c => !CombosOff && c.Classes.All(cls => ClassIds.Contains(cls))))
             {
                 _combos.Add(combo);
                 ApplyGift(combo.Effect);
@@ -254,6 +254,9 @@ namespace Game.Core
         }
 
         readonly List<ComboDef> _combos = new List<ComboDef>();
+
+        // The balance sandbox measures what the pairings are worth by turning them off (CoreSandbox --nocombos).
+        internal static bool CombosOff;
 
         // ---- The codex (Docs/Journal.md 도감): what this run met, for the journal to keep ----
 

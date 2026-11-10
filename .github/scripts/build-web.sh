@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Runs inside GameCI's Unity image (unityci/editor) for the Web demo workflow: activates a Unity Personal license
-# with the account's email and password, builds the web demo into the folder given as $1, and returns the license
-# however the build ends.
+# with the account's email and password, runs Unity's EditMode tests, builds the web demo into the folder given as
+# $1, and returns the license however the build ends.
 #
 # GameCI's own activation (unity-builder) always passes a serial, taking it from a ULF file for Personal licenses.
 # Unity 6 Personal licenses have no serial and Hub leaves no ULF, so that fails with "serial invalid". The Licensing
@@ -44,6 +44,37 @@ for attempt in 1 2 3; do
     fi
     sleep $((attempt * 20))
 done
+
+# Unity's own test runner over the EditMode tests (the same files dotnet test runs, but with Unity's NUnit and
+# compiler), before the build under the same license: a failing test stops the web demo from being published.
+# Results go to unity-tests.xml at the project root (the workflow keeps it as an artifact). UNITY_TESTS=0 skips.
+run_tests() {
+    "$editor" \
+        -runTests \
+        -projectPath "$PWD" \
+        -testPlatform EditMode \
+        -testResults "$PWD/unity-tests.xml" \
+        -logFile /dev/stdout
+}
+
+if [ "${UNITY_TESTS:-1}" != "0" ]; then
+    for attempt in 1 2 3; do
+        status=0
+        run_tests || status=$?
+        if [ "$status" -ne 137 ] || [ "$attempt" = 3 ]; then break; fi
+        echo "::warning::The editor was killed (exit 137) while starting the tests; starting it again"
+        sleep 10
+    done
+    if [ -f unity-tests.xml ]; then
+        summary="$(grep -o '<test-run[^>]*' unity-tests.xml | grep -o '\(total\|passed\|failed\|skipped\)="[0-9]*"' | tr '\n' ' ' || true)"
+        echo "Unity EditMode tests: $summary"
+    fi
+    if [ "$status" -ne 0 ]; then
+        echo "::error::Unity EditMode tests failed (exit $status). See unity-tests.xml in the run's artifacts."
+        if [ -f unity-tests.xml ]; then grep -o '<test-case[^>]*result="Failed"[^>]*' unity-tests.xml | grep -o 'fullname="[^"]*"' | head -20 || true; fi
+        exit "$status"
+    fi
+fi
 
 build() {
     "$editor" \

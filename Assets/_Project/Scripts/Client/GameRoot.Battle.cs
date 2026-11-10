@@ -183,13 +183,14 @@ namespace Game.Client
                     _diceAge = 0;
                     if (e.Actor >= 0 && e.Target != e.Actor) _lungeAt[e.Actor] = _clock;
                     if (_speed > 0) Sounds.Play(e.Perfect ? Sound.Perfect : Sound.Dice);
+                    _blowSound = BlowSound(e);
                     break;
                 case BattleEventKind.Damage:
                     _shownHp[e.Target] = Mathf.Max(0, _shownHp[e.Target] - e.Amount);
                     _hitAt[e.Target] = _clock;
                     if (_speed > 0 && _battleShown.Unit(e.Target).IsHero) WebBridge.Buzz(40);
                     Float(e.Target, "-" + e.Amount + (e.Perfect ? "!" : ""), Palette.Damage);
-                    if (_speed > 0) Sounds.Play(Sound.Hit);
+                    if (_speed > 0) Sounds.Play(_blowSound);
                     break;
                 case BattleEventKind.Miss:
                     Float(e.Target, Strings.Get("battle.float_miss"), Palette.Dim);
@@ -232,6 +233,39 @@ namespace Game.Client
                 _log.Add(e.Text);
                 if (_log.Count > 40) _log.RemoveAt(0);
             }
+        }
+
+        // The sound of the blows from the last roll: by the weapon or the skill, and a boss's rule its own.
+        Sound _blowSound = Sound.Hit;
+
+        Sound BlowSound(BattleEvent e)
+        {
+            var unit = _battleShown?.Unit(e.Actor);
+            if (unit == null || string.IsNullOrEmpty(e.Skill)) return Sound.Hit;
+            if (unit.IsHero)
+            {
+                var skill = unit.Hero.Skill(e.Skill);
+                if (skill == null) return Sound.Hit;
+                if (skill.Kind == SkillKind.Magic) return Sound.Spell;
+                if (skill.Kind != SkillKind.Physical) return Sound.Hit;
+                if (e.Skill != Hero.AttackId) return Sound.Slash;
+                return unit.Hero.Weapon?.Kind switch
+                {
+                    "bow" or "crossbow" or "sling" or "cards" => Sound.Arrow,
+                    "fist" => Sound.Punch,
+                    _ => Sound.Slash,
+                };
+            }
+            if (!_data.MonsterSkills.TryGetValue(e.Skill, out var blow)) return Sound.Hit;
+            return blow.Effect switch
+            {
+                "seal" => Sound.Seal,
+                "erase" => Sound.Erase,
+                "freeze" => Sound.Freeze,
+                "scorch" => Sound.Brand,
+                "daze" => Sound.Bell,
+                _ => blow.Kind == "magic" ? Sound.Spell : Sound.Slash,
+            };
         }
 
         static string StatusFloat(BattleEvent e) => e.Note switch
@@ -623,6 +657,20 @@ namespace Game.Client
             return battle.Targets(actor, SkillDef(actor, _skill)).Contains(unit);
         }
 
+        // The preview of the command being set up, worked out again only when something in it or the battle changed
+        // (OnGUI runs several times a frame; a preview works out the odds of every number of successes).
+        SkillPreview _preview;
+        (Battle, int, int, string, int, int) _previewKey;
+
+        SkillPreview PreviewOf(Battle battle, Unit actor, int resolve)
+        {
+            var key = (battle, battle.Events.Count, actor.Id, _skill, _target, resolve);
+            if (_preview != null && _previewKey.Equals(key)) return _preview;
+            _preview = battle.Preview(new BattleCommand(actor.Id, _skill, _target, resolve));
+            _previewKey = key;
+            return _preview;
+        }
+
         void DrawPanel(Rect r, Battle battle)
         {
             Ui.Panel(r);
@@ -688,9 +736,9 @@ namespace Game.Client
             }
 
             // Resolve can only cover the dice not already sure (a new target may bring a mark or a combo).
-            int resolveRoom = battle.Preview(new BattleCommand(actor.Id, _skill, _target, 0)).ResolveRoom;
+            int resolveRoom = PreviewOf(battle, actor, 0).ResolveRoom;
             _resolve = Mathf.Clamp(_resolve, 0, resolveRoom);
-            var preview = battle.Preview(new BattleCommand(actor.Id, _skill, _target, _resolve));
+            var preview = PreviewOf(battle, actor, _resolve);
             var skill = SkillDef(actor, _skill);
             float rollH = 46;
             room = inner.yMax - rollH - 4 - y;

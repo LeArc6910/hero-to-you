@@ -6,7 +6,7 @@ back_alley,뒷골목 패,rogue;gambler,gold 30,판을 읽는 두 사람. 금화 
 song_and_memory,노래와 기억,bard;mnemonist,renown 2,부른 노래를 잊지 않는다. 명성 2를 들고 시작한다.,Song and Memory,A song once sung is never forgotten. Start with 2 renown.
 workbench,작업대,alchemist;engineer,tonic 1,끓이고 조이는 손. 영웅마다 결의 물약 하나를 든다.,Workbench,Hands that brew and hands that tighten. Each hero carries a tonic.
 night_scholars,밤의 학자들,necromancer;seer,doom -1,죽음과 별을 읽는다. 균열이 하나 덜 찬 채로 시작한다.,Night Scholars,They read death and the stars. Start with the Rift one step lower.
-bare_hands,맨손과 도끼,monk;berserker,xp 6,몸으로 배우는 두 사람. 영웅마다 경험치 6을 들고 시작한다.,Bare Hands and an Axe,Two who learn with their bodies. Each hero starts with 6 XP.
+bare_hands,맨손과 도끼,monk;berserker,xp 10,몸으로 배우는 두 사람. 영웅마다 경험치 10을 들고 시작한다(레벨 2).,Bare Hands and an Axe,Two who learn with their bodies. Each hero starts with 10 XP.
 star_and_flame,별과 불꽃,seer;elementalist,bless 1,불꽃이 떨어질 곳을 별이 먼저 안다. 영웅마다 축복 하나를 든다.,Star and Flame,The stars know first where the flames will fall. Each hero carries one blessing.
 wall_and_hammer,성벽과 망치,knight;engineer,forge 1,무기를 서로 손본다. 영웅마다 무기가 한 번 벼려진 채 시작한다.,Wall and Hammer,They tend each other's weapons. Each hero starts with their weapon honed once.
 pack_and_trail,무리와 발자국,hunter;beastmaster,reveal 10,짐승과 사냥꾼은 길을 먼저 안다. 시작할 때 주변 열 칸이 밝혀져 있다.,Pack and Trail,Beast and hunter know the way first. You start with the ten hexes around you revealed.

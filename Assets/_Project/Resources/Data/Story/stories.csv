@@ -35,7 +35,7 @@ epilogue_kind,첫 번째 장,"파수꾼이 무너지자 봉인석의 금이 멎�
 
 리엔의 글씨 아래, 처음 보는 문장이 하나 떠오른다. 「잘했다. 나는 이 숲을 지나며 아무도 돌아보지 않았다.」
 
-일지가 다음 장을 넘긴다. 바다 냄새가 나는 지도다.",journal,Chapter One,"As the Warden crumbles, the cracks in the seal stone stop spreading. The people you helped along the way have followed you to the edge of the forest. Someone lights a fire; someone starts a song. You are in the song.
+일지가 다음 장을 넘긴다. 바다 냄새가 나는 지도다.",journal+dawn,Chapter One,"As the Warden crumbles, the cracks in the seal stone stop spreading. The people you helped along the way have followed you to the edge of the forest. Someone lights a fire; someone starts a song. You are in the song.
 
 On a blank page of the journal, your handwriting appears for the first time. “First seal: kept. We were not alone.”
 
@@ -46,7 +46,7 @@ epilogue_grim,첫 번째 장,"파수꾼이 무너지고 봉인석의 금이 멎�
 
 일지의 빈 장에 너희의 글씨가 적힌다. 「첫 번째 봉인, 지켰다.」 그 아래, 리엔의 글씨가 희미하게 번진다. 「지키는 것과 구하는 것은 다르다. 나도 그걸 너무 늦게 알았다.」
 
-일지가 다음 장을 넘긴다. 바다 냄새가 나는 지도다.",journal,Chapter One,"The Warden crumbles and the cracks in the seal stone stop spreading. But no one has come out to the edge of the forest. The faces you passed by on the road keep coming back to you.
+일지가 다음 장을 넘긴다. 바다 냄새가 나는 지도다.",journal+dusk,Chapter One,"The Warden crumbles and the cracks in the seal stone stop spreading. But no one has come out to the edge of the forest. The faces you passed by on the road keep coming back to you.
 
 Your handwriting appears on a blank page of the journal. “First seal: kept.” Beneath it, Rien's handwriting blurs faintly. “Keeping and saving are not the same thing. I, too, learned that too late.”
 
@@ -82,14 +82,14 @@ epilogue2_kind,두 번째 장,"너희가 편지의 마지막 줄을 읽어 주�
 
 항구 사람들이 부두에 모여 있다. 너희가 먹인 아이들, 그물에서 건진 어부, 남편을 보낸 여인. 누군가 너희를 처음으로 이렇게 부른다. “영웅들이다.”
 
-일지에 너희의 글씨가 적힌다. 「두 번째 봉인, 지켰다. 리엔이 하지 못한 약속도.」 그다음 장부터 리엔의 글씨가 없다. 찢겨 나간 장 하나만이 눈 덮인 산을 가리킨다.",journal,Chapter Two,"As you read out the last line of the letter, the bellringer's hands go still. “…So you could not come back. You never left me.” Smiling, the bellringer sinks beneath the water, and the bell rings clear one last time.
+일지에 너희의 글씨가 적힌다. 「두 번째 봉인, 지켰다. 리엔이 하지 못한 약속도.」 그다음 장부터 리엔의 글씨가 없다. 찢겨 나간 장 하나만이 눈 덮인 산을 가리킨다.",journal+dawn,Chapter Two,"As you read out the last line of the letter, the bellringer's hands go still. “…So you could not come back. You never left me.” Smiling, the bellringer sinks beneath the water, and the bell rings clear one last time.
 
 The harbor folk have gathered on the docks. The children you fed, the fisher you pulled from the nets, the widow who laid her husband to rest. For the first time, someone says it of you: “Those are heroes.”
 
 Your handwriting appears in the journal. “Second seal: kept. And the promise Rien could not keep.” From the next page on, there is no more of Rien's handwriting. Only one torn-out page points to a snowbound mountain."
 epilogue2_grim,두 번째 장,"종지기가 쓰러지고 종이 깨진다. 바닷물은 물러났지만 부두에는 아무도 나와 있지 않다. 리엔이 그랬듯, 너희도 이 항구에 무언가를 두고 간다.
 
-일지에 너희의 글씨가 적힌다. 「두 번째 봉인, 지켰다.」 그 아래 리엔의 마지막 글씨가 번진다. 「영웅은 봉인을 닫는 사람이 아니라, 돌아보는 사람이다. 너희는 나보다 나아야 한다.」",journal,Chapter Two,"The bellringer falls and the bell shatters. The sea has drawn back, but no one has come out onto the docks. Just as Rien did, you too leave something behind in this harbor.
+일지에 너희의 글씨가 적힌다. 「두 번째 봉인, 지켰다.」 그 아래 리엔의 마지막 글씨가 번진다. 「영웅은 봉인을 닫는 사람이 아니라, 돌아보는 사람이다. 너희는 나보다 나아야 한다.」",journal+dusk,Chapter Two,"The bellringer falls and the bell shatters. The sea has drawn back, but no one has come out onto the docks. Just as Rien did, you too leave something behind in this harbor.
 
 Your handwriting appears in the journal. “Second seal: kept.” Beneath it, Rien's last handwriting blurs. “A hero is not the one who closes the seals, but the one who looks back. You must be better than I was.”"
 rift2,바다가 넘어왔다,"열흘째 밤, 종소리가 멎었다. 종지기가 마침내 지쳤고, 바다가 항구를 삼켰다.
@@ -125,7 +125,7 @@ epilogue3_kind,세 번째 장,"너희가 리엔의 말을 전하자 원장의 �
 
 찢긴 장을 일지에 붙이고 너희는 적는다. 「세 번째 봉인, 지켰다. 대가는 셋이 나눠 진다. 아무도 혼자 잊히지 않는다.」
 
-리엔이 혼자 졌던 것을 이제 셋이 진다. 그것이 너희가 리엔과 다른 영웅이 되는 길이다.",journal,Chapter Three,"When you pass on Rien's words, the Abbess's ice melts. “So someone besides me… remembered.” Smiling, the Abbess closes her eyes.
+리엔이 혼자 졌던 것을 이제 셋이 진다. 그것이 너희가 리엔과 다른 영웅이 되는 길이다.",journal+dawn,Chapter Three,"When you pass on Rien's words, the Abbess's ice melts. “So someone besides me… remembered.” Smiling, the Abbess closes her eyes.
 
 The people of the foothill village have climbed all the way to the abbey with torches. The monks, novices and pilgrims you saved stand at the front. A child calls your names, one after another. All three of them.
 
@@ -134,7 +134,7 @@ You paste the torn page into the journal and write: “Third seal: kept. The thr
 What Rien carried alone, three now carry. That is how you become heroes unlike Rien."
 epilogue3_grim,세 번째 장,"원장이 쓰러지고 수도원이 조용해진다. 너무 조용하다. 길에서 지나친 얼굴들은 눈 속에 그대로 남았다.
 
-찢긴 장을 일지에 끼운다. 「봉인의 대가는 이름이다.」 너희는 그 아래에 아무것도 적지 못한다. 대가가 누구의 몫이 될지, 처음으로 두려워진다.",journal,Chapter Three,"The Abbess falls, and the abbey goes quiet. Too quiet. The faces you passed on the road stay where they were, in the snow.
+찢긴 장을 일지에 끼운다. 「봉인의 대가는 이름이다.」 너희는 그 아래에 아무것도 적지 못한다. 대가가 누구의 몫이 될지, 처음으로 두려워진다.",journal+dusk,Chapter Three,"The Abbess falls, and the abbey goes quiet. Too quiet. The faces you passed on the road stay where they were, in the snow.
 
 You slip the torn page into the journal. “The price of the seal is a name.” Beneath it you can write nothing. For the first time, you are afraid of whose name it will be."
 rift3,눈보라가 삼켰다,"열흘째 밤, 균열에서 눈보라가 쏟아져 수도원과 산을 덮었다. 종은 끝내 울리지 않았다.
@@ -168,14 +168,14 @@ epilogue4_kind,네 번째 장,"세른이 무릎을 꿇는다. 너희가 구한 �
 
 세른의 갑옷에 새겨진 이름들이 하나씩 빛을 잃고 주인에게 돌아간다.
 
-일지에 적는다. 「네 번째 봉인, 지켰다. 이름은 빼앗는 게 아니라 불러 주는 것이다.」 세른이 자기 일지 마지막 장에 같은 줄을 적는다.",journal,Chapter Four,"Sern falls to his knees. The people you saved and the villagers you warned gather before the tomb and call Sern's name. For the first time, someone calls him by name.
+일지에 적는다. 「네 번째 봉인, 지켰다. 이름은 빼앗는 게 아니라 불러 주는 것이다.」 세른이 자기 일지 마지막 장에 같은 줄을 적는다.",journal+dawn,Chapter Four,"Sern falls to his knees. The people you saved and the villagers you warned gather before the tomb and call Sern's name. For the first time, someone calls him by name.
 
 One by one, the names carved into Sern's armor lose their light and return to their owners.
 
 You write in the journal: “Fourth seal: kept. A name is not something you take. It is something you call.” Sern writes the same line on the last page of his own journal."
 epilogue4_grim,네 번째 장,"세른이 쓰러지지만 그가 빼앗은 이름들은 모래바람에 흩어진다. 왕릉 아래 마을은 조용하다. 너무 조용하다.
 
-일지에 적는다. 「네 번째 봉인, 지켰다.」 그 아래에 무엇을 더 적어야 할지 모르겠다.",journal,Chapter Four,"Sern falls, but the names he stole scatter on the desert wind. The village below the tomb is quiet. Too quiet.
+일지에 적는다. 「네 번째 봉인, 지켰다.」 그 아래에 무엇을 더 적어야 할지 모르겠다.",journal+dusk,Chapter Four,"Sern falls, but the names he stole scatter on the desert wind. The village below the tomb is quiet. Too quiet.
 
 You write in the journal: “Fourth seal: kept.” What else to write beneath it, you do not know."
 rift4,왕이 깨어났다,"열흘째 밤, 붉은 왕의 관이 열렸다. 모래가 하늘로 솟고, 사람들의 이름이 하나씩 지워진다.
@@ -213,7 +213,7 @@ epilogue5_kind,마지막 장,"이름 없는 것이 무너질 때, 너희 셋의 
 
 사람들이 너희를 영웅이라 부른다. 리엔이 그랬던 것처럼, 그러나 리엔과는 다르게. 혼자가 아니어서.
 
-일지의 마지막 장에 적는다. 「영웅에게서 너에게.」 그리고 일지를 덮는다. 언젠가 누군가 다시 열 것이다.",journal,The Last Chapter,"As the Nameless crumbles, it tries to drag your three names down with it. In that moment, countless voices call out to you. The people you met across five chapters, the people whose names you called.
+일지의 마지막 장에 적는다. 「영웅에게서 너에게.」 그리고 일지를 덮는다. 언젠가 누군가 다시 열 것이다.",journal+dawn,The Last Chapter,"As the Nameless crumbles, it tries to drag your three names down with it. In that moment, countless voices call out to you. The people you met across five chapters, the people whose names you called.
 
 The price was one name. But when so many remember that name, no one is forgotten. What Rien carried alone, everyone now shares.
 
@@ -226,7 +226,7 @@ epilogue5_grim,마지막 장,"이름 없는 것이 무너지고 문이 닫힌다
 
 일지에는 세 사람의 글씨가 있다. 하나는 누구의 것인지 모른다.
 
-「다섯 번째 봉인, 지켰다.」 그 아래 빈 줄이 하나 남는다.",journal,The Last Chapter,"The Nameless crumbles and the gate closes. The price was one name. The name of one of the three vanishes from the world. The two who remain cannot recall who it was.
+「다섯 번째 봉인, 지켰다.」 그 아래 빈 줄이 하나 남는다.",journal+dusk,The Last Chapter,"The Nameless crumbles and the gate closes. The price was one name. The name of one of the three vanishes from the world. The two who remain cannot recall who it was.
 
 The journal holds the handwriting of three people. Whose one of them is, no one knows.
 

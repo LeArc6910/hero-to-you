@@ -3,9 +3,11 @@ using UnityEngine;
 
 namespace Game.Client
 {
-    // The pictures over the story pages (stories.csv `art`), composed in code from the pixel art like everything
-    // else: a sky, the ground, a few shapes of the place, and the party walking along the bottom. Scene names:
-    // forest, harbor, snow, rift. Unknown names draw just the party on a dusk sky, so new stories never break.
+    // The pictures over the story pages (stories.csv `art`) and the events that matter most (events.csv `art`),
+    // composed in code from the pixel art like everything else: a sky, the ground, a few shapes of the place, and the
+    // party walking along the bottom. Scene names: forest, harbor, snow, rift, tomb, gate (the chapters), dawn and
+    // dusk (kind and grim endings), reunion (someone saved earlier waits by a fire), shrine. Unknown names draw just
+    // the party on a dusk sky, so new stories never break.
     static class SceneArt
     {
         public static void Draw(Rect r, string scene, IReadOnlyList<(string id, string color)> party, float time)
@@ -18,6 +20,10 @@ namespace Game.Client
                 "rift" => (Palette.Hex("#1A0C0C"), Palette.Hex("#6B2A1E"), Palette.Hex("#2A1A18"), "stones", "boss"),
                 "tomb" => (Palette.Hex("#3A1A10"), Palette.Hex("#C8784A"), Palette.Hex("#9C8A5E"), "stones", "crown"),
                 "gate" => (Palette.Hex("#0C0A18"), Palette.Hex("#4A2A5A"), Palette.Hex("#2A2030"), "crack", "boss"),
+                "dawn" => (Palette.Hex("#E89A6A"), Palette.Hex("#FCE3B0"), Palette.Hex("#6E8F5A"), "tree", "sun"),
+                "dusk" => (Palette.Hex("#23222E"), Palette.Hex("#6A5E6E"), Palette.Hex("#3A3840"), "stones", "ash"),
+                "reunion" => (Palette.Hex("#2E2240"), Palette.Hex("#C8784A"), Palette.Hex("#4A3A2A"), "tree", "waiting"),
+                "shrine" => (Palette.Hex("#162236"), Palette.Hex("#6E8CA8"), Palette.Hex("#4A5A4A"), "stones", "glow"),
                 _ => (Palette.Hex("#2A2438"), Palette.Hex("#6E5A6E"), Palette.Hex("#3A3440"), null, null),
             };
             const int bands = 8;
@@ -40,15 +46,45 @@ namespace Game.Client
                     Ui.Image(new Rect(x, y, size, size), PixelArt.Icon(mark), new Color(1, 1, 1, i < 5 ? 0.35f : 0.7f));
                 }
             }
-            if (extra == "snowflake" && !Settings.LessMotion)
+            if ((extra == "snowflake" || extra == "ash") && !Settings.LessMotion)
             {
-                // Snow falling slowly.
+                // Snow falling slowly; on a grim ending, grey ash.
+                var flake = extra == "ash" ? new Color(0.7f, 0.68f, 0.72f, 0.6f) : new Color(1, 1, 1, 0.8f);
                 for (int i = 0; i < 24; i++)
                 {
                     float x = r.x + (float)random.NextDouble() * r.width;
                     float y = r.y + ((float)random.NextDouble() * r.height + time * (10 + i % 5 * 4)) % r.height;
-                    Ui.Fill(new Rect(x, y, 2, 2), new Color(1, 1, 1, 0.8f));
+                    Ui.Fill(new Rect(x, y, 2, 2), flake);
                 }
+            }
+            else if (extra == "sun")
+            {
+                // A low sun on the horizon, in rings.
+                float sun = s * 0.9f;
+                var c = new Vector2(r.xMax - sun * 1.6f, r.y + skyH - sun * 0.35f);
+                for (int ring = 3; ring >= 0; ring--)
+                {
+                    float d = sun * (0.55f + ring * 0.22f);
+                    Ui.Fill(new Rect(c.x - d / 2, c.y - d / 2, d, d), new Color(1f, 0.85f, 0.45f, ring == 0 ? 0.95f : 0.18f));
+                }
+            }
+            else if (extra == "waiting")
+            {
+                // Someone saved in an earlier chapter waits by a fire, facing the party.
+                float fire = s * 0.7f;
+                float flicker = Settings.LessMotion ? 0 : Mathf.Sin(time * 9) * 0.08f;
+                Ui.Image(new Rect(r.x + r.width * 0.62f, r.yMax - fire - 6, fire, fire), PixelArt.Icon("camp"), new Color(1, 1, 1, 0.9f + flicker));
+                float who = Mathf.Min(r.height * 0.36f, 56);
+                Ui.Image(new Rect(r.x + r.width * 0.62f + fire, r.yMax - who - 4, who, who), PixelArt.Hero("wanderer", "#9A8F86"), null, true);
+            }
+            else if (extra == "glow")
+            {
+                // The shrine, with a soft pulse of light.
+                float shrine = s * 1.1f;
+                float pulse = Settings.LessMotion ? 0.25f : 0.2f + Mathf.Abs(Mathf.Sin(time * 2)) * 0.15f;
+                var at = new Rect(r.x + (r.width - shrine) / 2, r.y + skyH - shrine * 0.9f, shrine, shrine);
+                Ui.Fill(new Rect(at.x - shrine * 0.3f, at.y - shrine * 0.2f, shrine * 1.6f, shrine * 1.3f), new Color(0.75f, 0.85f, 1f, pulse));
+                Ui.Image(at, PixelArt.Icon("shrine"));
             }
             else if (extra != null)
             {

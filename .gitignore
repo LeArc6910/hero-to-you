@@ -53,3 +53,4 @@ DevTools/WebPlaytest/out/
 # Written by the web build for the title screen (Editor/WebBuild.cs)
 /Assets/_Project/Resources/BuildInfo.txt
 /Assets/_Project/Resources/BuildInfo.txt.meta
+unity-tests.xml

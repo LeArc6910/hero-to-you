@@ -11,7 +11,7 @@ node DevTools/WebPlaytest/playtest.js
 # 방금 푸시한 커밋이 배포될 때까지(빌드는 15~20분) 기다렸다가
 node DevTools/WebPlaytest/playtest.js --wait
 
-# 화면 하나만: pc(1280×720), pc-small(800×600), phone(390×844 세로), phone-wide(844×390 가로)
+# 화면 하나만: pc(1280×720), pc-small(800×600, 글자 130%), phone(390×844 세로), phone-wide(844×390 가로). 기본은 넷 모두
 node DevTools/WebPlaytest/playtest.js --profiles phone
 
 # 로컬에서 띄운 빌드로
@@ -31,6 +31,13 @@ node DevTools/WebPlaytest/playtest.js --url http://localhost:8000/
 5. 레벨업 강화 고르기(나올 때까지 봇)
 6. 페이지를 새로 고친 뒤 [이어하기]: 같은 명령 수에서 이어지는지
 7. PC만: 줄(기사 앞줄·사냥꾼 뒷줄), 모닥불 대화 카드, 던전 방 사이 화면, 3장 지도 사진, 마을(상점 사진, [소문을 듣는다]로 안개가 걷히는지, 영웅에게 물약 사 주기), 캠페인 끝까지(중간 보스·보스 사진, 2장 이야기와 지도 사진, 끝 화면, 저장이 지워졌는지, 일지 페이지를 받았는지), 끝 화면의 [기록 복사]와 복사되는 기록(`share`), 타이틀의 [일지] 화면, 다다른 장(`reached 3`)으로 [시작: N장]·[길이] 단추를 눌러 2장 한 장짜리 판이 레벨 5로 시작하는지와 끝난 판이 비운 슬롯을 다시 쓰는지, [연습 판](쉬움·1장만·슬롯 0, 안내가 `story`에서 시작해 PC에서 스페이스로 [계속]을 누른 뒤 `roll`로 넘어가는지), 일지의 도감
+
+### 모든 사진에서 (2026-11-10)
+
+- **배치**: 사진을 찍을 때마다 누를 수 있는 단추끼리 겹치지 않는지 본다(`lib.js`의 `layout`). 칸, 직업 카드, 이야기 글, 유닛, 도움말 줄처럼 원래 맞닿는 누름 자리와, 위에 창(도움말 카드, 대화, 레벨업, 장비, 제보, 지난 일)이 떠 있을 때는 뺀다
+- **성능**: 타이틀·지도·전투에서 3초씩 프레임 시간, GC, 프레임당 할당을 보고서에 적는다(`lib.js`의 `perf`)
+- **영어**: PC 판의 끝에 영어로 새 판을 열어 봇이 걷는 동안 처음 만나는 화면(지도, 이야기, 사건, 전투, 결과, 마을, 레벨업)마다 한글이 없는지 보고 사진을 찍는다
+- **보스**: 4·5장 보스(세른, 이름 없는 것)와 중간 보스까지 사진을 찍는다
 
 ## 게임 쪽 원격 조종 (`Client/Playtest.cs`)
 
@@ -65,6 +72,7 @@ node DevTools/WebPlaytest/playtest.js --url http://localhost:8000/
 | `slot <n>`, `screen slots`, `practice` | 새로 시작하고 이어 할 저장 슬롯(0은 연습 판), 슬롯 화면, 연습 판 시작 |
 | `reached <n>`, `range <n> [one]` | 일지가 다다른 장, 파티 화면의 시작 장(1부터)과 한 장짜리 판 |
 | `share` | 끝 화면의 [기록 복사]가 복사하는 글(줄을 ` \| `로 이어서) |
+| `perf reset`, `perf` | 프레임 시간·GC·할당을 새로 재기 시작, 지금까지 잰 것(JSON: frames, avgMs, p95Ms, maxMs, gc, allocKbPerFrame, heapMb) |
 
 `report`에는 `slot`, `reached`, `startChapter`, `oneChapter`와, 모험 중이면 `firstChapter`, `lastChapter`, `combos`(그 파티의 조합 id), `tutorial`(연습 판 안내의 지금 단계: story, roll, pick, move, join, skill, target, roll_battle, event, event_hero, event_roll, result, town, levelup)도 있다. 키보드는 시험 도구가 `page.keyboard.press`로 누른다.
 

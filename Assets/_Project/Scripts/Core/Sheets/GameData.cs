@@ -670,6 +670,7 @@ namespace Game.Core
                     Title = row["title"],
                     Text = row["text"],
                     Journal = row["journal"],
+                    Art = row["art"],
                     Requires = row["requires"],
                 };
                 if (card.Pool.Length == 0) Error(EventsFile, row, "pool이 비었습니다.");

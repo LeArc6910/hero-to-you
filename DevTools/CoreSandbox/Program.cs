@@ -29,6 +29,8 @@ static class Program
             return i >= 0 && i + 1 < args.Length && int.TryParse(args[i + 1], out int n) ? n : fallback;
         }
         bool smart = !args.Contains("--random");
+        // Pairings off, to measure what they add (Docs/Classes.md 조합).
+        Adventure.CombosOff = args.Contains("--nocombos");
         string[] party = Option("--party", "knight,hunter,cleric").Split(',');
         int level = Count("--level", 1);
 
