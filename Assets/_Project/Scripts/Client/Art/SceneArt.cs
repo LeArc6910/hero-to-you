@@ -218,8 +218,9 @@ namespace Game.Client
                 // Seated on both sides of the fire in the middle of the picture.
                 for (int i = 0; i < party.Count; i++)
                 {
+                    // Clear of the fire (about a third of a hero wide each side of the middle) with a little room, then outward.
                     bool left = i % 2 == 0;
-                    float x = r.center.x + (left ? -hero * (1.4f + i / 2 * 0.9f) : hero * (0.4f + i / 2 * 0.9f));
+                    float x = left ? r.center.x - hero * (1.6f + i / 2 * 0.9f) : r.center.x + hero * (0.6f + i / 2 * 0.9f);
                     float breathe = Mathf.Abs(Mathf.Sin(time * 1.2f + i)) * hero * 0.02f;
                     Ui.Image(new Rect(x, r.yMax - hero - 4 - breathe, hero, hero), PixelArt.Hero(party[i].id, party[i].color), null, !left);
                 }
