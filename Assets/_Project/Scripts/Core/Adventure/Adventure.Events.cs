@@ -206,6 +206,10 @@ namespace Game.Core
                         _weakNext = true;
                         lines.Add(Data.Line("adventure.event.weak_next"));
                         break;
+                    case "foes_weak":
+                        _foesWeakNext = true;
+                        lines.Add(Data.Line("adventure.event.foes_weak"));
+                        break;
                     case "flag":
                         _flags.Add(o.Arg);
                         break;

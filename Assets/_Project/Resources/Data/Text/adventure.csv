@@ -72,6 +72,7 @@ adventure.event.potion,{0}: 회복 물약 {1} ({2}개),{0}: healing potions {1} 
 adventure.event.hope,희망 {0} ({1}),Hope {0} ({1})
 adventure.event.xp,모두 경험치 +{0},Everyone: XP +{0}
 adventure.event.weak_next,다음 전투를 약화된 채 시작한다,The next battle starts weakened
+adventure.event.foes_weak,다음 전투의 적이 약화된 채 시작한다,The enemies of the next battle start weakened
 adventure.event.battle,전투가 벌어진다!,A battle breaks out!
 adventure.event.consumable,{0}: {1} +1 ({2}개),{0}: {1} +1 ({2})
 adventure.event.to_bag,{0:을} 가방에 넣었다,Put {0} in the bag

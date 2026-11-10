@@ -34,6 +34,9 @@ namespace Game.Core
         public int LevelUpsWaiting => _levels.Count;
         List<Hero> _fighters = new List<Hero>();
         bool _weakNext;
+
+        // The next battle's enemies start weakened (an event's "foes_weak": a party that came prepared).
+        bool _foesWeakNext;
         bool _joinTried;
 
         public EncounterDef Encounter { get; private set; }
@@ -133,20 +136,24 @@ namespace Game.Core
             _fighters = chosen.Select(i => Heroes[i]).ToList();
             Report.Clear();
             var monsters = Encounter.Monsters.Select(Empower).ToList();
-            Battle = new Battle(_fighters, monsters, NextSeed(), _weakNext, Data);
+            Battle = new Battle(_fighters, monsters, NextSeed(), _weakNext, Data, _foesWeakNext);
             _weakNext = false;
+            _foesWeakNext = false;
             Screen = AdventureScreen.Battle;
             // Monsters quick enough can finish a lone, hurt hero before its first turn.
             if (Battle.Over) FinishBattle();
             return null;
         }
 
+        public const int NormalHpPercent = 105;
+
         // A monster as the run made it (Docs/Map.md): the boss weaker for the quest site's words and without helpers
         // for the clue, stronger for a grown rift; every monster stronger on the hard road.
         MonsterDef Empower(MonsterDef monster)
         {
-            if (!monster.Boss && !Hard && Difficulty == Difficulty.Normal) return monster;
             var copy = monster.Clone();
+            // Normal difficulty is set by the human-like bot (Docs/Design.md 7.1): monsters a little tougher than the sheet.
+            if (Difficulty == Difficulty.Normal) copy.Hp = copy.Hp * NormalHpPercent / 100;
             if (Hard) copy.Hp = copy.Hp * 125 / 100;
             if (Difficulty == Difficulty.Easy) copy.Hp = Math.Max(1, copy.Hp * 75 / 100);
             if (!monster.Boss) return copy;

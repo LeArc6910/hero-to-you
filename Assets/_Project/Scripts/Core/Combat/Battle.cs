@@ -33,7 +33,8 @@ namespace Game.Core
         int _lastAttacker = -1;
         int _lastAttacked = -1;
 
-        public Battle(IReadOnlyList<Hero> heroes, IReadOnlyList<MonsterDef> monsters, ulong seed, bool weakStart = false, GameData data = null)
+        // `weakStart`: the heroes start weakened; `foesWeak`: the monsters do (Docs/Narrative.md weak_next, foes_weak).
+        public Battle(IReadOnlyList<Hero> heroes, IReadOnlyList<MonsterDef> monsters, ulong seed, bool weakStart = false, GameData data = null, bool foesWeak = false)
         {
             if (heroes == null || heroes.Count == 0) throw new ArgumentException("A battle needs heroes.", nameof(heroes));
             if (monsters == null || monsters.Count == 0) throw new ArgumentException("A battle needs monsters.", nameof(monsters));
@@ -45,6 +46,8 @@ namespace Game.Core
             foreach (var hero in heroes) _units.Add(new Unit(_units.Count, hero));
             foreach (var (monster, name) in Names(monsters)) _units.Add(new Unit(_units.Count, monster, name));
             foreach (var unit in _units.ToList()) StartWith(unit, weakStart);
+            if (foesWeak)
+                foreach (var unit in _units.Where(u => !u.IsHero && u.Side == Side.Foe)) unit.Statuses[StatusKind.Weak] = WeakTurns;
             foreach (var unit in _units)
             {
                 long ready = Wait(unit.Speed, 100) * (40 + _ai.Next(61)) / 100;

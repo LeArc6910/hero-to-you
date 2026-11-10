@@ -179,6 +179,51 @@ namespace Game.Core.Tests
             Assert.That(a.Screen, Is.EqualTo(AdventureScreen.BattleResult));
         }
 
+        // Every chapter's dungeon has a room that is an event (Docs/Map.md 던전): it opens from its pool, its result goes
+        // on to the next room.
+        [Test]
+        public void ADungeonRoomCanBeAnEventThatLeadsToTheNextRoom()
+        {
+            foreach (var chapter in TestData.Data.Chapters)
+                Assert.That(chapter.Dungeon.Any(r => r.StartsWith(Adventure.EventRoom)), Is.True, $"{chapter.Id}의 던전에 사건 방이 없다");
+            var a = OnMap();
+            int eventRoom = a.Chapter.Dungeon.ToList().FindIndex(r => r.StartsWith(Adventure.EventRoom));
+            var dungeon = a.Map.Tiles.First(t => t.Site == Site.Dungeon);
+            a.RollMove();
+            a.Teleport(0, dungeon.Hex);
+            Arrive(a, dungeon.Hex);
+            for (int room = 0; room < eventRoom; room++)
+            {
+                if (room > 0) Assert.That(a.Delve(), Is.Null);
+                ClearRoom(a);
+            }
+            while (a.LevelUp != null) a.ChooseUpgrade(0);
+            if (eventRoom > 0) Assert.That(a.Delve(), Is.Null);
+            Assert.That(a.Screen, Is.EqualTo(AdventureScreen.Event));
+            Assert.That(a.DungeonEvent, Is.True);
+            Assert.That(a.Event.Pool, Is.EqualTo(a.Chapter.Dungeon[eventRoom].Substring(Adventure.EventRoom.Length)));
+            ClearRoom(a);
+            Assert.That(a.DungeonEvent, Is.False);
+            if (eventRoom + 1 < a.DungeonRooms)
+            {
+                Assert.That(a.Screen, Is.EqualTo(AdventureScreen.DungeonRest));
+                Assert.That(a.DungeonRoom, Is.EqualTo(eventRoom + 1));
+            }
+            else Assert.That(dungeon.Used, Is.True);
+        }
+
+        // "foes_weak" (a party that came prepared) weakens the next battle's enemies, not the heroes as "weak_next" does.
+        [Test]
+        public void PreparingForTheNextFightWeakensTheEnemiesNotTheHeroes()
+        {
+            var interlude = TestData.Data.Events.First(e => e.Id == "camp_salt");
+            Assert.That(interlude.Choices.Any(c => c.Success.Any(o => o.Verb == "foes_weak")), Is.True);
+            Assert.That(interlude.Choices.Any(c => c.Success.Any(o => o.Verb == "weak_next")), Is.False, "보상이 영웅을 약화시키지 않는다");
+            var battle = new Battle(TestData.Party("knight", "hunter"), TestData.Monsters("goblin", "goblin"), 7, false, TestData.Data, true);
+            Assert.That(battle.Units.Where(u => !u.IsHero).All(u => u.Has(StatusKind.Weak)), Is.True);
+            Assert.That(battle.Units.Where(u => u.IsHero).Any(u => u.Has(StatusKind.Weak)), Is.False);
+        }
+
         [Test]
         public void AContractMarksAGroupAndPaysInTown()
         {

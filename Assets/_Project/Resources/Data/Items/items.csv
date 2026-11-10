@@ -105,7 +105,7 @@ spear_acid,산성 작살,weapon,spear,5,210,찌르기,str,4,14,0,physical,100,cr
 plate_briar,가시 판금,armor,heavy,5,230,,,0,0,0,,100,,4,0,0,agi -5,,때린 적이 가시에 5 피해를 입는다.,thorns 5,Briar Plate,,Enemies who hit you take 5 damage from the thorns.
 robe_life,생명의 로브,armor,light,5,215,,,0,0,0,,100,,1,10,1,,,차례마다 생명력 +4. 결의 +1.,regen 4,Robe of Life,,+4 life each turn. Resolve +1.
 token_road,길손의 징표,trinket,charm,1,20,,,0,0,0,,100,,0,4,0,,,이름 없는 길손들이 서로 나눠 갖던 나무 징표.,,Wayfarer's Token,,A wooden token that nameless wayfarers once shared among themselves.
-coat_traveler,여행자 외투,armor,light,2,35,,,0,0,0,,100,,1,3,0,,,비와 잿가루를 막아 준다.,,Traveler's Coat,,Keeps off the rain and the ash.
+coat_traveler,여행자 외투,armor,light,2,50,,,0,0,0,,100,,1,3,0,,,비와 잿가루를 막아 준다.,,Traveler's Coat,,Keeps off the rain and the ash.
 whistle_bone,뼈 호루라기,trinket,charm,2,45,,,0,0,0,,100,,0,4,0,per 5,,늑대가 먼 데서도 알아듣는 소리가 난다.,,Bone Whistle,,Makes a sound a wolf can hear from far away.
 crossbow_barbed,미늘 석궁,weapon,crossbow,3,95,석궁,per,3,12,0,physical,110,crit150,0,0,0,,,미늘 화살이 박혀 힘을 빼앗는다. 성공하면 약화(위력 감소).,weaken,Barbed Crossbow,Bolt,"Barbed bolts sap the strength of whatever they hit. On a success, weaken (less power)."
 quill_song,노래꾼의 깃펜,trinket,charm,3,80,,,0,0,0,,100,,0,0,0,per 5 cha 5,,새 노래를 받아 적던 깃펜.,,Songwriter's Quill,,A quill that once took down new songs.

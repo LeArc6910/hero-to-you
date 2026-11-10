@@ -51,7 +51,7 @@ namespace Game.Core
         static readonly string[] OutcomeVerbs =
         {
             "gold", "heal", "heal_all", "hurt", "hurt_all", "resolve", "resolve_all", "bless_all", "potion", "hope", "xp",
-            "weak_next", "flag", "battle", "item", "loot", "reagent", "doom", "renown",
+            "weak_next", "foes_weak", "flag", "battle", "item", "loot", "reagent", "doom", "renown",
         };
 
         static readonly string[] SkillEffects =
@@ -726,7 +726,7 @@ namespace Game.Core
                     continue;
                 }
                 var outcome = new Outcome { Verb = verb };
-                bool noArgument = verb == "bless_all" || verb == "weak_next";
+                bool noArgument = verb == "bless_all" || verb == "weak_next" || verb == "foes_weak";
                 if (verb == "flag" || verb == "battle" || verb == "item")
                 {
                     outcome.Arg = words.Length > 1 ? words[1] : "";
