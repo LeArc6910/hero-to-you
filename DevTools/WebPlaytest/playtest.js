@@ -222,7 +222,8 @@ async function playSlice(game, wholeRun) {
       const next = (await game.find(/.+/, '강화')).filter(b => !b.label.startsWith('남은 강화'));
       if (next[0]) await game.press(next[0].label, '강화');
     }
-    run.check(!(await game.state()).levelUp, '강화를 누르면 레벨업이 끝난다(쌓인 강화까지)');
+    // The last tap may still be on its way to the next frame: wait for the card to close before judging.
+    run.check(!!(await game.until(s => !s.levelUp, 3000)), '강화를 누르면 레벨업이 끝난다(쌓인 강화까지)');
   }
 
   // Save and continue: reload the page, then [이어하기].

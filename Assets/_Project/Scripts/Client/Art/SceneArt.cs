@@ -98,11 +98,19 @@ namespace Game.Client
                     float twinkle = Settings.LessMotion ? 0.7f : 0.45f + Mathf.Abs(Mathf.Sin(time * 1.5f + i * 1.7f)) * 0.5f;
                     Ui.Fill(new Rect(x, y, 2, 2), new Color(1f, 0.95f, 0.85f, twinkle));
                 }
-                float fire = s * 0.8f;
-                float flicker = Settings.LessMotion ? 0 : Mathf.Sin(time * 9) * 0.06f;
-                var at = new Rect(r.x + (r.width - fire) / 2, r.yMax - fire - 6, fire, fire);
-                Ui.Fill(new Rect(at.x - fire * 0.8f, at.y - fire * 0.3f, fire * 2.6f, fire * 1.3f), new Color(1f, 0.6f, 0.25f, 0.14f + flicker));
-                Ui.Image(at, PixelArt.Icon("camp"), new Color(1, 1, 1, 0.92f + flicker));
+                // The tent pitched behind, then the fire: its light only on the ground, in a few soft bands.
+                float tent = s * 0.75f;
+                Ui.Image(new Rect(r.x + r.width * 0.7f, r.y + skyH - tent * 0.8f, tent, tent), PixelArt.Icon("camp"), new Color(1, 1, 1, 0.8f));
+                float fire = s * 0.62f;
+                float flicker = Settings.LessMotion ? 0 : Mathf.Sin(time * 9) * 0.04f;
+                var at = new Rect(r.x + (r.width - fire) / 2, r.yMax - fire - 4, fire, fire);
+                float groundTop = r.y + skyH + 2;
+                for (int band = 0; band < 3; band++)
+                {
+                    float w = fire * (4.2f - band * 1.2f);
+                    Ui.Fill(new Rect(at.center.x - w / 2, groundTop, w, r.yMax - groundTop), new Color(1f, 0.62f, 0.28f, 0.06f + flicker * 0.5f));
+                }
+                Ui.Image(at, PixelArt.Icon("flame"), new Color(1, 1, 1, 0.95f));
                 if (party == null) return;
                 float sitter = Mathf.Min(r.height * 0.34f, 52);
                 for (int i = 0; i < party.Count; i++)
