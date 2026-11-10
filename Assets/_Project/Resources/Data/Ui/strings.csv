@@ -366,6 +366,9 @@ item.kind.dagger,단검,Dagger
 item.kind.lute,류트,Lute
 item.kind.sling,투석,Sling
 item.kind.spear,창,Spear
+item.kind.fist,손싸개,Hand wraps
+item.kind.crossbow,석궁,Crossbow
+item.kind.tome,책,Tome
 gear.hero,{0} Lv{1} · 생명력 {2}/{3} · 방어도 {4} · 결의 {5},{0} Lv{1} · HP {2}/{3} · Armor {4} · Resolve {5}
 gear.row_tip,앞줄은 적의 무작위 공격을 받는다. 뒷줄은 힘·민첩 근접 공격의 위력이 25% 줄어든다.,"The front row takes the enemies’ random blows. In the back row, Strength and Agility melee attacks lose 25% power."
 gear.weapon,무기: {0} ({1}),Weapon: {0} ({1})

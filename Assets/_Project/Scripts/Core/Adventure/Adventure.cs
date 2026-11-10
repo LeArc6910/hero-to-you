@@ -480,6 +480,7 @@ namespace Game.Core
                         ShowStory(Chapter.Prologue, Then.Map);
                         return null;
                     }
+                    if (Screen == AdventureScreen.EventResult && LeaveEventRoom()) return null;
                     if (_pendingBattle != null)
                     {
                         string id = _pendingBattle;

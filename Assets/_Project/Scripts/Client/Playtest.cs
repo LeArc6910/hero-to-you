@@ -364,7 +364,7 @@ namespace Game.Client
                     .Add("unknown", adventure.Map.Tiles.Count(t => !adventure.Knows(t))).Add("explored", adventure.Map.Tiles.Count(t => adventure.Explored(t.Hex)))
                     .Add("canAvoid", adventure.CanAvoid).Add("canScare", adventure.CanScare).Add("footsteps", adventure.Footsteps.Count)
                     .Add("tip", _tipOpen ?? "").Add("tooltip", Ui.ShownTip ?? "").Add("music", Music.Volume)
-                    .Add("difficulty", adventure.Difficulty.ToString()).Add("dungeonRoom", adventure.DungeonRoom).Add("contract", adventure.Contract != null)
+                    .Add("difficulty", adventure.Difficulty.ToString()).Add("dungeonRoom", adventure.DungeonRoom).Add("dungeonEvent", adventure.DungeonEvent).Add("contract", adventure.Contract != null)
                     .Add("talks", adventure.Talks.Count).Add("talkWaiting", TalkWaiting).Add("story", adventure.Story?.Id ?? "").Add("storyAll", _storyAll)
                     .Add("hardcore", adventure.Hardcore).Add("auto", _autoBattle).Add("history", _history.Count).Add("canRetry", _retrySave != null)
                     .Add("reportOpen", _reportOpen).Add("historyOpen", _historyOpen)

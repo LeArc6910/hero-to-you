@@ -335,6 +335,11 @@ async function playSlice(game, wholeRun) {
       shots.map3 = true;
       await game.shot('chapter3-map', '3장 눈 덮인 수도원 지도');
     }
+    if (state.adventure === 'Event' && state.dungeonEvent && !shots.dungeonEvent) {
+      shots.dungeonEvent = true;
+      run.check((await game.allText()).includes('방 '), '던전의 사건 방은 위에 던전 이름과 방 번호를 보인다');
+      await game.shot('dungeon-event', `던전의 사건 방 (${state.event})`);
+    }
     if (state.adventure === 'DungeonRest' && !shots.dungeon) {
       shots.dungeon = true;
       await game.shot('dungeon', '던전: 방 사이에서');

@@ -809,8 +809,10 @@ namespace Game.Core
                 }
                 chapter.Maps = maps;
                 chapter.Map = maps.FirstOrDefault();
-                foreach (string encounter in new[] { chapter.Boss, chapter.Midboss }.Concat(chapter.Dungeon))
+                foreach (string encounter in new[] { chapter.Boss, chapter.Midboss }.Concat(chapter.Dungeon.Where(r => !r.StartsWith(Adventure.EventRoom))))
                     if (!Encounters.ContainsKey(encounter)) Error(file, row, $"전투 '{encounter}'가 encounters.csv에 없습니다.");
+                foreach (string room in chapter.Dungeon.Where(r => r.StartsWith(Adventure.EventRoom)))
+                    if (!Events.Any(e => e.Pool == room.Substring(Adventure.EventRoom.Length))) Error(file, row, $"던전 사건 방 '{room}'의 묶음이 events.csv에 없습니다.");
                 foreach (string story in new[] { chapter.Prologue, chapter.Epilogue, chapter.EpilogueKind, chapter.EpilogueGrim, chapter.Rift })
                     if (!Stories.ContainsKey(story)) Error(file, row, $"이야기 '{story}'가 stories.csv에 없습니다.");
                 foreach (string pool in new[] { chapter.WildPool, chapter.ChestPool, chapter.HerbPool, chapter.QuestPool, chapter.CluePool, chapter.ShrinePool, chapter.ElderPool })

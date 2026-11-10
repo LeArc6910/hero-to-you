@@ -174,6 +174,12 @@ namespace Game.Client
                 SceneArt.Draw(new Rect(0, y, column.width, h), card.Art, PartyArt(), Time.unscaledTime);
                 y += h + 6;
             }
+            // A room of the dungeon (Docs/Map.md 던전): which one, above the event.
+            if (_adventure.DungeonEvent)
+            {
+                Ui.Text(new Rect(0, y, column.width, 18), Strings.Format("dungeon.heading", _adventure.Chapter.DungeonName, _adventure.DungeonRoom + 1, _adventure.DungeonRooms), 12, Palette.Dim);
+                y += 20;
+            }
             y = Heading(column, y, card.Title);
             y = Paragraph(column, y, card.Text);
             if (!string.IsNullOrEmpty(card.Journal)) y = Paragraph(column, y, Strings.Format("event.journal", card.Journal), 13, Palette.Journal);

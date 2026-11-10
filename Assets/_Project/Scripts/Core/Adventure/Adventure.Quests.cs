@@ -17,6 +17,13 @@ namespace Game.Core
         public int DungeonRoom { get; private set; }
         public int DungeonRooms => Chapter.Dungeon.Count;
 
+        // A room is a battle (an encounter id) or an event ("room:<pool>", Docs/Map.md 던전): a find, a trap, someone
+        // lost down there. The event's result goes on to the next room; a fight it starts is that room's battle.
+        public const string EventRoom = "room:";
+
+        // The event on the screen is a room of the dungeon.
+        public bool DungeonEvent { get; private set; }
+
         void EnterDungeon(MapTile tile)
         {
             if (Chapter.Dungeon.Count == 0 || DungeonRoom >= DungeonRooms)
@@ -24,7 +31,39 @@ namespace Game.Core
                 EndTurn();
                 return;
             }
-            PrepareJoin(tile, Chapter.Dungeon[DungeonRoom], JoinKind.Dungeon);
+            OpenRoom(tile);
+        }
+
+        void OpenRoom(MapTile tile)
+        {
+            string room = Chapter.Dungeon[DungeonRoom];
+            if (!room.StartsWith(EventRoom))
+            {
+                PrepareJoin(tile, room, JoinKind.Dungeon);
+                return;
+            }
+            JoinTile = tile;
+            DungeonEvent = true;
+            OpenEvent(PickEvent(room.Substring(EventRoom.Length)), tile);
+            // Those near take part, and they are who rests between rooms (Delve) like the fighters of a battle room.
+            _fighters = EventHeroes();
+        }
+
+        // An event room is done (its result read, or the fight it started won): on to the next room.
+        bool LeaveEventRoom()
+        {
+            if (!DungeonEvent) return false;
+            DungeonEvent = false;
+            if (_pendingBattle != null)
+            {
+                string id = _pendingBattle;
+                _pendingBattle = null;
+                PrepareJoin(JoinTile, id, JoinKind.Dungeon);
+                return true;
+            }
+            Report.Clear();
+            DungeonRoomCleared();
+            return true;
         }
 
         // After a room: the next one costs nothing to look at, but the party is not getting any less hurt.
@@ -57,7 +96,7 @@ namespace Game.Core
             Record("delve");
             Report.Clear();
             foreach (var hero in _fighters.Where(h => !h.Down)) Report.Add(Data.Line("adventure.dungeon.breather", HealLine(hero, Math.Max(1, hero.MaxHp * DelveHealPercent / 100))));
-            PrepareJoin(JoinTile, Chapter.Dungeon[DungeonRoom], JoinKind.Dungeon);
+            OpenRoom(JoinTile);
             return null;
         }
 

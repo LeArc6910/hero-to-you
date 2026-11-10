@@ -112,6 +112,25 @@ namespace Game.Core.Tests
             Assert.That(loaded.Heroes[1].Back, Is.False);
         }
 
+        // One room of the dungeon, whatever it is: a battle won, or an event taken (its first choice someone near can
+        // afford) and read, with the fight it may start won.
+        static void ClearRoom(Adventure a)
+        {
+            while (a.LevelUp != null) a.ChooseUpgrade(0);
+            if (a.Screen == AdventureScreen.Event)
+            {
+                Assert.That(a.DungeonEvent, Is.True);
+                var choice = a.Choices().First(c => a.Affordable(c) && a.CanAttempt(c).Count > 0);
+                Assert.That(a.Choose(choice.Index, a.Heroes.IndexOf(a.CanAttempt(choice)[0])), Is.Null);
+                Assert.That(a.Continue(), Is.Null);
+                while (a.LevelUp != null) a.ChooseUpgrade(0);
+                if (a.Screen != AdventureScreen.Join) return;
+            }
+            Assert.That(a.Screen, Is.EqualTo(AdventureScreen.Join));
+            Assert.That(a.Join(a.JoinCandidates), Is.Null);
+            WinBattle(a);
+        }
+
         [Test]
         public void TheDungeonGoesRoomByRoomAndRemembersHowFar()
         {
@@ -124,6 +143,7 @@ namespace Game.Core.Tests
             Assert.That(a.Screen, Is.EqualTo(AdventureScreen.Join));
             Assert.That(a.Kind, Is.EqualTo(Adventure.JoinKind.Dungeon));
             Assert.That(a.CanAvoid, Is.False, "던전은 피할 수 없다");
+            Assert.That(a.Chapter.Dungeon[0], Does.Not.StartWith(Adventure.EventRoom), "첫 방은 싸움");
             a.Join(new[] { 0 });
             WinBattle(a);
             while (a.LevelUp != null) a.ChooseUpgrade(0);
@@ -135,7 +155,8 @@ namespace Game.Core.Tests
             // Back in: the next room, not the first again.
             a.Teleport(a.MapHero, dungeon.Hex);
             Arrive(a, dungeon.Hex);
-            Assert.That(a.Encounter.Id, Is.EqualTo(a.Chapter.Dungeon[1]));
+            if (a.Chapter.Dungeon[1].StartsWith(Adventure.EventRoom)) Assert.That(a.Event.Pool, Is.EqualTo(a.Chapter.Dungeon[1].Substring(Adventure.EventRoom.Length)));
+            else Assert.That(a.Encounter.Id, Is.EqualTo(a.Chapter.Dungeon[1]));
         }
 
         [Test]
@@ -151,8 +172,7 @@ namespace Game.Core.Tests
             {
                 while (a.LevelUp != null) a.ChooseUpgrade(0);
                 if (room > 0) Assert.That(a.Delve(), Is.Null);
-                Assert.That(a.Join(a.JoinCandidates), Is.Null);
-                WinBattle(a);
+                ClearRoom(a);
             }
             Assert.That(dungeon.Used, Is.True);
             Assert.That(a.Bag.Count, Is.GreaterThan(bag));
