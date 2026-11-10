@@ -14,7 +14,7 @@ For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000
 ## 코드 구조
 
 - `Assets/_Project/Scripts/Core` (`Game.Core`): 게임 규칙과 상태 전부. UnityEngine을 참조하지 않는다(`noEngineReferences`). netstandard2.1, C# 9.
-  - `Common/GameRandom.cs`: PCG32. `Sheets/`: CSV 읽기와 시트(`GameData`가 모든 시트를 묶는다. `GameData.Load(read, "en")`은 시트의 `*_en` 칸을 읽는다)
+  - `Common/GameRandom.cs`: PCG32. `Common/Lines.cs`: Core가 쓰는 문장(`Data/Text/*.csv`, `Data.Line("id", 값…)`, 한국어 조사 표시 `{0:이}`; 새 문장은 id를 글자 그대로 쓴다). `Sheets/`: CSV 읽기와 시트(`GameData`가 모든 시트를 묶는다. `GameData.Load(read, "en")`은 시트의 `*_en` 칸을 읽는다)
   - `Dice/`: 판정(`Check`), 굴리기 전 확률(`CheckSpec.Odds`), 운명의 흐름(`Fate`)
   - `Heroes/`: 영웅, 능력치, 직업, 레벨
   - `Combat/`: 턴제 전투(`Battle`). 명령(`BattleCommand`)을 받아 상태를 바꾸고 일어난 일(`BattleEvent`) 목록을 쌓는다. 직업 기믹은 `Battle.Classes.cs`
@@ -73,6 +73,7 @@ GitHub Actions(`.github/workflows/core-tests.yml`)가 푸시마다 테스트, �
 - 게임은 **턴제**다(사용자 결정, 2026-11-09). 지도도 전투도 차례가 있고, Core는 프레임을 모른다.
 - 확률은 "선택을 존중하는" 쪽으로 만든다(사용자 요청, 2026-11-09). 굴리기 전에 확률을 보이고, 결의·끈기·바닥으로 운의 몫을 묶는다. 새 판정을 만들 때 `Docs/Dice.md`의 기준을 지키고 샌드박스로 확인한다.
 - 직업은 수치만 다르게 만들지 않는다. 고유 기믹, 사건 선택지, 지도 특기, 약점을 같이 만든다(`Docs/Classes.md`).
+- 플레이어가 보는 글은 코드에 직접 쓰지 않는다: 화면은 `strings.csv`(`Strings`), Core는 `Data/Text/*.csv`(`Data.Line`), 이름과 이야기는 데이터 시트. 한국어와 영어를 같이 채운다(`Docs/Localization.md`).
 - 서사는 "옛 영웅의 발자취를 따라 걷다 스스로 영웅이 되어 가는 서사시"다(사용자 결정, 2026-11-09). 사용자가 나중에 이야기 전체를 바꿀 수 있으니, 인물·장소 이름과 이야기 글은 데이터(`Data/Story/`, `chapters.csv`, `renown.csv`)에만 두고 코드(`Core`, `Client`)에 쓰지 않는다(`Docs/Narrative.md` 이야기 바꾸기).
 - PC와 모바일 크로스 플랫폼(사용자 목표). 새 기능은 마우스와 터치 둘 다로 쓸 수 있어야 하고, UI는 휴대폰 가로·세로와 작은 PC 창(800×600)에 들어가야 한다. 누르는 단추는 44점 이상.
 - 에디터에서 손으로 만드는 콘텐츠를 늘리지 않는다. 직업·몬스터·사건은 데이터, 씬과 설정은 에디터 스크립트로 만든다.

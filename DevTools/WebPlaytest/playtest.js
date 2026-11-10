@@ -342,6 +342,21 @@ async function playSlice(game, wholeRun) {
   run.check(state.tutorial === 'roll', `안내가 다음 단계(이동 굴리기)로 넘어간다 (${state.tutorial})`);
   await game.shot('tutorial-map', '연습 판 안내: 지도에서 이동 굴리기');
   await game.send('tips off; title');
+
+  // English: the practice run's first page and map in English, with no Korean left on the screen.
+  await game.send('language en; title');
+  run.check(await game.press('Practice run'), '영어 타이틀에 [Practice run]이 있다');
+  state = await game.until(s => s.adventure === 'Story', 5000);
+  const hangul = t => /[\uac00-\ud7a3]/.test(t);
+  let english = await game.allText();
+  run.check(state && !hangul(english), `영어로 하면 이야기 화면에 한글이 없다 (${english.slice(0, 80)})`);
+  await game.shot('english-story', '영어: 연습 판의 첫 이야기');
+  await game.send('tips off; continue');
+  await game.wait(500);
+  english = await game.allText();
+  run.check(!hangul(english), `영어로 하면 지도 화면에 한글이 없다 (${(english.match(/[^|]*[\uac00-\ud7a3][^|]*/) || [''])[0].slice(0, 60)})`);
+  await game.shot('english-map', '영어: 지도');
+  await game.send('language ko; title');
 }
 
 // No two buttons on screen cover each other (the layout audit, Docs/WebDemo.md 작은 화면).
