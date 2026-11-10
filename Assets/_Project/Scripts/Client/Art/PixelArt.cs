@@ -11,7 +11,7 @@ namespace Game.Client
     {
         // The letters of the small pictures drawn before the fixed palette (16×16 heroes and monsters, 12×12 icons),
         // with the colours they were drawn in; each is snapped to the palette (GamePalette) when the picture is made.
-        // Pictures drawn at full size (32 rows or more) use the palette's own letters (Resources/Data/Ui/palette.csv).
+        // Pictures drawn at full size (24 rows or more) use the palette's own letters (Resources/Data/Ui/palette.csv).
         static readonly Dictionary<char, string> Legacy = new Dictionary<char, string>
         {
             ['k'] = "#1B1820",
@@ -66,16 +66,17 @@ namespace Game.Client
             return Keep('m', monsterId, color, Make("monster:" + monsterId, Monsters.TryGetValue(monsterId, out var rows) ? rows : Monsters["goblin"], color, true));
         }
 
-        // `finish`: small heroes and monsters (under 32 rows) are drawn at twice the size of their letter rows with the
-        // finishing pass below; pictures drawn at full size are shaded by hand and kept as they are. Every colour comes
-        // from the palette: `c` is the class or monster colour, `d` one step darker on its ramp, `C` one step lighter.
+        // Pictures of 24 rows or more (24×24 icons, 32×32 heroes and monsters, 48×48 bosses) are drawn in the palette's
+        // letters and shaded by hand. Smaller ones are the older letter rows: snapped to the palette, and with `finish`
+        // (a small hero or monster) drawn at twice the size with the finishing pass below. Every colour comes from the
+        // palette: `c` is the class or monster colour, `d` one step darker on its ramp, `C` one step lighter.
         public static Texture2D Make(string key, string[] rows, string color, bool finish = false)
         {
             key += color + (finish ? "+" : "");
             if (Cache.TryGetValue(key, out var cached) && cached != null) return cached;
             int height = rows.Length;
             int width = rows[0].Length;
-            bool full = height >= 32;
+            bool full = height >= 24;
             finish &= !full;
             var main = GamePalette.Snap(Palette.Hex(color ?? "#888888"));
             var shade = GamePalette.Darker(main);

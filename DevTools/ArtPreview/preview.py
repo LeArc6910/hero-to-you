@@ -2,7 +2,7 @@
 """Draws the game's code-drawn pixel art (Assets/_Project/Scripts/Client/Art/PixelArt.cs) into one PNG, to look at
 without Unity. Reads the same letter rows and palette the game does. Fails when a picture's rows are uneven.
 Colours come from the fixed palette (Resources/Data/Ui/palette.csv) as in the game (GamePalette): small pictures'
-letters are snapped to it, full-size pictures (32 rows or more) use the palette's own letters, `c`/`d`/`C` are the
+letters are snapped to it, full-size pictures (24 rows or more) use the palette's own letters, `c`/`d`/`C` are the
 class or monster colour and one ramp step darker/lighter. Small heroes and monsters get the game's finishing pass
 (PixelArt.Finish): twice the size, the outline thinned to one point, edges lit and shaded one ramp step.
 
@@ -145,7 +145,7 @@ def main(target):
         rows = found[name]
         main_color = snap(hex_color(tints.get(name, "#8888AA")), ramps, where)
         tones = {"c": main_color, "d": step(main_color, -1, ramps, where), "C": step(main_color, 1, ramps, where)}
-        full = len(rows) >= 32
+        full = len(rows) >= 24
         image = Image.new("RGBA", (len(rows[0]), len(rows)), (0, 0, 0, 0))
         for y, row in enumerate(rows):
             for x, ch in enumerate(row):
