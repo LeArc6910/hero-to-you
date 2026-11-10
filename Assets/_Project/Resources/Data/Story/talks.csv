@@ -1,42 +1,42 @@
-id,chapter,a,b,requires,lines
-k_c_oath,0,knight,cleric,,knight: 기사단이 무너진 뒤로 맹세를 외는 게 부끄러웠소.|cleric: 지킬 사람이 생기면 맹세는 다시 말이 됩니다.|knight: …그렇다면 오늘은 소리 내어 외겠소.
-b_h_ash,0,berserker,hunter,,berserker: 넌 왜 화를 안 내? 숲이 이렇게 죽어 가는데.|hunter: 화는 화살을 떨리게 해. 나는 한 발만 쏘면 돼.|berserker: …한 발이 모자라면 내가 나머지를 칠게.
-e_s_stars,0,elementalist,seer,,elementalist: 별이 정말 미래를 말해 줘?|seer: 별은 길을 말해. 걷는 건 우리야.|elementalist: 그럼 리엔도 별을 봤을까.|seer: 봤겠지. 그리고 다르게 걸었겠지.
-g_r_cards,0,gambler,rogue,,"gambler: 이 일지, 노름판에서 딴 거 맞아. 진짜야.|rogue: 난 훔치려다 붙잡혔지. 둘 다 영웅감은 아니네.|gambler: 영웅은 원래 운 좋은 사기꾼이었을지도."
-bd_n_song,0,bard,necromancer,,bard: 죽은 영웅의 노래를 부르면 기분이 어때?|necromancer: 그들은 노래보다 이름을 불러 주길 바라.|bard: 그럼 다음 노래엔 이름을 넣지. 우리 이름도.
-a_bm_herbs,0,alchemist,beastmaster,,alchemist: 늑대가 이 풀을 먹으면 상처가 빨리 낫던데?|beastmaster: 짐승은 무엇이 약인지 알아. 사람만 잊어버리지.|alchemist: 그럼 오늘부턴 늑대에게 배우지.
-k_bs_front,0,knight,berserker,,knight: 앞줄은 내가 맡겠소. 그대는 내 옆에서.|berserker: 옆? 난 앞에서 싸워.|knight: 그럼 둘이 같이 앞이오. 등은 서로 맡고.
-h_s_tracks,0,hunter,seer,,hunter: 발자국이 둘이야. 리엔과 누군가.|seer: 일지엔 한 사람만 나오는데.|hunter: 기록되지 않은 사람이 늘 있지. 우리처럼.
-c_n_dead,0,cleric,necromancer,,cleric: 망자를 부르는 건 죄라고 배웠습니다.|necromancer: 잊는 것이 더 큰 죄라고 나는 배웠어.|cleric: …그 둘 사이 어딘가에 우리가 서 있군요.
-r_bd_coin,0,rogue,bard,,"rogue: 네 노래 덕에 주머니가 잘 털리더라.|bard: 그건 칭찬이야, 고백이야?|rogue: 둘 다. 이제 안 털어. 우리 얘기가 노래가 되니까."
-g_k_luck,0,gambler,knight,,"gambler: 기사 양반, 운을 믿어?|knight: 나는 준비를 믿소.|gambler: 그래서 우리 둘이 같이 다니나 봐. 준비된 운."
-e_a_fire,0,elementalist,alchemist,,"elementalist: 네 폭탄, 내 불꽃보다 세던데.|alchemist: 내 건 한 번 쓰면 끝이야. 네 건 다시 타오르지.|elementalist: 그럼 둘이 번갈아 가자."
-k_c_ch1,1,knight,cleric,,cleric: 숲이 잿빛이어도 성소의 불씨는 꺼지지 않았어요.|knight: 리엔도 그 불씨를 봤을까.|cleric: 보고 지나쳤겠죠. 우리는 멈춰서 손봤고요.
-h_bm_ch1,1,hunter,beastmaster,,beastmaster: 늑대들이 미친 게 아니야. 겁먹은 거지.|hunter: 균열 냄새 때문이야. 첫 봉인석만 지키면 돌아올 거야.|beastmaster: 그럼 서둘러. 녀석들이 기다려.
-n_s_ch2,2,necromancer,seer,,necromancer: 종지기의 목소리가 물속에서 들려. 원망이 아니야. 기다림이야.|seer: 별도 같은 말을 해. 누군가는 대답해야 한다고.|necromancer: 리엔 대신 우리가 대답하자.
-b_c_ch2,2,bard,cleric,,bard: 항구 사람들은 리엔을 원망해. 노래도 그래.|cleric: 원망도 기억의 한 모양입니다.|bard: 그럼 끝 절은 용서로 바꿔 볼게.
-k_r_ch2,2,knight,rogue,,"rogue: 영웅이 동료를 두고 갔대. 기사님은 어떻게 생각해?|knight: 다섯 봉인을 위해서였겠지. 그래도 나는 두고 가지 않겠소.|rogue: …그 말, 기억해 둘게."
-bs_g_ch3,3,berserker,gambler,,berserker: 춥다. 화도 얼어붙을 것 같아.|gambler: 그럼 내기하자. 누가 먼저 수도원 문을 두드리나.|berserker: …넌 늘 날 웃기는구나.
-e_s_ch3,3,elementalist,seer,,elementalist: 찢긴 장에 봉인 의식이 적혀 있었대.|seer: 그리고 리엔이 사라진 이유도. 별이 이 장 근처에서 흐려져.|elementalist: 그럼 우리가 마저 읽자.
-c_n_ch3,3,cleric,necromancer,,cleric: 수도원의 종은 망자를 위해 울렸답니다.|necromancer: 그럼 오늘은 내가 종을 대신하지.|cleric: 함께 울리죠. 우리 둘이니까.
-mo_k,0,monk,knight,,monk: 맹세는 무겁지 않소?|knight: 무겁소. 그래서 내려놓지 않는 것이오.|monk: 산에서는 내려놓는 법을 배웠소. 당신에게선 드는 법을 배우겠군요.
-en_a,0,engineer,alchemist,,"engineer: 네 폭탄, 바닥 경첩에 하나 더 넣으면 두 배로 터져.|alchemist: 그러다 우리가 날아가.|engineer: 그러니까 포탑 뒤에서 던지라는 거지."
-mn_s,0,mnemonist,seer,,mnemonist: 너는 앞을 보고 나는 뒤를 봐.|seer: 그럼 둘이 있으면 길을 잃을 일이 없겠네.|mnemonist: 지금이 어딘지만 누가 알려 주면.
-mn_b,0,mnemonist,bard,,bard: 내 노래를 되새기면 어떻게 들려?|mnemonist: 네가 부를 때보다 조금 슬퍼.|bard: …그게 좋은 노래라는 뜻이야.
-mo_bs,0,monk,berserker,,berserker: 넌 왜 화를 안 내?|monk: 화도 기요. 쌓았다가 한 번에.|berserker: 그건 좀 멋있네.
-en_h,0,engineer,hunter,,"hunter: 포탑이 나보다 잘 쏘네.|engineer: 포탑은 바람을 못 읽어.|hunter: 그럼 바람은 내가 읽고, 쏘는 건 같이 하자."
-k_c_ch4,4,knight,cleric,,knight: 세른도 처음엔 우리 같았다더군.|cleric: 같은 길을 걸어도 혼자 걸었겠지요.|knight: 그렇다면 우리는 서로를 놓치지 맙시다.
-r_g_ch4,4,rogue,gambler,,gambler: 왕의 금은 탐나지 않아?|rogue: 탐나. 근데 이번엔 주인 이름이 다 적혀 있잖아.|gambler: 너 많이 변했다.
-n_mn_ch5,5,necromancer,mnemonist,,necromancer: 리엔의 망령을 불러도 얼굴이 없어.|mnemonist: 기억하는 사람이 없어서야. 우리가 기억하면 돼.|necromancer: …그럼 오늘부터 리엔은 우리 동료다.
-e_s_ch5,5,elementalist,seer,,"elementalist: 대가가 이름 하나라면, 누가 내?|seer: 별은 셋이 함께 빛나.|elementalist: 그럼 셋이 같이 내자. 하나씩 조금씩."
-b_c_ch5,5,bard,cleric,,bard: 마지막 노래의 끝을 아직 못 정했어.|cleric: 끝은 우리가 정하는 게 아니라 부르는 사람들이 정하지요.|bard: 그럼 많이 불러 달라고 해야겠다.
-t_rogue_alch,0,rogue,alchemist,,"rogue: 그 병, 뭐가 들었는지 알려 주면 하나 훔쳐 가지 않을게.|alchemist: 하나를 훔쳐 가면 무엇이 들었는지 몸으로 알게 될 거야."
-t_knight_eng,0,knight,engineer,,knight: 옛 기사들은 성벽을 믿지 않았다. 사람을 믿었지.|engineer: 그 사람들이 성벽 뒤에 있었으니까 믿을 수 있었던 거예요.
-t_berserker_cleric,0,berserker,cleric,,berserker: 또 꿰매는 거냐. 어차피 내일 또 터질 텐데.|cleric: 그러니까 오늘 꿰매는 거예요. 내일도 꿰맬 수 있게.
-t_monk_mnem,0,monk,mnemonist,,monk: 숨을 셀 때마다 잊는 것이 하나씩 늘어난다.|mnemonist: 그럼 내가 세어 줄게. 잊는 것도 기억해 둘 사람이 하나쯤은 있어야지.
-t_eng_beast,0,engineer,beastmaster,,"engineer: 그 늑대, 기름칠은 안 해도 돼요?|beastmaster: 고기를 주면 돼. 네 포탑보다 훨씬 쉽지."
-t_alch_necro,0,alchemist,necromancer,,alchemist: 뼈 가루 좀 나눠 줄 수 있어? 약에 쓰려고.|necromancer: 해골이 허락하면. …허락한다는군. 왼쪽 갈비뼈만.
-t_seer_knight,0,seer,knight,,seer: 별이 말해요. 내일 당신이 누군가를 지킬 거라고.|knight: 별이 말하지 않아도 그건 매일 하는 일이다.
-t_gambler_bard,0,gambler,bard,,gambler: 그 노래 끝에 우리가 이긴다는 데 걸지.|bard: 노래 끝은 아직 안 지었어. 네가 판돈을 올리면 그만큼 극적으로 써 줄게.
-t_elem_knight,0,elementalist,knight,,elementalist: 내 불길 앞으로 나서지 마세요. 진심으로.|knight: 그럼 네 불길이 내 뒤에서 나오도록 해라. 그게 줄이다.
-t_monk_cleric,0,monk,cleric,,"monk: 당신의 기도와 내 명상은 무엇이 다를까.|cleric: 기도는 누군가에게 말을 걸고, 명상은 듣는 거겠죠. 둘 다 혼자서는 못 해요."
+id,chapter,a,b,requires,lines,lines_en
+k_c_oath,0,knight,cleric,,knight: 기사단이 무너진 뒤로 맹세를 외는 게 부끄러웠소.|cleric: 지킬 사람이 생기면 맹세는 다시 말이 됩니다.|knight: …그렇다면 오늘은 소리 내어 외겠소.,"knight: Since the order fell, I have been ashamed to recite my oath.|cleric: When there is someone to protect, an oath means something again.|knight: …Then today, I shall say it aloud."
+b_h_ash,0,berserker,hunter,,berserker: 넌 왜 화를 안 내? 숲이 이렇게 죽어 가는데.|hunter: 화는 화살을 떨리게 해. 나는 한 발만 쏘면 돼.|berserker: …한 발이 모자라면 내가 나머지를 칠게.,"berserker: Why aren't you angry? The forest is dying.|hunter: Anger makes the arrow shake. I only need one shot.|berserker: …If one shot's not enough, I'll take care of the rest."
+e_s_stars,0,elementalist,seer,,elementalist: 별이 정말 미래를 말해 줘?|seer: 별은 길을 말해. 걷는 건 우리야.|elementalist: 그럼 리엔도 별을 봤을까.|seer: 봤겠지. 그리고 다르게 걸었겠지.,elementalist: Do the stars really tell the future?|seer: The stars tell the way. We're the ones who walk it.|elementalist: Then did Rien look at the stars too?|seer: Rien must have. And still walked a different path.
+g_r_cards,0,gambler,rogue,,"gambler: 이 일지, 노름판에서 딴 거 맞아. 진짜야.|rogue: 난 훔치려다 붙잡혔지. 둘 다 영웅감은 아니네.|gambler: 영웅은 원래 운 좋은 사기꾼이었을지도.",gambler: I really did win this journal at a card table. Honest.|rogue: And I got caught trying to steal it. Neither of us is hero material.|gambler: Maybe heroes were always just lucky swindlers.
+bd_n_song,0,bard,necromancer,,bard: 죽은 영웅의 노래를 부르면 기분이 어때?|necromancer: 그들은 노래보다 이름을 불러 주길 바라.|bard: 그럼 다음 노래엔 이름을 넣지. 우리 이름도.,"bard: When I sing about dead heroes, how do they take it?|necromancer: They'd rather you called their names than sang them songs.|bard: Then I'll put names in the next song. Ours too."
+a_bm_herbs,0,alchemist,beastmaster,,alchemist: 늑대가 이 풀을 먹으면 상처가 빨리 낫던데?|beastmaster: 짐승은 무엇이 약인지 알아. 사람만 잊어버리지.|alchemist: 그럼 오늘부턴 늑대에게 배우지.,"alchemist: Your wolf's wounds heal fast when it eats this herb. Have you noticed?|beastmaster: Beasts know what's medicine. Only people forget.|alchemist: Then starting today, I'll take lessons from the wolf."
+k_bs_front,0,knight,berserker,,knight: 앞줄은 내가 맡겠소. 그대는 내 옆에서.|berserker: 옆? 난 앞에서 싸워.|knight: 그럼 둘이 같이 앞이오. 등은 서로 맡고.,"knight: I shall hold the front. You, at my side.|berserker: At your side? I fight up front.|knight: Then we both take the front. And each of us guards the other's back."
+h_s_tracks,0,hunter,seer,,hunter: 발자국이 둘이야. 리엔과 누군가.|seer: 일지엔 한 사람만 나오는데.|hunter: 기록되지 않은 사람이 늘 있지. 우리처럼.,"hunter: Two sets of footprints. Rien's, and someone else's.|seer: But the journal only speaks of one.|hunter: There's always someone nobody wrote down. Like us."
+c_n_dead,0,cleric,necromancer,,cleric: 망자를 부르는 건 죄라고 배웠습니다.|necromancer: 잊는 것이 더 큰 죄라고 나는 배웠어.|cleric: …그 둘 사이 어딘가에 우리가 서 있군요.,"cleric: I was taught that calling on the dead is a sin.|necromancer: I was taught that forgetting them is a greater one.|cleric: …And somewhere between the two, here we stand."
+r_bd_coin,0,rogue,bard,,"rogue: 네 노래 덕에 주머니가 잘 털리더라.|bard: 그건 칭찬이야, 고백이야?|rogue: 둘 다. 이제 안 털어. 우리 얘기가 노래가 되니까.","rogue: Your songs made picking pockets easy.|bard: Is that a compliment or a confession?|rogue: Both. I'm done with it, though. Our story's turning into the song now."
+g_k_luck,0,gambler,knight,,"gambler: 기사 양반, 운을 믿어?|knight: 나는 준비를 믿소.|gambler: 그래서 우리 둘이 같이 다니나 봐. 준비된 운.","gambler: Tell me, Sir Knight, do you believe in luck?|knight: I believe in being prepared.|gambler: Guess that's why we travel together. Luck that comes prepared."
+e_a_fire,0,elementalist,alchemist,,"elementalist: 네 폭탄, 내 불꽃보다 세던데.|alchemist: 내 건 한 번 쓰면 끝이야. 네 건 다시 타오르지.|elementalist: 그럼 둘이 번갈아 가자.",elementalist: Your bombs hit harder than my flames.|alchemist: Mine are gone after one throw. Yours flare up again.|elementalist: Then let's take turns.
+k_c_ch1,1,knight,cleric,,cleric: 숲이 잿빛이어도 성소의 불씨는 꺼지지 않았어요.|knight: 리엔도 그 불씨를 봤을까.|cleric: 보고 지나쳤겠죠. 우리는 멈춰서 손봤고요.,"cleric: The forest may be gray with ash, but the shrine's ember hasn't gone out.|knight: I wonder if Rien saw that ember too.|cleric: Saw it and walked on, I expect. We stopped and tended it."
+h_bm_ch1,1,hunter,beastmaster,,beastmaster: 늑대들이 미친 게 아니야. 겁먹은 거지.|hunter: 균열 냄새 때문이야. 첫 봉인석만 지키면 돌아올 거야.|beastmaster: 그럼 서둘러. 녀석들이 기다려.,"beastmaster: The wolves haven't gone mad. They're scared.|hunter: It's the smell of the Rift. Keep the first seal stone safe, and they'll come back.|beastmaster: Then hurry. They're waiting."
+n_s_ch2,2,necromancer,seer,,necromancer: 종지기의 목소리가 물속에서 들려. 원망이 아니야. 기다림이야.|seer: 별도 같은 말을 해. 누군가는 대답해야 한다고.|necromancer: 리엔 대신 우리가 대답하자.,"necromancer: I hear the bellringer's voice under the water. It isn't resentment. It's waiting.|seer: The stars say the same. Someone has to answer.|necromancer: Then let's answer, in Rien's place."
+b_c_ch2,2,bard,cleric,,bard: 항구 사람들은 리엔을 원망해. 노래도 그래.|cleric: 원망도 기억의 한 모양입니다.|bard: 그럼 끝 절은 용서로 바꿔 볼게.,bard: The harbor folk resent Rien. So do their songs.|cleric: Resentment is one of the shapes memory takes.|bard: Then I'll try turning the last verse into forgiveness.
+k_r_ch2,2,knight,rogue,,"rogue: 영웅이 동료를 두고 갔대. 기사님은 어떻게 생각해?|knight: 다섯 봉인을 위해서였겠지. 그래도 나는 두고 가지 않겠소.|rogue: …그 말, 기억해 둘게.","rogue: They say the hero left a companion behind. What do you make of that, Sir Knight?|knight: It must have been for the five seals. Even so, I would leave no one behind.|rogue: …I'll remember you said that."
+bs_g_ch3,3,berserker,gambler,,berserker: 춥다. 화도 얼어붙을 것 같아.|gambler: 그럼 내기하자. 누가 먼저 수도원 문을 두드리나.|berserker: …넌 늘 날 웃기는구나.,berserker: It's cold. Feels like even my rage could freeze.|gambler: Then let's make a bet. Who knocks on the abbey door first?|berserker: …You always make me laugh.
+e_s_ch3,3,elementalist,seer,,elementalist: 찢긴 장에 봉인 의식이 적혀 있었대.|seer: 그리고 리엔이 사라진 이유도. 별이 이 장 근처에서 흐려져.|elementalist: 그럼 우리가 마저 읽자.,"elementalist: They say the torn page has the sealing rite written on it.|seer: And why Rien vanished, too. The stars grow dim around that page.|elementalist: Then we'll read the rest of it ourselves."
+c_n_ch3,3,cleric,necromancer,,cleric: 수도원의 종은 망자를 위해 울렸답니다.|necromancer: 그럼 오늘은 내가 종을 대신하지.|cleric: 함께 울리죠. 우리 둘이니까.,"cleric: They say the abbey bell used to ring for the dead.|necromancer: Then today, I'll be the bell.|cleric: Let's ring it together. There are two of us, after all."
+mo_k,0,monk,knight,,monk: 맹세는 무겁지 않소?|knight: 무겁소. 그래서 내려놓지 않는 것이오.|monk: 산에서는 내려놓는 법을 배웠소. 당신에게선 드는 법을 배우겠군요.,"monk: Is your oath not heavy?|knight: It is heavy. That is why I do not set it down.|monk: On the mountain, I learned how to set things down. From you, I will learn how to carry them."
+en_a,0,engineer,alchemist,,"engineer: 네 폭탄, 바닥 경첩에 하나 더 넣으면 두 배로 터져.|alchemist: 그러다 우리가 날아가.|engineer: 그러니까 포탑 뒤에서 던지라는 거지.","engineer: Put one more of your bombs at the floor hinge, and the blast doubles.|alchemist: And we'd go flying with it.|engineer: That's why you throw from behind the turret."
+mn_s,0,mnemonist,seer,,mnemonist: 너는 앞을 보고 나는 뒤를 봐.|seer: 그럼 둘이 있으면 길을 잃을 일이 없겠네.|mnemonist: 지금이 어딘지만 누가 알려 주면.,"mnemonist: You look ahead, and I look back.|seer: Then with the two of us, we can never get lost.|mnemonist: If only someone would tell us where we are right now."
+mn_b,0,mnemonist,bard,,bard: 내 노래를 되새기면 어떻게 들려?|mnemonist: 네가 부를 때보다 조금 슬퍼.|bard: …그게 좋은 노래라는 뜻이야.,"bard: When you recall my songs, how do they sound?|mnemonist: A little sadder than when you sing them.|bard: …That means they're good songs."
+mo_bs,0,monk,berserker,,berserker: 넌 왜 화를 안 내?|monk: 화도 기요. 쌓았다가 한 번에.|berserker: 그건 좀 멋있네.,"berserker: Why don't you ever get angry?|monk: Anger is ki too. Store it up, then let it go all at once.|berserker: Huh. That's actually kind of cool."
+en_h,0,engineer,hunter,,"hunter: 포탑이 나보다 잘 쏘네.|engineer: 포탑은 바람을 못 읽어.|hunter: 그럼 바람은 내가 읽고, 쏘는 건 같이 하자.","hunter: Your turret shoots better than I do.|engineer: A turret can't read the wind.|hunter: Then I'll read the wind, and we'll do the shooting together."
+k_c_ch4,4,knight,cleric,,knight: 세른도 처음엔 우리 같았다더군.|cleric: 같은 길을 걸어도 혼자 걸었겠지요.|knight: 그렇다면 우리는 서로를 놓치지 맙시다.,"knight: They say Sern was like us, at first.|cleric: The same road, perhaps. But he must have walked it alone.|knight: Then let us never lose hold of one another."
+r_g_ch4,4,rogue,gambler,,gambler: 왕의 금은 탐나지 않아?|rogue: 탐나. 근데 이번엔 주인 이름이 다 적혀 있잖아.|gambler: 너 많이 변했다.,"gambler: Aren't you tempted by the king's gold?|rogue: I am. But this time, every piece has its owner's name on it.|gambler: You've changed a lot."
+n_mn_ch5,5,necromancer,mnemonist,,necromancer: 리엔의 망령을 불러도 얼굴이 없어.|mnemonist: 기억하는 사람이 없어서야. 우리가 기억하면 돼.|necromancer: …그럼 오늘부터 리엔은 우리 동료다.,"necromancer: I can call up Rien's ghost, but there's no face.|mnemonist: That's because no one remembers. So we'll be the ones who do.|necromancer: …Then from today on, Rien is one of us."
+e_s_ch5,5,elementalist,seer,,"elementalist: 대가가 이름 하나라면, 누가 내?|seer: 별은 셋이 함께 빛나.|elementalist: 그럼 셋이 같이 내자. 하나씩 조금씩.","elementalist: If the price is one name, who pays it?|seer: In the stars, the three of us shine together.|elementalist: Then the three of us pay it together. A little each."
+b_c_ch5,5,bard,cleric,,bard: 마지막 노래의 끝을 아직 못 정했어.|cleric: 끝은 우리가 정하는 게 아니라 부르는 사람들이 정하지요.|bard: 그럼 많이 불러 달라고 해야겠다.,bard: I still haven't decided how the last song ends.|cleric: The ending isn't ours to decide. It belongs to the people who sing it.|bard: Then I'd better ask them to sing it often.
+t_rogue_alch,0,rogue,alchemist,,"rogue: 그 병, 뭐가 들었는지 알려 주면 하나 훔쳐 가지 않을게.|alchemist: 하나를 훔쳐 가면 무엇이 들었는지 몸으로 알게 될 거야.","rogue: Tell me what's in that bottle, and I promise not to steal one.|alchemist: Steal one, and your body will find out what's in it."
+t_knight_eng,0,knight,engineer,,knight: 옛 기사들은 성벽을 믿지 않았다. 사람을 믿었지.|engineer: 그 사람들이 성벽 뒤에 있었으니까 믿을 수 있었던 거예요.,"knight: The knights of old did not put their trust in walls. They trusted people.|engineer: They could, because those people were standing behind walls."
+t_berserker_cleric,0,berserker,cleric,,berserker: 또 꿰매는 거냐. 어차피 내일 또 터질 텐데.|cleric: 그러니까 오늘 꿰매는 거예요. 내일도 꿰맬 수 있게.,berserker: Stitching me up again? It'll just split open tomorrow anyway.|cleric: That's why I stitch it today. So I can stitch it again tomorrow.
+t_monk_mnem,0,monk,mnemonist,,monk: 숨을 셀 때마다 잊는 것이 하나씩 늘어난다.|mnemonist: 그럼 내가 세어 줄게. 잊는 것도 기억해 둘 사람이 하나쯤은 있어야지.,"monk: With every breath I count, there is one more thing I forget.|mnemonist: Then I'll count for you. Someone ought to remember what gets forgotten, too."
+t_eng_beast,0,engineer,beastmaster,,"engineer: 그 늑대, 기름칠은 안 해도 돼요?|beastmaster: 고기를 주면 돼. 네 포탑보다 훨씬 쉽지.",engineer: Doesn't that wolf need oiling?|beastmaster: Just feed it meat. Much easier than your turret.
+t_alch_necro,0,alchemist,necromancer,,alchemist: 뼈 가루 좀 나눠 줄 수 있어? 약에 쓰려고.|necromancer: 해골이 허락하면. …허락한다는군. 왼쪽 갈비뼈만.,alchemist: Could you spare some bone dust? It's for a remedy.|necromancer: If the skeleton allows it. …It says yes. Left ribs only.
+t_seer_knight,0,seer,knight,,seer: 별이 말해요. 내일 당신이 누군가를 지킬 거라고.|knight: 별이 말하지 않아도 그건 매일 하는 일이다.,"seer: The stars say that tomorrow, you will protect someone.|knight: Stars or no stars, that is what I do every day."
+t_gambler_bard,0,gambler,bard,,gambler: 그 노래 끝에 우리가 이긴다는 데 걸지.|bard: 노래 끝은 아직 안 지었어. 네가 판돈을 올리면 그만큼 극적으로 써 줄게.,"gambler: I'll bet that song ends with us winning.|bard: I haven't written the ending yet. Raise the stakes, and I'll make it that much more dramatic."
+t_elem_knight,0,elementalist,knight,,elementalist: 내 불길 앞으로 나서지 마세요. 진심으로.|knight: 그럼 네 불길이 내 뒤에서 나오도록 해라. 그게 줄이다.,elementalist: Please don't step in front of my flames. I mean it.|knight: Then see that your flames come from behind me. That is what the rows are for.
+t_monk_cleric,0,monk,cleric,,"monk: 당신의 기도와 내 명상은 무엇이 다를까.|cleric: 기도는 누군가에게 말을 걸고, 명상은 듣는 거겠죠. 둘 다 혼자서는 못 해요.","monk: What is the difference between your prayers and my meditation?|cleric: Prayer speaks to someone, and meditation listens, I suppose. Neither can be done alone."
