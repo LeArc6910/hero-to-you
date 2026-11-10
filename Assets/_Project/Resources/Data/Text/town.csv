@@ -34,3 +34,4 @@ town.no_consumable,그 소모품이 없습니다.,You don't have that item.
 town.battle_only,{0:은} 전투에서만 씁니다.,{0} can only be used in battle.
 town.resolve_gain,{0}: 결의 +{1} ({2}/{3}),{0}: resolve +{1} ({2}/{3})
 town.luck_gain,{0}: 다음 판정 확정 +{1},{0}: +{1} sure success on the next check
+town.reagent_goods,연금 재료 2,Alchemy reagents ×2

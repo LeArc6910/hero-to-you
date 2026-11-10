@@ -61,7 +61,10 @@ namespace Game.Core
 
         // "reagent" for reagents; null for an item.
         public string Goods { get; internal set; }
-        public string Name => Item?.Name ?? "연금 재료 2";
+        public string Name => Item?.Name ?? GoodsName;
+
+        // What the shop calls goods that are not an item (the reagents), in the sheets' language.
+        public string GoodsName { get; internal set; } = "";
         public int Price { get; internal set; }
         public bool Sold { get; internal set; }
     }

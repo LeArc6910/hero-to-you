@@ -52,7 +52,7 @@ namespace Game.Core
                 pool.RemoveAt(pick);
             }
             foreach (var item in Data.ItemList.Where(i => i.Consumable && i.Price > 0)) Shop.Add(new ShopItem { Item = item, Price = PriceOf(item.Price) });
-            if (Heroes.Any(h => h.Class.Id == "alchemist")) Shop.Add(new ShopItem { Goods = "reagent", Price = PriceOf(ReagentPrice) });
+            if (Heroes.Any(h => h.Class.Id == "alchemist")) Shop.Add(new ShopItem { Goods = "reagent", GoodsName = Data.Line("town.reagent_goods"), Price = PriceOf(ReagentPrice) });
         }
 
         // Heroes standing in the town now (downed ones too: the inn takes them in).
@@ -73,6 +73,9 @@ namespace Game.Core
         public int InnPrice => PriceOf(InnCost * (Chapter.Index + 1));
 
         // The inn: everyone in town gets up, heals half and gets all resolve back.
+        // The day the party last slept at the inn (the bot rests once a day; any language).
+        public int RestedOnDay { get; private set; } = -1;
+
         public string Rest()
         {
             string error = InTown();
@@ -81,6 +84,7 @@ namespace Game.Core
             if (Gold < cost) return Data.Line("town.no_gold_inn", cost);
             Gold -= cost;
             Record("rest");
+            RestedOnDay = Day;
             Report.Clear();
             foreach (int i in TownHeroes())
             {

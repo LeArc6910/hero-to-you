@@ -90,7 +90,7 @@ adventure.error.no_contract,맡을 의뢰가 없습니다.,There is no contract 
 adventure.contract.taken,"의뢰를 맡았다: {0} 칸의 {1} 무리를 쫓아낸다 (보상 금화 {2}, 명성 +1)","Contract taken: drive off the {1} group at hex {0} (reward: gold {2}, renown +1)"
 adventure.contract.done,의뢰한 무리를 쫓아냈다. 마을에 가면 보상을 받는다.,The contract's group is driven off. Collect the reward in town.
 adventure.contract.paid,의뢰 보상: 금화 +{0},Contract reward: gold +{0}
-adventure.talk,모닥불 곁에서 {0}와 {1}가 이야기를 나눴다 (둘 다 결의 +1),"By the campfire, {0} and {1} talked (both resolve +1)"
+adventure.talk,모닥불 곁에서 {0:과} {1:이} 이야기를 나눴다 (둘 다 결의 +1),"By the campfire, {0} and {1} talked (both resolve +1)"
 adventure.error.cannot_change_row,지금은 줄을 바꿀 수 없습니다.,Rows cannot be changed now.
 adventure.error.already_back,이미 뒷줄입니다.,Already in the back row.
 adventure.error.already_front,이미 앞줄입니다.,Already in the front row.

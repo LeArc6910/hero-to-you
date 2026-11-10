@@ -80,7 +80,7 @@ namespace Game.Core
         static string Town(Adventure a, GameRandom random, bool smart)
         {
             var here = a.TownHeroes().Select(i => a.Heroes[i]).ToList();
-            if (here.Any(h => h.Down || h.Hp * 10 < h.MaxHp * 7) && a.Gold >= a.InnPrice && a.Report.All(l => !l.Contains("결의 가득"))) return a.Rest();
+            if (here.Any(h => h.Down || h.Hp * 10 < h.MaxHp * 7) && a.Gold >= a.InnPrice && a.RestedOnDay != a.Day) return a.Rest();
             if (smart)
             {
                 // A better weapon or armor for someone, potions for those here, rumors when rich.

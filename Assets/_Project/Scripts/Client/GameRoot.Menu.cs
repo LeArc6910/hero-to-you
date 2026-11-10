@@ -375,7 +375,7 @@ namespace Game.Client
                 {
                     if (Ui.Button(button, $"펼치기 ({perk.Pages}장)", 12.5f, journal.CanUnlock(perk), Look.Normal, perk.Name))
                     {
-                        _journalError = journal.Unlock(perk);
+                        _journalError = journal.Unlock(perk, _data);
                         if (_journalError == null)
                         {
                             SaveStore.WriteJournal(journal);
