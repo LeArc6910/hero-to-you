@@ -103,8 +103,11 @@ namespace Game.Core
             CsvTable.Language = string.IsNullOrEmpty(language) || language == "ko" ? null : language;
             try
             {
-                var data = LoadSheets(read);
-                data.Lines = ReadLines(read, string.IsNullOrEmpty(language) ? "ko" : language, data._errors);
+                // The sentences first: texts made while reading the sheets (a weapon's attack) use them.
+                var lineErrors = new List<string>();
+                var lines = ReadLines(read, string.IsNullOrEmpty(language) ? "ko" : language, lineErrors);
+                var data = LoadSheets(read, lines);
+                data._errors.AddRange(lineErrors);
                 if (data._errors.Count > 0) throw new FormatException("시트 오류:\n" + string.Join("\n", data._errors));
                 return data;
             }
@@ -138,9 +141,9 @@ namespace Game.Core
             return lines;
         }
 
-        static GameData LoadSheets(Func<string, string> read)
+        static GameData LoadSheets(Func<string, string> read, Lines lines)
         {
-            var data = new GameData();
+            var data = new GameData { Lines = lines };
             uint hash = 2166136261;
             var source = read;
             string Read(string file)
@@ -286,6 +289,7 @@ namespace Game.Core
             {
                 var skill = new SkillDef
                 {
+                    Data = this,
                     Id = Id(file, row, seen),
                     ClassId = row["class"],
                     Name = row["name"],
@@ -388,6 +392,7 @@ namespace Game.Core
             {
                 var item = new ItemDef
                 {
+                    Data = this,
                     Id = Id(file, row, seen),
                     Name = row["name"],
                     Slot = Enum<ItemSlot>(file, row, "slot"),
@@ -429,6 +434,7 @@ namespace Game.Core
                 {
                     var attack = new SkillDef
                     {
+                        Data = this,
                         Id = Hero.AttackId,
                         ClassId = "",
                         Name = row["attack"],
@@ -441,7 +447,7 @@ namespace Game.Core
                         Element = "",
                         Effect = effect.Length > 0 ? effect[0] : "",
                         Perfect = row["perfect"],
-                        Text = $"{item.Name}의 기본 공격.",
+                        Text = this.Line("common.weapon_attack", item.Name),
                     };
                     (attack.Stat, attack.FixedChance) = StatColumn(file, row, row["stat"], true);
                     Choice(file, row, "damage", new[] { "physical", "magic" });

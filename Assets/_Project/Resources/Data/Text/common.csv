@@ -29,3 +29,12 @@ status.corrode,부식,Corrode
 status.foretold,예언,Foretold
 status.deathmark,죽음의 표,Death Mark
 status.daze,멍함,Dazed
+common.weapon_attack,{0}의 기본 공격.,Basic attack with the {0}.
+common.perfect_crit150,완벽: 1.5배,Perfect: 1.5× damage
+common.perfect_crit200,완벽: 2배,Perfect: 2× damage
+common.perfect_crit300,완벽: 3배,Perfect: 3× damage
+common.perfect_stun,완벽: 기절,Perfect: stuns
+common.perfect_armor1,완벽: 방어도 +1,Perfect: armor +1
+common.bonus_armor,방어도 +{0},Armor +{0}
+common.bonus_hp,생명력 +{0},HP +{0}
+common.bonus_resolve,결의 +{0},Resolve +{0}

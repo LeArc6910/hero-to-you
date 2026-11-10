@@ -1,1 +1,36 @@
 id,ko,en
+town.not_in_town,마을에 있지 않습니다.,You are not in town.
+town.pick_hero,영웅을 고르세요.,Choose a hero.
+town.no_gold,금화가 모자랍니다 ({0}).,Not enough gold ({0}).
+town.no_gold_inn,금화가 모자랍니다 (여관 {0}).,Not enough gold (inn: {0}).
+town.no_gold_rumor,금화가 모자랍니다 (소문 {0}).,Not enough gold (rumors: {0}).
+town.inn_rest,"{0}: 생명력 +{1} ({2}/{3}), 결의 가득","{0}: HP +{1} ({2}/{3}), resolve full"
+town.inn_rest_healed,"{0}: 생명력 +{1} ({2}/{3}), 결의 가득, 상처가 나았다","{0}: HP +{1} ({2}/{3}), resolve full, wounds healed"
+town.cant_buy,살 수 없는 물건입니다.,That can't be bought.
+town.bought_reagents,{0}: 재료 {1}/{2},{0}: reagents {1}/{2}
+town.bought_consumable,{0}: {1} +1 ({2}개),{0}: {1} +1 ({2} carried)
+town.bought_gear,{0:을} 샀다 (가방),Bought {0} (in the bag)
+town.no_rumors,오늘은 들을 소문이 없습니다.,No rumors to hear today.
+town.rumor,소문으로 {0}곳을 알게 되었다,Rumors told of {0} places
+town.rumor_enemies,소문으로 {0}곳을 알게 되었다 (적 무리 {1}),Rumors told of {0} places ({1} enemy groups)
+town.not_in_bag,가방에 그런 물건이 없습니다.,There is no such item in the bag.
+town.sold,{0:을} 팔았다 (금화 +{1}),Sold {0} (+{1} gold)
+town.helped_today,오늘은 이미 도왔습니다.,You have already helped today.
+town.donated,금화 {0}로 무너진 집을 고치는 일을 도왔다.,Gave {0} gold to help rebuild the fallen houses.
+town.nothing_worn,끼고 있는 것이 없습니다.,Nothing is equipped there.
+town.forge_maxed,{0:은} 더 강화할 수 없습니다.,{0} cannot be improved any further.
+town.forged,{0}: {1:을} 벼렸다 (금화 −{2}),{0}: forged {1} (−{2} gold)
+town.no_recruit_place,새 동료를 맞을 자리가 없습니다.,There is no place for a new companion.
+town.cant_recruit,그 직업은 맞을 수 없습니다.,That class can't join you.
+town.recruited,{0:이} 일지를 이어받아 함께 걷기로 했다.,{0} takes up the journal and joins the road.
+town.elder_met,장로와는 이미 이야기했습니다.,You have already spoken with the elder.
+town.cant_change_gear,지금은 장비를 바꿀 수 없습니다.,You can't change gear right now.
+town.cant_equip,{0:은} {1}을 들 수 없습니다.,{0} can't use {1}.
+town.weapon_swap_only,무기는 다른 무기로만 바꿉니다.,A weapon can only be swapped for another weapon.
+town.nothing_to_remove,벗을 것이 없습니다.,There is nothing to take off.
+town.cant_use_now,지금은 쓸 수 없습니다.,You can't use that right now.
+town.hero_down,{0:은} 쓰러져 있습니다.,{0} is down.
+town.no_consumable,그 소모품이 없습니다.,You don't have that item.
+town.battle_only,{0:은} 전투에서만 씁니다.,{0} can only be used in battle.
+town.resolve_gain,{0}: 결의 +{1} ({2}/{3}),{0}: resolve +{1} ({2}/{3})
+town.luck_gain,{0}: 다음 판정 확정 +{1},{0}: +{1} sure success on the next check

@@ -117,13 +117,16 @@ namespace Game.Core
             _ => 100,
         };
 
-        public string PerfectText => Perfect switch
+        // The sheets it was read from: its texts are in their language (Data/Text/common.csv).
+        internal GameData Data { get; set; }
+
+        public string PerfectText => Data == null ? "" : Perfect switch
         {
-            "crit150" => "완벽: 1.5배",
-            "crit200" => "완벽: 2배",
-            "crit300" => "완벽: 3배",
-            "stun" => "완벽: 기절",
-            "armor1" => "완벽: 방어도 +1",
+            "crit150" => Data.Line("common.perfect_crit150"),
+            "crit200" => Data.Line("common.perfect_crit200"),
+            "crit300" => Data.Line("common.perfect_crit300"),
+            "stun" => Data.Line("common.perfect_stun"),
+            "armor1" => Data.Line("common.perfect_armor1"),
             _ => "",
         };
     }
@@ -315,17 +318,20 @@ namespace Game.Core
         public bool Consumable => Slot == ItemSlot.Consumable;
         public string Text { get; internal set; }
 
+        // The sheets it was read from: its texts are in their language (Data/Text/common.csv).
+        internal GameData Data { get; set; }
+
         // "힘 +5 · 방어도 +2", what it gives besides an attack.
         public string Bonuses
         {
             get
             {
                 var parts = new List<string>();
-                if (Armor != 0) parts.Add($"방어도 +{Armor}");
-                if (Hp != 0) parts.Add($"생명력 +{Hp}");
-                if (Resolve != 0) parts.Add($"결의 +{Resolve}");
+                if (Armor != 0) parts.Add(Data?.Line("common.bonus_armor", Armor));
+                if (Hp != 0) parts.Add(Data?.Line("common.bonus_hp", Hp));
+                if (Resolve != 0) parts.Add(Data?.Line("common.bonus_resolve", Resolve));
                 for (int i = 0; i < Stats.Count; i++)
-                    if (StatBonus[i] != 0) parts.Add($"{Stats.Name((Stat)i)} {(StatBonus[i] > 0 ? "+" : "")}{StatBonus[i]}");
+                    if (StatBonus[i] != 0) parts.Add($"{Stats.Name((Stat)i, Data)} {(StatBonus[i] > 0 ? "+" : "")}{StatBonus[i]}");
                 return string.Join(" · ", parts);
             }
         }

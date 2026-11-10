@@ -66,7 +66,7 @@ namespace Game.Core
         {
             string blocked = Blocked();
             if (blocked != null) return blocked;
-            return Screen == AdventureScreen.Town ? null : "마을에 있지 않습니다.";
+            return Screen == AdventureScreen.Town ? null : Data.Line("town.not_in_town");
         }
 
         // The inn's price: dearer in later chapters, cheaper with the bard.
@@ -78,7 +78,7 @@ namespace Game.Core
             string error = InTown();
             if (error != null) return error;
             int cost = InnPrice;
-            if (Gold < cost) return $"금화가 모자랍니다 (여관 {cost}).";
+            if (Gold < cost) return Data.Line("town.no_gold_inn", cost);
             Gold -= cost;
             Record("rest");
             Report.Clear();
@@ -92,7 +92,9 @@ namespace Game.Core
                 int before = hero.Hp;
                 hero.Heal(Math.Max(1, hero.MaxHp * InnPercent / 100));
                 hero.GainResolve(hero.MaxResolve);
-                Report.Add($"{hero.Name}: 생명력 +{hero.Hp - before} ({hero.Hp}/{hero.MaxHp}), 결의 가득" + (wounded ? ", 상처가 나았다" : ""));
+                Report.Add(wounded
+                    ? Data.Line("town.inn_rest_healed", hero.Name, hero.Hp - before, hero.Hp, hero.MaxHp)
+                    : Data.Line("town.inn_rest", hero.Name, hero.Hp - before, hero.Hp, hero.MaxHp));
             }
             return null;
         }
@@ -102,11 +104,11 @@ namespace Game.Core
         {
             string error = InTown();
             if (error != null) return error;
-            if (index < 0 || index >= Shop.Count || Shop[index].Sold) return "살 수 없는 물건입니다.";
+            if (index < 0 || index >= Shop.Count || Shop[index].Sold) return Data.Line("town.cant_buy");
             var goods = Shop[index];
             if (heroIndex < 0) heroIndex = MapHero;
-            if (heroIndex >= Heroes.Count) return "영웅을 고르세요.";
-            if (Gold < goods.Price) return $"금화가 모자랍니다 ({goods.Price}).";
+            if (heroIndex >= Heroes.Count) return Data.Line("town.pick_hero");
+            if (Gold < goods.Price) return Data.Line("town.no_gold", goods.Price);
             Gold -= goods.Price;
             Record($"buy {index} {heroIndex}");
             Report.Clear();
@@ -115,18 +117,18 @@ namespace Game.Core
             {
                 var alchemist = Heroes.First(h => h.Class.Id == "alchemist");
                 alchemist.GainReagents(2);
-                Report.Add($"{alchemist.Name}: 재료 {alchemist.Reagents}/{alchemist.ReagentMax}");
+                Report.Add(Data.Line("town.bought_reagents", alchemist.Name, alchemist.Reagents, alchemist.ReagentMax));
             }
             else if (goods.Item.Consumable)
             {
                 hero.AddConsumable(goods.Item.Id, 1);
-                Report.Add($"{hero.Name}: {goods.Item.Name} +1 ({hero.Count(goods.Item.Id)}개)");
+                Report.Add(Data.Line("town.bought_consumable", hero.Name, goods.Item.Name, hero.Count(goods.Item.Id)));
             }
             else
             {
                 goods.Sold = true;
                 AddToBag(goods.Item);
-                Report.Add($"{Korean.Object(goods.Item.Name)} 샀다 (가방)");
+                Report.Add(Data.Line("town.bought_gear", goods.Item.Name));
             }
             return null;
         }
@@ -144,9 +146,9 @@ namespace Game.Core
         {
             string error = InTown();
             if (error != null) return error;
-            if (!CanHearRumors) return "오늘은 들을 소문이 없습니다.";
+            if (!CanHearRumors) return Data.Line("town.no_rumors");
             int cost = PriceOf(RumorCost);
-            if (Gold < cost) return $"금화가 모자랍니다 (소문 {cost}).";
+            if (Gold < cost) return Data.Line("town.no_gold_rumor", cost);
             Gold -= cost;
             _rumorDay = Day;
             Record("rumor");
@@ -154,7 +156,7 @@ namespace Game.Core
             var heard = Unknown().Take(RumorHexes).ToList();
             foreach (var tile in heard) _revealed.Add(tile.Hex);
             int enemies = heard.Count(t => t.Content == Content.Enemy);
-            Report.Add($"소문으로 {heard.Count}곳을 알게 되었다" + (enemies > 0 ? $" (적 무리 {enemies})" : ""));
+            Report.Add(enemies > 0 ? Data.Line("town.rumor_enemies", heard.Count, enemies) : Data.Line("town.rumor", heard.Count));
             return null;
         }
 
@@ -164,13 +166,13 @@ namespace Game.Core
         {
             string error = InTown();
             if (error != null) return error;
-            if (bagIndex < 0 || bagIndex >= Bag.Count) return "가방에 그런 물건이 없습니다.";
+            if (bagIndex < 0 || bagIndex >= Bag.Count) return Data.Line("town.not_in_bag");
             var item = Bag[bagIndex];
             Bag.RemoveAt(bagIndex);
             Gold += SellPrice(item);
             Record($"sell {bagIndex}");
             Report.Clear();
-            Report.Add($"{Korean.Object(item.Name)} 팔았다 (금화 +{SellPrice(item)})");
+            Report.Add(Data.Line("town.sold", item.Name, SellPrice(item)));
             return null;
         }
 
@@ -183,13 +185,13 @@ namespace Game.Core
         {
             string error = InTown();
             if (error != null) return error;
-            if (!CanDonate) return "오늘은 이미 도왔습니다.";
-            if (Gold < DonationCost) return $"금화가 모자랍니다 ({DonationCost}).";
+            if (!CanDonate) return Data.Line("town.helped_today");
+            if (Gold < DonationCost) return Data.Line("town.no_gold", DonationCost);
             Gold -= DonationCost;
             _donateDay = Day;
             Record("donate");
             Report.Clear();
-            Report.Add($"금화 {DonationCost}로 무너진 집을 고치는 일을 도왔다.");
+            Report.Add(Data.Line("town.donated", DonationCost));
             GainRenown(1, Report);
             return null;
         }
@@ -216,12 +218,12 @@ namespace Game.Core
         {
             string error = InTown();
             if (error != null) return error;
-            if (heroIndex < 0 || heroIndex >= Heroes.Count) return "영웅을 고르세요.";
+            if (heroIndex < 0 || heroIndex >= Heroes.Count) return Data.Line("town.pick_hero");
             var hero = Heroes[heroIndex];
             var item = slot == ItemSlot.Weapon ? hero.Weapon : slot == ItemSlot.Armor ? hero.Armor : hero.Trinket;
-            if (!CanForge(item)) return item == null ? "끼고 있는 것이 없습니다." : $"{Korean.Topic(item.Name)} 더 강화할 수 없습니다.";
+            if (!CanForge(item)) return item == null ? Data.Line("town.nothing_worn") : Data.Line("town.forge_maxed", item.Name);
             int price = ForgePrice(item);
-            if (Gold < price) return $"금화가 모자랍니다 ({price}).";
+            if (Gold < price) return Data.Line("town.no_gold", price);
             Gold -= price;
             var forged = item.Clone();
             forged.Plus = item.Plus + 1;
@@ -243,7 +245,7 @@ namespace Game.Core
             hero.Equip(forged);
             Record($"forge {heroIndex} {slot.ToString().ToLowerInvariant()}");
             Report.Clear();
-            Report.Add($"{hero.Name}: {Korean.Object(forged.Name)} 벼렸다 (금화 −{price})");
+            Report.Add(Data.Line("town.forged", hero.Name, forged.Name, price));
             return null;
         }
 
@@ -274,16 +276,16 @@ namespace Game.Core
             string error = InTown();
             if (error != null) return error;
             int index = Heroes.FindIndex(h => h.Dead);
-            if (index < 0) return "새 동료를 맞을 자리가 없습니다.";
+            if (index < 0) return Data.Line("town.no_recruit_place");
             var cls = Recruits().FirstOrDefault(c => c.Id == classId);
-            if (cls == null) return "그 직업은 맞을 수 없습니다.";
+            if (cls == null) return Data.Line("town.cant_recruit");
             Record($"recruit {classId}");
             Report.Clear();
             int level = Math.Max(1, Heroes.Where(h => !h.Dead).Select(h => h.Level).DefaultIfEmpty(1).Min() - 1);
             var hero = new Hero(cls, index);
             Heroes[index] = hero;
             Positions[index] = Map.Tile(Site.Town).Hex;
-            Report.Add($"{Korean.Subject(hero.Name)} 일지를 이어받아 함께 걷기로 했다.");
+            Report.Add(Data.Line("town.recruited", hero.Name));
             if (level > 1) GainXp(hero, Hero.LevelXp[level - 1]);
             return null;
         }
@@ -295,7 +297,7 @@ namespace Game.Core
         {
             string error = InTown();
             if (error != null) return error;
-            if (!CanMeetElder) return "장로와는 이미 이야기했습니다.";
+            if (!CanMeetElder) return Data.Line("town.elder_met");
             Record("elder");
             _elderMet = true;
             _backToTown = true;
@@ -320,12 +322,12 @@ namespace Game.Core
         // Puts a bag item on a hero; what was in that slot goes into the bag.
         public string Equip(int bagIndex, int heroIndex)
         {
-            if (!CanChangeGear) return "지금은 장비를 바꿀 수 없습니다.";
-            if (bagIndex < 0 || bagIndex >= Bag.Count) return "가방에 그런 물건이 없습니다.";
-            if (heroIndex < 0 || heroIndex >= Heroes.Count) return "영웅을 고르세요.";
+            if (!CanChangeGear) return Data.Line("town.cant_change_gear");
+            if (bagIndex < 0 || bagIndex >= Bag.Count) return Data.Line("town.not_in_bag");
+            if (heroIndex < 0 || heroIndex >= Heroes.Count) return Data.Line("town.pick_hero");
             var item = Bag[bagIndex];
             var hero = Heroes[heroIndex];
-            if (!hero.CanEquip(item)) return $"{Korean.Topic(hero.Name)} {item.Name}을 들 수 없습니다.";
+            if (!hero.CanEquip(item)) return Data.Line("town.cant_equip", hero.Name, item.Name);
             Bag.RemoveAt(bagIndex);
             var old = hero.Equip(item);
             if (old != null) AddToBag(old);
@@ -336,12 +338,12 @@ namespace Game.Core
         // Takes off armor or a trinket into the bag. A weapon only changes for another.
         public string Unequip(int heroIndex, ItemSlot slot)
         {
-            if (!CanChangeGear) return "지금은 장비를 바꿀 수 없습니다.";
-            if (slot == ItemSlot.Weapon) return "무기는 다른 무기로만 바꿉니다.";
-            if (heroIndex < 0 || heroIndex >= Heroes.Count) return "영웅을 고르세요.";
+            if (!CanChangeGear) return Data.Line("town.cant_change_gear");
+            if (slot == ItemSlot.Weapon) return Data.Line("town.weapon_swap_only");
+            if (heroIndex < 0 || heroIndex >= Heroes.Count) return Data.Line("town.pick_hero");
             var hero = Heroes[heroIndex];
             var item = slot == ItemSlot.Armor ? hero.Armor : hero.Trinket;
-            if (item == null) return "벗을 것이 없습니다.";
+            if (item == null) return Data.Line("town.nothing_to_remove");
             hero.Unequip(slot);
             AddToBag(item);
             Record($"unequip {heroIndex} {slot.ToString().ToLowerInvariant()}");
@@ -353,12 +355,12 @@ namespace Game.Core
 
         public string UseItem(int heroIndex, string itemId)
         {
-            if (!CanChangeGear) return "지금은 쓸 수 없습니다.";
-            if (heroIndex < 0 || heroIndex >= Heroes.Count) return "영웅을 고르세요.";
+            if (!CanChangeGear) return Data.Line("town.cant_use_now");
+            if (heroIndex < 0 || heroIndex >= Heroes.Count) return Data.Line("town.pick_hero");
             var hero = Heroes[heroIndex];
-            if (hero.Down) return $"{Korean.Topic(hero.Name)} 쓰러져 있습니다.";
-            if (!Data.Items.TryGetValue(itemId ?? "", out var item) || hero.Count(itemId) <= 0) return "그 소모품이 없습니다.";
-            if (!UsableOnMap(item)) return $"{Korean.Topic(item.Name)} 전투에서만 씁니다.";
+            if (hero.Down) return Data.Line("town.hero_down", hero.Name);
+            if (!Data.Items.TryGetValue(itemId ?? "", out var item) || hero.Count(itemId) <= 0) return Data.Line("town.no_consumable");
+            if (!UsableOnMap(item)) return Data.Line("town.battle_only", item.Name);
             hero.AddConsumable(itemId, -1);
             Record($"use {heroIndex} {itemId}");
             Report.Clear();
@@ -372,11 +374,11 @@ namespace Game.Core
                         break;
                     case "resolve":
                         hero.GainResolve(e.Amount);
-                        Report.Add($"{hero.Name}: 결의 +{e.Amount} ({hero.Resolve}/{hero.MaxResolve})");
+                        Report.Add(Data.Line("town.resolve_gain", hero.Name, e.Amount, hero.Resolve, hero.MaxResolve));
                         break;
                     case "luck":
                         hero.Luck += e.Amount;
-                        Report.Add($"{hero.Name}: 다음 판정 확정 +{e.Amount}");
+                        Report.Add(Data.Line("town.luck_gain", hero.Name, e.Amount));
                         break;
                 }
             }
