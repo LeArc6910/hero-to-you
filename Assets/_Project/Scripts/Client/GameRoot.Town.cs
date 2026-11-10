@@ -48,6 +48,7 @@ namespace Game.Client
                     var row = new Rect(0, y, column.width, 44);
                     Ui.Panel(row);
                     Ui.Text(new Rect(8, y + 2, column.width - 120, 20), item.Name + (item.Sold ? " (팔림)" : ""), 13, item.Sold ? Palette.Dim : Palette.Ink, TextAnchor.MiddleLeft, true);
+                    ItemMark(new Rect(column.width - 128, y + 4, 18, 18), item.Item);
                     Ui.Text(new Rect(8, y + 22, column.width - 120, 18), detail, 10.5f, Palette.Dim);
                     if (Ui.Button(new Rect(column.width - 104, y + 4, 100, 36), $"사기 {item.Price}", 13, !item.Sold && a.Gold >= item.Price, Look.Normal, item.Name)) Act(() => a.Buy(index));
                     y += 50;
@@ -132,21 +133,54 @@ namespace Game.Client
             EndColumn(y);
             var footer = Footer(48);
             float fh = (footer.width - 8) / 2;
-            if (Ui.Button(new Rect(footer.x, footer.y, fh, footer.height), Strings.Get("map.gear"), 15, true, Look.Quiet)) _gearOpen = true;
-            if (Ui.Button(new Rect(footer.x + fh + 8, footer.y, fh, footer.height), Strings.Get("town.leave"), 16, true, Look.Primary)) Act(a.LeaveTown);
+            if (Ui.Button(new Rect(footer.x, footer.y, fh, footer.height), Strings.Get("map.gear"), 15, true, Look.Quiet, null, KeyCode.G)) _gearOpen = true;
+            if (Ui.Button(new Rect(footer.x + fh + 8, footer.y, fh, footer.height), Strings.Get("town.leave"), 16, true, Look.Primary, null, KeyCode.Space)) Act(a.LeaveTown);
         }
 
         // "베기 · 힘 3개 · 위력 10" for a weapon, its bonuses for the rest.
         static string ItemLine(ItemDef item)
         {
+            string effect = EffectLine(item);
             if (item.Attack != null)
             {
                 var attack = item.Attack;
-                string chance = attack.FixedChance > 0 ? $"{attack.FixedChance}%" : Stats.Name(attack.Stat.Value);
+                string chance = attack.FixedChance > 0 ? $"{attack.FixedChance}%" : Stats.Name(attack.Stat.Value, Sheets);
                 string line = $"{KindName(item.Kind)} · {attack.Name}: {chance} {attack.Dice}개 · 위력 {attack.Power}" + (attack.Delay != 100 ? $" · 지연 {attack.Delay}%" : "");
-                return item.Bonuses.Length > 0 ? line + " · " + item.Bonuses : line;
+                if (item.Bonuses.Length > 0) line += " · " + item.Bonuses;
+                return effect.Length > 0 ? line + " · " + effect : line;
             }
-            return item.Bonuses;
+            return effect.Length > 0 ? (item.Bonuses.Length > 0 ? item.Bonuses + " · " : "") + effect : item.Bonuses;
+        }
+
+        // ---- A piece of gear's own effect (Docs/Combat.md 고유 효과): a word and a small mark ----
+
+        static string EffectOf(ItemDef item) => item.Attack != null ? item.Attack.Effect : item.Effect;
+
+        internal static string EffectIcon(string effect) => effect switch
+        {
+            "burn" => "flame",
+            "chill" => "snowflake",
+            "lifesteal" => "drop",
+            "weaken" => "down",
+            "corrode" => "acid",
+            "thorns" => "thorn",
+            "regen" => "leaf",
+            _ => null,
+        };
+
+        static string EffectLine(ItemDef item)
+        {
+            string effect = EffectOf(item);
+            return EffectIcon(effect) == null ? "" : Strings.Format("item.effect." + effect, item.EffectAmount);
+        }
+
+        // The effect's mark at r (nothing for gear without one), with its word as the tip.
+        static void ItemMark(Rect r, ItemDef item)
+        {
+            string icon = item == null ? null : EffectIcon(EffectOf(item));
+            if (icon == null) return;
+            Ui.Image(r, PixelArt.Icon(icon));
+            Ui.Tip(r, EffectLine(item));
         }
 
         static string KindName(string kind) => kind switch
@@ -194,7 +228,7 @@ namespace Game.Client
                 if (Ui.Button(new Rect(w - 106, y + 4, 100, 44), Strings.Get(hero.Back ? "row.back" : "row.front"), 13, true, hero.Back ? Look.Quiet : Look.Normal, hero.Name + " 줄"))
                     Act(() => a.SetRow(heroIndex, !hero.Back));
                 Ui.Tip(new Rect(w - 106, y + 4, 100, 44), "앞줄은 적의 무작위 공격을 받는다. 뒷줄은 힘·민첩 근접 공격의 위력이 25% 줄어든다.");
-                string stats = string.Join(" ", Enumerable.Range(0, Stats.Count).Select(i => $"{Stats.Name((Stat)i)} {hero.Stat((Stat)i)}"));
+                string stats = string.Join(" ", Enumerable.Range(0, Stats.Count).Select(i => $"{Stats.Name((Stat)i, Sheets)} {hero.Stat((Stat)i)}"));
                 Ui.Text(new Rect(48, y + 22, w - 160, 16), stats, 10.5f, Palette.Dim);
                 Ui.Text(new Rect(48, y + 38, w - 52, 16), $"무기: {hero.Weapon.Name} ({ItemLine(hero.Weapon)})", 11, Palette.Journal);
                 float sy = y + 56;
@@ -227,6 +261,7 @@ namespace Game.Client
                 var box = new Rect(0, y, w, 64);
                 Ui.Panel(box);
                 Ui.Text(new Rect(8, y + 2, w - 16, 20), item.Name, 13, Palette.Ink, TextAnchor.MiddleLeft, true);
+                ItemMark(new Rect(w - 26, y + 4, 18, 18), item);
                 Ui.Text(new Rect(8, y + 20, w - 16, 16), ItemLine(item), 10.5f, Palette.Dim);
                 float bx = 8;
                 for (int h = 0; h < a.Heroes.Count; h++)
@@ -246,7 +281,7 @@ namespace Game.Client
             }
             Ui.EndArea(_gearScroll);
             _gearHeight = y;
-            if (Ui.Button(new Rect((Ui.Width - 200) / 2, r.yMax - 54, 200, 46), Strings.Get("common.close"), 16, true, Look.Primary)) _gearOpen = false;
+            if (Ui.Button(new Rect((Ui.Width - 200) / 2, r.yMax - 54, 200, 46), Strings.Get("common.close"), 16, true, Look.Primary, null, KeyCode.Escape)) _gearOpen = false;
         }
 
         float _gearScroll;
@@ -281,14 +316,14 @@ namespace Game.Client
                 Ui.Face(card, Look.Normal);
                 Ui.Text(new Rect(card.x + 12, card.y + 6, card.width - 24, 24), upgrade.Name, 17, Palette.Ink, TextAnchor.MiddleLeft, true);
                 Ui.Text(new Rect(card.x + 12, card.y + 32, card.width - 24, card.height - 36), upgrade.Text, 13, Palette.Journal, TextAnchor.UpperLeft, false, true);
-                if (Ui.Hit(card, upgrade.Name, true, "강화"))
+                if (Ui.Hit(card, upgrade.Name, true, "강화", Ui.Number(i)))
                 {
                     int option = i;
                     if (Act(() => a.ChooseUpgrade(option)) == null) Sounds.Play(Sound.Level);
                 }
                 cy += Mathf.Min(ch, 120) + 8;
             }
-            if (waiting > 0 && Ui.Button(new Rect(r.x + 12, r.yMax - 56, w - 24, 46), Strings.Format("levelup.auto", waiting + 1), 14, true, Look.Quiet, "강화"))
+            if (waiting > 0 && Ui.Button(new Rect(r.x + 12, r.yMax - 56, w - 24, 46), Strings.Format("levelup.auto", waiting + 1), 14, true, Look.Quiet, "강화", KeyCode.A))
             {
                 for (int guard = 0; guard < 200 && a.LevelUp != null; guard++)
                     if (Act(() => a.ChooseUpgrade(0)) != null) break;

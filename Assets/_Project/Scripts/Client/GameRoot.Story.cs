@@ -124,7 +124,7 @@ namespace Game.Client
                 y += 20;
             }
             EndColumn(y);
-            if (Ui.Button(Footer(48), Strings.Get("common.continue"), 17, true, Look.Primary)) Act(_adventure.Continue);
+            if (Ui.Button(Footer(48), Strings.Get("common.continue"), 17, true, Look.Primary, null, KeyCode.Space)) Act(_adventure.Continue);
         }
 
         // Between two rooms of the dungeon.
@@ -140,8 +140,8 @@ namespace Game.Client
             if (_actError != null) y = Paragraph(column, y, _actError, 12, Palette.Damage);
             EndColumn(y);
             var footer = Footer(104);
-            if (Ui.Button(new Rect(footer.x, footer.y, footer.width, 48), Strings.Get("dungeon.delve"), 17, true, Look.Primary)) Act(a.Delve);
-            if (Ui.Button(new Rect(footer.x, footer.y + 56, footer.width, 48), Strings.Get("dungeon.leave"), 15, true, Look.Quiet)) Act(a.LeaveDungeon);
+            if (Ui.Button(new Rect(footer.x, footer.y, footer.width, 48), Strings.Get("dungeon.delve"), 17, true, Look.Primary, null, KeyCode.Space)) Act(a.Delve);
+            if (Ui.Button(new Rect(footer.x, footer.y + 56, footer.width, 48), Strings.Get("dungeon.leave"), 15, true, Look.Quiet, null, KeyCode.Escape)) Act(a.LeaveDungeon);
         }
 
         void DrawEvent()
@@ -157,8 +157,9 @@ namespace Game.Client
 
             if (picking == null)
             {
-                foreach (var choice in choices)
+                for (int ci = 0; ci < choices.Count; ci++)
                 {
+                    var choice = choices[ci];
                     bool affordable = _adventure.Affordable(choice);
                     string label = Label(choice);
                     float h = Ui.Short ? 44 : 50;
@@ -166,7 +167,7 @@ namespace Game.Client
                     Ui.Face(r, choice.ClassId != null ? Look.Selected : Look.Normal, affordable);
                     Ui.Text(new Rect(10, y + 2, column.width - 20, h * 0.55f), label, 14, affordable ? Palette.Ink : Palette.Dim, TextAnchor.MiddleLeft, true);
                     Ui.Text(new Rect(10, y + h * 0.52f, column.width - 20, h * 0.45f), Requirement(choice), 11, affordable ? Palette.Journal : Palette.Dim);
-                    if (Ui.Hit(r, choice.Label, affordable, "선택지")) PickChoice(choice);
+                    if (Ui.Hit(r, choice.Label, affordable, "선택지", Ui.Number(ci))) PickChoice(choice);
                     y += h + 6;
                 }
                 if (_eventError != null) y = Paragraph(column, y, _eventError, 12, Palette.Damage);
@@ -182,7 +183,7 @@ namespace Game.Client
                 int index = _adventure.Heroes.IndexOf(hero);
                 int resolve = index == _chooser ? _eventResolve : 0;
                 var odds = Adventure.Odds(picking, hero, resolve);
-                string chance = picking.FixedChance > 0 ? $"{picking.FixedChance}%" : $"{Stats.Name(picking.Stat.Value)} {Adventure.ChanceOf(picking, hero)}%";
+                string chance = picking.FixedChance > 0 ? $"{picking.FixedChance}%" : $"{Stats.Name(picking.Stat.Value, Sheets)} {Adventure.ChanceOf(picking, hero)}%";
                 string label = $"{hero.Name}: {chance} × {picking.Dice} → 성공 확률 {Percent(odds.AtLeast(picking.Need))}";
                 if (Ui.Button(new Rect(0, y, column.width, 44), label, 13.5f, true, index == _chooser ? Look.Selected : Look.Normal, hero.Name))
                 {
@@ -208,8 +209,8 @@ namespace Game.Client
 
             var footer = Footer(48);
             float half = (footer.width - 8) / 2;
-            if (Ui.Button(new Rect(footer.x, footer.y, half, footer.height), "다른 선택지", 15, true, Look.Quiet)) ResetEventView();
-            if (Ui.Button(new Rect(footer.x + half + 8, footer.y, half, footer.height), "굴려 본다", 17, _chooser >= 0, Look.Primary))
+            if (Ui.Button(new Rect(footer.x, footer.y, half, footer.height), "다른 선택지", 15, true, Look.Quiet, null, KeyCode.Escape)) ResetEventView();
+            if (Ui.Button(new Rect(footer.x + half + 8, footer.y, half, footer.height), "굴려 본다", 17, _chooser >= 0, Look.Primary, null, KeyCode.Space))
                 Choose(picking, _chooser, _eventResolve);
         }
 
@@ -221,7 +222,7 @@ namespace Game.Client
             int cost = Adventure.Cost(choice);
             string costText = cost > 0 ? $"금화 {cost}" + (_adventure.Gold < cost ? " (모자람)" : "") : "";
             if (!choice.HasCheck) return costText.Length > 0 ? costText : choice.ClassId != null ? "판정 없이 된다" : "판정 없음";
-            string stat = choice.FixedChance > 0 ? $"{choice.FixedChance}%" : Stats.Name(choice.Stat.Value);
+            string stat = choice.FixedChance > 0 ? $"{choice.FixedChance}%" : Stats.Name(choice.Stat.Value, Sheets);
             var best = _adventure.CanAttempt(choice).Select(h => Adventure.Odds(choice, h, 0).AtLeast(choice.Need)).DefaultIfEmpty(0).Max();
             return $"{stat} 주사위 {choice.Dice}개 · 성공 {choice.Need}개 이상 · 가장 잘하는 영웅 {Percent(best)}";
         }
@@ -278,7 +279,7 @@ namespace Game.Client
             y = Paragraph(column, y, result.Text);
             foreach (string line in result.Changes) y = Paragraph(column, y, "· " + line, 13, Palette.Journal);
             EndColumn(y);
-            if (Ui.Button(Footer(48), "계속", 17, true, Look.Primary)) Act(_adventure.Continue);
+            if (Ui.Button(Footer(48), Strings.Get("common.continue"), 17, true, Look.Primary, null, KeyCode.Space)) Act(_adventure.Continue);
         }
 
         // After a battle: rewards, levels, hope; or who fell.
@@ -291,7 +292,7 @@ namespace Game.Client
             float y = Heading(column, 4, won ? "전투 승리" : fled ? "도망쳤다" : "패배…", won ? Palette.Gold : fled ? Palette.Journal : Palette.Damage);
             foreach (string line in a.Report) y = Paragraph(column, y, "· " + line, 14);
             EndColumn(y);
-            if (Ui.Button(Footer(48), "계속", 17, true, Look.Primary)) Act(a.Continue);
+            if (Ui.Button(Footer(48), Strings.Get("common.continue"), 17, true, Look.Primary, null, KeyCode.Space)) Act(a.Continue);
         }
 
         string _shareNote;
@@ -347,7 +348,7 @@ namespace Game.Client
             float third = (footer.width - 16) / 3;
             bool retry = _retrySave != null && !won;
             float bw = retry ? third : (footer.width - 8) / 2;
-            if (Ui.Button(new Rect(footer.x, footer.y, bw, footer.height), "처음으로", 15, true, Look.Quiet)) BackToTitle();
+            if (Ui.Button(new Rect(footer.x, footer.y, bw, footer.height), "처음으로", 15, true, Look.Quiet, null, KeyCode.Escape)) BackToTitle();
             if (Ui.Button(new Rect(footer.x + bw + 8, footer.y, bw, footer.height), "같은 파티로 다시", 15, true, retry ? Look.Normal : Look.Primary))
             {
                 _shareNote = null;

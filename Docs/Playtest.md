@@ -30,7 +30,7 @@ node DevTools/WebPlaytest/playtest.js --url http://localhost:8000/
 4. 봇이 걸어 전투가 날 때까지(`autoplay`) → 합류 고르기 → [싸운다] → 물약·[도망] 단추가 있는지, 기술 단추를 길게 누르기(휴대폰)·가리키기(PC)로 설명이 나오는지(누른 것으로 치지 않는지), 진짜 명령 하나(대상, [굴리기], 주사위 연출 사진) → 나머지는 봇
 5. 레벨업 강화 고르기(나올 때까지 봇)
 6. 페이지를 새로 고친 뒤 [이어하기]: 같은 명령 수에서 이어지는지
-7. PC만: 줄(기사 앞줄·사냥꾼 뒷줄), 모닥불 대화 카드, 던전 방 사이 화면, 3장 지도 사진, 마을(상점 사진, [소문을 듣는다]로 안개가 걷히는지, 영웅에게 물약 사 주기), 캠페인 끝까지(중간 보스·보스 사진, 2장 이야기와 지도 사진, 끝 화면, 저장이 지워졌는지, 일지 페이지를 받았는지), 끝 화면의 [기록 복사]와 복사되는 기록(`share`), 타이틀의 [일지] 화면, 다다른 장(`reached 3`)으로 [시작: N장]·[길이] 단추를 눌러 2장 한 장짜리 판이 레벨 5로 시작하는지와 끝난 판이 비운 슬롯을 다시 쓰는지, [연습 판](쉬움·1장만·슬롯 0)
+7. PC만: 줄(기사 앞줄·사냥꾼 뒷줄), 모닥불 대화 카드, 던전 방 사이 화면, 3장 지도 사진, 마을(상점 사진, [소문을 듣는다]로 안개가 걷히는지, 영웅에게 물약 사 주기), 캠페인 끝까지(중간 보스·보스 사진, 2장 이야기와 지도 사진, 끝 화면, 저장이 지워졌는지, 일지 페이지를 받았는지), 끝 화면의 [기록 복사]와 복사되는 기록(`share`), 타이틀의 [일지] 화면, 다다른 장(`reached 3`)으로 [시작: N장]·[길이] 단추를 눌러 2장 한 장짜리 판이 레벨 5로 시작하는지와 끝난 판이 비운 슬롯을 다시 쓰는지, [연습 판](쉬움·1장만·슬롯 0, 안내가 `story`에서 시작해 PC에서 스페이스로 [계속]을 누른 뒤 `roll`로 넘어가는지), 일지의 도감
 
 ## 게임 쪽 원격 조종 (`Client/Playtest.cs`)
 
@@ -66,7 +66,7 @@ node DevTools/WebPlaytest/playtest.js --url http://localhost:8000/
 | `reached <n>`, `range <n> [one]` | 일지가 다다른 장, 파티 화면의 시작 장(1부터)과 한 장짜리 판 |
 | `share` | 끝 화면의 [기록 복사]가 복사하는 글(줄을 ` \| `로 이어서) |
 
-`report`에는 `slot`, `reached`, `startChapter`, `oneChapter`와, 모험 중이면 `firstChapter`, `lastChapter`, `combos`(그 파티의 조합 id)도 있다.
+`report`에는 `slot`, `reached`, `startChapter`, `oneChapter`와, 모험 중이면 `firstChapter`, `lastChapter`, `combos`(그 파티의 조합 id), `tutorial`(연습 판 안내의 지금 단계: story, roll, pick, move, join, skill, target, roll_battle, event, event_hero, event_roll, result, town, levelup)도 있다. 키보드는 시험 도구가 `page.keyboard.press`로 누른다.
 
 단추는 모두 `Ui.Button`이나 `Ui.Hit`를 거친다(`Ui.cs`). 시험이 `probe on`을 켜 두면 그린 단추를 기억하고, 시험 도구(`lib.js`의 `press`)는 그 자리를 진짜 클릭이나 탭으로 누른다. 새 단추도 이 둘로 만든다.
 

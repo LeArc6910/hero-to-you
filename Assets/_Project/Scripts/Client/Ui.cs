@@ -63,6 +63,74 @@ namespace Game.Client
             Views.Clear();
             StartProbe();
             TrackPress();
+            TrackKey();
+        }
+
+        // ---- Keys (PC, Docs/WebDemo.md 키보드): the key pressed in this event, taken by the first thing asking ----
+
+        static KeyCode _key;
+
+        static void TrackKey()
+        {
+            var e = Event.current;
+            _key = e.type == EventType.KeyDown ? e.keyCode : KeyCode.None;
+        }
+
+        // True once when `key` was pressed (Space also answers Enter). Nothing under a modal window answers.
+        public static bool Key(KeyCode key)
+        {
+            if (key == KeyCode.None || _key == KeyCode.None || !GUI.enabled) return false;
+            bool match = _key == key || (key == KeyCode.Space && (_key == KeyCode.Return || _key == KeyCode.KeypadEnter))
+                || (key == KeyCode.Minus && _key == KeyCode.KeypadMinus) || (key == KeyCode.Equals && _key == KeyCode.KeypadPlus);
+            if (!match) return false;
+            _key = KeyCode.None;
+            Event.current.Use();
+            return true;
+        }
+
+        // The number key for the n-th (0-based) item of a list: 1 to 9, then none.
+        public static KeyCode Number(int index) => index >= 0 && index < 9 ? KeyCode.Alpha1 + index : KeyCode.None;
+
+        static string KeyName(KeyCode key)
+        {
+            if (key >= KeyCode.Alpha0 && key <= KeyCode.Alpha9) return ((int)(key - KeyCode.Alpha0)).ToString();
+            if (key >= KeyCode.A && key <= KeyCode.Z) return key.ToString();
+            switch (key)
+            {
+                case KeyCode.Space: return "Space";
+                case KeyCode.Escape: return "Esc";
+                case KeyCode.Tab: return "Tab";
+                case KeyCode.Minus: return "−";
+                case KeyCode.Equals: return "+";
+                default: return "";
+            }
+        }
+
+        // ---- Glow: the button a guide wants pressed (GameRoot.Tutorial.cs), by its label's start or its row ----
+
+        public static string GlowLabel;
+        public static string GlowRow;
+        public static string[] GlowRows;
+
+        static bool Glows(string label, string row) =>
+            (GlowLabel != null && label != null && label.StartsWith(GlowLabel, System.StringComparison.Ordinal))
+            || (GlowRow != null && row == GlowRow)
+            || (GlowRows != null && row != null && System.Array.IndexOf(GlowRows, row) >= 0);
+
+        static void Glow(Rect r, string label, string row)
+        {
+            if (!Glows(label, row) || !GUI.enabled) return;
+            float t = Settings.LessMotion ? 1 : (Mathf.Sin(Time.unscaledTime * 5) + 1) / 2;
+            Frame(new Rect(r.x - 3, r.y - 3, r.width + 6, r.height + 6), Color.Lerp(Palette.Gold, Color.white, t * 0.6f), 2 + t);
+        }
+
+        // The key's name in a corner of a button, for mouse players (phones have no keys).
+        public static void KeyHint(Rect r, KeyCode key)
+        {
+            if (Touch || key == KeyCode.None || r.width < 40) return;
+            string name = KeyName(key);
+            if (name.Length == 0) return;
+            Text(new Rect(r.xMax - 40, r.y + 1, 37, 12), name, 8.5f, new Color(1, 1, 1, 0.42f), TextAnchor.UpperRight);
         }
 
         public static Texture2D White
@@ -213,12 +281,14 @@ namespace Game.Client
 
         // A button with its label. Returns true when pressed (released over it). `row` names what the button is
         // about for the playtests when the label alone is not enough ("기사" for a hero's [고르기]).
-        public static bool Button(Rect r, string label, float size = 16, bool enabled = true, Look look = Look.Normal, string row = null)
+        public static bool Button(Rect r, string label, float size = 16, bool enabled = true, Look look = Look.Normal, string row = null, KeyCode key = KeyCode.None)
         {
             Probe(label, row, r, enabled);
             Face(r, look, enabled);
             Text(new Rect(r.x + 4, r.y, r.width - 8, r.height), label, size, enabled ? Palette.Ink : Palette.Dim, TextAnchor.MiddleCenter, look == Look.Primary);
-            return Clicked(r, enabled);
+            if (enabled) KeyHint(r, key);
+            if (enabled) Glow(r, label, row);
+            return Clicked(r, enabled) || (enabled && Key(key));
         }
 
         // A button's background and edge, for buttons that draw their own label (Hit makes them pressable).
@@ -240,10 +310,12 @@ namespace Game.Client
         }
 
         // An invisible button over something already drawn (a unit to target, a card).
-        public static bool Hit(Rect r, string label, bool enabled = true, string row = null)
+        public static bool Hit(Rect r, string label, bool enabled = true, string row = null, KeyCode key = KeyCode.None)
         {
             Probe(label, row, r, enabled);
-            return Clicked(r, enabled);
+            if (enabled) KeyHint(r, key);
+            if (enabled) Glow(r, label, row);
+            return Clicked(r, enabled) || (enabled && Key(key));
         }
 
         static bool Clicked(Rect r, bool enabled)

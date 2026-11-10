@@ -240,7 +240,7 @@ namespace Game.Client
             StatusKind.Howl => "울부짖음",
             _ when e.Text != null && e.Text.Contains("축복") => "축복",
             _ when e.Text != null && e.Text.Contains("행운") => "행운",
-            _ => StatusNames.Name(e.Status),
+            _ => StatusNames.Name(e.Status, Sheets),
         };
 
         void Float(int unit, string text, Color color)
@@ -463,7 +463,7 @@ namespace Game.Client
 
         static string StatusLine(Unit unit, Battle battle)
         {
-            var parts = unit.Status.Keys.Select(k => k == StatusKind.Taunt ? $"도발(방어+{unit.TauntArmor})" : StatusNames.Name(k)).ToList();
+            var parts = unit.Status.Keys.Select(k => k == StatusKind.Taunt ? $"도발(방어+{unit.TauntArmor})" : StatusNames.Name(k, Sheets)).ToList();
             if (unit.GuardedBy >= 0) parts.Add("수호받음");
             if (unit.GuardTarget >= 0) parts.Add("수호 중");
             return string.Join(" ", parts);
@@ -484,7 +484,25 @@ namespace Game.Client
             Ui.Frame(r, Palette.WithAlpha(Palette.Intent, 0.7f), 1);
             Ui.Text(new Rect(r.x + 3, r.y, r.width - 6, r.height * 0.55f), what, 10.5f, Palette.Intent, TextAnchor.MiddleCenter, true);
             Ui.Text(new Rect(r.x + 3, r.y + r.height * 0.5f, r.width - 6, r.height * 0.5f), dice, 9.5f, Palette.Ink, TextAnchor.MiddleCenter);
+            // A boss rule on this blow: a mark, a gold edge, and what it does on a long press.
+            string rule = RuleIcon(intent.Skill.Effect);
+            if (rule != null)
+            {
+                Ui.Frame(r, Palette.Gold, 2);
+                Ui.Image(new Rect(r.xMax - 15, r.y + 1, 13, 13), PixelArt.Icon(rule));
+                Ui.Tip(r, Strings.Get("rule." + intent.Skill.Effect) + "\n" + intent.Skill.Text);
+            }
         }
+
+        static string RuleIcon(string effect) => effect switch
+        {
+            "seal" => "lock",
+            "erase" => "erase",
+            "freeze" => "ice",
+            "scorch" => "flame",
+            "daze" => "daze",
+            _ => null,
+        };
 
         void DrawFloaters()
         {
@@ -608,7 +626,7 @@ namespace Game.Client
             var inner = new Rect(r.x + 8, r.y + 6, r.width - 16, r.height - 12);
             // Auto battle: the bot gives the heroes' commands until it is switched off again.
             var autoRect = new Rect(inner.xMax - 92, inner.y, 92, 44);
-            if (Ui.Button(autoRect, Strings.Get(_autoBattle ? "battle.auto_on" : "battle.auto_off"), 12.5f, !battle.Over, _autoBattle ? Look.Selected : Look.Quiet, "자동")) _autoBattle = !_autoBattle;
+            if (Ui.Button(autoRect, Strings.Get(_autoBattle ? "battle.auto_on" : "battle.auto_off"), 12.5f, !battle.Over, _autoBattle ? Look.Selected : Look.Quiet, "자동", KeyCode.A)) _autoBattle = !_autoBattle;
             Ui.Tip(autoRect, Strings.Get("battle.auto_tip"));
             if (!AwaitingHero)
             {
@@ -651,9 +669,20 @@ namespace Game.Client
             for (int i = 0; i < skills.Count; i++)
             {
                 var cell = new Rect(inner.x + i % columns * (bw + 6), y + i / columns * (bh + 5), bw, bh);
-                DrawSkillButton(cell, battle, actor, skills[i]);
+                DrawSkillButton(cell, battle, actor, skills[i], Ui.Number(i));
             }
             y += (skills.Count + columns - 1) / columns * (bh + 5) + 2;
+
+            // Tab picks the next target (Docs/WebDemo.md 키보드).
+            if (NeedsTarget(battle) && Ui.Key(KeyCode.Tab))
+            {
+                var targets = battle.Targets(actor, SkillDef(actor, _skill)).ToList();
+                if (targets.Count > 0)
+                {
+                    int at = targets.FindIndex(u => u.Id == _target);
+                    _target = targets[(at + 1) % targets.Count].Id;
+                }
+            }
 
             // Resolve can only cover the dice not already sure (a new target may bring a mark or a combo).
             int resolveRoom = battle.Preview(new BattleCommand(actor.Id, _skill, _target, 0)).ResolveRoom;
@@ -683,9 +712,9 @@ namespace Game.Client
             {
                 float rh = 34;
                 Ui.Text(new Rect(inner.x, y, 70, rh), "결의 쓰기", 12, Palette.Resolve, TextAnchor.MiddleLeft, true);
-                if (Ui.Button(new Rect(inner.x + 72, y, 44, rh), "−", 18, _resolve > 0)) _resolve--;
+                if (Ui.Button(new Rect(inner.x + 72, y, 44, rh), "−", 18, _resolve > 0, Look.Normal, null, KeyCode.Minus)) _resolve--;
                 Ui.Text(new Rect(inner.x + 118, y, 54, rh), $"{_resolve}/{preview.ResolveRoom}", 14, Palette.Ink, TextAnchor.MiddleCenter, true);
-                if (Ui.Button(new Rect(inner.x + 174, y, 44, rh), "+", 18, _resolve < preview.ResolveRoom)) _resolve++;
+                if (Ui.Button(new Rect(inner.x + 174, y, 44, rh), "+", 18, _resolve < preview.ResolveRoom, Look.Normal, null, KeyCode.Equals)) _resolve++;
                 y += rh + 4;
                 Ui.Text(new Rect(inner.x, y, inner.width, 16), $"성공 {preview.Need}개 이상일 확률 {Percent(preview.Odds.AtLeast(preview.Need))}", 13, Palette.Ink, TextAnchor.MiddleLeft, true);
             }
@@ -694,9 +723,9 @@ namespace Game.Client
                 // Resolve: − n/room +
                 float rh = 34;
                 Ui.Text(new Rect(inner.x, y, 70, rh), "결의 쓰기", 12, Palette.Resolve, TextAnchor.MiddleLeft, true);
-                if (Ui.Button(new Rect(inner.x + 72, y, 44, rh), "−", 18, _resolve > 0)) _resolve--;
+                if (Ui.Button(new Rect(inner.x + 72, y, 44, rh), "−", 18, _resolve > 0, Look.Normal, null, KeyCode.Minus)) _resolve--;
                 Ui.Text(new Rect(inner.x + 118, y, 54, rh), $"{_resolve}/{preview.ResolveRoom}", 14, Palette.Ink, TextAnchor.MiddleCenter, true);
-                if (Ui.Button(new Rect(inner.x + 174, y, 44, rh), "+", 18, _resolve < preview.ResolveRoom)) _resolve++;
+                if (Ui.Button(new Rect(inner.x + 174, y, 44, rh), "+", 18, _resolve < preview.ResolveRoom, Look.Normal, null, KeyCode.Equals)) _resolve++;
                 y += rh + 4;
                 DrawOdds(new Rect(inner.x, y, inner.width, inner.yMax - rollH - 6 - y), preview, skill);
             }
@@ -711,7 +740,7 @@ namespace Game.Client
 
             if (_battleError != null) Ui.Text(new Rect(inner.x, inner.yMax - rollH - 20, inner.width, 18), _battleError, 11, Palette.Damage);
             string go = preview.Ok && preview.Dice > 0 ? $"{Strings.Get("battle.roll")} ({preview.Dice}개)" : Strings.Get("battle.use");
-            if (Ui.Button(new Rect(inner.x, inner.yMax - rollH, inner.width, rollH), go, 17, preview.Ok, Look.Primary))
+            if (Ui.Button(new Rect(inner.x, inner.yMax - rollH, inner.width, rollH), go, 17, preview.Ok, Look.Primary, null, KeyCode.Space))
             {
                 var command = new BattleCommand(actor.Id, _skill, _target, _resolve);
                 string error = Act(() => _adventure.Fight(command));
@@ -775,7 +804,7 @@ namespace Game.Client
             Ui.Text(new Rect(x + 54, r.y, 40, r.height), $"{hero.Grit}/{hero.GritCap}", 10, Palette.Dim);
         }
 
-        void DrawSkillButton(Rect cell, Battle battle, Unit actor, string id)
+        void DrawSkillButton(Rect cell, Battle battle, Unit actor, string id, KeyCode key)
         {
             bool selected = _skill == id;
             if (BattleCommand.IsUse(id))
@@ -783,26 +812,33 @@ namespace Game.Client
                 var item = ItemOf(id);
                 int count = item == null ? 0 : actor.Hero.Count(item.Id);
                 string name = item?.Name ?? id;
-                if (Ui.Button(cell, $"{name} ({count})", 13, count > 0, selected ? Look.Selected : Look.Quiet, "소모품")) Select(battle, id);
+                if (Ui.Button(cell, $"{name} ({count})", 13, count > 0, selected ? Look.Selected : Look.Quiet, "소모품", key)) Select(battle, id);
                 return;
             }
             if (id == BattleCommand.Flee)
             {
-                if (Ui.Button(cell, $"{Strings.Get("battle.flee")} (민첩 {Dice.ClampChance(actor.Hero.Stat(Stat.Agility))}%)", 13, true, selected ? Look.Selected : Look.Danger)) Select(battle, id);
+                if (Ui.Button(cell, $"{Strings.Get("battle.flee")} (민첩 {Dice.ClampChance(actor.Hero.Stat(Stat.Agility))}%)", 13, true, selected ? Look.Selected : Look.Danger, null, key)) Select(battle, id);
                 return;
             }
             var skill = SkillDef(actor, id);
             int wait = battle.Cooldown(actor, skill);
             int dice = battle.DiceOf(actor, skill);
-            string detail = !skill.Rolls ? "주사위 없음" : skill.FixedChance > 0 ? $"{skill.FixedChance}% × {dice}" : $"{Stats.Name(skill.Stat.Value)} {battle.ChanceOf(actor, skill)}% × {dice}";
+            string detail = !skill.Rolls ? "주사위 없음" : skill.FixedChance > 0 ? $"{skill.FixedChance}% × {dice}" : $"{Stats.Name(skill.Stat.Value, Sheets)} {battle.ChanceOf(actor, skill)}% × {dice}";
             if (skill.CostKind == "reagent") detail += $" · 재료 {skill.CostAmount}";
             if (skill.CostKind == "soul") detail += $" · 영혼 {skill.CostAmount}";
-            if (wait > 0) detail = $"대기 {wait}";
+            // A skill a boss took away says so, with its mark (Docs/Combat.md 보스의 고유 규칙).
+            string blocked = battle.BlockedBy(actor, skill);
+            if (wait > 0) detail = blocked != null ? Strings.Format("battle.blocked_" + blocked, wait) : $"대기 {wait}";
             Ui.Face(cell, selected ? Look.Selected : Look.Normal, wait == 0);
+            if (blocked != null)
+            {
+                Ui.Frame(cell, Palette.Damage, 2);
+                Ui.Image(new Rect(cell.x + 3, cell.y + 3, 14, 14), PixelArt.Icon(blocked == "seal" ? "lock" : "erase"));
+            }
             Ui.Text(new Rect(cell.x + 4, cell.y + 3, cell.width - 8, cell.height * 0.5f), skill.Name, 13, wait == 0 ? Palette.Ink : Palette.Dim, TextAnchor.MiddleCenter, true);
-            Ui.Text(new Rect(cell.x + 4, cell.y + cell.height * 0.5f, cell.width - 8, cell.height * 0.45f), detail, 10.5f, wait == 0 ? Palette.Journal : Palette.Dim, TextAnchor.MiddleCenter);
-            if (Ui.Hit(cell, skill.Name, wait == 0, "기술")) Select(battle, id);
-            Ui.Tip(cell, skill.Text + (skill.PerfectText.Length > 0 ? " " + skill.PerfectText + "." : ""));
+            Ui.Text(new Rect(cell.x + 4, cell.y + cell.height * 0.5f, cell.width - 8, cell.height * 0.45f), detail, 10.5f, blocked != null ? Palette.Damage : wait == 0 ? Palette.Journal : Palette.Dim, TextAnchor.MiddleCenter);
+            if (Ui.Hit(cell, skill.Name, wait == 0, "기술", key)) Select(battle, id);
+            Ui.Tip(cell, (blocked != null ? Strings.Get("battle.blocked_tip_" + blocked) + "\n" : "") + skill.Text + (skill.PerfectText.Length > 0 ? " " + skill.PerfectText + "." : ""));
         }
 
         // The chance of each number of successes as columns, with what each gives.

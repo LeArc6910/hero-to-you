@@ -56,11 +56,15 @@ namespace Game.Client
         }
 
         // The sheets, in the language the settings name (Docs/Localization.md); again when it changes.
+        // The loaded sheets for the static helpers that name things (stats, statuses, terrain) in their language.
+        internal static GameData Sheets { get; private set; }
+
         internal void ReloadData()
         {
             try
             {
                 _data = GameData.Load(path => Sheet(path), Settings.Language);
+                Sheets = _data;
                 _loadError = null;
             }
             catch (Exception e)
@@ -164,7 +168,7 @@ namespace Game.Client
             }
             Ui.EndArea(_historyScroll);
             if (_history.Count == 0) Ui.Text(area, Strings.Get("history.empty"), 13, Palette.Dim, TextAnchor.MiddleCenter);
-            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 56, 180, 46), Strings.Get("common.close"), 16, true, Look.Primary, "기록")) _historyOpen = false;
+            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 56, 180, 46), Strings.Get("common.close"), 16, true, Look.Primary, "기록", KeyCode.Escape)) _historyOpen = false;
         }
 
         // ---- Bug report (Docs/Playtest.md 버그 제보): the save as text, to copy or download and send ----
@@ -205,7 +209,7 @@ namespace Game.Client
                 y += 54;
             }
             if (_reportNote != null) Ui.Text(new Rect(r.x + 14, y, w - 28, 40), _reportNote, 12, Palette.Journal, TextAnchor.UpperLeft, false, true);
-            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 56, 180, 46), Strings.Get("common.close"), 16, true, Look.Primary, "제보"))
+            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 56, 180, 46), Strings.Get("common.close"), 16, true, Look.Primary, "제보", KeyCode.Escape))
             {
                 _reportOpen = false;
                 _reportNote = null;
@@ -246,6 +250,7 @@ namespace Game.Client
             // cannot be pressed.
             bool talk = TalkWaiting;
             bool modal = _tipOpen != null || talk || _historyOpen || _reportOpen;
+            PrepareTutorial();
             if (modal) GUI.enabled = false;
             switch (_screen)
             {
@@ -269,6 +274,7 @@ namespace Game.Client
                     break;
             }
             GUI.enabled = true;
+            if (!modal) DrawTutorial();
             if (_tipOpen != null) DrawTipCard();
             else if (_reportOpen) DrawBugReport();
             else if (_historyOpen) DrawHistory();
@@ -301,7 +307,7 @@ namespace Game.Client
             Ui.Panel(r, Palette.Panel, Palette.Gold);
             Ui.Text(new Rect(r.x + 16, r.y + 10, w - 32, 28), title, 19, Palette.Gold, TextAnchor.MiddleLeft, true);
             Ui.Text(new Rect(r.x + 16, r.y + 44, w - 32, h - 110), text, 14, Palette.Ink, TextAnchor.UpperLeft, false, true);
-            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 56, 180, 46), Strings.Get("common.ok"), 16, true, Look.Primary, "도움말")) _tipOpen = null;
+            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 56, 180, 46), Strings.Get("common.ok"), 16, true, Look.Primary, "도움말", KeyCode.Space) || Ui.Key(KeyCode.Escape)) _tipOpen = null;
         }
 
         static void DrawBackground()
@@ -489,7 +495,7 @@ namespace Game.Client
         // A hero in a few lines, for the long-press tip on the party strip.
         string HeroTip(Hero hero)
         {
-            string stats = string.Join(" ", Enumerable.Range(0, Stats.Count).Select(i => $"{Stats.Name((Stat)i)} {hero.Stat((Stat)i)}"));
+            string stats = string.Join(" ", Enumerable.Range(0, Stats.Count).Select(i => $"{Stats.Name((Stat)i, Sheets)} {hero.Stat((Stat)i)}"));
             string carried = string.Join(", ", hero.Consumables.Where(c => c.Value > 0).Select(c => $"{(_data.Items.TryGetValue(c.Key, out var item) ? item.Name : c.Key)} {c.Value}"));
             string wounds = hero.Wounds > 0 ? $"\n상처 {hero.Wounds}/{Hero.MaxWounds}: 최대 생명력 −{Hero.WoundPercent * hero.Wounds}% (여관에서 낫는다)" : "";
             return $"{hero.Name} Lv{hero.Level} (경험치 {hero.Xp}, 다음까지 {hero.XpToNext}) · {Strings.Get(hero.Back ? "row.back" : "row.front")}\n{stats}\n방어도 {hero.ArmorValue} · 결의 {hero.Resolve}/{hero.MaxResolve} · 끈기 {hero.Grit}/{hero.GritCap}{wounds}\n{hero.Class.Mechanic}" + (carried.Length > 0 ? "\n소모품: " + carried : "");
@@ -539,7 +545,7 @@ namespace Game.Client
                 Ui.Text(new Rect(r.x + 58, y + 17, lineW, th), text, 13.5f, Palette.Ink, TextAnchor.UpperLeft, false, true);
                 y += Mathf.Max(40, th + 22);
             }
-            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 54, 180, 46), Strings.Get("common.continue"), 16, true, Look.Primary, "대화")) _talksShown++;
+            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 54, 180, 46), Strings.Get("common.continue"), 16, true, Look.Primary, "대화", KeyCode.Space)) _talksShown++;
         }
 
         // ---- The journal (Docs/Journal.md) ----

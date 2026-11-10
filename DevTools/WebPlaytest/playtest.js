@@ -302,6 +302,7 @@ async function playSlice(game, wholeRun) {
   run.check(!!state, '일지 화면');
   await game.shot('journal', '일지: 페이지, 장, 찾은 옛 메모');
   run.check((await game.allText()).includes('업적'), '일지에 업적과 직업별 기록이 있다');
+  run.check((await game.allText()).includes('도감'), '일지에 도감(몬스터·장비·조합·결말)이 있다');
   await game.press('뒤로');
 
   // A later start: the chapter reached shows on the party screen and the run starts there.
@@ -325,6 +326,21 @@ async function playSlice(game, wholeRun) {
   run.check(await game.press('연습 판'), '[연습 판]을 누를 수 있다');
   state = await game.until(s => s.adventure === 'Story', 5000);
   run.check(state && state.slot === 0 && state.difficulty === 'Easy' && state.lastChapter === 0, '연습 판은 쉬움, 1장만, 따로 저장된다');
+  run.check(state && state.tutorial === 'story', `연습 판의 안내가 첫 단계를 보인다 (${state && state.tutorial})`);
+  await game.shot('tutorial-story', '연습 판 안내: 이야기');
+  // The keyboard (PC): Space is the screen's main button.
+  if (!game.touch) {
+    await game.page.keyboard.press('Space');
+    state = await game.until(s => s.adventure === 'Map', 4000);
+    run.check(!!state, 'PC에서 스페이스로 [계속]을 누른다');
+  } else {
+    await game.press('계속');
+    state = await game.until(s => s.adventure === 'Map', 4000);
+  }
+  if (await game.press('알겠다', '도움말', { quiet: true })) await game.wait(300);
+  state = await game.state();
+  run.check(state.tutorial === 'roll', `안내가 다음 단계(이동 굴리기)로 넘어간다 (${state.tutorial})`);
+  await game.shot('tutorial-map', '연습 판 안내: 지도에서 이동 굴리기');
   await game.send('tips off; title');
 }
 

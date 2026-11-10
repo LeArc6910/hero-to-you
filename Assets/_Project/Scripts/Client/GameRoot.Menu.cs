@@ -165,7 +165,7 @@ namespace Game.Client
                 }
                 y += rowH + 6;
             }
-            if (Ui.Button(backRect, Strings.Get("common.back"), 16, true, Look.Primary))
+            if (Ui.Button(backRect, Strings.Get("common.back"), 16, true, Look.Primary, null, KeyCode.Escape))
             {
                 _slotsNote = null;
                 _slotConfirm = -1;
@@ -181,6 +181,7 @@ namespace Game.Client
         internal void StartPractice()
         {
             Tips.Reset();
+            TutorialAgain();
             SaveStore.Slot = SaveStore.PracticeSlot;
             StartRun(PracticeParty, PracticeSeed, new List<string>(), Difficulty.Easy, false, 0, 0);
         }
@@ -243,7 +244,7 @@ namespace Game.Client
             }
             Ui.EndArea(_settingsScroll);
             _settingsHeight = y;
-            if (Ui.Button(new Rect((Ui.Width - 200) / 2, Ui.Height - 56, 200, 46), Strings.Get("settings.back"), 16, true, Look.Primary))
+            if (Ui.Button(new Rect((Ui.Width - 200) / 2, Ui.Height - 56, 200, 46), Strings.Get("settings.back"), 16, true, Look.Primary, null, KeyCode.Escape))
             {
                 _settingsNote = null;
                 _screen = ClientScreen.Title;
@@ -335,10 +336,10 @@ namespace Game.Client
 
             float by = Ui.Height - 50;
             float bw = Mathf.Min(200, (Ui.Width - 40) / 3);
-            if (Ui.Button(new Rect(12, by, bw, 44), Strings.Get("party.back"), 15, true, Look.Quiet)) _screen = ClientScreen.Title;
+            if (Ui.Button(new Rect(12, by, bw, 44), Strings.Get("party.back"), 15, true, Look.Quiet, null, KeyCode.Escape)) _screen = ClientScreen.Title;
             if (Ui.Button(new Rect(20 + bw, by, bw, 44), Strings.Get("party.random"), 15)) PickRandomParty();
             string start = _party.Count == 3 ? Strings.Get("party.start") : $"{Strings.Get("party.start")} ({_party.Count}/3)";
-            if (Ui.Button(new Rect(Ui.Width - 12 - bw, by, bw, 44), start, 16, _party.Count == 3, Look.Primary)) StartAdventure(_party);
+            if (Ui.Button(new Rect(Ui.Width - 12 - bw, by, bw, 44), start, 16, _party.Count == 3, Look.Primary, null, KeyCode.Space)) StartAdventure(_party);
         }
 
         // ---- The journal: pages, perks to unlock and take along, the old notes found (Docs/Journal.md) ----
@@ -402,6 +403,9 @@ namespace Game.Client
                 y = Paragraph(column, y, $"{card.Title} — {card.Journal}", 12.5f, Palette.Journal);
             }
             if (found < noted.Count) y = Paragraph(column, y, $"아직 찾지 못한 메모가 {noted.Count - found}개 있다. 길 위의 사건에서 찾는다.", 12, Palette.Dim);
+            // The codex (Docs/Journal.md 도감): what any run has met, the rest still ???.
+            y += 6;
+            y = DrawCodex(column, y, journal);
             // Achievements and the classes' records (Docs/Journal.md 업적).
             y += 6;
             var achievements = _data.Achievements;
@@ -417,7 +421,36 @@ namespace Game.Client
                 y = Paragraph(column, y, $"{cls.Name}: 모험 {journal.RunsWith(cls.Id)} · 끝까지 {journal.WinsWith(cls.Id)}", 12.5f, journal.WinsWith(cls.Id) > 0 ? Palette.Journal : Palette.Dim);
             Ui.EndArea(_journalScroll);
             _journalHeight = y + 8;
-            if (Ui.Button(new Rect((Ui.Width - 200) / 2, Ui.Height - 56, 200, 46), Strings.Get("common.back"), 16, true, Look.Primary)) _screen = ClientScreen.Title;
+            if (Ui.Button(new Rect((Ui.Width - 200) / 2, Ui.Height - 56, 200, 46), Strings.Get("common.back"), 16, true, Look.Primary, null, KeyCode.Escape)) _screen = ClientScreen.Title;
+        }
+
+        float DrawCodex(Rect column, float y, Journal journal)
+        {
+            var summons = new[] { GameData.SkeletonId, GameData.CompanionWolfId, GameData.TurretId };
+            var monsters = _data.Monsters.Values.Where(m => !summons.Contains(m.Id)).ToList();
+            var items = _data.ItemList.Where(i => !i.Consumable).ToList();
+            var combos = _data.Combos;
+            int endingsAll = _data.Chapters.Sum(c => new[] { c.Epilogue, c.EpilogueKind, c.EpilogueGrim }.Count(id => !string.IsNullOrEmpty(id)));
+            var seenMonsters = journal.Codex("monsters");
+            var seenItems = journal.Codex("items");
+            var seenCombos = journal.Codex("combos");
+            var stories = journal.Codex("stories");
+            y = Heading(column, y, Strings.Format("codex.heading", seenMonsters.Count(id => monsters.Any(m => m.Id == id)) + seenItems.Count(id => items.Any(i => i.Id == id)) + seenCombos.Count + journal.EndingsSeen(_data), monsters.Count + items.Count + combos.Count + endingsAll));
+            string Names<T>(IEnumerable<T> all, System.Func<T, string> id, System.Func<T, string> name, IReadOnlyCollection<string> seen) =>
+                string.Join(", ", all.Select(x => seen.Contains(id(x)) ? name(x) : "???"));
+            y = Paragraph(column, y, Strings.Format("codex.monsters", seenMonsters.Count(id => monsters.Any(m => m.Id == id)), monsters.Count), 13, Palette.Gold);
+            y = Paragraph(column, y, Names(monsters, m => m.Id, m => m.Name, seenMonsters), 11.5f, Palette.Journal);
+            y = Paragraph(column, y, Strings.Format("codex.items", seenItems.Count(id => items.Any(i => i.Id == id)), items.Count), 13, Palette.Gold);
+            y = Paragraph(column, y, Names(items, i => i.Id, i => i.Name, seenItems), 11.5f, Palette.Journal);
+            y = Paragraph(column, y, Strings.Format("codex.combos", seenCombos.Count, combos.Count), 13, Palette.Gold);
+            y = Paragraph(column, y, Names(combos, c => c.Id, c => $"{c.Name}({string.Join("·", c.Classes.Select(cls => _data.Classes[cls].Name))})", seenCombos), 11.5f, Palette.Journal);
+            y = Paragraph(column, y, Strings.Format("codex.endings", journal.EndingsSeen(_data), endingsAll), 13, Palette.Gold);
+            foreach (var chapter in _data.Chapters)
+            {
+                string Mark(string id, string kind) => string.IsNullOrEmpty(id) ? "" : (stories.Contains(id) ? "★" : "☆") + Strings.Get("codex.ending_" + kind);
+                y = Paragraph(column, y, $"{chapter.Index + 1}. {chapter.Title} — {string.Join(" ", new[] { Mark(chapter.EpilogueKind, "kind"), Mark(chapter.Epilogue, "plain"), Mark(chapter.EpilogueGrim, "grim") }.Where(m => m.Length > 0))}", 11.5f, Palette.Journal);
+            }
+            return y;
         }
 
         void DrawClassCard(Rect card, ClassDef cls)

@@ -40,7 +40,7 @@
 
 ## 도감 (2026-11-10)
 
-판이 끝나면 그 판에서 싸운 몬스터, 얻거나 든 장비, 가진 조합, 읽은 이야기 장이 일지의 도감에 모인다(`Journal.Codex`, `journal.txt`의 `codex_monsters`·`codex_items`·`codex_combos`·`codex_stories` 줄). 결말은 장의 끝 이야기(보통·다정·쓸쓸) 가운데 읽은 것을 센다(`EndingsSeen`). 일지 화면의 도감 칸에 종류마다 모은 수와 이름이 보이고, 아직 못 본 것은 ???로 남는다.
+판이 끝나면 그 판에서 싸운 몬스터, 얻거나 든 장비, 가진 조합, 읽은 이야기 장이 일지의 도감에 모인다(`Journal.Codex`, `journal.txt`의 `codex_monsters`·`codex_items`·`codex_combos`·`codex_stories` 줄). 결말은 장의 끝 이야기(보통·다정·쓸쓸) 가운데 읽은 것을 센다(`EndingsSeen`). 일지 화면의 도감 칸에 종류마다 모은 수와 이름이 보이고, 아직 못 본 것은 ???로 남는다. 결말은 장마다 다정·보통·쓸쓸 셋을 ★(본 것)·☆(아직)로 보인다.
 
 ## 새 업적과 그 장 (2026-11-10)
 

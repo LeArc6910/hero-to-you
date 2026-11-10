@@ -354,7 +354,7 @@ namespace Game.Client
                     .Add("hardcore", adventure.Hardcore).Add("auto", _autoBattle).Add("history", _history.Count).Add("canRetry", _retrySave != null)
                     .Add("reportOpen", _reportOpen).Add("historyOpen", _historyOpen)
                     .Add("firstChapter", adventure.FirstChapter).Add("lastChapter", adventure.LastChapter)
-                    .Add("combos", string.Join(",", adventure.Combos.Select(c => c.Id)));
+                    .Add("combos", string.Join(",", adventure.Combos.Select(c => c.Id))).Add("tutorial", TutorialStep);
                 json.List("heroes");
                 foreach (var hero in adventure.Heroes)
                     json.Open().Add("class", hero.Class.Id).Add("level", hero.Level).Add("hp", hero.Hp).Add("max", hero.MaxHp)
