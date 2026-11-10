@@ -480,6 +480,8 @@ namespace Game.Client
         static void Probe(string label, string row, Rect r, bool enabled)
         {
             if (!Probing || Event.current.type != EventType.Repaint) return;
+            // Under a modal card nothing can be pressed, whatever the button itself says.
+            enabled &= GUI.enabled;
             var screen = new Rect(Origins.Peek() + r.position, r.size);
             bool shown = Views.Count == 0 || Views.Peek().Contains(screen.center);
             // Inside a scrolled list only the part in view can be pressed: that is the button's rect for the tests.

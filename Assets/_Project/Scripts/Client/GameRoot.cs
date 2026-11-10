@@ -427,6 +427,12 @@ namespace Game.Client
             };
             if (first != null) FirstTip(first);
             if (first == "wounds") FirstTip("map");
+            // The level-up card and the gear window sit over the screen: what is under them is drawn but cannot be
+            // pressed (on a wide phone the card's last button lies right over the result's [계속]).
+            bool levelUp = adventure.LevelUp != null;
+            bool gear = _gearOpen && (adventure.Screen == AdventureScreen.Map || adventure.Screen == AdventureScreen.Town);
+            bool was = GUI.enabled;
+            if (levelUp || gear) GUI.enabled = false;
             switch (adventure.Screen)
             {
                 case AdventureScreen.Story:
@@ -458,8 +464,10 @@ namespace Game.Client
                     DrawEnd();
                     break;
             }
-            if (_gearOpen && (adventure.Screen == AdventureScreen.Map || adventure.Screen == AdventureScreen.Town)) DrawGear();
-            if (adventure.LevelUp != null) DrawLevelUp();
+            GUI.enabled = was && !levelUp;
+            if (gear) DrawGear();
+            GUI.enabled = was;
+            if (levelUp) DrawLevelUp();
         }
 
         // The party strip along the top of the non-battle screens: each hero's health, resolve and potions, then

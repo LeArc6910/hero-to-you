@@ -242,10 +242,14 @@ async function playSlice(game, wholeRun) {
   // The town, then the rest of the chapter by the bot.
   state = await autoplayUntil(game, s => s.adventure === 'Map' && !s.levelUp && s.movePoints < 0, 60);
   if (state) {
-    await game.send('goto town; roll');
-    const town = await game.find('2,2', '칸');
+    // The chapter has three maps picked by the seed: ask where this one's town is.
+    const answer = (await game.send('goto town')).reverse().find(l => l.startsWith('goto ')) || '';
+    const townHex = answer.trim().split(' ').pop();
+    await game.send('roll');
+    const town = await game.find(townHex, '칸');
+    run.check(town.length > 0, `마을 칸(${townHex})이 지도에 있다`);
     if (town.length > 0) {
-      await game.press('2,2', '칸');
+      await game.press(townHex, '칸');
       await game.press('이동');
       state = await game.until(s => s.adventure === 'Town', 4000);
       run.check(!!state, '마을에 들어간다');
@@ -255,7 +259,7 @@ async function playSlice(game, wholeRun) {
         state = await game.state();
         run.check(state.unknown < unknown, `소문으로 안개 속을 알게 된다 (${unknown} → ${state.unknown})`);
       }
-      const potions = state.heroes[state.mapHero].potions;
+      const potions = state ? state.heroes[state.mapHero].potions : 0;
       if (await game.press(/에게 \(/, '회복 물약', { quiet: true })) {
         state = await game.state();
         run.check(state.heroes.some(h => h.potions > potions) || state.gold >= 0, '상점에서 영웅에게 물약을 사 준다');

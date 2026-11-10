@@ -118,7 +118,8 @@ namespace Game.Client
                     };
                     var near = where.Neighbors().FirstOrDefault(h => _adventure.Map.Def.Passable(h) && !_adventure.Map.Stops(_adventure.Map.Tile(h)));
                     _adventure.Teleport(_adventure.MapHero, near);
-                    return $"ok {near}";
+                    // The place itself last: the chapter's maps differ by seed, so the test asks where it is.
+                    return $"ok {near} {where}";
                 case "autoplay":
                     // The adventure bot plays this many steps (whole battles count one step each command).
                     // "autoplay 20 camp" stops when the camp between two chapters opens (Docs/Narrative.md 막간).
