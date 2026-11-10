@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Draws the game's code-drawn pixel art (Assets/_Project/Scripts/Client/Art/PixelArt.cs) into one PNG, to look at
 without Unity. Reads the same letter rows and palette the game does. Fails when a picture's rows are uneven.
+Heroes and monsters get the same finishing pass as the game (PixelArt.Finish): twice the size, the outline thinned
+to one point, lit top-left edges and shaded bottom-right edges.
 
     python3 DevTools/ArtPreview/preview.py out.png
 
@@ -38,6 +40,42 @@ def pictures(source):
     return found
 
 
+def finish(image, ink):
+    """The game's PixelArt.Finish, on a Pillow image: keep both in step when either changes."""
+    w, h = image.width * 2, image.height * 2
+    big = image.resize((w, h), Image.NEAREST)
+    px = big.load()
+    clear = lambda p, x, y: not (0 <= x < w and 0 <= y < h) or p[x, y][3] == 0
+    is_ink = lambda c: c[3] > 0 and c[:3] == ink[:3]
+    ink_at = lambda p, x, y: 0 <= x < w and 0 <= y < h and is_ink(p[x, y])
+    touches = lambda p, x, y: clear(p, x - 1, y) or clear(p, x + 1, y) or clear(p, x, y - 1) or clear(p, x, y + 1)
+    near = lambda x, y: [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+    thin_img = big.copy(); thin = thin_img.load()
+    for y in range(h):
+        for x in range(w):
+            if is_ink(px[x, y]) and touches(px, x, y) and any(ink_at(px, nx, ny) and not touches(px, nx, ny) for nx, ny in near(x, y)):
+                thin[x, y] = (0, 0, 0, 0)
+    clean_img = thin_img.copy(); clean = clean_img.load()
+    for y in range(h):
+        for x in range(w):
+            if is_ink(thin[x, y]) and all(clear(thin, nx, ny) for nx, ny in near(x, y)) and any(ink_at(px, nx, ny) and clear(thin, nx, ny) for nx, ny in near(x, y)):
+                clean[x, y] = (0, 0, 0, 0)
+    done_img = clean_img.copy(); done = done_img.load()
+    edge = lambda x, y: clear(clean, x, y) or ink_at(clean, x, y)
+    for y in range(h):
+        for x in range(w):
+            c = clean[x, y]
+            if c[3] == 0 or is_ink(c):
+                continue
+            lit = edge(x, y - 1) or edge(x - 1, y)
+            dark = edge(x, y + 1) or edge(x + 1, y)
+            if lit and not dark:
+                done[x, y] = tuple(v + (255 - v) * 22 // 100 for v in c[:3]) + (c[3],)
+            elif dark and not lit:
+                done[x, y] = tuple(v * 75 // 100 for v in c[:3]) + (c[3],)
+    return done_img
+
+
 def colors_of(csv_path):
     with open(csv_path, encoding="utf-8", newline="") as f:
         return {row["id"]: row["color"] for row in csv.DictReader(f) if row.get("color", "").startswith("#")}
@@ -65,7 +103,10 @@ def main(target):
                     continue
                 color = main_color if ch == "c" else shade(main_color) if ch == "d" else palette.get(ch, (255, 0, 255, 255))
                 image.putpixel((x, y), color)
-        image = image.resize((image.width * scale, image.height * scale), Image.NEAREST)
+        if name in tints:
+            image = finish(image, palette["k"]).resize((image.width * scale, image.height * scale), Image.NEAREST)
+        else:
+            image = image.resize((image.width * scale, image.height * scale), Image.NEAREST)
         sheet.alpha_composite(image, (i % 6 * cell + 6, i // 6 * cell + 6))
     sheet.save(target)
     print(f"{target}: {len(names)} pictures")

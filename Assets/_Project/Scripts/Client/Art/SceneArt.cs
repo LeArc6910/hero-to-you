@@ -28,10 +28,8 @@ namespace Game.Client
                 "camp" => (Palette.Hex("#0E1226"), Palette.Hex("#34304E"), Palette.Hex("#2A281E"), "tree", "fire"),
                 _ => (Palette.Hex("#2A2438"), Palette.Hex("#6E5A6E"), Palette.Hex("#3A3440"), null, null),
             };
-            const int bands = 8;
             float skyH = r.height * 0.68f;
-            for (int i = 0; i < bands; i++)
-                Ui.Fill(new Rect(r.x, r.y + skyH * i / bands, r.width, skyH / bands + 1), Color.Lerp(top, bottom, i / (float)(bands - 1)));
+            Ui.Image(new Rect(r.x, r.y, r.width, skyH + 1), PixelArt.Sky(top, bottom, r.width / Mathf.Max(1, skyH)));
             Ui.Fill(new Rect(r.x, r.y + skyH, r.width, r.height - skyH), ground);
             Ui.Fill(new Rect(r.x, r.y + skyH, r.width, 2), Color.Lerp(ground, Color.white, 0.2f));
 

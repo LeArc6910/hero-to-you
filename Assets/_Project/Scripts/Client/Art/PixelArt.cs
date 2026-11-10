@@ -54,29 +54,24 @@ namespace Game.Client
         public static Texture2D Hero(string classId, string color)
         {
             if (Known('h', classId, color, out var known)) return known;
-            return Keep('h', classId, color, Make("hero:" + classId, Heroes.TryGetValue(classId, out var rows) ? rows : Wanderer, color));
+            return Keep('h', classId, color, Make("hero:" + classId, Heroes.TryGetValue(classId, out var rows) ? rows : Wanderer, color, true));
         }
 
         public static Texture2D Monster(string monsterId, string color)
         {
             if (Known('m', monsterId, color, out var known)) return known;
-            return Keep('m', monsterId, color, Make("monster:" + monsterId, Monsters.TryGetValue(monsterId, out var rows) ? rows : Monsters["goblin"], color));
+            return Keep('m', monsterId, color, Make("monster:" + monsterId, Monsters.TryGetValue(monsterId, out var rows) ? rows : Monsters["goblin"], color, true));
         }
 
-        public static Texture2D Make(string key, string[] rows, string color)
+        // `finish`: heroes and monsters are drawn at twice the size of their letter rows with the finishing pass below.
+        public static Texture2D Make(string key, string[] rows, string color, bool finish = false)
         {
-            key += color;
+            key += color + (finish ? "+" : "");
             if (Cache.TryGetValue(key, out var cached) && cached != null) return cached;
             var main = Palette.Hex(color ?? "#888888");
             var shade = Color.Lerp(main, Color.black, 0.35f);
             int height = rows.Length;
             int width = rows[0].Length;
-            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
-            {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp,
-                hideFlags = HideFlags.HideAndDontSave,
-            };
             var pixels = new Color32[width * height];
             for (int y = 0; y < height; y++)
             {
@@ -94,10 +89,115 @@ namespace Game.Client
                     pixels[y * width + x] = pixel;
                 }
             }
+            if (finish)
+            {
+                pixels = Finish(pixels, width, height);
+                width *= 2;
+                height *= 2;
+            }
+            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.HideAndDontSave,
+            };
             texture.SetPixels32(pixels);
             texture.Apply(false, true);
             Cache[key] = texture;
             return texture;
+        }
+
+        // ---- Skies: a gradient in a few bands, an ordered dither where two bands meet, drawn big ----
+
+        static readonly Dictionary<(int, int, int), Texture2D> Skies = new Dictionary<(int, int, int), Texture2D>();
+        static readonly int[] Bayer = { 0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5 };
+
+        static int Pack(Color c) => ((int)(c.r * 255) << 16) | ((int)(c.g * 255) << 8) | (int)(c.b * 255);
+
+        // `aspect` is the drawn width over height, so the points stay square. Made once per colours and width.
+        public static Texture2D Sky(Color top, Color bottom, float aspect)
+        {
+            const int height = 24;
+            const int steps = 6;
+            int width = Mathf.Clamp(Mathf.RoundToInt(height * aspect), 8, 192);
+            var key = (Pack(top), Pack(bottom), width);
+            if (Skies.TryGetValue(key, out var made) && made != null) return made;
+            var pixels = new Color32[width * height];
+            for (int y = 0; y < height; y++)
+            {
+                float t = y / (float)(height - 1) * (steps - 1);
+                int band = Mathf.Min((int)t, steps - 2);
+                float frac = t - band;
+                Color32 a = Color.Lerp(top, bottom, band / (float)(steps - 1));
+                Color32 b = Color.Lerp(top, bottom, (band + 1) / (float)(steps - 1));
+                for (int x = 0; x < width; x++)
+                    pixels[(height - 1 - y) * width + x] = frac * 16 > Bayer[(y & 3) * 4 + (x & 3)] + 0.5f ? b : a;
+            }
+            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.HideAndDontSave,
+            };
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            Skies[key] = texture;
+            return texture;
+        }
+
+        // ---- The finishing pass (user decision 2026-11-10: the art stays pixel art, drawn in code) ----
+
+        // The letter rows at twice the size, then: the dark outline thinned to one point (half what it was), and in
+        // each coloured part a lit edge toward the top left and a shaded edge toward the bottom right, so the shapes
+        // read with volume (three tones from two). Thin parts lit on both sides keep their colour. Shapes stay exactly
+        // as drawn (no smoothing: small crosses and blades would melt). Pixels run bottom-up, as Texture2D keeps them.
+        static Color32[] Finish(Color32[] small, int width, int height)
+        {
+            int w = width * 2, h = height * 2;
+            var big = new Color32[w * h];
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                    big[y * w + x] = small[y / 2 * width + x / 2];
+            var ink = (Color32)Palette.Hex(Colors['k']);
+            bool Ink(Color32 c) => c.a > 0 && c.r == ink.r && c.g == ink.g && c.b == ink.b;
+            bool Clear(Color32[] p, int x, int y) => x < 0 || y < 0 || x >= w || y >= h || p[y * w + x].a == 0;
+            bool InkAt(Color32[] p, int x, int y) => x >= 0 && y >= 0 && x < w && y < h && Ink(p[y * w + x]);
+            bool TouchesClear(Color32[] p, int x, int y) => Clear(p, x - 1, y) || Clear(p, x + 1, y) || Clear(p, x, y - 1) || Clear(p, x, y + 1);
+
+            // The outer half of the outline: an ink point on the outside whose inward neighbour is ink too.
+            var thin = (Color32[])big.Clone();
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                {
+                    if (!Ink(big[y * w + x]) || !TouchesClear(big, x, y)) continue;
+                    if ((InkAt(big, x - 1, y) && !TouchesClear(big, x - 1, y)) || (InkAt(big, x + 1, y) && !TouchesClear(big, x + 1, y))
+                        || (InkAt(big, x, y - 1) && !TouchesClear(big, x, y - 1)) || (InkAt(big, x, y + 1) && !TouchesClear(big, x, y + 1)))
+                        thin[y * w + x] = default;
+                }
+            // A corner the thinning left standing alone (both its ink neighbours went): it goes too.
+            var clean = (Color32[])thin.Clone();
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                {
+                    if (!Ink(thin[y * w + x]) || !Clear(thin, x - 1, y) || !Clear(thin, x + 1, y) || !Clear(thin, x, y - 1) || !Clear(thin, x, y + 1)) continue;
+                    if ((InkAt(big, x - 1, y) && Clear(thin, x - 1, y)) || (InkAt(big, x + 1, y) && Clear(thin, x + 1, y))
+                        || (InkAt(big, x, y - 1) && Clear(thin, x, y - 1)) || (InkAt(big, x, y + 1) && Clear(thin, x, y + 1)))
+                        clean[y * w + x] = default;
+                }
+            // Light from the top left (y + 1 is up here), shade toward the bottom right.
+            bool Edge(int x, int y) => Clear(clean, x, y) || InkAt(clean, x, y);
+            var done = (Color32[])clean.Clone();
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                {
+                    var c = clean[y * w + x];
+                    if (c.a == 0 || Ink(c)) continue;
+                    bool lit = Edge(x, y + 1) || Edge(x - 1, y);
+                    bool dark = Edge(x, y - 1) || Edge(x + 1, y);
+                    if (lit && !dark) done[y * w + x] = new Color32((byte)(c.r + (255 - c.r) * 22 / 100), (byte)(c.g + (255 - c.g) * 22 / 100), (byte)(c.b + (255 - c.b) * 22 / 100), c.a);
+                    else if (dark && !lit) done[y * w + x] = new Color32((byte)(c.r * 75 / 100), (byte)(c.g * 75 / 100), (byte)(c.b * 75 / 100), c.a);
+                }
+            return done;
         }
 
         // ---- Heroes (16×16, facing right) ----

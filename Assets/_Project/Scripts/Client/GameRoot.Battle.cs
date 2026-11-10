@@ -325,10 +325,8 @@ namespace Game.Client
             var terrain = tile?.Terrain ?? Terrain.Plains;
             bool boss = a.BossBattle;
             var sky = BackdropSky(a.Chapter.Index, a.Night, boss);
-            int bands = 6;
             float skyH = field.height * 0.62f;
-            for (int i = 0; i < bands; i++)
-                Ui.Fill(new Rect(field.x, field.y + skyH * i / bands, field.width, skyH / bands + 1), Color.Lerp(sky.top, sky.bottom, i / (float)(bands - 1)));
+            Ui.Image(new Rect(field.x, field.y, field.width, skyH + 1), PixelArt.Sky(sky.top, sky.bottom, field.width / Mathf.Max(1, skyH)));
             var ground = TerrainColors.TryGetValue(terrain, out var g) ? g : Palette.Ground;
             Ui.Fill(new Rect(field.x, field.y + skyH, field.width, field.height - skyH), Color.Lerp(ground, Palette.Back, 0.35f));
             Ui.Fill(new Rect(field.x, field.y + skyH, field.width, 2), Color.Lerp(ground, Color.white, 0.15f));
