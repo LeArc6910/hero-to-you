@@ -25,7 +25,7 @@ town.cant_recruit,그 직업은 맞을 수 없습니다.,That class can't join y
 town.recruited,{0:이} 일지를 이어받아 함께 걷기로 했다.,{0} takes up the journal and joins the road.
 town.elder_met,장로와는 이미 이야기했습니다.,You have already spoken with the elder.
 town.cant_change_gear,지금은 장비를 바꿀 수 없습니다.,You can't change gear right now.
-town.cant_equip,{0:은} {1}을 들 수 없습니다.,{0} can't use {1}.
+town.cant_equip,{0:은} {1:을} 들 수 없습니다.,{0} can't use {1}.
 town.weapon_swap_only,무기는 다른 무기로만 바꿉니다.,A weapon can only be swapped for another weapon.
 town.nothing_to_remove,벗을 것이 없습니다.,There is nothing to take off.
 town.cant_use_now,지금은 쓸 수 없습니다.,You can't use that right now.
