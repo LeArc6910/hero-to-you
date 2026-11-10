@@ -18,6 +18,16 @@ namespace Game.Core
         readonly Dictionary<string, int> _classRuns = new Dictionary<string, int>();
         readonly Dictionary<string, int> _classWins = new Dictionary<string, int>();
 
+        // The codex (Docs/Journal.md 도감): monsters met, gear found, pairings taken and story pages read in any run.
+        public static readonly string[] CodexKinds = { "monsters", "items", "combos", "stories" };
+        readonly Dictionary<string, HashSet<string>> _codex = CodexKinds.ToDictionary(k => k, k => new HashSet<string>());
+
+        public IReadOnlyCollection<string> Codex(string kind) => _codex.TryGetValue(kind, out var set) ? set : (IReadOnlyCollection<string>)new HashSet<string>();
+
+        // The chapter endings in the codex (the stories that end a chapter).
+        public int EndingsSeen(GameData data) => data.Chapters.SelectMany(c => new[] { c.Epilogue, c.EpilogueKind, c.EpilogueGrim })
+            .Where(id => !string.IsNullOrEmpty(id)).Distinct().Count(id => _codex["stories"].Contains(id));
+
         // Pages not spent yet, and all ever earned.
         public int Pages { get; private set; }
         public int PagesEarned { get; private set; }
@@ -78,6 +88,10 @@ namespace Game.Core
             BestRenown = Math.Max(BestRenown, adventure.Renown);
             Reached = Math.Max(Reached, adventure.Chapter.Index + 1);
             foreach (var card in adventure.Footsteps) _notes.Add(card.Id);
+            foreach (string id in adventure.SeenMonsters) _codex["monsters"].Add(id);
+            foreach (string id in adventure.FoundItems) _codex["items"].Add(id);
+            foreach (var combo in adventure.Combos) _codex["combos"].Add(combo.Id);
+            foreach (string id in adventure.ReadStories) _codex["stories"].Add(id);
             foreach (var hero in adventure.Heroes)
             {
                 _classRuns[hero.Class.Id] = RunsWith(hero.Class.Id) + 1;
@@ -111,6 +125,12 @@ namespace Game.Core
             "classes" => _classWins.Count >= a.Amount,
             "runs" => Runs >= a.Amount,
             "no_fall" => won && run.Falls == 0,
+            "short_win" => run.Screen == AdventureScreen.Victory && !run.FullRun,
+            "combos" => run.Combos.Count >= a.Amount,
+            "old_friends" => run.CallbacksMet >= a.Amount,
+            "monsters" => _codex["monsters"].Count >= a.Amount,
+            "items" => _codex["items"].Count >= a.Amount,
+            "endings" => EndingsSeen(run.Data) >= a.Amount,
             _ => false,
         };
 
@@ -130,6 +150,8 @@ namespace Game.Core
             text.Append("notes ").Append(string.Join(",", _notes.OrderBy(s => s, StringComparer.Ordinal))).Append('\n');
             text.Append("achieved ").Append(string.Join(",", _achieved.OrderBy(s => s, StringComparer.Ordinal))).Append('\n');
             text.Append("classruns ").Append(string.Join(",", _classRuns.OrderBy(p => p.Key, StringComparer.Ordinal).Select(p => $"{p.Key}:{p.Value}"))).Append('\n');
+            foreach (string kind in CodexKinds)
+                text.Append("codex_").Append(kind).Append(' ').Append(string.Join(",", _codex[kind].OrderBy(s => s, StringComparer.Ordinal))).Append('\n');
             text.Append("classwins ").Append(string.Join(",", _classWins.OrderBy(p => p.Key, StringComparer.Ordinal).Select(p => $"{p.Key}:{p.Value}"))).Append('\n');
             return text.ToString();
         }
@@ -164,6 +186,12 @@ namespace Game.Core
                         break;
                     case "achieved":
                         foreach (string id in value.Split(',').Where(s => s.Length > 0)) journal._achieved.Add(id);
+                        break;
+                    case "codex_monsters":
+                    case "codex_items":
+                    case "codex_combos":
+                    case "codex_stories":
+                        foreach (string id in value.Split(',').Where(s => s.Length > 0)) journal._codex[key.Substring(6)].Add(id);
                         break;
                     case "classruns":
                     case "classwins":

@@ -160,8 +160,8 @@ namespace Game.Core
         public bool FullRun => FirstChapter == 0 && LastChapter == Data.Chapters.Count - 1;
 
         // The level a party starting at a later chapter begins with, and its gold to buy gear.
-        public static readonly int[] StartLevels = { 1, 5, 7, 9, 11 };
-        public const int LateGold = 40;
+        public static readonly int[] StartLevels = { 1, 4, 6, 8, 10 };
+        public const int LateGold = 30;
 
         // A party starting at a later chapter comes with the levels, gear (of the chapter's tier, plain pieces in
         // sheet order) and some gold a party would have gathered on the way.
@@ -247,6 +247,37 @@ namespace Game.Core
         }
 
         readonly List<ComboDef> _combos = new List<ComboDef>();
+
+        // ---- The codex (Docs/Journal.md 도감): what this run met, for the journal to keep ----
+
+        readonly HashSet<string> _codexMonsters = new HashSet<string>();
+        readonly HashSet<string> _codexItems = new HashSet<string>();
+        readonly HashSet<string> _codexStories = new HashSet<string>();
+
+        public IReadOnlyCollection<string> SeenMonsters => _codexMonsters;
+        public IReadOnlyCollection<string> ReadStories => _codexStories;
+
+        // Gear found or bought this run, and what the heroes wear now.
+        public IReadOnlyCollection<string> FoundItems
+        {
+            get
+            {
+                var all = new HashSet<string>(_codexItems);
+                foreach (var hero in Heroes)
+                    foreach (var item in hero.Equipment)
+                        all.Add(item.Id);
+                return all;
+            }
+        }
+
+        void AddToBag(ItemDef item)
+        {
+            Bag.Add(item);
+            _codexItems.Add(item.Id);
+        }
+
+        // People an earlier choice saved who came back this run (events with `requires`).
+        public int CallbacksMet => Data.Events.Count(e => e.Requires.Length > 0 && !e.Requires.StartsWith("!") && _seen.Contains(e.Id));
 
         // The class pairings this party makes, with their gifts.
         public IReadOnlyList<ComboDef> Combos => _combos;
@@ -373,6 +404,7 @@ namespace Game.Core
         void ShowStory(string id, Then then)
         {
             Story = Data.Stories[id];
+            _codexStories.Add(id);
             _then = then;
             Screen = AdventureScreen.Story;
         }

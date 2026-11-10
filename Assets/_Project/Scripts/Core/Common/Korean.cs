@@ -35,5 +35,17 @@ namespace Game.Core
 
         // 은/는
         public static string Topic(string word) => word + (HasFinalConsonant(word) ? "은" : "는");
+
+        // 과/와
+        public static string With(string word) => word + (HasFinalConsonant(word) ? "과" : "와");
+
+        // 으로/로 (로 after ㄹ too: 길로)
+        public static string Toward(string word)
+        {
+            if (string.IsNullOrEmpty(word)) return word;
+            char last = word[word.Length - 1];
+            bool rieul = last >= 0xAC00 && last <= 0xD7A3 && (last - 0xAC00) % 28 == 8;
+            return word + (HasFinalConsonant(word) && !rieul ? "으로" : "로");
+        }
     }
 }

@@ -1,0 +1,10 @@
+# 챕터 3 눈 덮인 수도원, 세 번째 지도 (Docs/Map.md). 시드로 이 장의 지도 셋 가운데 하나를 고른다.
+^^^nnn^^nnn^^^^
+^S.nn.nnn.nRn^^
+^.rr.n.n.nun.^^
+^n.rT.nn.rr.nH^
+^nn.rr.n.r.n.n^
+^n.nn.rrr.nnC^^
+^^Dn.n.n.r.Mn^^
+^^nn.nnn.rrr.B^
+^^^nnn^^^nnn^^^

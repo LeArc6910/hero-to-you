@@ -1,0 +1,10 @@
+# 챕터 5 균열의 문, 세 번째 지도 (Docs/Map.md). 시드로 이 장의 지도 셋 가운데 하나를 고른다.
+^^^^xxx^^^xx^^^
+^S.xx.x.xxuR.^^
+^.rr.xx.u.ux.^^
+^x.rrr.x.xx.xH^
+^xx.T.rrr..x.x^
+^Dx.x..x.rr.C^^
+^xx.xMx.xx.r.^^
+^^xx.xx..xrrrB^
+^^^xxx^^^xx^^^^

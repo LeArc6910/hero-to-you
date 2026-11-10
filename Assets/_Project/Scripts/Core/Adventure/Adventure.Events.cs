@@ -222,7 +222,7 @@ namespace Game.Core
                         }
                         else
                         {
-                            Bag.Add(item);
+                            AddToBag(item);
                             lines.Add($"{Korean.Object(item.Name)} 가방에 넣었다");
                         }
                         break;
@@ -230,7 +230,7 @@ namespace Game.Core
                         var loot = Loot(o.Amount);
                         if (loot != null)
                         {
-                            Bag.Add(loot);
+                            AddToBag(loot);
                             lines.Add($"{Korean.Object(loot.Name)} 얻었다 (가방)");
                         }
                         break;

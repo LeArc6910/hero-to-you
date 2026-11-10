@@ -30,3 +30,13 @@ r_g_ch4,4,rogue,gambler,,gambler: 왕의 금은 탐나지 않아?|rogue: 탐나.
 n_mn_ch5,5,necromancer,mnemonist,,necromancer: 리엔의 망령을 불러도 얼굴이 없어.|mnemonist: 기억하는 사람이 없어서야. 우리가 기억하면 돼.|necromancer: …그럼 오늘부터 리엔은 우리 동료다.
 e_s_ch5,5,elementalist,seer,,"elementalist: 대가가 이름 하나라면, 누가 내?|seer: 별은 셋이 함께 빛나.|elementalist: 그럼 셋이 같이 내자. 하나씩 조금씩."
 b_c_ch5,5,bard,cleric,,bard: 마지막 노래의 끝을 아직 못 정했어.|cleric: 끝은 우리가 정하는 게 아니라 부르는 사람들이 정하지요.|bard: 그럼 많이 불러 달라고 해야겠다.
+t_rogue_alch,0,rogue,alchemist,,"rogue: 그 병, 뭐가 들었는지 알려 주면 하나 훔쳐 가지 않을게.|alchemist: 하나를 훔쳐 가면 무엇이 들었는지 몸으로 알게 될 거야."
+t_knight_eng,0,knight,engineer,,knight: 옛 기사들은 성벽을 믿지 않았다. 사람을 믿었지.|engineer: 그 사람들이 성벽 뒤에 있었으니까 믿을 수 있었던 거예요.
+t_berserker_cleric,0,berserker,cleric,,berserker: 또 꿰매는 거냐. 어차피 내일 또 터질 텐데.|cleric: 그러니까 오늘 꿰매는 거예요. 내일도 꿰맬 수 있게.
+t_monk_mnem,0,monk,mnemonist,,monk: 숨을 셀 때마다 잊는 것이 하나씩 늘어난다.|mnemonist: 그럼 내가 세어 줄게. 잊는 것도 기억해 둘 사람이 하나쯤은 있어야지.
+t_eng_beast,0,engineer,beastmaster,,"engineer: 그 늑대, 기름칠은 안 해도 돼요?|beastmaster: 고기를 주면 돼. 네 포탑보다 훨씬 쉽지."
+t_alch_necro,0,alchemist,necromancer,,alchemist: 뼈 가루 좀 나눠 줄 수 있어? 약에 쓰려고.|necromancer: 해골이 허락하면. …허락한다는군. 왼쪽 갈비뼈만.
+t_seer_knight,0,seer,knight,,seer: 별이 말해요. 내일 당신이 누군가를 지킬 거라고.|knight: 별이 말하지 않아도 그건 매일 하는 일이다.
+t_gambler_bard,0,gambler,bard,,gambler: 그 노래 끝에 우리가 이긴다는 데 걸지.|bard: 노래 끝은 아직 안 지었어. 네가 판돈을 올리면 그만큼 극적으로 써 줄게.
+t_elem_knight,0,elementalist,knight,,elementalist: 내 불길 앞으로 나서지 마세요. 진심으로.|knight: 그럼 네 불길이 내 뒤에서 나오도록 해라. 그게 줄이다.
+t_monk_cleric,0,monk,cleric,,"monk: 당신의 기도와 내 명상은 무엇이 다를까.|cleric: 기도는 누군가에게 말을 걸고, 명상은 듣는 거겠죠. 둘 다 혼자서는 못 해요."

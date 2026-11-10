@@ -97,16 +97,16 @@ namespace Game.Core.Tests
         }
 
         [Test]
-        public void EachChapterHasTwoMapsAndTheSeedPicksOne()
+        public void EachChapterHasThreeMapsAndTheSeedPicksOne()
         {
-            foreach (var chapter in TestData.Data.Chapters) Assert.That(chapter.Maps.Count, Is.EqualTo(2), chapter.Id);
+            foreach (var chapter in TestData.Data.Chapters) Assert.That(chapter.Maps.Count, Is.EqualTo(3), chapter.Id);
             var seen = new System.Collections.Generic.HashSet<string>();
             for (ulong seed = 1; seed <= 12; seed++)
             {
                 var a = new Adventure(TestData.Data, new[] { "knight", "hunter", "cleric" }, seed);
                 seen.Add(a.Map.Tile(Site.Town).Hex.ToString());
             }
-            Assert.That(seen.Count, Is.EqualTo(2), "두 지도가 모두 나온다");
+            Assert.That(seen.Count, Is.EqualTo(3), "세 지도가 모두 나온다");
             var b = new Adventure(TestData.Data, new[] { "knight", "hunter", "cleric" }, 5);
             var c = new Adventure(TestData.Data, new[] { "knight", "hunter", "cleric" }, 5);
             Assert.That(b.Map.Def, Is.SameAs(c.Map.Def), "같은 시드는 같은 지도");

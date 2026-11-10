@@ -430,3 +430,32 @@ back_wolf,늑대를 부른다,,,,,,flag old_friend;flag kind;resolve_all 1;hope 
 back_wolf,숲으로 돌려보낸다,,,,,,flag old_friend;renown 1,,늑대가 한 번 길게 울고 눈 속으로 사라진다. (명성 +1),
 back_robbed,사과하고 돌려준다 (금화 15),,,,,,gold -15;flag amends;flag kind;renown 2,,순례자가 한참 너희를 보다가 금화를 받는다. “늦었지만… 받겠소.” (명성 +2),
 back_robbed,고개를 숙이고 지나간다,,,,,,flag robbed_remembered;doom 1,,등 뒤로 수군거림이 따라온다. 발이 무겁다. (균열 +1),
+back_fox,여우를 따라간다,,,,,,flag old_friend;flag kind;heal_all 6;hope 1,,여우가 바위 그늘의 샘으로 이끈다. 모두 목을 축인다. (모두 생명력 +6 · 희망 +1),
+back_fox,먹을 것을 나눠 준다,,,,,,flag old_friend;renown 1;xp 4,,"여우가 고기 한 점을 물고 사라졌다가, 길 잃은 대상 쪽으로 너희를 데려간다. (명성 +1 · 경험치 +4)",
+back_widow,편지를 읽는다,,,,,,flag old_friend;flag kind;resolve_all 1;hope 1,,"“남편이 바다에서 돌아오지 못한 날, 당신들만이 진실을 말해 주었어요. 이번에는 당신들이 돌아오기를.” (모두 결의 +1 · 희망 +1)",
+back_widow,꾸러미를 연다,,,,,,flag old_friend;potion 1;gold 10,,"말린 생선과 물약 하나, 은화 몇 닢이 들어 있다. (물약 +1 · 금화 +10)",
+back_smuggler,값을 치른다 (금화 20),,,,,,gold -20;flag smuggler_paid,,밀수꾼이 금화를 세어 보고 고개를 끄덕인다. “장사는 장사지.”,
+back_smuggler,말로 돌려보낸다,,,cha,3,2,flag smuggler_talked;renown 1,battle serpents,"“…그 이름, 노래에서 들었소.” 밀수꾼이 손짓하자 사내들이 물러난다. (명성 +1)",“말은 됐고.” 사내들이 길들인 모래 뱀을 푼다!
+back_smuggler,칼을 뽑는다,,,,,,battle serpents;flag smuggler_fought,,밀수꾼이 휘파람을 불자 모래 속에서 뱀들이 솟는다!,
+back_sailors,함께 노래한다,,,,,,flag old_friend;flag kind;bless_all;hope 1,,넋들의 노래가 너희 목소리에 섞인다. 등이 조금 가벼워진다. (모두 축복 · 희망 +1),
+back_sailors,고개 숙여 보낸다,,,,,,flag old_friend;doom -1,,노래가 잦아들며 균열 가장자리의 바람도 잠잠해진다. (균열 −1),
+back_orphans,아이들을 피난 행렬로 데려간다,,,,,,flag old_friend;flag kind;renown 2;doom 1,,"하루가 걸렸지만, 아이들은 안전한 행렬에 섞였다. (명성 +2 · 균열 +1)",
+back_orphans,길을 일러 주고 먹을 것을 나눈다,,,,,,flag old_friend;flag kind;renown 1;hope 1,,큰아이가 고개를 끄덕이고 다른 아이들을 이끈다. “이번엔 우리가 데려갈게요.” (명성 +1 · 희망 +1),
+back_choir,노래를 듣는다,,,,,,flag old_friend;flag kind;resolve_all 2,,낮은 화음이 균열의 소음을 덮는다. 모두의 손이 떨리지 않는다. (모두 결의 +2),
+back_choir,균열 둘레를 지켜 달라 한다,,,wil,2,1,flag old_friend;doom -1;renown 1,flag old_friend,수사들이 균열 둘레에 줄지어 서서 노래한다. 균열이 조금 물러난다. (균열 −1 · 명성 +1),수사들은 아직 두려워한다. 그래도 노래는 이어진다.
+glass_dunes,유리를 깨서 꺼낸다,,,str,2,1,loot 4,hurt 4,유리 속에서 옛 무기 한 자루가 나왔다.,유리 조각에 손을 베었다. (생명력 −4)
+glass_dunes,유리 조각을 모아 판다,,,,,,gold 18,,상인들이 좋은 값을 쳐 준다. (금화 +18),
+glass_dunes,눈을 가리고 지나간다,,,,,,,,눈을 가리고 조심조심 언덕을 넘었다.,
+buried_well,줄을 이어 물을 긷는다,,,agi,2,1,heal_all 10;flag well_dug,hurt_all 2,시원한 물이 올라온다. 지나가는 대상에게도 길을 일러 둔다. (모두 생명력 +10),줄이 끊어져 모두 모래를 뒤집어썼다. (모두 생명력 −2)
+buried_well,우물을 다시 판다 (하루),,,,,,flag kind;flag well_dug;renown 2;doom 1,,하루 종일 모래를 퍼냈다. 오아시스 마을 사람들이 고마워한다. (명성 +2 · 균열 +1),
+kings_herald,너희의 이름을 밝힌다,,,cha,2,1,renown 1;xp 6,battle tomb_guards,망령이 두루마리에 너희 이름을 적고 길을 비킨다. “기억하겠다.” (명성 +1 · 경험치 +6),망령이 이름을 거부한다. “거짓 이름이다!” 무덤 수호병이 일어난다!
+kings_herald,옛 영웅의 이름을 댄다,,,,,,flag rien_name_used;gold 15,,망령이 움찔하더니 길을 비킨다. 두루마리 아래에서 금화 몇 닢이 떨어졌다. 하지만 너희의 이름은 아니다. (금화 +15),
+kings_herald,싸워서 지나간다,,,,,,battle tomb_guards,,망령이 두루마리를 찢자 수호병들이 모래에서 일어난다!,
+rift_market,마지막 물약을 산다 (금화 15),,,,,,gold -15;potion 2,,상인이 물약 두 병을 건넨다. “이걸로 값은 됐소. 살아 돌아오시오.” (물약 +2),
+rift_market,노래 한 곡을 산다 (금화 5),,,,,,gold -5;resolve_all 1;hope 1,,늙은 가수가 옛 영웅의 노래를 부른다. 가사 끝에 너희 이름이 붙어 있다. (모두 결의 +1 · 희망 +1),
+rift_market,그냥 지나간다,,,,,,,,장터의 소리가 등 뒤로 멀어진다.,
+name_stones,돌 하나를 얹는다,,,,,,flag kind;hope 1;renown 1,,너희 이름 하나를 새겨 얹었다. 누군가 그 돌을 보고 이 길을 걸을 것이다. (희망 +1 · 명성 +1),
+name_stones,이름들을 읽는다,,,,,,xp 8,,이름마다 사연이 있다. 마지막 장을 앞두고 많은 것을 배웠다. (경험치 +8),
+last_light,기름을 나눠 불을 살린다 (금화 10),,,,,,gold -10;flag kind;doom -1;renown 1,,불이 다시 타오른다. 피난민들이 그 불빛을 보고 길을 찾는다. (균열 −1 · 명성 +1),
+last_light,불씨를 일으킨다,,,int,2,1,flag kind;doom -1,hurt 4,불씨가 살아나 불이 다시 타오른다. (균열 −1),불꽃이 튀어 손을 데었다. (생명력 −4)
+last_light,그냥 지나간다,,,,,,flag light_left,,등 뒤에서 불빛이 하나 꺼진다.,

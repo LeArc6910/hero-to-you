@@ -27,7 +27,7 @@ namespace Game.Core
         public const int ForetellCut = 30;
         public const int Foresight = 3;
         public const int WolfCallHeal = 8;
-        public const int SkeletonHp = 16;
+        public const int SkeletonHp = 20;
         public const int BoneWallArmor = 3;
 
         // The skeleton grows with its master: +2 life a level, like the engineer's turret.
@@ -150,7 +150,18 @@ namespace Game.Core
             skill.Element.Length > 0 && actor.LastElement.Length > 0 && NextElement(actor.LastElement) == skill.Element;
 
         // The rogue's finisher rolls a die more for each combo.
-        public int DiceOf(Unit actor, SkillDef skill) => skill.Effect == "finisher" ? Math.Min(9, skill.Dice + actor.Combo) : skill.Dice;
+        public int DiceOf(Unit actor, SkillDef skill)
+        {
+            int dice = skill.Effect == "finisher" ? Math.Min(9, skill.Dice + actor.Combo) : skill.Dice;
+            // The bell's daze: one die fewer, never none.
+            if (actor.Has(StatusKind.Daze) && dice > 1) dice--;
+            return dice;
+        }
+
+        // Why a skill cannot be used now when a boss is the reason: "seal" or "erase" (Docs/Combat.md 보스의 고유
+        // 규칙). Null when it is free or only waiting its own cooldown.
+        public string BlockedBy(Unit unit, SkillDef skill) =>
+            skill != null && Cooldown(unit, skill) > 0 && unit.Blocked.TryGetValue(skill.Id, out string why) ? why : null;
 
         public int PowerOf(Unit actor, SkillDef skill) => skill.Effect == "finisher" ? skill.Power + ComboPower * actor.Combo : skill.Power;
 

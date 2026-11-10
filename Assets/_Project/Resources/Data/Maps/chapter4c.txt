@@ -1,0 +1,10 @@
+# 챕터 4 붉은 왕릉, 세 번째 지도 (Docs/Map.md). 시드로 이 장의 지도 셋 가운데 하나를 고른다.
+^^^bbb^^^bb^^^^
+^S.b..bbuuR.b^^
+^.rr.bb.u.u.bD^
+^b.rrr.b..b.b.^
+^bb.T.rrr.bbH.^
+^b.bb.b.rr.bC^^
+^bMb..bb..rr.^^
+^^bb.bbb.b.rrB^
+^^^^bbb^^^bb^^^

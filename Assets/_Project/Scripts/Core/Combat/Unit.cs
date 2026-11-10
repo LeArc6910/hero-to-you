@@ -20,6 +20,8 @@ namespace Game.Core
         Foretold,
         // Falls with it and the necromancer gets two more souls.
         DeathMark,
+        // One die fewer on the next check (the sunken bell ringing in the ears).
+        Daze,
     }
 
     public static class StatusNames
@@ -37,6 +39,7 @@ namespace Game.Core
             StatusKind.Corrode => "부식",
             StatusKind.Foretold => "예언",
             StatusKind.DeathMark => "죽음의 표",
+            StatusKind.Daze => "멍함",
             _ => kind.ToString(),
         };
     }
@@ -156,6 +159,9 @@ namespace Game.Core
 
         // Skill id → the turn (TurnsTaken) it can be used again.
         internal Dictionary<string, int> AvailableAt { get; } = new Dictionary<string, int>();
+
+        // Skills a boss took away ("seal" or "erase"), until the hero uses them again (Battle.BlockedBy).
+        internal Dictionary<string, string> Blocked { get; } = new Dictionary<string, string>();
 
         // How many of this unit's turns the skill still has to wait, counting from the turn `turn` (0 = usable then).
         internal int CooldownFrom(string skill, int turn) =>

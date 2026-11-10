@@ -42,7 +42,7 @@ namespace Game.Core
             int gold = 20 * (Chapter.Index + 1);
             Gold += gold;
             var loot = Loot(Chapter.Index + 2);
-            if (loot != null) Bag.Add(loot);
+            if (loot != null) AddToBag(loot);
             Report.Add($"{Chapter.DungeonName}의 가장 깊은 방: 금화 +{gold}" + (loot != null ? $", {Korean.Object(loot.Name)} 얻었다 (가방)" : ""));
             GainRenown(1, Report);
             Screen = AdventureScreen.BattleResult;

@@ -175,14 +175,31 @@ namespace Game.Core
                     var best = own.Where(s => Cooldown(target, s) == 0).OrderByDescending(s => s.Power + s.Dice * 3).FirstOrDefault();
                     if (best == null) break;
                     target.AvailableAt[best.Id] = target.TurnsTaken + SealTurns + 1;
+                    target.Blocked[best.Id] = "seal";
                     Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Text = $"{actor.Name}: {target.Name}의 {Korean.Object(best.Name)} 빼앗았다 ({SealTurns}차례 못 쓴다)" });
                     break;
                 case "erase":
-                    foreach (var s in own) target.AvailableAt[s.Id] = Math.Max(target.AvailableAt.TryGetValue(s.Id, out int at) ? at : 0, target.TurnsTaken + EraseTurns + 1);
+                    foreach (var s in own)
+                    {
+                        target.AvailableAt[s.Id] = Math.Max(target.AvailableAt.TryGetValue(s.Id, out int at) ? at : 0, target.TurnsTaken + EraseTurns + 1);
+                        if (!target.Blocked.ContainsKey(s.Id)) target.Blocked[s.Id] = "erase";
+                    }
                     Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Text = $"{actor.Name}: {target.Name}의 이름이 흐려졌다 ({EraseTurns}차례 기본 공격만)" });
                     break;
                 case "freeze":
                     AddStatus(target, StatusKind.Stun, 1);
+                    break;
+                case "scorch":
+                    // The warden's brand: a resolve burnt away, and the burn.
+                    if (target.Hero.Resolve > 0)
+                    {
+                        target.Hero.Resolve--;
+                        Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Amount = -1, Text = $"{target.Name}: 낙인에 결의 −1 ({target.Hero.Resolve}/{target.Hero.MaxResolve})" });
+                    }
+                    AddStatus(target, StatusKind.Burn, BurnTurns);
+                    break;
+                case "daze":
+                    AddStatus(target, StatusKind.Daze, 1);
                     break;
             }
         }
@@ -251,7 +268,7 @@ namespace Game.Core
                 Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = unit.Id, Status = StatusKind.Chill, Text = $"{unit.Name}: 냉기로 다음 차례가 늦어진다" });
             }
             unit.Ready += wait;
-            foreach (var kind in new[] { StatusKind.Burn, StatusKind.Mark, StatusKind.Weak, StatusKind.Corrode, StatusKind.DeathMark })
+            foreach (var kind in new[] { StatusKind.Burn, StatusKind.Mark, StatusKind.Weak, StatusKind.Corrode, StatusKind.DeathMark, StatusKind.Daze })
             {
                 if (!unit.Statuses.TryGetValue(kind, out int left)) continue;
                 if (left > 1)
@@ -659,6 +676,7 @@ namespace Game.Core
             var skill = preview.Skill;
             var target = TargetOf(actor, skill, command.Target);
             if (skill.Cooldown > 0) actor.AvailableAt[skill.Id] = actor.TurnsTaken + skill.Cooldown + 1;
+            actor.Blocked.Remove(skill.Id);
             PayCost(actor, skill);
 
             CheckResult check = null;

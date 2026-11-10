@@ -127,6 +127,82 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void TheWardensBrandBurnsResolveAndTheBellDazes()
+        {
+            for (ulong seed = 1; seed < 30; seed++)
+            {
+                var knight = TestData.Hero("knight");
+                int resolve = knight.Resolve;
+                var battle = new Battle(new List<Hero> { knight }, new List<MonsterDef> { Striker("warden_brand") }, seed, false, TestData.Data);
+                if (!battle.Events.Any(e => e.Text != null && e.Text.Contains("낙인"))) continue;
+                Assert.That(knight.Resolve, Is.LessThan(resolve));
+                Assert.That(battle.Heroes.Single().Has(StatusKind.Burn), Is.True);
+                break;
+            }
+            for (ulong seed = 1; seed < 30; seed++)
+            {
+                var battle = new Battle(TestData.Party("knight"), new List<MonsterDef> { Striker("bell_daze") }, seed, false, TestData.Data);
+                var knight = battle.Heroes.Single();
+                if (!knight.Has(StatusKind.Daze)) continue;
+                var attack = knight.Hero.Skill(Hero.AttackId);
+                Assert.That(battle.DiceOf(knight, attack), Is.EqualTo(attack.Dice - 1), "멍함: 주사위 하나 덜");
+                // The daze goes with the hero's next action.
+                Act(battle, Hero.AttackId);
+                Assert.That(knight.Has(StatusKind.Daze) && battle.Current != knight, Is.False);
+                return;
+            }
+            Assert.Fail("종이 한 번도 맞지 않았다");
+        }
+
+        [Test]
+        public void ABossTakenSkillShowsWhoTookIt()
+        {
+            for (ulong seed = 1; seed < 30; seed++)
+            {
+                var battle = new Battle(TestData.Party("knight"), new List<MonsterDef> { Striker("sern_seal") }, seed, false, TestData.Data);
+                var knight = battle.Heroes.Single();
+                var taken = knight.Hero.Skills.FirstOrDefault(s => battle.BlockedBy(knight, s) == "seal");
+                if (taken == null) continue;
+                Assert.That(battle.Cooldown(knight, taken), Is.GreaterThan(0));
+                Assert.That(battle.BlockedBy(knight, knight.Hero.Skill(Hero.AttackId)), Is.Null);
+                return;
+            }
+            Assert.Fail("봉인이 한 번도 맞지 않았다");
+        }
+
+        [Test]
+        public void TheJournalKeepsACodexAndTheNewAchievements()
+        {
+            var a = Start(new[] { "knight", "hunter", "cleric" }, null, 0, 0, 3);
+            var bot = new GameRandom(3, 9);
+            for (int i = 0; i < 400 && !a.Over && a.BattlesWon < 2; i++) Assert.That(AdventureBot.Step(a, bot), Is.Null);
+            bool ended = false;
+            for (int guard = 0; guard < 20 && !a.Over; guard++)
+            {
+                for (int i = 0; i < 40 && a.LevelUp != null; i++) a.ChooseUpgrade(0);
+                if (a.Screen == AdventureScreen.Story && ended) a.Continue();
+                else if (a.Screen == AdventureScreen.Story && a.Story.Id == a.Chapter.Prologue) a.Continue();
+                else
+                {
+                    a.EndChapterForTest();
+                    ended = true;
+                }
+            }
+            Assert.That(a.Screen, Is.EqualTo(AdventureScreen.Victory));
+            var journal = new Journal();
+            journal.Record(a);
+            Assert.That(journal.Codex("monsters"), Is.Not.Empty, "싸운 몬스터");
+            Assert.That(journal.Codex("items"), Is.Not.Empty, "든 장비");
+            Assert.That(journal.Codex("combos").Count, Is.EqualTo(3));
+            Assert.That(journal.Codex("stories"), Does.Contain(TestData.Data.Chapters[0].Prologue));
+            Assert.That(journal.EndingsSeen(TestData.Data), Is.EqualTo(1));
+            Assert.That(journal.NewAchievements.Select(x => x.Id), Does.Contain("short_road").And.Contain("three_bonds"));
+            var back = Journal.Parse(journal.ToText());
+            Assert.That(back.Codex("monsters"), Is.EquivalentTo(journal.Codex("monsters")));
+            Assert.That(back.Codex("stories"), Is.EquivalentTo(journal.Codex("stories")));
+        }
+
+        [Test]
         public void ThornsHurtTheAttackerAndRegenHealsEachTurn()
         {
             var knight = TestData.Hero("knight");
@@ -218,6 +294,7 @@ namespace Game.Core.Tests
             var first = new List<string>();
             for (int i = 0; i < 6; i++) first.Add(((EventCard)pick.Invoke(b, new object[] { "wild4" })).Id);
             Assert.That(first, Does.Contain("back_bandit"));
+            Assert.That(b.CallbacksMet, Is.EqualTo(1));
             Assert.That(TestData.Data.Chapters[4].KindFlags, Does.Contain("old_friend"));
         }
     }

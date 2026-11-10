@@ -17,3 +17,9 @@ gentle,천천히 걸어도,easy_win,쉬움으로 캠페인을 이긴다.,Even at
 many_hands,여러 손,classes 9,아홉 직업으로 각각 한 번 이상 이긴다.,Many Hands,Win at least once with each of nine classes.
 all_hands,모든 손,classes 15,모든 직업으로 각각 한 번 이상 이긴다.,All Hands,Win at least once with every class.
 untouched,넘어지지 않은 길,no_fall,한 번도 쓰러지지 않고 캠페인을 이긴다.,Never Once Fallen,Win the campaign without a single hero falling.
+short_road,짧은 길,short_win,짧은 판을 끝까지 이겼다.,The Short Road,Win a short run to its end.
+three_bonds,세 갈래 인연,combos 3,조합 셋을 가진 파티로 모험을 마쳤다.,Three Bonds,Finish an adventure with a party that makes three pairings.
+old_faces,다시 만난 얼굴들,old_friends 3,한 판에서 앞 장에 구한 사람 셋을 다시 만났다.,Familiar Faces,"Meet three people you saved in earlier chapters, in one run."
+bestiary,짐승의 이름,monsters 30,도감에 몬스터 30종을 적었다.,Names of Beasts,Write 30 kinds of monsters in the codex.
+armory,장비 수집가,items 40,도감에 장비 40종을 적었다.,Collector of Arms,Write 40 pieces of gear in the codex.
+many_ends,여러 개의 끝,endings 8,도감에 장의 결말 8개를 적었다.,Many Endings,Write 8 chapter endings in the codex.

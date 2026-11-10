@@ -14,3 +14,7 @@ deep_purse,은행가의 편지,8,gold 40,금화 40을 더 들고 시작한다. �
 delver_kit,던전꾼의 짐,7,tonic 1,영웅마다 결의 물약 하나를 더 든다. 업적 '깊은 곳까지'가 필요하다.,delver,Delver's Kit,Each hero carries one more tonic. Requires the achievement “All the Way Down”.
 fireside,모닥불 곁의 이야기,7,hope 1,희망을 하나 더 든다. 업적 '모닥불 이야기꾼'이 필요하다.,campfire,Fireside Tales,Carry one more hope. Requires the achievement “Fireside Storyteller”.
 seal_memory,봉인의 기억,9,doom -1,균열이 하나 덜 찬 채로 시작한다. 업적 '첫 봉인'이 필요하다.,first_seal,Memory of the Seal,Start with the Rift one step lower. Requires the achievement “First Seal”.
+side_road,샛길 지도,5,reveal 10,시작할 때 주변 열 칸이 밝혀져 있다. 업적 「짧은 길」이 필요하다.,short_road,Map of Side Roads,Start with the ten hexes around you revealed. Requires the achievement “The Short Road”.
+old_letters,옛 친구들의 편지,7,renown 3,명성 3을 들고 시작한다. 업적 「다시 만난 얼굴들」이 필요하다.,old_faces,Letters from Old Friends,Start with 3 renown. Requires the achievement “Familiar Faces”.
+hunters_notes,사냥꾼의 수첩,6,xp 8,영웅마다 경험치 8을 들고 시작한다. 업적 「짐승의 이름」이 필요하다.,bestiary,Hunter's Notebook,Each hero starts with 8 XP. Requires the achievement “Names of Beasts”.
+old_smith,단골 대장장이,8,forge 1,영웅마다 무기가 한 번 더 벼려진 채 시작한다. 업적 「장비 수집가」가 필요하다.,armory,The Old Smith,Each hero starts with the weapon forged once more. Requires the achievement “Collector of Arms”.

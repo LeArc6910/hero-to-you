@@ -83,3 +83,5 @@ nameless_crush,짓눌러 지우기,4,25,0,physical,one,strongest,130,,,Crush and
 abbess_freeze,얼음 감옥,3,9,0,magic,one,random,100,freeze,한 사람을 얼음 속에 가둔다. 맞으면 한 차례 쉰다.,Ice Prison,"Traps one hero in ice. If hit, they lose a turn."
 sern_seal,일지 찢기,3,11,0,magic,one,random,100,seal,가장 아끼는 기술이 적힌 장을 찢어 간다. 맞으면 그 기술을 3차례 못 쓴다.,Tear the Journal,"Tears out the page with your favorite skill. If hit, that skill cannot be used for 3 turns."
 nameless_erase,지우기,3,12,0,magic,one,random,100,erase,이름을 지운다. 맞으면 2차례 기본 공격만 할 수 있다.,Erase,"Erases a name. If hit, only basic attacks for 2 turns."
+warden_brand,잿불 낙인,3,11,0,magic,one,random,100,scorch,한 사람에게 잿불 낙인을 찍는다. 맞으면 결의 −1과 화상.,Ember Brand,Brands one hero with embers. A hit costs 1 resolve and burns.
+bell_daze,울리는 종,3,13,0,physical,one,random,100,daze,종이 귀 옆에서 울린다. 맞으면 다음 판정의 주사위가 하나 준다.,Ringing Bell,The bell rings right by your ear. A hit means one die fewer on the next check.

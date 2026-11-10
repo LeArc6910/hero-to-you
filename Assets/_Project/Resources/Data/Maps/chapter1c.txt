@@ -1,0 +1,10 @@
+# 챕터 1 잿빛 숲, 세 번째 지도 (Docs/Map.md). 시드로 이 장의 지도 셋 가운데 하나를 고른다.
+^^^^ff^^^fff^^^
+^S.ff..f.fuR.f^
+^.f.rrr.ff.uf.^
+^fr.f..rr..f.f^
+^.rT.ff.rr.H.f^
+^frr.f.ss.rfCu^
+^f.rM.sss.r.f.^
+^ff.ff..fDrr.B^
+^^^fff^^^ff^^^^

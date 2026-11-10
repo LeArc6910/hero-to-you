@@ -32,6 +32,15 @@ namespace Game.Core
             EventChoicesFile, ItemsFile, UpgradesFile, PerksFile, RenownFile, TalksFile, AchievementsFile, CombosFile,
         };
 
+        // The sentences Core writes (Common/Lines.cs). Read with the sheets but not part of their fingerprint: wording
+        // changes never mark a save as made with other sheets.
+        public static readonly string[] TextFiles = { "Text/common.csv", "Text/battle.csv", "Text/adventure.csv", "Text/town.csv" };
+
+        public Lines Lines { get; private set; } = new Lines("ko");
+
+        // A sentence for the player in the loaded language (Lines.Get).
+        public string Line(string id, params object[] args) => Lines.Get(id, args);
+
         // Monsters the classes summon to their side (Docs/Classes.md: necromancer, beastmaster).
         public const string SkeletonId = "skeleton";
         public const string CompanionWolfId = "companion_wolf";
@@ -94,12 +103,39 @@ namespace Game.Core
             CsvTable.Language = string.IsNullOrEmpty(language) || language == "ko" ? null : language;
             try
             {
-                return LoadSheets(read);
+                var data = LoadSheets(read);
+                data.Lines = ReadLines(read, string.IsNullOrEmpty(language) ? "ko" : language, data._errors);
+                if (data._errors.Count > 0) throw new FormatException("시트 오류:\n" + string.Join("\n", data._errors));
+                return data;
             }
             finally
             {
                 CsvTable.Language = was;
             }
+        }
+
+        static Lines ReadLines(Func<string, string> read, string language, List<string> errors)
+        {
+            var lines = new Lines(language);
+            foreach (string file in TextFiles)
+            {
+                var table = CsvTable.Read(read(file));
+                var missing = table.MissingColumns("id", "ko", "en");
+                if (missing.Count > 0)
+                {
+                    errors.Add($"{file}: 열이 없습니다: {string.Join(", ", missing)}");
+                    continue;
+                }
+                foreach (var row in table.Rows)
+                {
+                    string id = row["id"];
+                    if (id.Length == 0) continue;
+                    if (lines.Has(id)) errors.Add($"{file} {row.Line}행: 문장 id '{id}'가 겹칩니다.");
+                    string text = language == "en" && row["en"].Length > 0 ? row["en"] : row["ko"];
+                    lines.Add(id, text.Replace("\\n", "\n"));
+                }
+            }
+            return lines;
         }
 
         static GameData LoadSheets(Func<string, string> read)
@@ -496,7 +532,7 @@ namespace Game.Core
                     Text = row["text"],
                 };
                 Choice(file, row, "kind", new[] { "physical", "magic", "buff" });
-                Choice(file, row, "effect", new[] { "", "burn", "chill", "weaken", "howl", "charge", "seal", "erase", "freeze" });
+                Choice(file, row, "effect", new[] { "", "burn", "chill", "weaken", "howl", "charge", "seal", "erase", "freeze", "scorch", "daze" });
                 if (skill.Damages && skill.Dice == 0) Error(file, row, "공격에는 주사위가 있어야 합니다.");
                 if (skill.Delay < 20 || skill.Delay > 300) Error(file, row, "delay는 20~300(%)입니다.");
                 if (skill.Id.Length > 0) map[skill.Id] = skill;
@@ -809,7 +845,7 @@ namespace Game.Core
             Combos = list;
         }
 
-        static readonly string[] AchievementRules = { "win", "chapters", "kind_ending", "grim_ending", "kind_all", "renown", "dungeons", "contracts", "talks", "notes", "hard_win", "hardcore_win", "easy_win", "classes", "runs", "no_fall" };
+        static readonly string[] AchievementRules = { "win", "chapters", "kind_ending", "grim_ending", "kind_all", "renown", "dungeons", "contracts", "talks", "notes", "hard_win", "hardcore_win", "easy_win", "classes", "runs", "no_fall", "short_win", "combos", "old_friends", "monsters", "items", "endings" };
 
         void ReadAchievements(CsvTable table)
         {

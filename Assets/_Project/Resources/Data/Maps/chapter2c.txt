@@ -1,0 +1,10 @@
+# 챕터 2 가라앉은 항구, 세 번째 지도 (Docs/Map.md). 시드로 이 장의 지도 셋 가운데 하나를 고른다.
+~~~bb^^^^bb^^^~
+~bbb.rr.S.b.uR^
+~bw.rr..f..uu.^
+~ww.r.H..bb.f.^
+~bwwr..bbwwb.D^
+~bTbrr.bww~wbb^
+~~b.br..Cw~~bM^
+~~~bb.rrr..bbB^
+~~~~bbb~~~bbb~~

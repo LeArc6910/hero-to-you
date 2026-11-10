@@ -41,6 +41,6 @@ engi_flash,engineer,섬광탄,int,2,4,0,magic,all_enemies,100,2,,weaken,crit150,
 mnem_echo,mnemonist,되새김,,0,0,0,support,self,80,2,,echo,,,동료가 마지막으로 쓴 기술을 비용 없이 한 번 더 쓴다(해골·늑대·포탑을 부르는 기술은 빼고).,Echo,"Use the skill an ally used last once more, at no cost (not skills that call a skeleton, wolf or turret)."
 mnem_recall,mnemonist,회상,wil,3,12,50,heal,ally,100,1,,,crit150,,좋았던 날을 떠올리게 해 생명력을 되찾게 한다.,Recall,Bring back the memory of a good day to restore life.
 mnem_forget,mnemonist,망각,int,2,6,25,magic,enemy,90,1,,chill,crit150,,적이 하려던 일을 잊게 한다. 성공하면 다음 차례가 늦어진다.,Forget,"Make an enemy forget what it meant to do. On a success, its next turn comes later."
-alch_mist,alchemist,치유의 안개,int,2,7,50,heal,all_allies,110,2,,,crit150,reagent 2,재료 2. 약을 안개로 뿌려 모두를 조금씩 회복한다.,Healing Mist,2 reagents. Spray medicine as a mist to heal everyone a little.
+alch_mist,alchemist,치유의 안개,int,2,9,50,heal,all_allies,110,2,,,crit150,reagent 2,재료 2. 약을 안개로 뿌려 모두를 조금씩 회복한다.,Healing Mist,2 reagents. Spray medicine as a mist to heal everyone a little.
 necro_wall,necromancer,뼈의 벽,,0,0,0,support,self,60,2,,bonewall,,soul 1,영혼 1. 해골이 도발한다: 모든 적이 해골을 노리고 해골의 방어도 +3.,Bone Wall,"1 soul. Your skeleton taunts: every enemy targets it, and it gets +3 armor."
 seer_guide,seer,별의 인도,,0,0,0,support,ally,60,2,,bless,,,아군 하나의 다음 판정에 확정 성공 +1. 화상과 약화를 걷는다.,Guiding Star,+1 sure success on one ally's next roll. Clears burn and weaken.

@@ -192,6 +192,7 @@ namespace Game.Core
         void FinishBattle()
         {
             Report.Clear();
+            foreach (var monster in Battle.Monsters) if (monster.Monster != null) _codexMonsters.Add(monster.Monster.Id);
             if (Battle.State == BattleState.Fled)
             {
                 Positions[MapHero] = _cameFrom;
@@ -266,7 +267,7 @@ namespace Game.Core
                     Hope++;
                     Doom = Math.Max(0, Doom - 1);
                     var loot = Loot(Chapter.Index + 2);
-                    if (loot != null) Bag.Add(loot);
+                    if (loot != null) AddToBag(loot);
                     Report.Add($"{Korean.Object(Chapter.MidbossName)} 쳤다. 희망 +1, 균열 −1" + (loot != null ? $", {Korean.Object(loot.Name)} 얻었다 (가방)" : ""));
                     GainRenown(MidbossRenown, Report);
                     break;

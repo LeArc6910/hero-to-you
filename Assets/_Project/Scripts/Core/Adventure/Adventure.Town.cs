@@ -125,7 +125,7 @@ namespace Game.Core
             else
             {
                 goods.Sold = true;
-                Bag.Add(goods.Item);
+                AddToBag(goods.Item);
                 Report.Add($"{Korean.Object(goods.Item.Name)} 샀다 (가방)");
             }
             return null;
@@ -328,7 +328,7 @@ namespace Game.Core
             if (!hero.CanEquip(item)) return $"{Korean.Topic(hero.Name)} {item.Name}을 들 수 없습니다.";
             Bag.RemoveAt(bagIndex);
             var old = hero.Equip(item);
-            if (old != null) Bag.Add(old);
+            if (old != null) AddToBag(old);
             Record($"equip {bagIndex} {heroIndex}");
             return null;
         }
@@ -343,7 +343,7 @@ namespace Game.Core
             var item = slot == ItemSlot.Armor ? hero.Armor : hero.Trinket;
             if (item == null) return "벗을 것이 없습니다.";
             hero.Unequip(slot);
-            Bag.Add(item);
+            AddToBag(item);
             Record($"unequip {heroIndex} {slot.ToString().ToLowerInvariant()}");
             return null;
         }
