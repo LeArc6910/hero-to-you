@@ -282,6 +282,17 @@ async function playSlice(game, wholeRun) {
       await game.shot('boss-' + boss, `보스 전투 (${boss})`);
       await game.send('speed 0');
     }
+    // Between two chapters, the party camps on the road before the next prologue (Docs/Narrative.md 막간).
+    if (state.adventure === 'Event' && /^camp_/.test(state.event || '') && !shots.interlude) {
+      shots.interlude = true;
+      run.check(['chapter2', 'chapter3', 'chapter4', 'chapter5'].includes(state.chapter), `장 사이 막간은 다음 장이 시작될 때 나온다 (${state.chapter}, ${state.event})`);
+      await game.wait(300);
+      await game.shot('interlude', `장 사이 막간 (${state.event})`);
+    }
+    if (state.adventure === 'Story' && state.chapter !== 'chapter1' && shots.interlude && !shots.afterInterlude) {
+      shots.afterInterlude = true;
+      run.check(true, '막간 다음에 장의 첫 이야기가 나온다');
+    }
     if (state.chapter === 'chapter2' && state.adventure === 'Story' && !shots.prologue2) {
       shots.prologue2 = true;
       await game.shot('chapter2-story', '2장 이야기');
@@ -305,9 +316,10 @@ async function playSlice(game, wholeRun) {
       await game.shot('talk', '모닥불 곁의 대화');
       run.check(await game.press('계속', '대화'), '대화 카드를 [계속]으로 닫는다');
     }
-    await game.send('autoplay 20');
+    await game.send(shots.interlude ? 'autoplay 20' : 'autoplay 20 camp');
   }
   state = await game.state();
+  if (shots.map2) run.check(!!shots.interlude, '2장에 들어서기 전에 막간(모닥불)을 지난다');
   run.check(state.adventure === 'Victory' || state.adventure === 'Defeat', `캠페인을 끝까지 간다 (${state.adventure}, ${state.chapter}, 명성 ${state.renown} 「${state.rank}」, 레벨 ${state.heroes.map(h => h.level).join('/')})`);
   run.check(!state.saved, '끝나면 저장이 지워진다');
   run.check(state.pages > 0, `일지 페이지를 받는다 (${state.pages}장)`);
@@ -337,7 +349,15 @@ async function playSlice(game, wholeRun) {
   await game.press(/^길이/, '길이');
   run.check(noOverlap((await game.buttons()).filter(b => b.row !== '직업')), '선택지가 넷이어도 파티 화면 단추가 겹치지 않는다');
   await game.shot('party-chapters', '파티 고르기: 시작 장과 길이');
+  // A party with neither a front-liner nor a healer is told it is a hard challenge, and may still set out.
+  const fragile = ['점성술사', '원소술사', '음유시인'];
+  for (const name of fragile) await game.press(name, '직업');
+  run.check((await game.allText()).includes('앞줄도 회복도 없는 파티'), '앞줄도 회복도 없는 파티를 고르면 어려운 도전이라고 알린다');
+  run.check((await game.buttons()).some(b => b.label === '모험 시작' && b.enabled), '그래도 [모험 시작]을 누를 수 있다');
+  await game.shot('party-fragile', '파티 고르기: 앞줄도 회복도 없는 파티');
+  for (const name of fragile) await game.press(name, '직업');
   for (const name of ['도적', '음유시인', '성직자']) await game.press(name, '직업');
+  run.check(!(await game.allText()).includes('앞줄도 회복도 없는 파티'), '앞줄과 회복이 있으면 경고가 없다');
   await game.press('모험 시작');
   state = await game.until(s => s.adventure === 'Story', 5000);
   run.check(state && state.firstChapter === 1 && state.lastChapter === 1 && state.heroes.every(h => h.level >= 4), `2장 한 장짜리 판이 레벨 4로 시작한다 (${state && state.chapter}, 레벨 ${state && state.heroes.map(h => h.level).join('/')})`);

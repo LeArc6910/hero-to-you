@@ -85,3 +85,12 @@ sern_seal,일지 찢기,3,11,0,magic,one,random,100,seal,가장 아끼는 기술
 nameless_erase,지우기,3,12,0,magic,one,random,100,erase,이름을 지운다. 맞으면 2차례 기본 공격만 할 수 있다.,Erase,"Erases a name. If hit, only basic attacks for 2 turns."
 warden_brand,잿불 낙인,3,11,0,magic,one,random,100,scorch,한 사람에게 잿불 낙인을 찍는다. 맞으면 결의 −1과 화상.,Ember Brand,Brands one hero with embers. A hit costs 1 resolve and burns.
 bell_daze,울리는 종,3,13,0,physical,one,random,100,daze,종이 귀 옆에서 울린다. 맞으면 다음 판정의 주사위가 하나 준다.,Ringing Bell,The bell rings right by your ear. A hit means one die fewer on the next check.
+moth_dust,잿가루 날개,1,4,0,magic,all,random,100,weaken,날개를 턴다. 맞으면 약화.,Ash Wings,It beats its wings. Those hit are weakened.
+moth_flit,파닥이기,2,7,0,physical,one,random,90,,어지럽게 날며 부딪친다.,Flutter,It flits about and slams into someone.
+eel_coil,휘감기,2,10,0,physical,one,weakest,110,chill,가장 약한 쪽을 휘감는다. 냉기.,Coil,Coils around the weakest. Chill.
+eel_bite,물어뜯기,2,11,0,physical,one,random,100,,날카로운 이빨로 문다.,Bite,Bites with sharp teeth.
+hollow_chant,빈 염불,0,0,0,buff,self,random,60,howl,이름 없는 염불. 다음 공격의 위력 +3.,Hollow Chant,A chant with no name in it. Its next attack has +3 power.
+hollow_palm,장타,3,16,0,physical,one,strongest,100,,가장 튼튼한 쪽을 손바닥으로 친다.,Palm Strike,Strikes the sturdiest with an open palm.
+scarab_gnaw,붉은 턱,2,13,0,physical,one,random,90,burn,붉은 턱으로 문다. 화상.,Red Mandibles,Bites with red mandibles. Burn.
+forgotten_grasp,이름 붙잡기,3,13,0,physical,one,weakest,100,weaken,약한 쪽의 이름을 붙잡는다. 약화.,Grasp a Name,Grabs at the weakest one's name. Weaken.
+forgotten_sigh,잊힌 한숨,2,7,0,magic,all,random,110,chill,모두에게 차가운 한숨이 스민다. 냉기.,Forgotten Sigh,A cold sigh seeps into everyone. Chill.

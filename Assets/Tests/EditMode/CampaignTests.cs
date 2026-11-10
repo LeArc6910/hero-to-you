@@ -58,6 +58,10 @@ namespace Game.Core.Tests
             Assert.That(new[] { "epilogue", "epilogue_kind", "epilogue_grim" }, Does.Contain(a.Story.Id));
             Assert.That(a.Continue(), Is.Null);
             Assert.That(a.Chapter.Id, Is.EqualTo("chapter2"));
+            // The camp on the road between the chapters comes first, then the prologue (Docs/Narrative.md 막간).
+            Assert.That(a.Screen, Is.EqualTo(AdventureScreen.Event));
+            Assert.That(a.Event.Pool, Is.EqualTo("interlude2"));
+            PassInterlude(a);
             Assert.That(a.Story.Id, Is.EqualTo("prologue2"));
             Assert.That(a.Heroes[0].Level, Is.EqualTo(level), "레벨은 다음 장으로 이어진다");
             Assert.That(a.Gold, Is.EqualTo(77));
@@ -68,16 +72,61 @@ namespace Game.Core.Tests
             Assert.That(a.Positions.All(p => p == a.Map.Tile(Site.Start).Hex), Is.True);
         }
 
+        // Takes the interlude's first choice that has no check and gives no XP (no level-up to pick), then goes on.
+        internal static void PassInterlude(Adventure a)
+        {
+            if (a.Screen != AdventureScreen.Event || a.Event.Pool != a.Chapter.InterludePool) return;
+            var choice = a.Choices().First(c => !c.HasCheck && c.Success.All(o => o.Verb != "xp"));
+            Assert.That(a.Choose(choice.Index, a.Heroes.IndexOf(a.CanAttempt(choice).First())), Is.Null);
+            Assert.That(a.Continue(), Is.Null);
+            Assert.That(a.Screen, Is.EqualTo(AdventureScreen.Story), "막간 다음은 장의 첫 이야기");
+        }
+
         // Beats every chapter's boss without battles, to the victory.
         static void WinAll(Adventure a)
         {
             int chapters = TestData.Data.Chapters.Count;
             for (int i = a.Chapter.Index; i < chapters; i++)
             {
+                PassInterlude(a);
                 if (a.Screen == AdventureScreen.Story) a.Continue();
                 a.EndChapterForTest();
                 Assert.That(a.Continue(), Is.Null);
             }
+        }
+
+        [Test]
+        public void EveryChapterAfterTheFirstOpensWithACampAndOldSavesKeepTheirWay()
+        {
+            var a = OnMap(5);
+            var camps = new List<string>();
+            int chapters = TestData.Data.Chapters.Count;
+            for (int i = 0; i < chapters - 1; i++)
+            {
+                a.EndChapterForTest();
+                Assert.That(a.Continue(), Is.Null);
+                Assert.That(a.Screen, Is.EqualTo(AdventureScreen.Event), $"{a.Chapter.Id}는 막간으로 시작한다");
+                Assert.That(a.Event.Art, Is.EqualTo("camp"));
+                camps.Add(a.Event.Id);
+                PassInterlude(a);
+                Assert.That(a.Story.Id, Is.EqualTo(a.Chapter.Prologue));
+                Assert.That(a.Continue(), Is.Null);
+            }
+            Assert.That(camps.Count, Is.EqualTo(chapters - 1));
+            // A new save says it has the camps; a save from before them (no "interludes" line) plays without them.
+            string save = a.Save();
+            Assert.That(Adventure.Load(TestData.Data, save, out string error, out _).Interludes, Is.True);
+            Assert.That(error, Is.Null);
+            Assert.That(Adventure.Load(TestData.Data, save.Replace("interludes\n", ""), out error, out _).Interludes, Is.False);
+            Assert.That(error, Is.Null);
+            var old = new Adventure(TestData.Data, new[] { "knight", "hunter", "cleric" }, 5);
+            old.Interludes = false;
+            old.Continue();
+            old.EndChapterForTest();
+            old.Continue();
+            Assert.That(old.Screen, Is.EqualTo(AdventureScreen.Story), "막간이 없던 저장본은 바로 첫 이야기");
+            Assert.That(old.Story.Id, Is.EqualTo("prologue2"));
+            Assert.That(old.Save(), Does.Not.Contain("interludes"));
         }
 
         [Test]

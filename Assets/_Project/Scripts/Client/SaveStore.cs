@@ -145,7 +145,7 @@ namespace Game.Client
                 }
                 else if (line.StartsWith("chapters ")) int.TryParse(line.Split(' ')[1], out first);
                 else if (line.Length > 0 && !line.StartsWith("seed ") && !line.StartsWith("sheets ") && !line.StartsWith("perks") && !line.StartsWith("level ")
-                         && line != "hardcore" && !line.StartsWith(Game.Core.Adventure.SaveHeader)) commands++;
+                         && line != "hardcore" && line != "interludes" && !line.StartsWith(Game.Core.Adventure.SaveHeader)) commands++;
             }
             string from = first > 0 ? " · " + Strings.Format("slots.from", first + 1) : "";
             return $"{party}{from} · {Strings.Format("slots.progress", commands)}";

@@ -23,3 +23,4 @@ old_faces,다시 만난 얼굴들,old_friends 3,한 판에서 앞 장에 구한 
 bestiary,짐승의 이름,monsters 30,도감에 몬스터 30종을 적었다.,Names of Beasts,Write 30 kinds of monsters in the codex.
 armory,장비 수집가,items 40,도감에 장비 40종을 적었다.,Collector of Arms,Write 40 pieces of gear in the codex.
 many_ends,여러 개의 끝,endings 8,도감에 장의 결말 8개를 적었다.,Many Endings,Write 8 chapter endings in the codex.
+glass_party,방패도 약초도 없이,fragile_win,앞줄도 회복도 없는 파티로 캠페인을 이긴다.,"No Shield, No Salve",Win the campaign with a party that has neither a front-liner nor a healer.

@@ -383,6 +383,9 @@ namespace Game.Core
         public string CluePool { get; internal set; }
         public string ShrinePool { get; internal set; }
         public string ElderPool { get; internal set; }
+        // The camp on the road into this chapter, between two chapters of one run (Docs/Narrative.md 막간): an event
+        // card of this pool comes before the prologue. Empty for none (the first chapter).
+        public string InterludePool { get; internal set; } = "";
 
         // Reading the quest site sets WeakenFlag (the boss −25% and no armor); the clue site sets NoSummonFlag (no
         // helpers in its second phase).

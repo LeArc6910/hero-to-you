@@ -133,6 +133,13 @@ party.length_all,길이: 끝까지,Length: to the end
 party.length_one,길이: 한 장,Length: one chapter
 party.chapters_tip,한 번이라도 다다른 장부터 시작할 수 있다. 늦게 시작하면 그 장에 맞는 레벨·장비·금화를 받는다. 짧은 판은 장과 페이지는 남지만 캠페인 승리로는 치지 않는다.,"Start at any chapter you have reached before. A later start brings the levels, gear and gold for it. A short run counts its chapters and pages, not as a won campaign."
 party.combos,조합: {0},Pairings: {0}
+party.fragile,앞줄도 회복도 없는 파티: 어려운 도전입니다,"No front row, no healer: a hard challenge"
+party.no_front,앞줄 없음: 적의 공격이 아무에게나 갑니다,"No front row: enemy blows can land on anyone"
+party.no_healer,"회복 기술 없음: 물약·여관·쉼터에 기댑니다","No healer: you lean on potions, inns and shrines"
+party.tip_front,앞줄에 서는 직업: {0},Classes that stand in front: {0}
+party.tip_healer,회복 기술이 있는 직업: {0},Classes that heal: {0}
+party.tip_choice,고르지 않아도 됩니다. 떠나기 전에 알려 드릴 뿐입니다.,"You don't have to take one. This is only said before you set out."
+party.fragile_tip,"이 파티로 캠페인을 이기면 「{0}」 업적을 얻습니다.","Win the campaign with this party to earn '{0}'."
 end.copy,기록 복사,Copy the summary
 end.copied,기록을 복사했다. 붙여 넣어 나눌 수 있다.,Copied. Paste it to share.
 end.copy_failed,복사하지 못했다. 이 브라우저는 복사를 막는다.,Could not copy: this browser blocks it.

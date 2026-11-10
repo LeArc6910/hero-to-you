@@ -25,6 +25,7 @@ namespace Game.Core
             text.Append("level ").Append(Difficulty.ToString().ToLowerInvariant()).Append('\n');
             if (Hardcore) text.Append("hardcore\n");
             if (FirstChapter > 0 || LastChapter < Data.Chapters.Count - 1) text.Append($"chapters {FirstChapter} {LastChapter}\n");
+            if (Interludes) text.Append("interludes\n");
             text.Append("sheets ").Append(Data.Fingerprint).Append('\n');
             foreach (string line in _log) text.Append(line).Append('\n');
             return text.ToString();
@@ -56,6 +57,7 @@ namespace Game.Core
             var perks = new List<string>();
             var difficulty = Difficulty.Normal;
             bool hardcore = false;
+            bool interludes = false;
             int firstChapter = 0, lastChapter = -1;
             string sheets = null;
             for (; first < lines.Count; first++)
@@ -65,6 +67,7 @@ namespace Game.Core
                 else if (line.StartsWith("level ")) Enum.TryParse(line.Substring(6), true, out difficulty);
                 else if (line.StartsWith("sheets ")) sheets = line.Substring(7);
                 else if (line == "hardcore") hardcore = true;
+                else if (line == "interludes") interludes = true;
                 else if (line.StartsWith("chapters "))
                 {
                     string[] range = line.Split(' ');
@@ -83,6 +86,7 @@ namespace Game.Core
                 error = data.Line("adventure.save.bad_party", e.Message);
                 return null;
             }
+            adventure.Interludes = interludes;
             if (sheets != null && sheets != data.Fingerprint) note = data.Line("adventure.save.sheets_changed");
             for (int i = first; i < lines.Count; i++)
             {

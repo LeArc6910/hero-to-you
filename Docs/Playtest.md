@@ -38,6 +38,7 @@ node DevTools/WebPlaytest/playtest.js --url http://localhost:8000/
 - **성능**: 타이틀·지도·전투에서 3초씩 프레임 시간, GC, 프레임당 할당을 보고서에 적는다(`lib.js`의 `perf`)
 - **영어**: PC 판의 끝에 영어로 새 판을 열어 봇이 걷는 동안 처음 만나는 화면(지도, 이야기, 사건, 전투, 결과, 마을, 레벨업)마다 한글이 없는지 보고 사진을 찍는다
 - **보스**: 4·5장 보스(세른, 이름 없는 것)와 중간 보스까지 사진을 찍는다
+- **막간과 약한 파티** (2026-11-10): 캠페인 중 장 사이 막간(모닥불)에서 멈춰 사진을 찍고 다음 장보다 먼저 나왔는지 본다. 두 번째 파티 고르기에서 점성술사·원소술사·음유시인을 골라 "앞줄도 회복도 없는 파티" 경고가 나오고 [모험 시작]이 그대로 눌리는지 본다
 
 ## 게임 쪽 원격 조종 (`Client/Playtest.cs`)
 
@@ -53,7 +54,7 @@ node DevTools/WebPlaytest/playtest.js --url http://localhost:8000/
 | `continue`, `roll`, `move <열> <줄>`, `stay`, `camp`, `join`, `upgrade <n>` | 모험 명령(join은 갈 수 있는 영웅 모두) |
 | `goto town\|quest\|boss\|shrine\|<열> <줄>` | 지금 영웅을 그곳 옆 빈 칸으로 옮긴다 |
 | `auto`, `autobattle`, `skip` | 봇이 지금 영웅의 명령 하나, 전투 끝까지, 남은 연출을 바로 |
-| `autoplay <n>` | 모험 봇이 n걸음(지도·사건·마을·전투 모두) |
+| `autoplay <n> [camp]` | 모험 봇이 n걸음(지도·사건·마을·전투 모두). `camp`를 붙이면 장 사이 막간이 열릴 때 멈춘다 |
 | `choose <선택지> <영웅> [결의]`, `autochoose` | 사건 선택지 |
 | `speed <배>` | 연출 속도(0은 바로) |
 | `touch on\|off\|auto`, `gear on\|off`, `sound on\|off` | 터치 배치, 장비 창, 소리 |

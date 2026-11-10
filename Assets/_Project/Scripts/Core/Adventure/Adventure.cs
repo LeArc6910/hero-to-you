@@ -146,6 +146,9 @@ namespace Game.Core
         public ulong Seed { get; }
         public IReadOnlyList<string> ClassIds { get; }
 
+        // The party set out with neither a front-liner nor a healer (PartyShape): a hard challenge of its own.
+        public bool FragileParty => PartyShape.Fragile(PartyShape.Of(Data, ClassIds));
+
         // The journal perks this run started with (Docs/Journal.md).
         public IReadOnlyList<string> Perks { get; }
         public bool Hard { get; private set; }
@@ -362,7 +365,7 @@ namespace Game.Core
         {
             if (Hardcore || Hard) return null;
             var lines = Save().Replace("\r", "").Split('\n').ToList();
-            int header = lines.FindIndex(l => !(l.StartsWith(SaveHeader) || l.StartsWith("seed ") || l.StartsWith("party ") || l.StartsWith("perks") || l.StartsWith("level ") || l == "hardcore" || l.StartsWith("chapters ") || l.StartsWith("sheets ")));
+            int header = lines.FindIndex(l => !(l.StartsWith(SaveHeader) || l.StartsWith("seed ") || l.StartsWith("party ") || l.StartsWith("perks") || l.StartsWith("level ") || l == "hardcore" || l.StartsWith("chapters ") || l.StartsWith("sheets ") || l == "interludes"));
             if (header < 0) header = lines.Count;
             return string.Join("\n", lines.Take(header + ChapterStart)) + "\n";
         }
@@ -408,7 +411,31 @@ namespace Game.Core
             }
             Populate();
             UpdateSight();
-            ShowStory(Chapter.Prologue, Then.Map);
+            // Between two chapters of one run the party camps on the road first (Docs/Narrative.md 막간): a card of
+            // the chapter's interlude pool, then the prologue. Not where the run starts, nor in saves made before
+            // interludes existed (so they replay as they were played).
+            var interlude = index > FirstChapter && Interludes ? PickInterlude(index) : null;
+            if (interlude != null)
+            {
+                _prologueNext = true;
+                OpenEvent(interlude, null);
+            }
+            else ShowStory(Chapter.Prologue, Then.Map);
+        }
+
+        // Saves from before the interludes have no "interludes" line and play without them.
+        public bool Interludes { get; internal set; } = true;
+        bool _prologueNext;
+
+        // Its own random stream, so the camp drawn never moves the cards of the map (Docs/Saving.md 따로 흐르는 난수).
+        EventCard PickInterlude(int index)
+        {
+            if (string.IsNullOrEmpty(Chapter.InterludePool)) return null;
+            var cards = Data.Events.Where(e => e.Pool == Chapter.InterludePool && FlagOk(e.Requires)).ToList();
+            if (cards.Count == 0) return null;
+            var card = cards[new GameRandom(Seed, 400 + (ulong)index).Next(cards.Count)];
+            _seen.Add(card.Id);
+            return card;
         }
 
         void ShowStory(string id, Then then)
@@ -447,6 +474,12 @@ namespace Game.Core
                 case AdventureScreen.EventResult:
                     Record("continue");
                     Report.Clear();
+                    if (_prologueNext)
+                    {
+                        _prologueNext = false;
+                        ShowStory(Chapter.Prologue, Then.Map);
+                        return null;
+                    }
                     if (_pendingBattle != null)
                     {
                         string id = _pendingBattle;

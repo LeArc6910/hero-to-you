@@ -32,6 +32,22 @@ namespace Game.Core.Tests
         };
 
         [Test]
+        public void APartyWithNeitherFrontNorHealerIsMarkedAsAChallenge()
+        {
+            var data = TestData.Data;
+            Assert.That(PartyShape.Fragile(PartyShape.Of(data, new[] { "seer", "elementalist", "bard" })), Is.True);
+            Assert.That(PartyShape.Fragile(PartyShape.Of(data, new[] { "knight", "hunter", "cleric" })), Is.False);
+            // One of the two is enough to lose the mark: a healer in the back row, or a front-liner who cannot heal.
+            Assert.That(PartyShape.Fragile(PartyShape.Of(data, new[] { "seer", "elementalist", "cleric" })), Is.False);
+            Assert.That(PartyShape.HasHealer(PartyShape.Of(data, new[] { "knight", "seer", "elementalist" })), Is.False);
+            Assert.That(PartyShape.HasFront(PartyShape.Of(data, new[] { "knight", "seer", "elementalist" })), Is.True);
+            Assert.That(PartyShape.IsHealer(data.Classes["alchemist"]) && PartyShape.IsHealer(data.Classes["mnemonist"]), Is.True);
+            Assert.That(Start(new[] { "seer", "elementalist", "bard" }).FragileParty, Is.True);
+            Assert.That(Start(new[] { "knight", "hunter", "cleric" }).FragileParty, Is.False);
+            Assert.That(data.Achievements.Any(a => a.Rule == "fragile_win"), Is.True, "the challenge has an achievement");
+        }
+
+        [Test]
         public void PairedClassesBringTheirGift()
         {
             var plain = Start(new[] { "knight", "rogue", "bard" });

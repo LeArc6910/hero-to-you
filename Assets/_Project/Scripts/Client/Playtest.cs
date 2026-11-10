@@ -121,11 +121,14 @@ namespace Game.Client
                     return $"ok {near}";
                 case "autoplay":
                     // The adventure bot plays this many steps (whole battles count one step each command).
+                    // "autoplay 20 camp" stops when the camp between two chapters opens (Docs/Narrative.md 막간).
                     int steps = Number(1, 50);
+                    bool stopAtCamp = Arg(2) == "camp";
                     for (int i = 0; i < steps && _adventure.Screen != AdventureScreen.Victory && _adventure.Screen != AdventureScreen.Defeat; i++)
                     {
                         string failed = Act(() => AdventureBot.Step(_adventure, BotRandom));
                         if (failed != null) return "error " + failed;
+                        if (stopAtCamp && _adventure.Screen == AdventureScreen.Event && _adventure.Event.Pool == _adventure.Chapter.InterludePool) break;
                     }
                     if (_battleShown != null)
                     {

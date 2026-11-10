@@ -6,7 +6,8 @@ namespace Game.Client
     // The pictures over the story pages (stories.csv `art`) and the events that matter most (events.csv `art`),
     // composed in code from the pixel art like everything else: a sky, the ground, a few shapes of the place, and the
     // party walking along the bottom. Scene names: forest, harbor, snow, rift, tomb, gate (the chapters), dawn and
-    // dusk (kind and grim endings), reunion (someone saved earlier waits by a fire), shrine. Unknown names draw just
+    // dusk (kind and grim endings), reunion (someone saved earlier waits by a fire), shrine, camp (the party around a
+    // fire under the stars, between two chapters: Docs/Narrative.md 막간). Unknown names draw just
     // the party on a dusk sky, so new stories never break.
     static class SceneArt
     {
@@ -24,6 +25,7 @@ namespace Game.Client
                 "dusk" => (Palette.Hex("#23222E"), Palette.Hex("#6A5E6E"), Palette.Hex("#3A3840"), "stones", "ash"),
                 "reunion" => (Palette.Hex("#2E2240"), Palette.Hex("#C8784A"), Palette.Hex("#4A3A2A"), "tree", "waiting"),
                 "shrine" => (Palette.Hex("#162236"), Palette.Hex("#6E8CA8"), Palette.Hex("#4A5A4A"), "stones", "glow"),
+                "camp" => (Palette.Hex("#0E1226"), Palette.Hex("#34304E"), Palette.Hex("#2A281E"), "tree", "fire"),
                 _ => (Palette.Hex("#2A2438"), Palette.Hex("#6E5A6E"), Palette.Hex("#3A3440"), null, null),
             };
             const int bands = 8;
@@ -85,6 +87,33 @@ namespace Game.Client
                 var at = new Rect(r.x + (r.width - shrine) / 2, r.y + skyH - shrine * 0.9f, shrine, shrine);
                 Ui.Fill(new Rect(at.x - shrine * 0.3f, at.y - shrine * 0.2f, shrine * 1.6f, shrine * 1.3f), new Color(0.75f, 0.85f, 1f, pulse));
                 Ui.Image(at, PixelArt.Icon("shrine"));
+            }
+            else if (extra == "fire")
+            {
+                // Stars that twinkle, a fire in the middle with its glow, and the party sitting around it.
+                for (int i = 0; i < 28; i++)
+                {
+                    float x = r.x + (float)random.NextDouble() * r.width;
+                    float y = r.y + (float)random.NextDouble() * skyH * 0.7f;
+                    float twinkle = Settings.LessMotion ? 0.7f : 0.45f + Mathf.Abs(Mathf.Sin(time * 1.5f + i * 1.7f)) * 0.5f;
+                    Ui.Fill(new Rect(x, y, 2, 2), new Color(1f, 0.95f, 0.85f, twinkle));
+                }
+                float fire = s * 0.8f;
+                float flicker = Settings.LessMotion ? 0 : Mathf.Sin(time * 9) * 0.06f;
+                var at = new Rect(r.x + (r.width - fire) / 2, r.yMax - fire - 6, fire, fire);
+                Ui.Fill(new Rect(at.x - fire * 0.8f, at.y - fire * 0.3f, fire * 2.6f, fire * 1.3f), new Color(1f, 0.6f, 0.25f, 0.14f + flicker));
+                Ui.Image(at, PixelArt.Icon("camp"), new Color(1, 1, 1, 0.92f + flicker));
+                if (party == null) return;
+                float sitter = Mathf.Min(r.height * 0.34f, 52);
+                for (int i = 0; i < party.Count; i++)
+                {
+                    // Two on the left facing the fire, the rest on the right facing back.
+                    bool left = i % 2 == 0;
+                    float x = left ? at.x - sitter * (1.05f + i / 2 * 0.9f) : at.xMax + sitter * (0.05f + i / 2 * 0.9f);
+                    float breathe = Settings.LessMotion ? 0 : Mathf.Abs(Mathf.Sin(time * 1.2f + i)) * sitter * 0.02f;
+                    Ui.Image(new Rect(x, r.yMax - sitter - 4 - breathe, sitter, sitter), PixelArt.Hero(party[i].id, party[i].color), null, !left);
+                }
+                return;
             }
             else if (extra != null)
             {

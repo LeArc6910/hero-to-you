@@ -12,6 +12,7 @@ seed 638123456789
 party knight,hunter,cleric
 perks coin_purse,hope_page
 level normal
+interludes
 sheets 9f2c41a0
 continue
 roll
@@ -21,7 +22,7 @@ fight 0 attack 3 1
 ...
 ```
 
-`perks`는 그 판이 들고 시작한 일지의 장(`Docs/Journal.md`), `level`은 난이도(`easy`, `normal`), `hardcore`가 있으면 하드코어다. 짧은 판(`Docs/Map.md`)이면 `chapters 1 1`처럼 처음과 마지막 장 번호(0부터)가 붙는다(2026-11-10, 머리 줄만 더해서 `SaveVersion`은 그대로 3이다). 언어는 저장본에 없다: 한국어로 저장한 판을 영어로 이어도 똑같이 돈다(`Docs/Localization.md`). `Adventure`의 공개 메서드(Continue, RollMove, Reroll, Move, Camp, Stay, Join, Avoid, Scare, Fight, Choose, Rest, Buy, Sell, Rumor, Donate, TakeContract, Elder, LeaveTown, Equip, Unequip, UseItem, SetRow, Delve, LeaveDungeon, Forge, Recruit, ChooseUpgrade)는 성공할 때마다 한 줄을 `Log`에 쓴다. 불러오기(`Adventure.Load`)는 같은 시드와 파티로 새 모험을 만들고 그 줄들을 차례로 다시 준다. 같은 상태가 된다(`SaveTests`가 확인한다).
+`perks`는 그 판이 들고 시작한 일지의 장(`Docs/Journal.md`), `level`은 난이도(`easy`, `normal`), `hardcore`가 있으면 하드코어다. 짧은 판(`Docs/Map.md`)이면 `chapters 1 1`처럼 처음과 마지막 장 번호(0부터)가 붙는다(2026-11-10, 머리 줄만 더해서 `SaveVersion`은 그대로 3이다). `interludes`가 있으면 장 사이 막간(`Docs/Narrative.md` 막간)이 있는 판이다. 막간이 생기기 전의 저장본에는 이 줄이 없어서 막간 없이 예전 흐름대로 다시 돈다(2026-11-10). 언어는 저장본에 없다: 한국어로 저장한 판을 영어로 이어도 똑같이 돈다(`Docs/Localization.md`). `Adventure`의 공개 메서드(Continue, RollMove, Reroll, Move, Camp, Stay, Join, Avoid, Scare, Fight, Choose, Rest, Buy, Sell, Rumor, Donate, TakeContract, Elder, LeaveTown, Equip, Unequip, UseItem, SetRow, Delve, LeaveDungeon, Forge, Recruit, ChooseUpgrade)는 성공할 때마다 한 줄을 `Log`에 쓴다. 불러오기(`Adventure.Load`)는 같은 시드와 파티로 새 모험을 만들고 그 줄들을 차례로 다시 준다. 같은 상태가 된다(`SaveTests`가 확인한다).
 
 - 좋은 점: 저장 형식이 작고 단순하다. 협동의 명령 동기화(M4)와 같은 길이다. 버그를 저장본 하나로 그대로 재현한다
 - `sheets`: 데이터 시트의 지문. 저장한 뒤 시트가 바뀌었으면 불러올 때 "결과가 조금 다를 수 있다"고 알린다

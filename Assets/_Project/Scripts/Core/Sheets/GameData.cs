@@ -772,6 +772,7 @@ namespace Game.Core
                     CluePool = row["clue"],
                     ShrinePool = row["shrine"],
                     ElderPool = row["elder"],
+                    InterludePool = row["interlude"],
                     WeakenFlag = row["weaken_flag"],
                     NoSummonFlag = row["nosummon_flag"],
                     QuestName = row["quest_name"],
@@ -814,6 +815,8 @@ namespace Game.Core
                     if (!Stories.ContainsKey(story)) Error(file, row, $"이야기 '{story}'가 stories.csv에 없습니다.");
                 foreach (string pool in new[] { chapter.WildPool, chapter.ChestPool, chapter.HerbPool, chapter.QuestPool, chapter.CluePool, chapter.ShrinePool, chapter.ElderPool })
                     if (!Events.Any(e => e.Pool == pool)) Error(file, row, $"사건 묶음 '{pool}'가 events.csv에 없습니다.");
+                if (chapter.InterludePool.Length > 0 && !Events.Any(e => e.Pool == chapter.InterludePool))
+                    Error(file, row, $"막간 묶음 '{chapter.InterludePool}'가 events.csv에 없습니다.");
                 int index = list.Count + 1;
                 if (!Encounters.Values.Any(e => e.Danger == 1 && (e.Chapter == 0 || e.Chapter == index))) Error(file, row, "이 챕터의 지도에 놓을 전투(danger 1)가 없습니다.");
                 list.Add(chapter);
@@ -852,7 +855,7 @@ namespace Game.Core
             Combos = list;
         }
 
-        static readonly string[] AchievementRules = { "win", "chapters", "kind_ending", "grim_ending", "kind_all", "renown", "dungeons", "contracts", "talks", "notes", "hard_win", "hardcore_win", "easy_win", "classes", "runs", "no_fall", "short_win", "combos", "old_friends", "monsters", "items", "endings" };
+        static readonly string[] AchievementRules = { "win", "chapters", "kind_ending", "grim_ending", "kind_all", "renown", "dungeons", "contracts", "talks", "notes", "hard_win", "hardcore_win", "easy_win", "classes", "runs", "no_fall", "short_win", "combos", "old_friends", "monsters", "items", "endings", "fragile_win" };
 
         void ReadAchievements(CsvTable table)
         {

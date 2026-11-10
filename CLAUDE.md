@@ -16,10 +16,10 @@ For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000
 - `Assets/_Project/Scripts/Core` (`Game.Core`): 게임 규칙과 상태 전부. UnityEngine을 참조하지 않는다(`noEngineReferences`). netstandard2.1, C# 9.
   - `Common/GameRandom.cs`: PCG32. `Common/Lines.cs`: Core가 쓰는 문장(`Data/Text/*.csv`, `Data.Line("id", 값…)`, 한국어 조사 표시 `{0:이}`; 새 문장은 id를 글자 그대로 쓴다). `Sheets/`: CSV 읽기와 시트(`GameData`가 모든 시트를 묶는다. `GameData.Load(read, "en")`은 시트의 `*_en` 칸을 읽는다)
   - `Dice/`: 판정(`Check`), 굴리기 전 확률(`CheckSpec.Odds`), 운명의 흐름(`Fate`)
-  - `Heroes/`: 영웅, 능력치, 직업, 레벨
+  - `Heroes/`: 영웅, 능력치, 직업, 레벨, 파티의 모양(`PartyShape`: 앞줄·회복이 있는지)
   - `Combat/`: 턴제 전투(`Battle`). 명령(`BattleCommand`)을 받아 상태를 바꾸고 일어난 일(`BattleEvent`) 목록을 쌓는다. 직업 기믹은 `Battle.Classes.cs`
   - `Map/`: 육각 칸(`Hex`), 지도 글자 읽기(`MapDef`), 지금 지도(`WorldMap`: 칸의 내용, 이동 범위)
-  - `Adventure/`: 한 판(장을 잇는 캠페인)의 진행(`Adventure`): 장과 이야기·결말·목표(`Adventure.cs`), 지도 채우기·안개·지도 차례·직업 지도 특기·하루와 균열(`.Map.cs`), 합류·피하기·보스·레벨업·상처(`.Battle.cs`), 사건·명성·발자취(`.Events.cs`), 마을·상점·소모품·장비(`.Town.cs`), 던전·의뢰·동료 대화·줄(`.Quests.cs`), 저장과 불러오기(`.Save.cs`, 명령 기록을 다시 돌린다), 판을 넘는 일지(`Journal`), 모험 봇(`AdventureBot`)
+  - `Adventure/`: 한 판(장을 잇는 캠페인)의 진행(`Adventure`): 장과 이야기·결말·목표·장 사이 막간(`Adventure.cs`), 지도 채우기·안개·지도 차례·직업 지도 특기·하루와 균열(`.Map.cs`), 합류·피하기·보스·레벨업·상처(`.Battle.cs`), 사건·명성·발자취(`.Events.cs`), 마을·상점·소모품·장비(`.Town.cs`), 던전·의뢰·동료 대화·줄(`.Quests.cs`), 저장과 불러오기(`.Save.cs`, 명령 기록을 다시 돌린다), 판을 넘는 일지(`Journal`), 모험 봇(`AdventureBot`)
 - `Assets/_Project/Resources/Data`: 데이터 시트(CSV)와 지도(`Maps/*.txt`). 형식은 `Docs/Classes.md`, `Docs/Combat.md`, `Docs/Narrative.md`, `Docs/Map.md`. 클라이언트는 `Resources.Load`로 바로 읽는다. 시트를 새로 추가하면 `GameData.Files`에 넣는다.
 - `Assets/Tests/EditMode` (`Game.Core.Tests`): Core 테스트(NUnit). Unity Test Runner와 `dotnet test`가 같은 파일을 쓴다.
 - `Assets/_Project/Scripts/Client` (`Game.Client`): 화면과 입력만. 게임 규칙을 두지 않는다. UI는 IMGUI이고 크기는 `Ui`의 점 단위(`Ui.Width`, `Ui.Height`)로 잡는다. 줄이 바뀔 수 있는 한글은 `Ui.Wrap`. 설명은 `Ui.Tip`(마우스는 가리키기, 휴대폰은 길게 누르기), 처음 보는 화면의 도움말 카드는 `Tips`. 화면의 낱말은 `Strings`(`Resources/Data/Ui/strings.csv`, 한국어·영어)로 쓰고, 설정은 `Settings`(글자 크기, 진동, 언어). 이야기 장면 그림은 `Art/SceneArt.cs`. 그림은 `Art/`에 코드로 그린 도트(`PixelArt`), 효과음과 음악도 코드로 합성한다(`Art/SoundArt.cs`·`Sounds`, `Art/MusicArt.cs`·`Music`). 글꼴은 `Resources/Fonts`의 Noto Sans KR 부분집합. 화면은 `GameRoot`의 부분 파일(`.Menu`, `.Map`, `.Battle`, `.Story`, `.Town`)이고, 모험 명령은 `GameRoot.Act`로 줘서 받아들여지면 기기의 지금 슬롯에 저장한다(`SaveStore`: 슬롯 셋과 연습 판). 입력은 IMGUI 이벤트만 쓴다(마우스·탭 모두 클릭으로 들어온다). `Editor/`에는 프로젝트 설정과 씬을 코드로 만드는 메뉴(`Game > Set Up Project`)와 웹 빌드(`Game > Build Web Demo`).

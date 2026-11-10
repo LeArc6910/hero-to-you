@@ -135,6 +135,7 @@ namespace Game.Core
             "monsters" => _codex["monsters"].Count >= a.Amount,
             "items" => _codex["items"].Count >= a.Amount,
             "endings" => EndingsSeen(run.Data) >= a.Amount,
+            "fragile_win" => won && run.FragileParty,
             _ => false,
         };
 

@@ -274,7 +274,9 @@ namespace Game.Client
             float optionsH = (twoRows ? 2 : 1) * 50;
             var perks = ChosenPerks();
             var combos = _data.Combos.Where(c => c.Classes.All(_party.Contains)).ToList();
-            float infoH = (perks.Count > 0 ? 17 : 0) + (combos.Count > 0 ? 17 : 0);
+            // What the chosen three lack (Core PartyShape): told before the run, never forbidden (user decision, 2026-11-10).
+            string shape = PartyShapeLine(out bool fragile);
+            float infoH = (perks.Count > 0 ? 17 : 0) + (combos.Count > 0 ? 17 : 0) + (shape != null ? 17 : 0);
             float footer = 56 + optionsH + infoH;
             var area = new Rect(8, top + 48, Ui.Width - 16, Ui.Height - top - 48 - footer);
 
@@ -302,6 +304,13 @@ namespace Game.Client
             Ui.EndArea(_partyScroll);
 
             float y = area.yMax + 4;
+            if (shape != null)
+            {
+                var line = new Rect(12, y, Ui.Width - 24, 16);
+                Ui.Text(line, shape, 11, fragile ? Palette.Damage : Palette.Intent);
+                Ui.Tip(line, PartyShapeTip(fragile));
+                y += 17;
+            }
             if (combos.Count > 0)
             {
                 var line = new Rect(12, y, Ui.Width - 24, 16);
@@ -344,6 +353,32 @@ namespace Game.Client
             if (Ui.Button(new Rect(20 + bw, by, bw, 44), Strings.Get("party.random"), 15)) PickRandomParty();
             string start = _party.Count == 3 ? Strings.Get("party.start") : $"{Strings.Get("party.start")} ({_party.Count}/3)";
             if (Ui.Button(new Rect(Ui.Width - 12 - bw, by, bw, 44), start, 16, _party.Count == 3, Look.Primary, null, KeyCode.Space)) StartAdventure(_party);
+        }
+
+        // "앞줄도 회복도 없는 파티: 어려운 도전" when the chosen three have neither; one line for whichever one is missing.
+        string PartyShapeLine(out bool fragile)
+        {
+            fragile = false;
+            if (_party.Count < 3) return null;
+            var chosen = PartyShape.Of(_data, _party).ToList();
+            bool front = PartyShape.HasFront(chosen), healer = PartyShape.HasHealer(chosen);
+            fragile = !front && !healer;
+            if (fragile) return Strings.Get("party.fragile");
+            if (!front) return Strings.Get("party.no_front");
+            if (!healer) return Strings.Get("party.no_healer");
+            return null;
+        }
+
+        // Which classes stand in front and which heal, so the fix is one tap away; and the challenge's achievement.
+        string PartyShapeTip(bool fragile)
+        {
+            var playable = _data.ClassList.Where(c => c.Playable).ToList();
+            string fronts = string.Join(", ", playable.Where(c => !c.BackRow).Select(c => c.Name));
+            string healers = string.Join(", ", playable.Where(PartyShape.IsHealer).Select(c => c.Name));
+            string tip = Strings.Format("party.tip_front", fronts) + "\n" + Strings.Format("party.tip_healer", healers) + "\n" + Strings.Get("party.tip_choice");
+            if (!fragile) return tip;
+            var challenge = _data.Achievements.FirstOrDefault(a => a.Rule == "fragile_win");
+            return challenge == null ? tip : tip + "\n" + Strings.Format("party.fragile_tip", challenge.Name);
         }
 
         // ---- The journal: pages, perks to unlock and take along, the old notes found (Docs/Journal.md) ----
