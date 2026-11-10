@@ -1,6 +1,6 @@
 # hero-to-you
 
-For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000.6.3f1. 기획과 기술 원칙은 `Docs/Design.md`(개발 가이드라인)에 있고, 방향이 바뀌면 그 문서를 먼저 고친다. 세부는 `Docs/Dice.md`(주사위), `Docs/Combat.md`(전투), `Docs/Classes.md`(직업 12종), `Docs/Narrative.md`(이야기·사건), `Docs/Map.md`(지도·장), `Docs/Saving.md`(저장), `Docs/Journal.md`(판을 넘는 일지), `Docs/WebDemo.md`(웹 데모), `Docs/WebDemoSetup.md`(사람이 처음 한 번 하는 웹 데모 설정), `Docs/Playtest.md`(클라우드 플레이 시험).
+For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000.6.3f1. 기획과 기술 원칙은 `Docs/Design.md`(개발 가이드라인)에 있고, 방향이 바뀌면 그 문서를 먼저 고친다. 세부는 `Docs/Dice.md`(주사위), `Docs/Combat.md`(전투), `Docs/Classes.md`(직업 12종), `Docs/Narrative.md`(이야기·사건), `Docs/Map.md`(지도·장), `Docs/Saving.md`(저장), `Docs/Journal.md`(판을 넘는 일지), `Docs/Localization.md`(영어판 준비), `Docs/WebDemo.md`(웹 데모), `Docs/WebDemoSetup.md`(사람이 처음 한 번 하는 웹 데모 설정), `Docs/Playtest.md`(클라우드 플레이 시험).
 
 ## 작업 분담
 
@@ -19,10 +19,10 @@ For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000
   - `Heroes/`: 영웅, 능력치, 직업, 레벨
   - `Combat/`: 턴제 전투(`Battle`). 명령(`BattleCommand`)을 받아 상태를 바꾸고 일어난 일(`BattleEvent`) 목록을 쌓는다. 직업 기믹은 `Battle.Classes.cs`
   - `Map/`: 육각 칸(`Hex`), 지도 글자 읽기(`MapDef`), 지금 지도(`WorldMap`: 칸의 내용, 이동 범위)
-  - `Adventure/`: 한 판(장을 잇는 캠페인)의 진행(`Adventure`): 장과 이야기·결말·목표(`Adventure.cs`), 지도 채우기·안개·지도 차례·직업 지도 특기·하루와 균열(`.Map.cs`), 합류·피하기·보스·레벨업(`.Battle.cs`), 사건·명성·발자취(`.Events.cs`), 마을·상점·소모품·장비(`.Town.cs`), 저장과 불러오기(`.Save.cs`, 명령 기록을 다시 돌린다), 판을 넘는 일지(`Journal`), 모험 봇(`AdventureBot`)
+  - `Adventure/`: 한 판(장을 잇는 캠페인)의 진행(`Adventure`): 장과 이야기·결말·목표(`Adventure.cs`), 지도 채우기·안개·지도 차례·직업 지도 특기·하루와 균열(`.Map.cs`), 합류·피하기·보스·레벨업·상처(`.Battle.cs`), 사건·명성·발자취(`.Events.cs`), 마을·상점·소모품·장비(`.Town.cs`), 던전·의뢰·동료 대화·줄(`.Quests.cs`), 저장과 불러오기(`.Save.cs`, 명령 기록을 다시 돌린다), 판을 넘는 일지(`Journal`), 모험 봇(`AdventureBot`)
 - `Assets/_Project/Resources/Data`: 데이터 시트(CSV)와 지도(`Maps/*.txt`). 형식은 `Docs/Classes.md`, `Docs/Combat.md`, `Docs/Narrative.md`, `Docs/Map.md`. 클라이언트는 `Resources.Load`로 바로 읽는다. 시트를 새로 추가하면 `GameData.Files`에 넣는다.
 - `Assets/Tests/EditMode` (`Game.Core.Tests`): Core 테스트(NUnit). Unity Test Runner와 `dotnet test`가 같은 파일을 쓴다.
-- `Assets/_Project/Scripts/Client` (`Game.Client`): 화면과 입력만. 게임 규칙을 두지 않는다. UI는 IMGUI이고 크기는 `Ui`의 점 단위(`Ui.Width`, `Ui.Height`)로 잡는다. 줄이 바뀔 수 있는 한글은 `Ui.Wrap`. 설명은 `Ui.Tip`(마우스는 가리키기, 휴대폰은 길게 누르기), 처음 보는 화면의 도움말 카드는 `Tips`. 그림은 `Art/`에 코드로 그린 도트(`PixelArt`), 효과음과 음악도 코드로 합성한다(`Art/SoundArt.cs`·`Sounds`, `Art/MusicArt.cs`·`Music`). 글꼴은 `Resources/Fonts`의 Noto Sans KR 부분집합. 화면은 `GameRoot`의 부분 파일(`.Menu`, `.Map`, `.Battle`, `.Story`, `.Town`)이고, 모험 명령은 `GameRoot.Act`로 줘서 받아들여지면 기기에 저장한다(`SaveStore`). 입력은 IMGUI 이벤트만 쓴다(마우스·탭 모두 클릭으로 들어온다). `Editor/`에는 프로젝트 설정과 씬을 코드로 만드는 메뉴(`Game > Set Up Project`)와 웹 빌드(`Game > Build Web Demo`).
+- `Assets/_Project/Scripts/Client` (`Game.Client`): 화면과 입력만. 게임 규칙을 두지 않는다. UI는 IMGUI이고 크기는 `Ui`의 점 단위(`Ui.Width`, `Ui.Height`)로 잡는다. 줄이 바뀔 수 있는 한글은 `Ui.Wrap`. 설명은 `Ui.Tip`(마우스는 가리키기, 휴대폰은 길게 누르기), 처음 보는 화면의 도움말 카드는 `Tips`. 화면의 낱말은 `Strings`(`Resources/Data/Ui/strings.csv`, 한국어·영어)로 쓰고, 설정은 `Settings`(글자 크기, 진동, 언어). 이야기 장면 그림은 `Art/SceneArt.cs`. 그림은 `Art/`에 코드로 그린 도트(`PixelArt`), 효과음과 음악도 코드로 합성한다(`Art/SoundArt.cs`·`Sounds`, `Art/MusicArt.cs`·`Music`). 글꼴은 `Resources/Fonts`의 Noto Sans KR 부분집합. 화면은 `GameRoot`의 부분 파일(`.Menu`, `.Map`, `.Battle`, `.Story`, `.Town`)이고, 모험 명령은 `GameRoot.Act`로 줘서 받아들여지면 기기에 저장한다(`SaveStore`). 입력은 IMGUI 이벤트만 쓴다(마우스·탭 모두 클릭으로 들어온다). `Editor/`에는 프로젝트 설정과 씬을 코드로 만드는 메뉴(`Game > Set Up Project`)와 웹 빌드(`Game > Build Web Demo`).
 - `DevTools/`: Unity 없이 Core를 빌드·테스트·시뮬레이션하는 .NET 프로젝트. 소스는 `Assets/`에서 가져다 쓰므로 여기에 게임 코드를 두지 않는다.
   - `Game.Core`: Core만 컴파일한다. 경고도 에러로 친다
   - `Game.Core.Tests`: 테스트
@@ -43,7 +43,8 @@ dotnet run --project DevTools/CoreSandbox -- --dice
 dotnet run --project DevTools/CoreSandbox -- --battle 2000 --party knight,hunter,cleric --encounter goblins
 dotnet run --project DevTools/CoreSandbox -- --classes 1000
 dotnet run --project DevTools/CoreSandbox -- --classes 60 --encounter warden --level 4
-dotnet run --project DevTools/CoreSandbox -- --adventure 200 --party berserker,elementalist,gambler   # 지도 챕터 전체를 봇이
+dotnet run --project DevTools/CoreSandbox -- --adventure 200 --party berserker,elementalist,gambler   # 캠페인 전체를 봇이
+dotnet run --project DevTools/CoreSandbox -- --adventure 60 --party knight,hunter,cleric --human [--easy]  # 사람처럼 실수하는 봇(밸런스는 이것으로 잰다)
 dotnet run --project DevTools/SoundPreview -- /tmp/sounds
 
 # 코드로 그린 도트 그림을 PNG로 보기 (Pillow 필요)

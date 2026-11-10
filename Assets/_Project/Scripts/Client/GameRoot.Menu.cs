@@ -18,9 +18,9 @@ namespace Game.Client
             float x = (Ui.Width - w) / 2;
             float y = Mathf.Max(16, Ui.Height * 0.14f);
             float title = Ui.Short ? 30 : 40;
-            Ui.Text(new Rect(0, y, Ui.Width, title + 10), "히어로 투 유", title, Palette.Gold, TextAnchor.MiddleCenter, true);
+            Ui.Text(new Rect(0, y, Ui.Width, title + 10), Strings.Get("title.name"), title, Palette.Gold, TextAnchor.MiddleCenter, true);
             y += title + 12;
-            Ui.Text(new Rect(16, y, Ui.Width - 32, 20), "영웅에게서 너에게 · 1~3인 협동 턴제 모험", 14, Palette.Journal, TextAnchor.MiddleCenter);
+            Ui.Text(new Rect(16, y, Ui.Width - 32, 20), Strings.Get("title.subtitle"), 14, Palette.Journal, TextAnchor.MiddleCenter);
             y += Ui.Short ? 30 : 48;
 
             float h = Ui.Short ? 44 : 50;
@@ -28,7 +28,7 @@ namespace Game.Client
             if (SaveStore.Exists)
             {
                 string summary = SaveStore.Summary(_data);
-                if (Ui.Button(new Rect(x, y, w, h), "이어하기", 17, true, Look.Primary))
+                if (Ui.Button(new Rect(x, y, w, h), Strings.Get("title.continue"), 17, true, Look.Primary))
                 {
                     _titleError = Resume();
                     if (_titleError == null) Sounds.Play(Sound.Click);
@@ -36,42 +36,77 @@ namespace Game.Client
                 if (summary != null) Ui.Text(new Rect(x, y + h, w, 16), summary, 11, Palette.Dim, TextAnchor.MiddleCenter);
                 y += h + 18;
             }
-            if (Ui.Button(new Rect(x, y, w, h), SaveStore.Exists ? "새 모험 (이어하던 것은 지워진다)" : "혼자 시작 (영웅 셋을 모두 조종)", 16, true, SaveStore.Exists ? Look.Normal : Look.Primary))
+            if (Ui.Button(new Rect(x, y, w, h), Strings.Get(SaveStore.Exists ? "title.new_over" : "title.new"), 16, true, SaveStore.Exists ? Look.Normal : Look.Primary))
             {
                 _party.Clear();
                 _screen = ClientScreen.Party;
             }
             y += h + gap;
             float half = (w - 8) / 2;
-            if (Ui.Button(new Rect(x, y, half, h), $"일지 ({JournalNow.Pages}장)", 15, true, Look.Normal))
+            if (Ui.Button(new Rect(x, y, half, h), Strings.Format("title.journal", JournalNow.Pages), 15, true, Look.Normal))
             {
                 _screen = ClientScreen.Journal;
                 FirstTip("journal");
             }
-            Ui.Button(new Rect(x + half + 8, y, half, h), "협동 (준비 중)", 14, false);
+            if (Ui.Button(new Rect(x + half + 8, y, half, h), Strings.Get("title.settings"), 15, true, Look.Normal)) _screen = ClientScreen.Settings;
             y += h + gap;
-            string speed = _speed >= 2 ? "빠르게" : "보통";
-            float sh = Ui.Short ? 38 : 44;
-            if (Ui.Button(new Rect(x, y, half, sh), $"전투 연출: {speed}", 13, true, Look.Quiet)) _speed = _speed >= 2 ? 1 : 2.5f;
-            if (Ui.Button(new Rect(x + half + 8, y, half, sh), Sounds.Muted ? "소리: 끔" : "소리: 켬", 13, true, Look.Quiet)) Sounds.Muted = !Sounds.Muted;
-            y += sh + gap;
-            if (Ui.Button(new Rect(x, y, half, sh), $"음악: {Music.Volume}%", 13, true, Look.Quiet)) Music.Volume = Music.Volume >= 100 ? 0 : Music.Volume + 25;
-            if (Ui.Button(new Rect(x + half + 8, y, half, sh), "도움말 다시 보기", 13, true, Look.Quiet))
+            Ui.Button(new Rect(x, y, w, Ui.Short ? 38 : 44), Strings.Get("title.coop"), 14, false);
+            y += (Ui.Short ? 38 : 44) + 4;
+            if (_titleError != null) Ui.Text(new Rect(x, y, w, 40), _titleError, 12, Palette.Damage, TextAnchor.UpperCenter, false, true);
+            Ui.Text(new Rect(0, Ui.Height - 26, Ui.Width - 8, 20), Strings.Format("title.footer", _data.Chapters.Count) + " · " + BuildInfo.Version, 11, Palette.Dim, TextAnchor.MiddleRight);
+        }
+
+        // ---- Settings (Settings.cs): text size, vibration, sound, music, battle playback, tips, language ----
+
+        string _settingsNote;
+
+        void DrawSettings()
+        {
+            float w = Mathf.Min(460, Ui.Width - 32);
+            float x = (Ui.Width - w) / 2;
+            float y = Mathf.Max(12, Ui.Height * 0.06f);
+            Ui.Text(new Rect(x, y, w, 30), Strings.Get("settings.heading"), 22, Palette.Gold, TextAnchor.MiddleLeft, true);
+            y += 38;
+            float h = Ui.Short ? 44 : 48;
+            float gap = Ui.Short ? 5 : 8;
+            float half = (w - 8) / 2;
+            if (Ui.Button(new Rect(x, y, half, h), Strings.Format("settings.text", Settings.TextSize), 14, true, Look.Normal, "설정")) Settings.TextSize = Settings.NextTextSize();
+            if (Ui.Button(new Rect(x + half + 8, y, half, h), Strings.Get(Settings.Vibration ? "settings.vibration_on" : "settings.vibration_off"), 14, true, Look.Normal, "설정"))
+            {
+                Settings.Vibration = !Settings.Vibration;
+                WebBridge.Buzz(60);
+            }
+            y += h + gap;
+            if (Ui.Button(new Rect(x, y, half, h), Strings.Get(Sounds.Muted ? "settings.sound_off" : "settings.sound_on"), 14, true, Look.Normal, "설정")) Sounds.Muted = !Sounds.Muted;
+            if (Ui.Button(new Rect(x + half + 8, y, half, h), Strings.Format("settings.music", Music.Volume), 14, true, Look.Normal, "설정")) Music.Volume = Music.Volume >= 100 ? 0 : Music.Volume + 25;
+            y += h + gap;
+            if (Ui.Button(new Rect(x, y, half, h), Strings.Get(_speed >= 2 ? "settings.speed_fast" : "settings.speed_normal"), 14, true, Look.Normal, "설정")) _speed = _speed >= 2 ? 1 : 2.5f;
+            if (Ui.Button(new Rect(x + half + 8, y, half, h), Strings.Get("settings.tips"), 14, true, Look.Normal, "설정"))
             {
                 Tips.Reset();
-                _titleError = "처음 보는 화면마다 도움말이 다시 나온다.";
+                _settingsNote = Strings.Get("settings.tips_done");
             }
-            y += sh + 4;
-            if (_titleError != null) Ui.Text(new Rect(x, y, w, 40), _titleError, 12, Palette.Damage, TextAnchor.UpperCenter, false, true);
-            Ui.Text(new Rect(0, Ui.Height - 26, Ui.Width - 8, 20), $"{_data.Chapters.Count}개의 장 · " + BuildInfo.Version, 11, Palette.Dim, TextAnchor.MiddleRight);
+            y += h + gap;
+            if (Ui.Button(new Rect(x, y, w, h), Strings.Get("settings.language"), 14, true, Look.Normal, "설정"))
+            {
+                Settings.Language = Settings.Language == "en" ? "ko" : "en";
+                _settingsNote = Strings.Get("settings.language_note");
+            }
+            y += h + gap;
+            if (_settingsNote != null) Ui.Text(new Rect(x, y, w, 44), _settingsNote, 12, Palette.Journal, TextAnchor.UpperLeft, false, true);
+            if (Ui.Button(new Rect((Ui.Width - 200) / 2, Ui.Height - 56, 200, 46), Strings.Get("settings.back"), 16, true, Look.Primary))
+            {
+                _settingsNote = null;
+                _screen = ClientScreen.Title;
+            }
         }
 
         void DrawParty()
         {
             var classes = _data.ClassList;
             float top = 8;
-            Ui.Text(new Rect(12, top, Ui.Width - 24, 26), "영웅 셋을 고르세요", 20, Palette.Ink, TextAnchor.MiddleLeft, true);
-            Ui.Text(new Rect(12, top + 24, Ui.Width - 24, 18), $"직업 {classes.Count}종 가운데 셋 · 카드를 누르면 고르고, 다시 누르면 뺀다", 12, Palette.Dim);
+            Ui.Text(new Rect(12, top, Ui.Width - 24, 26), Strings.Get("party.heading"), 20, Palette.Ink, TextAnchor.MiddleLeft, true);
+            Ui.Text(new Rect(12, top + 24, Ui.Width - 24, 18), Strings.Format("party.hint", classes.Count), 12, Palette.Dim);
             float footer = 56;
             var area = new Rect(8, top + 48, Ui.Width - 16, Ui.Height - top - 48 - footer);
 
@@ -96,11 +131,17 @@ namespace Game.Client
 
             float by = Ui.Height - footer + 6;
             float bw = Mathf.Min(200, (Ui.Width - 40) / 3);
-            if (Ui.Button(new Rect(12, by, bw, 44), "뒤로", 15, true, Look.Quiet)) _screen = ClientScreen.Title;
-            if (Ui.Button(new Rect(20 + bw, by, bw, 44), "무작위", 15)) PickRandomParty();
+            if (Ui.Button(new Rect(12, by, bw, 44), Strings.Get("party.back"), 15, true, Look.Quiet)) _screen = ClientScreen.Title;
+            if (Ui.Button(new Rect(20 + bw, by, bw, 44), Strings.Get("party.random"), 15)) PickRandomParty();
+            // The difficulty, between the buttons on wide screens and above them on narrow ones.
+            string level = Strings.Format("party.difficulty", Strings.Get(_difficulty == Difficulty.Easy ? "difficulty.easy" : "difficulty.normal"));
+            var levelRect = Ui.Width >= 640 ? new Rect(28 + bw * 2, by, Mathf.Min(170, Ui.Width - 52 - bw * 3), 44) : new Rect(Ui.Width - 12 - bw, by - 50, bw, 44);
+            if (Ui.Button(levelRect, level, 13, true, _difficulty == Difficulty.Easy ? Look.Selected : Look.Normal, "난이도"))
+                _difficulty = _difficulty == Difficulty.Easy ? Difficulty.Normal : Difficulty.Easy;
+            Ui.Tip(levelRect, "쉬움: 몬스터 생명력 −25%, 희망 +1, 금화 +10. 보통이 이 게임이 맞춘 난이도다.");
             var perks = ChosenPerks();
-            if (perks.Count > 0) Ui.Text(new Rect(12, by - 18, Ui.Width - 24, 16), "가져가는 장: " + string.Join(", ", perks.Select(p => _data.Perks.First(d => d.Id == p).Name)), 11, Palette.Gold);
-            string start = _party.Count == 3 ? "모험 시작" : $"모험 시작 ({_party.Count}/3)";
+            if (perks.Count > 0) Ui.Text(new Rect(12, by - 18, Ui.Width - 24, 16), Strings.Format("party.perks", string.Join(", ", perks.Select(p => _data.Perks.First(d => d.Id == p).Name))), 11, Palette.Gold);
+            string start = _party.Count == 3 ? Strings.Get("party.start") : $"{Strings.Get("party.start")} ({_party.Count}/3)";
             if (Ui.Button(new Rect(Ui.Width - 12 - bw, by, bw, 44), start, 16, _party.Count == 3, Look.Primary)) StartAdventure(_party);
         }
 

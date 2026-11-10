@@ -9,28 +9,38 @@ namespace Game.Core
     // strong on the way, takes the middle boss, heads for the boss together, rests and shops in town, slips past
     // fights when hurt, drinks potions, picks the class's own event choices. It only knows what fog lets the party
     // know. Otherwise it wanders and picks at random. The battles go to BattleBot.
+    //
+    // `mistakes` (0–100) makes a smart bot play more like a person (Docs/Map.md 봇과 숫자): that share of its map
+    // moves, event choices and battle commands are picked at random instead. The balance is measured with 25.
     public static class AdventureBot
     {
+        public const int HumanMistakes = 25;
+
         // Does one thing on the current screen. Returns the error the adventure gave, or null.
-        public static string Step(Adventure a, GameRandom random, bool smart = true)
+        public static string Step(Adventure a, GameRandom random, bool smart = true, int mistakes = 0)
         {
             if (a.LevelUp != null) return a.ChooseUpgrade(random.Next(a.LevelUp.Options.Count));
+            bool slip = smart && mistakes > 0 && random.Next(100) < mistakes;
             switch (a.Screen)
             {
                 case AdventureScreen.Story:
                 case AdventureScreen.BattleResult:
                 case AdventureScreen.EventResult:
                     return a.Continue();
+                case AdventureScreen.DungeonRest:
+                    // Deeper while the fighters are still well, else out.
+                    return a.Fighters.Where(h => !h.Down).All(h => h.Hp * 10 >= h.MaxHp * 6) && a.Fighters.Any(h => !h.Down) ? a.Delve() : a.LeaveDungeon();
                 case AdventureScreen.Battle:
-                    return a.Fight(BattleBot.Choose(a.Battle, random, smart));
+                    // In battle a person sees the odds and slips less: half as often.
+                    return a.Fight(BattleBot.Choose(a.Battle, random, smart && !(slip && random.Next(2) == 0)));
                 case AdventureScreen.Join:
                     return JoinOrAvoid(a, smart);
                 case AdventureScreen.Event:
-                    return ChooseEvent(a, random, smart);
+                    return ChooseEvent(a, random, smart && !slip);
                 case AdventureScreen.Town:
                     return Town(a, random, smart);
                 case AdventureScreen.Map:
-                    return MapTurn(a, random, smart);
+                    return MapTurn(a, random, smart, slip);
                 default:
                     return "끝났다";
             }
@@ -93,6 +103,7 @@ namespace Game.Core
                 if (tonic >= 0 && a.Current.Count("tonic") < 1 && a.Gold >= a.Shop[tonic].Price + 30) return a.Buy(tonic);
                 if (a.CanHearRumors && a.Gold >= Adventure.RumorCost + 25) return a.Rumor();
                 if (a.CanDonate && a.Gold >= a.DonationCost + 60) return a.Donate();
+                if (a.CanTakeContract) return a.TakeContract();
                 if (a.CanMeetElder) return a.Elder();
             }
             return a.LeaveTown();
@@ -106,7 +117,7 @@ namespace Game.Core
             return worn == null ? item.Slot != ItemSlot.Weapon : item.Tier > worn.Tier;
         }
 
-        static string MapTurn(Adventure a, GameRandom random, bool smart)
+        static string MapTurn(Adventure a, GameRandom random, bool smart, bool slip = false)
         {
             var hero = a.Current;
             var at = a.Positions[a.MapHero];
@@ -120,7 +131,7 @@ namespace Game.Core
             if (smart && a.CanReroll && a.MovePoints <= Adventure.MoveBase) return a.Reroll();
             var reach = a.Reachable();
             if (reach.Count == 0) return a.Stay();
-            if (!smart)
+            if (!smart || slip)
             {
                 var hexes = reach.Keys.ToList();
                 return a.Move(hexes[random.Next(hexes.Count)]);
@@ -138,7 +149,9 @@ namespace Game.Core
                 if (known && (tile.Content == Content.Event || tile.Content == Content.Treasure || tile.Content == Content.Herb)) score -= 2;
                 if (known && tile.Content == Content.Enemy) score += hero.Hp * 2 > hero.MaxHp && a.Heroes.Count(h => !h.Down && a.Positions[a.Heroes.IndexOf(h)].Distance(hex) <= Adventure.JoinRange) >= 2 ? -1 : 4;
                 if (tile.Site == Site.Boss && !ReadyForBoss(a, hex)) score += 50;
-                if (tile.Site == Site.Camp && !tile.Used && !ReadyForCamp(a, hex)) score += 50;
+                if ((tile.Site == Site.Camp || tile.Site == Site.Dungeon) && !tile.Used && !ReadyForCamp(a, hex)) score += 50;
+                if (a.Contract != null && !a.Contract.Done && tile == a.Contract.Tile && hero.Hp * 2 > hero.MaxHp) score -= 2;
+                if (a.Contract != null && a.Contract.Done && tile.Site == Site.Town) score -= 3;
                 if (tile.Site == Site.Town && hero.Hp * 10 < hero.MaxHp * 6) score -= 3;
                 if (!a.Explored(hex)) score -= 0.5;
                 if (score < bestScore)
@@ -159,7 +172,9 @@ namespace Game.Core
             if (!a.HasFlag(a.Chapter.NoSummonFlag) && !a.Map.Tile(Site.Clue).Used) return a.Map.Tile(Site.Clue).Hex;
             double level = a.Heroes.Average(h => h.Level);
             var camp = a.Map.Tile(Site.Camp);
-            if (!camp.Used && level >= 3 + a.Chapter.Index * 3 && a.Doom < 7) return camp.Hex;
+            if (!camp.Used && level >= CampLevel(a) && a.Doom < 7) return camp.Hex;
+            var dungeon = a.Map.Tiles.FirstOrDefault(t => t.Site == Site.Dungeon && !t.Used);
+            if (dungeon != null && camp.Used && level >= CampLevel(a) && a.Doom < 6) return dungeon.Hex;
             if (level >= 4 + a.Chapter.Index || a.Doom >= 6) return a.Map.Tile(Site.Boss).Hex;
             // Otherwise the nearest thing worth doing that the party knows of, or the nearest fog.
             var distances = a.Map.Distances(at);
@@ -169,6 +184,9 @@ namespace Game.Core
             return target?.Hex ?? a.Map.Tile(Site.Boss).Hex;
         }
 
+        // The average level the bot waits for before the middle boss and the dungeon, by chapter.
+        static int CampLevel(Adventure a) => new[] { 3, 6, 8, 9, 10 }[Math.Min(4, a.Chapter.Index)];
+
         static bool Together(Adventure a, Hex place)
         {
             int living = a.Heroes.Count(h => !h.Down);
@@ -177,18 +195,18 @@ namespace Game.Core
         }
 
         static bool ReadyForCamp(Adventure a, Hex camp) =>
-            Together(a, camp) && a.Heroes.Average(h => h.Level) >= 3 + a.Chapter.Index * 3 && a.Heroes.Where(h => !h.Down).All(h => h.Hp * 10 >= h.MaxHp * 6);
+            Together(a, camp) && a.Heroes.Average(h => h.Level) >= CampLevel(a) && a.Heroes.Where(h => !h.Down).All(h => h.Hp * 10 >= h.MaxHp * 6);
 
         // The boss only with two others close enough to join (or nobody else left standing).
         static bool ReadyForBoss(Adventure a, Hex boss) => Together(a, boss) && (a.Heroes.Average(h => h.Level) >= 4 + a.Chapter.Index || a.Doom >= 6);
 
         // Plays a whole adventure to its end (or `limit` steps). Returns the steps taken.
-        public static int Play(Adventure a, GameRandom random, bool smart = true, int limit = 20000)
+        public static int Play(Adventure a, GameRandom random, bool smart = true, int limit = 20000, int mistakes = 0)
         {
             int steps = 0;
             while (steps < limit && a.Screen != AdventureScreen.Victory && a.Screen != AdventureScreen.Defeat)
             {
-                string error = Step(a, random, smart);
+                string error = Step(a, random, smart, mistakes);
                 if (error != null) throw new InvalidOperationException($"bot step {steps} on {a.Screen}: {error}");
                 steps++;
             }

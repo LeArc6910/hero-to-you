@@ -66,18 +66,27 @@ namespace Game.Core.Tests
             Assert.That(a.Positions.All(p => p == a.Map.Tile(Site.Start).Hex), Is.True);
         }
 
+        // Beats every chapter's boss without battles, to the victory.
+        static void WinAll(Adventure a)
+        {
+            int chapters = TestData.Data.Chapters.Count;
+            for (int i = a.Chapter.Index; i < chapters; i++)
+            {
+                if (a.Screen == AdventureScreen.Story) a.Continue();
+                a.EndChapterForTest();
+                Assert.That(a.Continue(), Is.Null);
+            }
+        }
+
         [Test]
         public void TheLastChapterWonIsAVictoryWithPages()
         {
             var a = OnMap();
-            a.EndChapterForTest();
-            a.Continue();
-            a.Continue();
-            a.EndChapterForTest();
-            Assert.That(a.Continue(), Is.Null);
+            WinAll(a);
+            int chapters = TestData.Data.Chapters.Count;
             Assert.That(a.Screen, Is.EqualTo(AdventureScreen.Victory));
-            Assert.That(a.ChaptersCleared, Is.EqualTo(2));
-            Assert.That(a.PagesEarned, Is.EqualTo(1 + 2 * 3));
+            Assert.That(a.ChaptersCleared, Is.EqualTo(chapters));
+            Assert.That(a.PagesEarned, Is.EqualTo(1 + chapters * 3));
         }
 
         [Test]
@@ -332,12 +341,7 @@ namespace Game.Core.Tests
             a.OpenEventForTest(TestData.Data.Events.First(e => !string.IsNullOrEmpty(e.Journal)));
             var journal = new Journal();
             Assert.That(journal.Record(a), Is.Zero, "끝나지 않은 모험은 적지 않는다");
-            a.Doom = Adventure.DoomMax;
-            a.EndChapterForTest();
-            a.Continue();
-            a.Continue();
-            a.EndChapterForTest();
-            a.Continue();
+            WinAll(a);
             Assert.That(a.Over, Is.True);
             int pages = journal.Record(a);
             Assert.That(pages, Is.EqualTo(a.PagesEarned));

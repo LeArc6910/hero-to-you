@@ -41,8 +41,8 @@ namespace Game.Core
             var fresh = all.Where(e => !_seen.Contains(e.Id)).ToList();
             // Each class's own event comes first while it has not been seen (Docs/Narrative.md 개인 이야기).
             var personal = fresh.Where(e => e.ClassId != null).ToList();
-            var from = personal.Count > 0 && _random.Next(2) == 0 ? personal : fresh.Count > 0 ? fresh : all;
-            var card = from[_random.Next(from.Count)];
+            var from = personal.Count > 0 && _eventRandom.Next(2) == 0 ? personal : fresh.Count > 0 ? fresh : all;
+            var card = from[_eventRandom.Next(from.Count)];
             _seen.Add(card.Id);
             return card;
         }
@@ -116,7 +116,7 @@ namespace Game.Core
                 hero.Resolve -= resolve;
                 hero.Blessing = 0;
                 hero.Luck = 0;
-                result.Check = _fate.Roll(choice.Dice, ChanceOf(choice, hero), guaranteed);
+                result.Check = _eventFate.Roll(choice.Dice, ChanceOf(choice, hero), guaranteed);
                 result.Success = result.Check.Successes >= choice.Need;
                 int gained = hero.AddGrit(result.Check.RolledFailures);
                 if (gained > 0) result.Changes.Add($"{hero.Name}: 끈기가 차서 결의 +{gained}");
@@ -247,7 +247,7 @@ namespace Game.Core
         ItemDef Loot(int tier)
         {
             var items = Data.ItemList.Where(i => i.Tier == tier && i.Price > 0 && !i.Consumable).ToList();
-            return items.Count == 0 ? null : items[_random.Next(items.Count)];
+            return items.Count == 0 ? null : items[_lootRandom.Next(items.Count)];
         }
 
         static string Signed(int value) => value >= 0 ? $"+{value}" : value.ToString();

@@ -337,6 +337,17 @@ namespace Game.Core
 
         // A living opponent to aim at: for monsters, the taunting knight if there is one; nobody hidden while anyone
         // is not; then by the aim.
+        // Rows (Docs/Combat.md 줄): a monster's random blow lands on the front row while anyone stands there; aimed
+        // attacks (the weakest, the strongest) reach the back too.
+        public const int BackRowPercent = 75;
+
+        public static bool InFront(Unit unit) => !unit.IsHero || !unit.Hero.Back;
+
+        // A hero striking up close (a physical blow by strength or agility) from the back row hits less hard.
+        public static bool CloseFromBack(Unit actor, SkillDef skill) =>
+            actor.IsHero && actor.Hero.Back && skill.Damages && skill.Kind == SkillKind.Physical && skill.Stat.HasValue
+            && (skill.Stat.Value == Stat.Strength || skill.Stat.Value == Stat.Agility);
+
         int PickTarget(Unit actor, MonsterAim aim)
         {
             var living = Living(Opposite(actor.Side)).ToList();
@@ -348,6 +359,11 @@ namespace Game.Core
             }
             var seen = living.Where(u => !u.Has(StatusKind.Hidden)).ToList();
             if (seen.Count > 0) living = seen;
+            if (actor.IsFoe && aim == MonsterAim.Random)
+            {
+                var front = living.Where(InFront).ToList();
+                if (front.Count > 0) living = front;
+            }
             return aim switch
             {
                 MonsterAim.Weakest => living.OrderBy(h => h.Hp).ThenBy(h => h.Id).First().Id,
@@ -571,6 +587,7 @@ namespace Game.Core
         {
             int power = PowerOf(actor, skill);
             if (skill.Damages && actor.Has(StatusKind.Weak)) power = Dice.Percent(power, WeakPercent);
+            if (CloseFromBack(actor, skill)) power = Dice.Percent(power, BackRowPercent);
             int value = Dice.Value(power, skill.Floor, successes, dice);
             if (successes == dice && dice > 0) value = Dice.Percent(value, skill.PerfectPercent);
             return value;

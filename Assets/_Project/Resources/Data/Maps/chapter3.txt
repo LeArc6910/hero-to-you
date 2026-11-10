@@ -1,0 +1,12 @@
+# 챕터 3 눈 덮인 수도원 (Docs/Map.md). 한 글자가 육각 칸 하나다. 홀수 줄은 반 칸 오른쪽으로 밀린다.
+# 땅: . 들판  f 숲  s 늪  r 길  u 폐허  w 얕은 물  b 모래  n 눈밭  ~ 물(못 감)  ^ 산(못 감)
+# 장소: S 시작  T 마을  H 성소  R 본 줄거리  C 단서  M 중간 보스  D 던전  B 보스
+^^^nnn^^^nnn^^^
+^S.rnnfnn^nRn^^
+.T.rr.nnf.nun.^
+n..nr.ff.nnnnD^
+nn.nrr..H.nCn.^
+^n.n.rrr.nnnu.^
+^^nnn..nrrrr.B^
+^^nMn.nn.nn.nn^
+^^^nnn^^^nnn^^^

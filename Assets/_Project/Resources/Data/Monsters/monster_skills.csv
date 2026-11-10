@@ -27,9 +27,24 @@ crab_pinch,집게,2,14,0,physical,one,random,100,,
 crab_snap,으스러뜨리기,3,20,0,physical,one,strongest,120,,큰 집게로 으스러뜨린다.
 gull_peck,쪼기,2,9,0,physical,one,weakest,80,,
 captain_hook,갈고리,3,18,0,physical,one,strongest,110,,
-captain_cannon,작은 대포,2,12,0,physical,all,random,120,,모두에게 산탄을 쏜다.
+captain_cannon,작은 대포,2,10,0,physical,all,random,120,,모두에게 산탄을 쏜다.
 bell_strike,종채,3,20,0,physical,one,random,100,,
 bell_toll,종소리,2,11,0,magic,all,random,110,chill,물속의 종이 울린다. 모두 냉기.
 bell_raise,종 들어 올리기,0,0,0,buff,self,random,80,charge,거대한 종을 들어 올린다. 다음 차례에 해일이 온다!
 bell_wave,해일,4,16,0,magic,all,random,130,,들어 올린 종이 떨어지며 해일이 덮친다.
 bell_crush,종으로 짓누르기,4,26,0,physical,one,strongest,130,,
+frost_bite,서리 이빨,3,14,0,physical,one,random,100,,
+frost_howl,울부짖기,0,0,0,buff,self,random,60,howl,다음 공격의 위력 +3.
+wraith_touch,얼음 손길,2,13,0,magic,one,weakest,100,chill,차가운 손이 스친다. 냉기.
+wraith_wail,통곡,2,9,0,magic,all,random,110,,모두에게 울음이 스민다.
+troll_smash,내려치기,3,22,0,physical,one,strongest,120,,가장 튼튼한 쪽을 내려친다.
+troll_quake,땅 울리기,2,12,0,physical,all,random,130,,발을 굴러 모두를 흔든다.
+cult_knife,제의 칼,2,15,0,physical,one,weakest,90,,
+cult_flame,균열의 불,2,12,0,magic,one,random,100,burn,검은 불꽃. 화상.
+priest_lash,사슬 채찍,3,16,0,physical,one,strongest,110,,
+priest_flame,검은 불길,2,11,0,magic,all,random,120,burn,모두에게 검은 불길. 화상.
+abbess_staff,지팡이,3,17,0,physical,one,random,100,,
+abbess_frost,서리 기도,2,10,0,magic,all,random,110,chill,모두 냉기.
+abbess_gather,눈보라 모으기,0,0,0,buff,self,random,80,charge,눈보라를 모은다. 다음 차례에 모두를 얼린다!
+abbess_blizzard,눈보라,4,14,0,magic,all,random,130,chill,모아 둔 눈보라가 몰아친다. 모두 냉기.
+abbess_crush,얼음 기둥,4,21,0,physical,one,strongest,130,,

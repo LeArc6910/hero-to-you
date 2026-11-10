@@ -52,7 +52,7 @@ namespace Game.Core
             {
                 var options = free.Where(t => t.Content == Content.None && fits(t)).ToList();
                 if (options.Count == 0) return;
-                var tile = options[_random.Next(options.Count)];
+                var tile = options[_mapRandom.Next(options.Count)];
                 tile.Content = content;
                 if (content == Content.Enemy) tile.Encounter = PickEncounter(tile, danger);
             }
@@ -65,7 +65,7 @@ namespace Game.Core
             string terrain = TerrainInfo.Code(tile.Terrain);
             var fitting = mine.Where(e => e.Terrains.Contains(terrain)).ToList();
             if (fitting.Count == 0) fitting = mine;
-            return fitting[_random.Next(fitting.Count)].Id;
+            return fitting[_mapRandom.Next(fitting.Count)].Id;
         }
 
         // A new group somewhere quiet, away from every hero (each new day).
@@ -74,7 +74,7 @@ namespace Game.Core
             var candidates = Map.Tiles.Where(t => Map.Def.Passable(t.Hex) && t.Site == Site.None && t.Content == Content.None
                 && Positions.All(p => p.Distance(t.Hex) >= 3)).ToList();
             if (candidates.Count == 0) return;
-            var tile = candidates[_random.Next(candidates.Count)];
+            var tile = candidates[_mapRandom.Next(candidates.Count)];
             tile.Content = Content.Enemy;
             tile.Encounter = PickEncounter(tile, Doom >= 4 ? 2 : 1);
             Report.Add(Doom >= 4 ? "어딘가에 균열에서 더 센 무리가 나타났다." : "어딘가에 새 적 무리가 나타났다.");
@@ -172,7 +172,7 @@ namespace Game.Core
             int sure = Math.Min(MoveDice, hero.Blessing + hero.Luck);
             hero.Blessing = 0;
             hero.Luck = 0;
-            MoveRoll = _fate.Roll(MoveDice, MoveChance(hero), sure);
+            MoveRoll = _moveFate.Roll(MoveDice, MoveChance(hero), sure);
             hero.AddGrit(MoveRoll.RolledFailures);
             bool tired = Night && hero.Class.Id != "necromancer";
             MovePoints = Math.Max(1, MoveBase + MoveRoll.Successes - (tired ? 1 : 0));
@@ -315,6 +315,9 @@ namespace Game.Core
                 case Site.Camp when !tile.Used:
                     PrepareJoin(tile, Chapter.Midboss, JoinKind.Camp);
                     return;
+                case Site.Dungeon when !tile.Used:
+                    EnterDungeon(tile);
+                    return;
                 case Site.Boss when !tile.Used:
                     PrepareJoin(tile, Chapter.Boss, JoinKind.Boss);
                     return;
@@ -361,6 +364,7 @@ namespace Game.Core
                 return;
             }
             Spawn();
+            DawnTalk();
             UpdateSight();
         }
 

@@ -20,6 +20,9 @@ namespace Game.Core
 
         // The weapon every hero of the class starts with, and the kinds of weapon it can hold.
         public ItemDef StartWeapon { get; internal set; }
+
+        // Where the class stands in battle by default (Docs/Combat.md 줄).
+        public bool BackRow { get; internal set; }
         public IReadOnlyList<string> WeaponKinds { get; internal set; } = new List<string>();
         public IReadOnlyList<UpgradeDef> Upgrades { get; internal set; } = new List<UpgradeDef>();
         public string Color { get; internal set; }
@@ -208,6 +211,10 @@ namespace Game.Core
         public string Id { get; internal set; }
         public string Title { get; internal set; }
         public string Text { get; internal set; }
+
+        // The picture the client draws over the page (Client SceneArt: a scene name, or "journal" for a page of the
+        // journal being written); empty for none.
+        public string Art { get; internal set; }
     }
 
     // One result command of an event choice (Docs/Narrative.md): "gold 10" is Verb gold, Amount 10.
@@ -372,6 +379,25 @@ namespace Game.Core
         public string GoalBoss { get; internal set; }
         public string WeakenText { get; internal set; }
         public string NoSummonText { get; internal set; }
+
+        // The dungeon's rooms (encounter ids, in order) and its name; empty when the map has none.
+        public IReadOnlyList<string> Dungeon { get; internal set; } = new List<string>();
+        public string DungeonName { get; internal set; }
+
+        // The tune the client plays on this chapter's map (a Tune name: forest, harbor, snow).
+        public string Music { get; internal set; }
+    }
+
+    // A talk by the campfire (Data/Story/talks.csv, Docs/Narrative.md 동료 대화): two classes in the party, a few lines
+    // between them, heard at the dawn of a day. Chapter 0 means any chapter.
+    public sealed class TalkDef
+    {
+        public string Id { get; internal set; }
+        public int Chapter { get; internal set; }
+        public string A { get; internal set; }
+        public string B { get; internal set; }
+        public string Requires { get; internal set; }
+        public IReadOnlyList<(string speaker, string text)> Lines { get; internal set; } = new List<(string, string)>();
     }
 
     // A step of the party's renown (Data/Story/renown.csv, Docs/Narrative.md 명성): the title the party goes by once it

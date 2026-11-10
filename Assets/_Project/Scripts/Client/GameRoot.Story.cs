@@ -66,14 +66,81 @@ namespace Game.Client
             return y + h + 8;
         }
 
+        // The story page (Docs/Narrative.md 연출): a picture of the place, then the text appearing a few letters at a
+        // time; a tap shows it all, [계속] always goes on. An ending is a page of the journal being written.
+        string _storyFor;
+        float _storyStart;
+        bool _storyAll;
+        const float LettersPerSecond = 38;
+
         void DrawStory()
         {
             var story = _adventure.Story;
+            if (_storyFor != story.Id + _adventure.Log.Count)
+            {
+                _storyFor = story.Id + _adventure.Log.Count;
+                _storyStart = Time.unscaledTime;
+                _storyAll = _speed <= 0;
+            }
+            bool journal = story.Art == "journal";
             var column = BeginColumn("story:" + story.Id, 56);
-            float y = Heading(column, 4, story.Title);
-            y = Paragraph(column, y, story.Text, 15);
+            float y = 4;
+            if (!journal && !string.IsNullOrEmpty(story.Art))
+            {
+                float h = Mathf.Clamp(column.height * 0.3f, 90, 170);
+                var party = _adventure.Heroes.Select(hero => (hero.Class.Id, hero.Class.Color)).ToList();
+                SceneArt.Draw(new Rect(0, y, column.width, h), story.Art, party, Time.unscaledTime);
+                y += h + 8;
+            }
+            float size = 15;
+            float textX = journal ? 18 : 0;
+            float textW = column.width - textX * 2;
+            string wrapped = Ui.Wrap(story.Text, size, textW);
+            float textH = Ui.TextHeight(story.Text, size, textW);
+            int shown = _storyAll ? wrapped.Length : Mathf.Min(wrapped.Length, (int)((Time.unscaledTime - _storyStart) * LettersPerSecond));
+            if (shown >= wrapped.Length) _storyAll = true;
+            if (journal)
+            {
+                // A page of the journal: paper, brown ink, the title as its heading.
+                var page = new Rect(0, y, column.width, textH + 70);
+                Ui.Fill(page, Palette.Hex("#E9DDC2"));
+                Ui.Frame(page, Palette.Hex("#7A5A3A"), 2);
+                Ui.Fill(new Rect(page.x + 8, page.y, 2, page.height), Palette.Hex("#C9B48E"));
+                Ui.Text(new Rect(textX, y + 12, textW, 28), story.Title, 20, Palette.Hex("#5A3A22"), TextAnchor.MiddleLeft, true);
+                Ui.Text(new Rect(textX, y + 48, textW, textH), wrapped.Substring(0, shown), size, Palette.Hex("#3A2A1A"), TextAnchor.UpperLeft);
+                y += page.height + 8;
+            }
+            else
+            {
+                y = Heading(column, y, story.Title);
+                Ui.Text(new Rect(0, y, textW, textH), wrapped.Substring(0, shown), size, Palette.Ink, TextAnchor.UpperLeft);
+                y += textH + 8;
+            }
+            if (!_storyAll)
+            {
+                Ui.Text(new Rect(0, y, column.width, 18), Strings.Get("story.tap"), 11, Palette.Dim, TextAnchor.MiddleCenter);
+                if (Ui.Hit(new Rect(0, 0, column.width, y + 20), "글", true, "이야기")) _storyAll = true;
+                y += 20;
+            }
             EndColumn(y);
-            if (Ui.Button(Footer(48), "계속", 17, true, Look.Primary)) Act(_adventure.Continue);
+            if (Ui.Button(Footer(48), Strings.Get("common.continue"), 17, true, Look.Primary)) Act(_adventure.Continue);
+        }
+
+        // Between two rooms of the dungeon.
+        void DrawDungeonRest()
+        {
+            var a = _adventure;
+            var column = BeginColumn($"dungeon:{a.Log.Count}", 112);
+            float y = Heading(column, 4, Strings.Format("dungeon.heading", a.Chapter.DungeonName, a.DungeonRoom, a.DungeonRooms));
+            foreach (string line in a.Report) y = Paragraph(column, y, "· " + line, 13.5f, Palette.Journal);
+            y = Paragraph(column, y, Strings.Format("dungeon.hint", Adventure.DelveHealPercent), 12, Palette.Dim);
+            foreach (var hero in a.Fighters)
+                y = Paragraph(column, y, $"{hero.Name}: 생명력 {hero.Hp}/{hero.MaxHp}" + (hero.Wounds > 0 ? $" · 상처 {hero.Wounds}" : "") + (hero.Down ? " (쓰러짐)" : ""), 13, hero.Down ? Palette.Damage : Palette.Ink);
+            if (_actError != null) y = Paragraph(column, y, _actError, 12, Palette.Damage);
+            EndColumn(y);
+            var footer = Footer(104);
+            if (Ui.Button(new Rect(footer.x, footer.y, footer.width, 48), Strings.Get("dungeon.delve"), 17, true, Look.Primary)) Act(a.Delve);
+            if (Ui.Button(new Rect(footer.x, footer.y + 56, footer.width, 48), Strings.Get("dungeon.leave"), 15, true, Look.Quiet)) Act(a.LeaveDungeon);
         }
 
         void DrawEvent()

@@ -40,6 +40,7 @@ namespace Game.Core
             Resolve = MaxResolve;
             Potions = 1;
             Reagents = cls.Id == "alchemist" ? StartReagents : 0;
+            Back = cls.BackRow;
         }
 
         public ClassDef Class { get; }
@@ -100,7 +101,26 @@ namespace Game.Core
         public IEnumerable<ItemDef> Equipment => new[] { Weapon, Armor, Trinket }.Where(i => i != null);
         public IReadOnlyList<UpgradeDef> Upgrades => _upgrades;
 
-        public int MaxHp => _baseMaxHp + Equipment.Sum(i => i.Hp);
+        public int MaxHp => (_baseMaxHp + Equipment.Sum(i => i.Hp)) * (100 - WoundPercent * Wounds) / 100;
+
+        // Wounds (Docs/Combat.md 상처): each fall in battle leaves one, up to MaxWounds; each takes WoundPercent of the
+        // hero's most health until an inn rest or the next chapter heals them. Nobody dies for good.
+        public const int MaxWounds = 3;
+        public const int WoundPercent = 10;
+        public int Wounds { get; private set; }
+
+        internal void AddWound()
+        {
+            if (Wounds >= MaxWounds) return;
+            Wounds++;
+            if (Hp > MaxHp) Hp = MaxHp;
+        }
+
+        internal void HealWounds() => Wounds = 0;
+
+        // Front or back row in battle (Docs/Combat.md 줄): the front takes the monsters' blows, the back hits less
+        // hard up close.
+        public bool Back { get; internal set; }
         public int ArmorValue => Class.Armor + _upgradeArmor + Equipment.Sum(i => i.Armor);
         public int MaxResolve => Class.Resolve + _upgradeResolve + Equipment.Sum(i => i.Resolve);
         public int GritCap => Math.Max(2, Class.GritCap + _upgradeGrit);

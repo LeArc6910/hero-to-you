@@ -21,3 +21,13 @@ crabs_big,crab crab crab,sand shallows,2,2,껍데기 게 셋이 둘러싼다.
 captain,tide_captain smuggler smuggler,,0,2,녹슨 닻 선장이 갈고리를 휘두른다. “리엔의 일지? 그걸 가져가면 균열이 배 한 척을 통째로 준대.”
 harbor_ambush,smuggler smuggler gull,,0,2,창고 그늘에서 밀수꾼들이 덮친다!
 bell,bell_ringer,,0,2,물속에서 거대한 종이 울린다. 종지기가 고개를 든다.
+frost_wolves,frost_wolf frost_wolf frost_wolf,snow forest plains,1,3,눈보라 사이로 서리 늑대들의 눈이 번뜩인다.
+wraiths,ice_wraith ice_wraith frost_wolf,ruins snow,1,3,얼어붙은 회랑에서 망령들이 떠오른다.
+troll,snow_troll frost_wolf,snow plains forest,1,3,눈더미가 일어서더니 트롤이 된다.
+cultists,cultist cultist ice_wraith,road ruins plains,1,3,“일지를 균열에 바쳐라.” 신도들이 칼을 뽑는다.
+frost_wolves_big,frost_wolf frost_wolf frost_wolf frost_wolf,snow forest plains,2,3,서리 늑대 넷이 둘러싼다.
+trolls_big,snow_troll snow_troll,snow plains,2,3,트롤 둘이 길을 막는다.
+cultists_big,cultist cultist cultist ice_wraith,road ruins plains,2,3,신도 무리가 노래를 부르며 다가온다.
+priest,rift_priest cultist cultist,,0,3,균열 사제가 사슬을 휘감는다. “찢긴 장은 균열의 것이다.”
+monastery_ambush,cultist cultist frost_wolf,,0,3,눈 속에 숨어 있던 신도들이 덮친다!
+abbess,frozen_abbess,,0,3,얼음 속에서 원장이 눈을 뜬다.

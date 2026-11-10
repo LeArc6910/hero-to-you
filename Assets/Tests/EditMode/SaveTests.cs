@@ -51,10 +51,41 @@ namespace Game.Core.Tests
             Assert.That(Adventure.Load(TestData.Data, "hello", out string error, out _), Is.Null);
             Assert.That(error, Is.Not.Null);
             var a = new Adventure(TestData.Data, new[] { "knight", "hunter", "cleric" }, 5);
-            a.Continue();
-            string save = a.Save() + "move 99 99\n";
-            Assert.That(Adventure.Load(TestData.Data, save, out error, out _), Is.Null);
+            string first = a.Save() + "move 99 99\n";
+            Assert.That(Adventure.Load(TestData.Data, first, out error, out _), Is.Null, "첫 명령부터 어긋나면 거절");
             Assert.That(error, Does.Contain("move 99 99"));
+            Assert.That(Adventure.Load(TestData.Data, a.Save().Replace("save " + Adventure.SaveVersion, "save 1"), out error, out _), Is.Null, "옛 형식은 거절");
+        }
+
+        // When the data changed under a save, the commands that still fit are kept (Docs/Saving.md).
+        [Test]
+        public void ASaveThatStopsFittingKeepsWhatFits()
+        {
+            var a = new Adventure(TestData.Data, new[] { "knight", "hunter", "cleric" }, 5);
+            a.Continue();
+            a.RollMove();
+            string save = a.Save() + "move 99 99\nstay\n";
+            var loaded = Adventure.Load(TestData.Data, save, out string error, out string note);
+            Assert.That(error, Is.Null);
+            Assert.That(loaded, Is.Not.Null);
+            Assert.That(note, Does.Contain("2개"));
+            Assert.That(loaded.Log.Count, Is.EqualTo(a.Log.Count));
+            Assert.That(loaded.MovePoints, Is.EqualTo(a.MovePoints));
+        }
+
+        // Adding a data row of one kind does not move the draws of another (separate random streams).
+        [Test]
+        public void TheMapDoesNotDependOnTheEventsDrawn()
+        {
+            var a = new Adventure(TestData.Data, new[] { "knight", "hunter", "cleric" }, 9);
+            var b = new Adventure(TestData.Data, new[] { "knight", "hunter", "cleric" }, 9);
+            b.OpenEventForTest(TestData.Data.Events[0]);
+            typeof(Adventure).GetMethod("PickEvent", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(b, new object[] { "wild" });
+            var spawn = typeof(Adventure).GetMethod("Spawn", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            spawn.Invoke(a, null);
+            spawn.Invoke(b, null);
+            string Contents(Adventure x) => string.Join(";", x.Map.Tiles.Where(t => t.Content != Content.None).Select(t => $"{t.Hex}:{t.Content}:{t.Encounter}"));
+            Assert.That(Contents(b), Is.EqualTo(Contents(a)));
         }
     }
 }

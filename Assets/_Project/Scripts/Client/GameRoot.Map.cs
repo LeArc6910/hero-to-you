@@ -29,6 +29,7 @@ namespace Game.Client
             [Terrain.Ruins] = Palette.Hex("#5E5A57"),
             [Terrain.Shallows] = Palette.Hex("#3F6E7A"),
             [Terrain.Sand] = Palette.Hex("#9C8A5E"),
+            [Terrain.Snow] = Palette.Hex("#AEB9C4"),
             [Terrain.Water] = Palette.Hex("#2A425C"),
             [Terrain.Mountain] = Palette.Hex("#4A4550"),
         };
@@ -174,6 +175,8 @@ namespace Game.Client
                 // A dark edge on every hex gives the map some depth.
                 Ui.Image(rect, rim, new Color(0, 0, 0, seen ? 0.22f : 0.12f));
                 if (known) DrawHexContent(tile, c, size, seen);
+                if (a.Contract != null && a.Contract.Tile == tile && tile.Content == Content.Enemy)
+                    Ui.Image(new Rect(c.x + size * 0.1f, c.y - size * 0.95f, size * 0.7f, size * 0.7f), PixelArt.Icon("flag"));
                 bool reachable = reach.ContainsKey(tile.Hex);
                 if (reachable) Ui.Image(rect, fill, new Color(1, 1, 1, 0.18f));
                 if (reachable) Ui.Image(rect, rim, Palette.WithAlpha(Palette.Gold, 0.7f));
@@ -211,6 +214,7 @@ namespace Game.Client
             Terrain.Ruins => "stones",
             Terrain.Shallows => "wave",
             Terrain.Sand => "dunes",
+            Terrain.Snow => "snowflake",
             _ => null,
         };
 
@@ -242,6 +246,7 @@ namespace Game.Client
                     Site.Quest => PixelArt.Icon("quest"),
                     Site.Clue => PixelArt.Icon("clue"),
                     Site.Camp => PixelArt.Icon("camp"),
+                    Site.Dungeon => PixelArt.Icon("cave"),
                     Site.Boss => PixelArt.Icon("boss"),
                     _ => null,
                 };
@@ -273,11 +278,13 @@ namespace Game.Client
                     Site.Quest => tile.Used ? $"{chapter.QuestName}(다녀감)" : chapter.QuestName,
                     Site.Clue => tile.Used ? $"{chapter.ClueName}(다녀감)" : chapter.ClueName,
                     Site.Camp => tile.Used ? $"{chapter.MidbossName}(쓰러뜨림)" : $"{chapter.MidbossName} (중간 보스)",
+                    Site.Dungeon => tile.Used ? $"{chapter.DungeonName}(끝까지 감)" : $"{chapter.DungeonName} (던전, 방 {_adventure.DungeonRoom}/{_adventure.DungeonRooms} 지남)",
                     Site.Boss => $"보스: {chapter.BossName}",
                     Site.Start => "출발한 곳",
                     _ => "",
                 },
             };
+            if (_adventure.Contract != null && _adventure.Contract.Tile == tile && tile.Content == Content.Enemy) what += " · 의뢰한 무리";
             var downed = Enumerable.Range(0, _adventure.Heroes.Count).Where(i => _adventure.Heroes[i].Down && _adventure.Positions[i] == hex).ToList();
             if (downed.Count > 0) what += (what.Length > 0 ? " · " : "") + "쓰러진 " + string.Join(", ", downed.Select(i => _adventure.Heroes[i].Name)) + "(부축하면 일어난다)";
             string terrain = TerrainInfo.Name(tile.Terrain);
@@ -435,6 +442,7 @@ namespace Game.Client
             {
                 Adventure.JoinKind.Boss => a.Chapter.BossName,
                 Adventure.JoinKind.Camp => a.Chapter.MidbossName,
+                Adventure.JoinKind.Dungeon => Strings.Format("dungeon.heading", a.Chapter.DungeonName, a.DungeonRoom + 1, a.DungeonRooms),
                 Adventure.JoinKind.Ambush => "기습!",
                 _ => "전투",
             };

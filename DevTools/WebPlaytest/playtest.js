@@ -67,6 +67,21 @@ async function playSlice(game, wholeRun) {
   run.check(state.touch === game.touch, `터치 화면 인식 (${state.touch})`);
   await game.shot('title', '타이틀');
 
+  // Settings: text size and language, then back as they were.
+  run.check(await game.press('설정'), '타이틀에서 [설정]을 누를 수 있다');
+  state = await game.until(s => s.screen === 'Settings', 4000);
+  run.check(!!state, '설정 화면');
+  await game.press(/^글자 크기/, '설정');
+  state = await game.state();
+  run.check(state.textSize !== 100, `글자 크기가 바뀐다 (${state.textSize}%)`);
+  await game.shot('settings', '설정(글자 크기를 바꾼 뒤)');
+  await game.press(/^언어/, '설정');
+  run.check((await game.state()).language === 'en' && (await game.allText()).includes('Settings'), '언어를 영어로 바꾸면 메뉴가 영어로 나온다');
+  await game.shot('settings-en', '설정을 영어로');
+  await game.send('language ko; textsize 100');
+  await game.press('뒤로');
+  state = await game.until(s => s.screen === 'Title', 4000);
+
   // Party: three cards by real presses.
   run.check(await game.press(/^(혼자 시작|새 모험)/), '[혼자 시작]을 누를 수 있다');
   state = await game.until(s => s.screen === 'Party', 5000);
@@ -76,7 +91,10 @@ async function playSlice(game, wholeRun) {
   await game.press('모험 시작');
   state = await game.until(s => s.adventure === 'Story', 5000);
   run.check(!!state, '프롤로그 이야기 화면');
-  await game.shot('story', '프롤로그');
+  run.check(state && !state.storyAll, '이야기 글이 한 글자씩 나온다');
+  await game.wait(1200);
+  await game.shot('story', '프롤로그(장면 그림과 글이 나오는 중)');
+  if (await game.press('글', '이야기', { quiet: true })) run.check((await game.state()).storyAll, '글을 누르면 다 나온다');
 
   // The map: roll, pick a hex, move.
   await game.press('계속');
@@ -85,6 +103,9 @@ async function playSlice(game, wholeRun) {
   run.check(state && state.saved, '모험을 시작하면 기기에 저장된다');
   run.check(state && state.unknown > 0 && state.explored > 0, `안개: 아직 모르는 칸 ${state && state.unknown}, 본 칸 ${state && state.explored}`);
   await game.shot('map', '지도, 첫 영웅의 차례(안개)');
+
+  // Rows in the gear window are set on the map; the strip shows them.
+  run.check(state && state.heroes[0].back === false && state.heroes[1].back === true, '기사는 앞줄, 사냥꾼은 뒷줄로 시작한다');
 
   // A first-time tip card, then closing it.
   await game.send('tips reset; tip map');
@@ -207,7 +228,7 @@ async function playSlice(game, wholeRun) {
   for (let guard = 0; guard < 6000; guard++) {
     state = await game.state();
     if (state.adventure === 'Victory' || state.adventure === 'Defeat') break;
-    const boss = state.adventure === 'Battle' && state.battle && ['warden', 'bell', 'bandit_chief', 'captain'].includes(state.battle.encounter) ? state.battle.encounter : null;
+    const boss = state.adventure === 'Battle' && state.battle && ['warden', 'bell', 'abbess', 'bandit_chief', 'captain', 'priest'].includes(state.battle.encounter) ? state.battle.encounter : null;
     if (boss && !shots[boss]) {
       shots[boss] = true;
       await game.send('speed 1');
@@ -222,6 +243,21 @@ async function playSlice(game, wholeRun) {
     if (state.chapter === 'chapter2' && state.adventure === 'Map' && !shots.map2) {
       shots.map2 = true;
       await game.shot('chapter2-map', '2장 가라앉은 항구 지도');
+    }
+    if (state.chapter === 'chapter3' && state.adventure === 'Map' && !shots.map3) {
+      shots.map3 = true;
+      await game.shot('chapter3-map', '3장 눈 덮인 수도원 지도');
+    }
+    if (state.adventure === 'DungeonRest' && !shots.dungeon) {
+      shots.dungeon = true;
+      await game.shot('dungeon', '던전: 방 사이에서');
+    }
+    if (state.talks > 0 && state.adventure === 'Map' && !state.levelUp && !shots.talk) {
+      shots.talk = true;
+      await game.send('talk');
+      await game.wait(400);
+      await game.shot('talk', '모닥불 곁의 대화');
+      run.check(await game.press('계속', '대화'), '대화 카드를 [계속]으로 닫는다');
     }
     await game.send('autoplay 20');
   }

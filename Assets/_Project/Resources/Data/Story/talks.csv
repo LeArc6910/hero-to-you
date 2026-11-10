@@ -1,0 +1,21 @@
+id,chapter,a,b,requires,lines
+k_c_oath,0,knight,cleric,,knight: 기사단이 무너진 뒤로 맹세를 외는 게 부끄러웠소.|cleric: 지킬 사람이 생기면 맹세는 다시 말이 됩니다.|knight: …그렇다면 오늘은 소리 내어 외겠소.
+b_h_ash,0,berserker,hunter,,berserker: 넌 왜 화를 안 내? 숲이 이렇게 죽어 가는데.|hunter: 화는 화살을 떨리게 해. 나는 한 발만 쏘면 돼.|berserker: …한 발이 모자라면 내가 나머지를 칠게.
+e_s_stars,0,elementalist,seer,,elementalist: 별이 정말 미래를 말해 줘?|seer: 별은 길을 말해. 걷는 건 우리야.|elementalist: 그럼 리엔도 별을 봤을까.|seer: 봤겠지. 그리고 다르게 걸었겠지.
+g_r_cards,0,gambler,rogue,,"gambler: 이 일지, 노름판에서 딴 거 맞아. 진짜야.|rogue: 난 훔치려다 붙잡혔지. 둘 다 영웅감은 아니네.|gambler: 영웅은 원래 운 좋은 사기꾼이었을지도."
+bd_n_song,0,bard,necromancer,,bard: 죽은 영웅의 노래를 부르면 기분이 어때?|necromancer: 그들은 노래보다 이름을 불러 주길 바라.|bard: 그럼 다음 노래엔 이름을 넣지. 우리 이름도.
+a_bm_herbs,0,alchemist,beastmaster,,alchemist: 늑대가 이 풀을 먹으면 상처가 빨리 낫던데?|beastmaster: 짐승은 무엇이 약인지 알아. 사람만 잊어버리지.|alchemist: 그럼 오늘부턴 늑대에게 배우지.
+k_bs_front,0,knight,berserker,,knight: 앞줄은 내가 맡겠소. 그대는 내 옆에서.|berserker: 옆? 난 앞에서 싸워.|knight: 그럼 둘이 같이 앞이오. 등은 서로 맡고.
+h_s_tracks,0,hunter,seer,,hunter: 발자국이 둘이야. 리엔과 누군가.|seer: 일지엔 한 사람만 나오는데.|hunter: 기록되지 않은 사람이 늘 있지. 우리처럼.
+c_n_dead,0,cleric,necromancer,,cleric: 망자를 부르는 건 죄라고 배웠습니다.|necromancer: 잊는 것이 더 큰 죄라고 나는 배웠어.|cleric: …그 둘 사이 어딘가에 우리가 서 있군요.
+r_bd_coin,0,rogue,bard,,"rogue: 네 노래 덕에 주머니가 잘 털리더라.|bard: 그건 칭찬이야, 고백이야?|rogue: 둘 다. 이제 안 털어. 우리 얘기가 노래가 되니까."
+g_k_luck,0,gambler,knight,,"gambler: 기사 양반, 운을 믿어?|knight: 나는 준비를 믿소.|gambler: 그래서 우리 둘이 같이 다니나 봐. 준비된 운."
+e_a_fire,0,elementalist,alchemist,,"elementalist: 네 폭탄, 내 불꽃보다 세던데.|alchemist: 내 건 한 번 쓰면 끝이야. 네 건 다시 타오르지.|elementalist: 그럼 둘이 번갈아 가자."
+k_c_ch1,1,knight,cleric,,cleric: 숲이 잿빛이어도 성소의 불씨는 꺼지지 않았어요.|knight: 리엔도 그 불씨를 봤을까.|cleric: 보고 지나쳤겠죠. 우리는 멈춰서 손봤고요.
+h_bm_ch1,1,hunter,beastmaster,,beastmaster: 늑대들이 미친 게 아니야. 겁먹은 거지.|hunter: 균열 냄새 때문이야. 첫 봉인석만 지키면 돌아올 거야.|beastmaster: 그럼 서둘러. 녀석들이 기다려.
+n_s_ch2,2,necromancer,seer,,necromancer: 종지기의 목소리가 물속에서 들려. 원망이 아니야. 기다림이야.|seer: 별도 같은 말을 해. 누군가는 대답해야 한다고.|necromancer: 리엔 대신 우리가 대답하자.
+b_c_ch2,2,bard,cleric,,bard: 항구 사람들은 리엔을 원망해. 노래도 그래.|cleric: 원망도 기억의 한 모양입니다.|bard: 그럼 끝 절은 용서로 바꿔 볼게.
+k_r_ch2,2,knight,rogue,,"rogue: 영웅이 동료를 두고 갔대. 기사님은 어떻게 생각해?|knight: 다섯 봉인을 위해서였겠지. 그래도 나는 두고 가지 않겠소.|rogue: …그 말, 기억해 둘게."
+bs_g_ch3,3,berserker,gambler,,berserker: 춥다. 화도 얼어붙을 것 같아.|gambler: 그럼 내기하자. 누가 먼저 수도원 문을 두드리나.|berserker: …넌 늘 날 웃기는구나.
+e_s_ch3,3,elementalist,seer,,elementalist: 찢긴 장에 봉인 의식이 적혀 있었대.|seer: 그리고 리엔이 사라진 이유도. 별이 이 장 근처에서 흐려져.|elementalist: 그럼 우리가 마저 읽자.
+c_n_ch3,3,cleric,necromancer,,cleric: 수도원의 종은 망자를 위해 울렸답니다.|necromancer: 그럼 오늘은 내가 종을 대신하지.|cleric: 함께 울리죠. 우리 둘이니까.

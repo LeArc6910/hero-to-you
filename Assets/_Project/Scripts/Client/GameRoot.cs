@@ -11,6 +11,7 @@ namespace Game.Client
         Title,
         Party,
         Journal,
+        Settings,
         Adventure,
     }
 
@@ -102,7 +103,7 @@ namespace Game.Client
                 AdventureScreen.Victory => Tune.Title,
                 AdventureScreen.Defeat => Tune.Title,
                 AdventureScreen.Story => Tune.Story,
-                _ => a.Chapter.Index == 0 ? Tune.Forest : Tune.Harbor,
+                _ => System.Enum.TryParse(a.Chapter.Music, true, out Tune tune) ? tune : Tune.Forest,
             };
         }
 
@@ -115,8 +116,9 @@ namespace Game.Client
                 Ui.Text(new Rect(20, 20, Ui.Width - 40, Ui.Height - 40), "데이터를 불러오지 못했습니다.\n" + _loadError, 14, Palette.Damage, TextAnchor.UpperLeft, false, true);
                 return;
             }
-            // A tip card is modal: the screen under it is drawn but cannot be pressed.
-            bool modal = _tipOpen != null;
+            // A tip card or a campfire talk is modal: the screen under it is drawn but cannot be pressed.
+            bool talk = TalkWaiting;
+            bool modal = _tipOpen != null || talk;
             if (modal) GUI.enabled = false;
             switch (_screen)
             {
@@ -129,12 +131,16 @@ namespace Game.Client
                 case ClientScreen.Journal:
                     DrawJournal();
                     break;
+                case ClientScreen.Settings:
+                    DrawSettings();
+                    break;
                 case ClientScreen.Adventure:
                     DrawAdventure();
                     break;
             }
             GUI.enabled = true;
-            if (modal) DrawTipCard();
+            if (_tipOpen != null) DrawTipCard();
+            else if (talk) DrawTalk();
             else Ui.DrawTip();
         }
 
@@ -144,7 +150,7 @@ namespace Game.Client
 
         internal void ShowTip(string id)
         {
-            if (Tips.All.ContainsKey(id)) _tipOpen = id;
+            if (Tips.Exists(id)) _tipOpen = id;
         }
 
         void FirstTip(string id)
@@ -154,7 +160,7 @@ namespace Game.Client
 
         void DrawTipCard()
         {
-            var (title, text) = Tips.All[_tipOpen];
+            var (title, text) = Tips.Of(_tipOpen);
             Ui.Fill(new Rect(0, 0, Ui.Width, Ui.Height), new Color(0, 0, 0, 0.55f));
             float w = Mathf.Min(460, Ui.Width - 24);
             float textH = Ui.TextHeight(text, 14, w - 32);
@@ -163,7 +169,7 @@ namespace Game.Client
             Ui.Panel(r, Palette.Panel, Palette.Gold);
             Ui.Text(new Rect(r.x + 16, r.y + 10, w - 32, 28), title, 19, Palette.Gold, TextAnchor.MiddleLeft, true);
             Ui.Text(new Rect(r.x + 16, r.y + 44, w - 32, h - 110), text, 14, Palette.Ink, TextAnchor.UpperLeft, false, true);
-            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 56, 180, 46), "알겠다", 16, true, Look.Primary, "도움말")) _tipOpen = null;
+            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 56, 180, 46), Strings.Get("common.ok"), 16, true, Look.Primary, "도움말")) _tipOpen = null;
         }
 
         static void DrawBackground()
@@ -184,7 +190,8 @@ namespace Game.Client
             ulong value = seed ?? _nextSeed ?? (ulong)DateTime.Now.Ticks;
             _nextSeed = null;
             _recorded = false;
-            _adventure = new Adventure(_data, classes.ToList(), value, ChosenPerks());
+            _adventure = new Adventure(_data, classes.ToList(), value, ChosenPerks(), _difficulty);
+            _talksShown = 0;
             _screen = ClientScreen.Adventure;
             ResetAdventureView();
             SaveStore.Write(_adventure.Save());
@@ -201,6 +208,7 @@ namespace Game.Client
             }
             _adventure = adventure;
             _recorded = false;
+            _talksShown = adventure.Talks.Count;
             _screen = ClientScreen.Adventure;
             ResetAdventureView();
             if (adventure.Battle != null)
@@ -256,13 +264,15 @@ namespace Game.Client
             }
             string first = adventure.LevelUp != null ? "levelup" : adventure.Screen switch
             {
-                AdventureScreen.Map => "map",
-                AdventureScreen.Join => "join",
+                AdventureScreen.Map => adventure.Heroes.Any(h => h.Wounds > 0) ? "wounds" : "map",
+                AdventureScreen.Join => adventure.Kind == Adventure.JoinKind.Dungeon ? "dungeon" : "join",
+                AdventureScreen.DungeonRest => "dungeon",
                 AdventureScreen.Event => "event",
                 AdventureScreen.Town => "town",
                 _ => null,
             };
             if (first != null) FirstTip(first);
+            if (first == "wounds") FirstTip("map");
             switch (adventure.Screen)
             {
                 case AdventureScreen.Story:
@@ -285,6 +295,9 @@ namespace Game.Client
                     break;
                 case AdventureScreen.Town:
                     DrawTown();
+                    break;
+                case AdventureScreen.DungeonRest:
+                    DrawDungeonRest();
                     break;
                 case AdventureScreen.Victory:
                 case AdventureScreen.Defeat:
@@ -315,7 +328,9 @@ namespace Game.Client
                 Ui.Text(new Rect(x, cell.y + 2, w, 16), $"{hero.Name} Lv{hero.Level}", 12, Palette.Ink, TextAnchor.MiddleLeft, true);
                 Ui.Bar(new Rect(x, cell.y + 20, w, 6), hero.MaxHp > 0 ? (float)hero.Hp / hero.MaxHp : 0, Palette.HpHero);
                 string line = hero.Down ? "쓰러짐" : w >= 150 ? $"{hero.Hp}/{hero.MaxHp} · 결의 {hero.Resolve}/{hero.MaxResolve} · 물약 {hero.Potions}" : $"{hero.Hp}/{hero.MaxHp} · 결의 {hero.Resolve}";
-                Ui.Text(new Rect(x, cell.y + 26, w, 14), line, 10, hero.Down ? Palette.Damage : Palette.Dim);
+                if (hero.Wounds > 0) line += $" · 상처 {hero.Wounds}";
+                Ui.Text(new Rect(x, cell.y + 26, w, 14), line, 10, hero.Down ? Palette.Damage : hero.Wounds > 0 ? Palette.Intent : Palette.Dim);
+                if (w >= 120) Ui.Text(new Rect(x, cell.y + 2, w, 16), Strings.Get(hero.Back ? "row.back" : "row.front"), 9.5f, Palette.Dim, TextAnchor.MiddleRight);
                 Ui.Tip(cell, HeroTip(hero));
             }
             var info = new Rect(r.xMax - infoWidth, r.y, infoWidth, r.height);
@@ -332,7 +347,42 @@ namespace Game.Client
         {
             string stats = string.Join(" ", Enumerable.Range(0, Stats.Count).Select(i => $"{Stats.Name((Stat)i)} {hero.Stat((Stat)i)}"));
             string carried = string.Join(", ", hero.Consumables.Where(c => c.Value > 0).Select(c => $"{(_data.Items.TryGetValue(c.Key, out var item) ? item.Name : c.Key)} {c.Value}"));
-            return $"{hero.Name} Lv{hero.Level} (경험치 {hero.Xp}, 다음까지 {hero.XpToNext})\n{stats}\n방어도 {hero.ArmorValue} · 결의 {hero.Resolve}/{hero.MaxResolve} · 끈기 {hero.Grit}/{hero.GritCap}\n{hero.Class.Mechanic}" + (carried.Length > 0 ? "\n소모품: " + carried : "");
+            string wounds = hero.Wounds > 0 ? $"\n상처 {hero.Wounds}/{Hero.MaxWounds}: 최대 생명력 −{Hero.WoundPercent * hero.Wounds}% (여관에서 낫는다)" : "";
+            return $"{hero.Name} Lv{hero.Level} (경험치 {hero.Xp}, 다음까지 {hero.XpToNext}) · {Strings.Get(hero.Back ? "row.back" : "row.front")}\n{stats}\n방어도 {hero.ArmorValue} · 결의 {hero.Resolve}/{hero.MaxResolve} · 끈기 {hero.Grit}/{hero.GritCap}{wounds}\n{hero.Class.Mechanic}" + (carried.Length > 0 ? "\n소모품: " + carried : "");
+        }
+
+        // ---- Campfire talks (Docs/Narrative.md 동료 대화) ----
+
+        int _talksShown;
+
+        bool TalkWaiting => _screen == ClientScreen.Adventure && _adventure != null && _adventure.LevelUp == null
+            && _adventure.Screen == AdventureScreen.Map && _talksShown < _adventure.Talks.Count;
+        Difficulty _difficulty = Difficulty.Normal;
+
+        // The newest talk not shown yet, as a card over the map: who said what, then [계속].
+        void DrawTalk()
+        {
+            FirstTip("talk");
+            var (day, talk) = _adventure.Talks[_talksShown];
+            Ui.Fill(new Rect(0, 0, Ui.Width, Ui.Height), new Color(0, 0, 0, 0.55f));
+            float w = Mathf.Min(520, Ui.Width - 24);
+            float lineW = w - 72;
+            float h = 70 + talk.Lines.Sum(l => Mathf.Max(40, Ui.TextHeight(l.text, 13.5f, lineW) + 22)) + 60;
+            h = Mathf.Min(h, Ui.Height - 24);
+            var r = new Rect((Ui.Width - w) / 2, (Ui.Height - h) / 2, w, h);
+            Ui.Panel(r, new Color(0.13f, 0.09f, 0.07f, 0.98f), Palette.Gold);
+            Ui.Text(new Rect(r.x + 16, r.y + 10, w - 32, 26), $"{Strings.Get("talk.heading")} · {day}일째 새벽", 17, Palette.Gold, TextAnchor.MiddleLeft, true);
+            float y = r.y + 44;
+            foreach (var (speaker, text) in talk.Lines)
+            {
+                var cls = _data.Classes[speaker];
+                Ui.Image(new Rect(r.x + 14, y + 2, 36, 36), PixelArt.Hero(cls.Id, cls.Color));
+                Ui.Text(new Rect(r.x + 58, y, lineW, 16), cls.Name, 11.5f, Palette.Gold, TextAnchor.MiddleLeft, true);
+                float th = Ui.TextHeight(text, 13.5f, lineW);
+                Ui.Text(new Rect(r.x + 58, y + 17, lineW, th), text, 13.5f, Palette.Ink, TextAnchor.UpperLeft, false, true);
+                y += Mathf.Max(40, th + 22);
+            }
+            if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 54, 180, 46), Strings.Get("common.continue"), 16, true, Look.Primary, "대화")) _talksShown++;
         }
 
         // ---- The journal (Docs/Journal.md) ----

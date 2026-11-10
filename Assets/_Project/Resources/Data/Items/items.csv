@@ -50,6 +50,22 @@ spear_tide,작살,weapon,spear,3,85,찌르기,str,4,11,0,physical,100,crit150,0,
 coat_tide,물결 외투,armor,light,3,90,,,0,0,0,,100,,1,6,1,,,결의 +1.
 pearl_amulet,진주 목걸이,trinket,amulet,3,80,,,0,0,0,,100,,0,0,0,wil 5 int 5,,
 anchor_ring,닻 반지,trinket,ring,3,80,,,0,0,0,,100,,0,0,0,str 5 agi 5,,
+sword_frost,서리 장검,weapon,sword,4,140,베기,str,4,13,0,physical,100,crit150,0,0,0,wil 5,,얼음 속에서 백 년을 기다린 검.
+axe_rune,룬 도끼,weapon,axe,4,140,베기,str,4,16,0,physical,100,crit150,0,0,0,,,
+bow_ice,얼음 활,weapon,bow,4,140,사격,per,4,12,0,physical,100,crit200,0,0,0,agi 5,,
+staff_aurora,오로라 지팡이,weapon,staff,4,145,마력탄,int,3,11,25,magic,100,crit150,0,0,0,int 5,,
+staff_requiem,진혼 지팡이,weapon,staff,4,145,망령의 손길,wil,3,12,25,magic,100,crit150,0,0,0,,,
+orb_sun,해 구슬,weapon,orb,4,150,별빛,int,4,10,25,magic,100,crit150,0,0,1,,,
+mace_bell,종 철퇴,weapon,mace,4,140,성스러운 일격,wil,3,10,0,magic,100,crit150,0,0,1,,,
+cards_last,마지막 패,weapon,cards,4,150,카드 던지기,fixed65,4,12,0,physical,100,crit300,0,0,0,,,확률 65%.
+dagger_frost,서리 단검,weapon,dagger,4,140,찌르기,agi,3,10,0,physical,70,crit200,0,0,0,agi 5,,
+lute_aurora,오로라 류트,weapon,lute,4,140,현 튕기기,cha,3,9,25,magic,100,crit150,0,0,1,cha 5,,
+sling_star,별 투석,weapon,sling,4,140,투석,int,3,12,0,physical,100,crit150,0,0,0,,,
+spear_glacier,빙하 창,weapon,spear,4,140,찌르기,str,4,13,0,physical,100,crit150,0,0,0,,,
+armor_rune,룬 갑옷,armor,heavy,4,160,,,0,0,0,,100,,4,0,0,agi -5,,
+coat_snow,눈표범 외투,armor,light,4,150,,,0,0,0,,100,,1,10,1,,,결의 +1.
+heart_ice,얼음 심장석,trinket,charm,4,130,,,0,0,0,,100,,0,14,0,,,
+ring_vow,맹세의 반지,trinket,ring,4,130,,,0,0,0,,100,,0,0,1,str 5 wil 5,,결의 +1.
 potion,회복 물약,consumable,consumable,1,8,,,0,0,0,,50,,0,0,0,,heal 15,생명력 15 회복(연금술사는 1.5배).
 tonic,결의 물약,consumable,consumable,1,12,,,0,0,0,,50,,0,0,0,,resolve 2,결의 +2.
 antidote,해독초,consumable,consumable,1,6,,,0,0,0,,50,,0,0,0,,cleanse;heal 5,화상·약화·부식을 걷고 생명력 5 회복.

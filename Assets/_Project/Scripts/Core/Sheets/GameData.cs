@@ -22,11 +22,12 @@ namespace Game.Core
         public const string ItemsFile = "Items/items.csv";
         public const string UpgradesFile = "Classes/upgrades.csv";
         public const string RenownFile = "Story/renown.csv";
+        public const string TalksFile = "Story/talks.csv";
 
         public static readonly string[] Files =
         {
             ClassesFile, SkillsFile, MonstersFile, MonsterSkillsFile, EncountersFile, ChaptersFile, StoriesFile, EventsFile,
-            EventChoicesFile, ItemsFile, UpgradesFile, PerksFile, RenownFile,
+            EventChoicesFile, ItemsFile, UpgradesFile, PerksFile, RenownFile, TalksFile,
         };
 
         // Monsters the classes summon to their side (Docs/Classes.md: necromancer, beastmaster).
@@ -66,6 +67,7 @@ namespace Game.Core
         public IReadOnlyList<ChapterDef> Chapters { get; private set; } = new List<ChapterDef>();
         public IReadOnlyList<PerkDef> Perks { get; private set; } = new List<PerkDef>();
         public IReadOnlyList<RenownDef> Renown { get; private set; } = new List<RenownDef>();
+        public IReadOnlyList<TalkDef> Talks { get; private set; } = new List<TalkDef>();
         public IReadOnlyDictionary<string, StoryDef> Stories { get; private set; } = new Dictionary<string, StoryDef>();
         public IReadOnlyList<EventCard> Events { get; private set; } = new List<EventCard>();
         public IReadOnlyDictionary<string, ItemDef> Items { get; private set; } = new Dictionary<string, ItemDef>();
@@ -108,6 +110,7 @@ namespace Game.Core
             data.ReadChapters(CsvTable.Read(read(ChaptersFile)), read);
             data.ReadPerks(CsvTable.Read(read(PerksFile)));
             data.ReadRenown(CsvTable.Read(read(RenownFile)));
+            data.ReadTalks(CsvTable.Read(read(TalksFile)));
             if (data._errors.Count > 0) throw new FormatException("시트 오류:\n" + string.Join("\n", data._errors));
             return data;
         }
@@ -263,7 +266,7 @@ namespace Game.Core
         void ReadClasses(CsvTable table, Dictionary<string, SkillDef> skills)
         {
             const string file = ClassesFile;
-            RequireColumns(file, table, "id", "name", "role", "hp", "armor", "resolve", "grit", "str", "agi", "int", "wil", "per", "cha", "weapon", "weapons", "skills", "color", "mechanic", "blurb", "playable");
+            RequireColumns(file, table, "id", "name", "role", "hp", "armor", "resolve", "grit", "str", "agi", "int", "wil", "per", "cha", "weapon", "weapons", "skills", "color", "mechanic", "blurb", "playable", "row");
             var list = new List<ClassDef>();
             var map = new Dictionary<string, ClassDef>();
             var seen = new HashSet<string>();
@@ -282,6 +285,7 @@ namespace Game.Core
                     Blurb = row["blurb"],
                     Color = row["color"],
                     Playable = Bool(file, row, "playable"),
+                    BackRow = row["row"] == "back",
                 };
                 for (int i = 0; i < Stats.Count; i++) cls.Stats[i] = Number(file, row, Stats.Code((Stat)i));
                 Color(file, row);
@@ -562,12 +566,12 @@ namespace Game.Core
         void ReadStories(CsvTable table)
         {
             const string file = StoriesFile;
-            RequireColumns(file, table, "id", "title", "text");
+            RequireColumns(file, table, "id", "title", "text", "art");
             var map = new Dictionary<string, StoryDef>();
             var seen = new HashSet<string>();
             foreach (var row in table.Rows)
             {
-                var story = new StoryDef { Id = Id(file, row, seen), Title = row["title"], Text = row["text"] };
+                var story = new StoryDef { Id = Id(file, row, seen), Title = row["title"], Text = row["text"], Art = row["art"] };
                 if (story.Id.Length > 0) map[story.Id] = story;
             }
             Stories = map;
@@ -665,7 +669,7 @@ namespace Game.Core
         void ReadChapters(CsvTable table, Func<string, string> read)
         {
             const string file = ChaptersFile;
-            string[] columns = { "id", "title", "map", "boss", "midboss", "town", "prologue", "epilogue", "epilogue_kind", "epilogue_grim", "wild", "chest", "herb", "quest", "clue", "shrine", "elder", "weaken_flag", "nosummon_flag", "quest_name", "clue_name", "midboss_name", "boss_name", "rift", "kind_flags", "kind_need", "grim_flags", "grim_need", "goal_quest", "goal_clue", "goal_camp", "goal_boss", "weaken_text", "nosummon_text" };
+            string[] columns = { "id", "title", "map", "boss", "midboss", "town", "prologue", "epilogue", "epilogue_kind", "epilogue_grim", "wild", "chest", "herb", "quest", "clue", "shrine", "elder", "weaken_flag", "nosummon_flag", "quest_name", "clue_name", "midboss_name", "boss_name", "rift", "kind_flags", "kind_need", "grim_flags", "grim_need", "goal_quest", "goal_clue", "goal_camp", "goal_boss", "weaken_text", "nosummon_text", "dungeon", "dungeon_name", "music" };
             RequireColumns(file, table, columns);
             var list = new List<ChapterDef>();
             var seen = new HashSet<string>();
@@ -707,6 +711,9 @@ namespace Game.Core
                     GoalBoss = row["goal_boss"],
                     WeakenText = row["weaken_text"],
                     NoSummonText = row["nosummon_text"],
+                    Dungeon = List(row["dungeon"]),
+                    DungeonName = row["dungeon_name"],
+                    Music = row["music"],
                 };
                 try
                 {
@@ -716,7 +723,7 @@ namespace Game.Core
                 {
                     _errors.Add(e.Message);
                 }
-                foreach (string encounter in new[] { chapter.Boss, chapter.Midboss })
+                foreach (string encounter in new[] { chapter.Boss, chapter.Midboss }.Concat(chapter.Dungeon))
                     if (!Encounters.ContainsKey(encounter)) Error(file, row, $"전투 '{encounter}'가 encounters.csv에 없습니다.");
                 foreach (string story in new[] { chapter.Prologue, chapter.Epilogue, chapter.EpilogueKind, chapter.EpilogueGrim, chapter.Rift })
                     if (!Stories.ContainsKey(story)) Error(file, row, $"이야기 '{story}'가 stories.csv에 없습니다.");
@@ -731,6 +738,31 @@ namespace Game.Core
         }
 
         static List<string> List(string raw) => (raw ?? "").Split(';').Select(s => s.Trim()).Where(s => s.Length > 0).ToList();
+
+        void ReadTalks(CsvTable table)
+        {
+            const string file = TalksFile;
+            RequireColumns(file, table, "id", "chapter", "a", "b", "requires", "lines");
+            var list = new List<TalkDef>();
+            var seen = new HashSet<string>();
+            foreach (var row in table.Rows)
+            {
+                var talk = new TalkDef { Id = Id(file, row, seen), Chapter = Number(file, row, "chapter"), A = row["a"], B = row["b"], Requires = row["requires"] };
+                var lines = new List<(string, string)>();
+                foreach (string part in row["lines"].Split('|'))
+                {
+                    int colon = part.IndexOf(':');
+                    string speaker = colon > 0 ? part.Substring(0, colon).Trim() : "";
+                    if (speaker != talk.A && speaker != talk.B) Error(file, row, $"줄 '{part.Trim()}'는 '{talk.A}:' 또는 '{talk.B}:'로 시작해야 합니다.");
+                    lines.Add((speaker, colon > 0 ? part.Substring(colon + 1).Trim() : part.Trim()));
+                }
+                talk.Lines = lines;
+                foreach (string cls in new[] { talk.A, talk.B })
+                    if (!Classes.ContainsKey(cls)) Error(file, row, $"직업 '{cls}'가 classes.csv에 없습니다.");
+                list.Add(talk);
+            }
+            Talks = list;
+        }
 
         void ReadRenown(CsvTable table)
         {

@@ -11,4 +11,9 @@ mergeInto(LibraryManager.library, {
     if (window.heroLastPointer) return window.heroLastPointer === "touch" ? 1 : 0;
     return (navigator.maxTouchPoints || 0) > 0 && !window.matchMedia("(pointer: fine)").matches ? 1 : 0;
   },
+
+  // A short buzz on phones that can (the settings' 진동); nothing elsewhere.
+  Vibrate: function (ms) {
+    if (navigator.vibrate) navigator.vibrate(ms);
+  },
 });

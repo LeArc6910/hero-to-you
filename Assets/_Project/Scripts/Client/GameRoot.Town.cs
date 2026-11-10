@@ -24,8 +24,13 @@ namespace Game.Client
             int rumor = a.Discount ? Adventure.RumorCost * (100 - Adventure.BardDiscount) / 100 : Adventure.RumorCost;
             if (Ui.Button(new Rect(0, y, half, bh), a.CanHearRumors ? $"소문을 듣는다 (금화 {rumor})" : "소문(오늘은 끝)", 14, a.CanHearRumors && a.Gold >= rumor)) Act(a.Rumor);
             if (Ui.Button(new Rect(half + 8, y, half, bh), a.CanDonate ? $"마을을 돕는다 (금화 {a.DonationCost})" : "돕기(오늘은 끝)", 14, a.CanDonate && a.Gold >= a.DonationCost)) Act(a.Donate);
+            y += bh + 6;
+            // The contract board: one job at a time, paid when you come back.
+            string contract = a.Contract == null ? (a.CanTakeContract ? "의뢰를 맡는다" : "의뢰 없음")
+                : a.Contract.Done ? "의뢰 완료(보상을 받았다)" : $"의뢰 중: {a.Contract.Tile.Hex} 칸의 무리 (보상 {a.Contract.Gold})";
+            if (Ui.Button(new Rect(0, y, column.width, bh), contract, 14, a.CanTakeContract)) Act(a.TakeContract);
             y += bh + 4;
-            y = Paragraph(column, y, $"여관: 마을에 있는 영웅이 모두 일어나 생명력 {Adventure.InnPercent}%와 결의를 모두 회복한다. 소문: 마을에서 가까운 안개 속 {Adventure.RumorHexes}곳을 알게 된다. 돕기: 명성 +1.", 11, Palette.Dim);
+            y = Paragraph(column, y, $"여관: 마을에 있는 영웅이 모두 일어나 생명력 {Adventure.InnPercent}%와 결의를 모두 회복하고 상처가 낫는다. 소문: 마을에서 가까운 안개 속 {Adventure.RumorHexes}곳을 알게 된다. 돕기: 명성 +1. 의뢰: 지도에 깃발로 표시한 무리를 쫓아내고 돌아오면 금화와 명성 +1.", 11, Palette.Dim);
             foreach (string line in a.Report) y = Paragraph(column, y, "· " + line, 12, Palette.Journal);
             if (_actError != null) y = Paragraph(column, y, _actError, 12, Palette.Damage);
 
@@ -139,9 +144,13 @@ namespace Game.Client
                 var box = new Rect(0, y, w, 92 + extra);
                 Ui.Panel(box);
                 Ui.Image(new Rect(6, y + 6, 36, 36), PixelArt.Hero(hero.Class.Id, hero.Class.Color));
-                Ui.Text(new Rect(48, y + 4, w - 52, 18), $"{hero.Name} Lv{hero.Level} · 생명력 {hero.Hp}/{hero.MaxHp} · 방어도 {hero.ArmorValue} · 결의 {hero.MaxResolve}", 12.5f, Palette.Ink, TextAnchor.MiddleLeft, true);
+                Ui.Text(new Rect(48, y + 4, w - 160, 18), $"{hero.Name} Lv{hero.Level} · 생명력 {hero.Hp}/{hero.MaxHp} · 방어도 {hero.ArmorValue} · 결의 {hero.MaxResolve}" + (hero.Wounds > 0 ? $" · 상처 {hero.Wounds}" : ""), 12.5f, Palette.Ink, TextAnchor.MiddleLeft, true);
+                // Front or back row, a tap to switch (Docs/Combat.md 줄).
+                if (Ui.Button(new Rect(w - 106, y + 4, 100, 44), Strings.Get(hero.Back ? "row.back" : "row.front"), 13, true, hero.Back ? Look.Quiet : Look.Normal, hero.Name + " 줄"))
+                    Act(() => a.SetRow(heroIndex, !hero.Back));
+                Ui.Tip(new Rect(w - 106, y + 4, 100, 44), "앞줄은 적의 무작위 공격을 받는다. 뒷줄은 힘·민첩 근접 공격의 위력이 25% 줄어든다.");
                 string stats = string.Join(" ", Enumerable.Range(0, Stats.Count).Select(i => $"{Stats.Name((Stat)i)} {hero.Stat((Stat)i)}"));
-                Ui.Text(new Rect(48, y + 22, w - 52, 16), stats, 10.5f, Palette.Dim);
+                Ui.Text(new Rect(48, y + 22, w - 160, 16), stats, 10.5f, Palette.Dim);
                 Ui.Text(new Rect(48, y + 38, w - 52, 16), $"무기: {hero.Weapon.Name} ({ItemLine(hero.Weapon)})", 11, Palette.Journal);
                 float sy = y + 56;
                 string armor = hero.Armor != null ? $"갑옷: {hero.Armor.Name}" : "갑옷: 없음";

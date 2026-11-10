@@ -25,6 +25,7 @@ namespace Game.Core
             Ambush,
             Camp,
             Boss,
+            Dungeon,
         }
 
         readonly Queue<(int hero, int level)> _levels = new Queue<(int, int)>();
@@ -89,7 +90,7 @@ namespace Game.Core
             var odds = AvoidOdds(scare);
             hero.Blessing = 0;
             hero.Luck = 0;
-            JoinCheck = _fate.Roll(AvoidDice, odds.Chance, odds.Guaranteed);
+            JoinCheck = _avoidFate.Roll(AvoidDice, odds.Chance, odds.Guaranteed);
             hero.AddGrit(JoinCheck.RolledFailures);
             _joinTried = true;
             Record(scare ? "scare" : "avoid");
@@ -104,6 +105,7 @@ namespace Game.Core
                 int xp = Encounter.Monsters.Sum(m => m.Xp) / 2;
                 JoinTile.Content = Content.None;
                 Report.Add($"{Korean.Subject(hero.Name)} 포효하자 무리가 흩어졌다 (경험치 +{xp})");
+                GroupCleared(JoinTile);
                 GainXp(hero, xp);
             }
             else
@@ -140,9 +142,10 @@ namespace Game.Core
         // for the clue, stronger for a grown rift; every monster stronger on the hard road.
         MonsterDef Empower(MonsterDef monster)
         {
-            if (!monster.Boss && !Hard) return monster;
+            if (!monster.Boss && !Hard && Difficulty == Difficulty.Normal) return monster;
             var copy = monster.Clone();
             if (Hard) copy.Hp = copy.Hp * 125 / 100;
+            if (Difficulty == Difficulty.Easy) copy.Hp = Math.Max(1, copy.Hp * 75 / 100);
             if (!monster.Boss) return copy;
             if (HasFlag(Chapter.WeakenFlag))
             {
@@ -163,7 +166,12 @@ namespace Game.Core
             return copy;
         }
 
-        ulong NextSeed() => ((ulong)_random.NextUInt() << 32) | _random.NextUInt();
+        // Each battle's seed comes from the adventure's seed and how many battles came before, nothing else.
+        ulong NextSeed()
+        {
+            var random = new GameRandom(Seed, 1000 + (ulong)_battlesStarted++);
+            return ((ulong)random.NextUInt() << 32) | random.NextUInt();
+        }
 
         // The current hero's battle command. When it ends the battle, the rewards are given and the screen moves on;
         // the battle stays readable for the screen to finish showing it.
@@ -187,6 +195,12 @@ namespace Game.Core
                 Report.Add("도망쳤다. 적 무리는 그 자리에 남아 있다.");
                 Screen = AdventureScreen.BattleResult;
                 return;
+            }
+            // Every hero who fell keeps a wound (Docs/Combat.md 상처).
+            foreach (var hero in _fighters.Where(h => h.Down))
+            {
+                hero.AddWound();
+                Report.Add($"{hero.Name}: 상처 {hero.Wounds}/{Hero.MaxWounds} (최대 생명력 −{Hero.WoundPercent * hero.Wounds}%, 여관에서 낫는다)");
             }
             if (Battle.State == BattleState.Lost)
             {
@@ -230,7 +244,11 @@ namespace Game.Core
             {
                 case JoinKind.Field:
                     if (JoinTile != null && JoinTile.Content == Content.Enemy) JoinTile.Content = Content.None;
+                    GroupCleared(JoinTile);
                     break;
+                case JoinKind.Dungeon:
+                    DungeonRoomCleared();
+                    return;
                 case JoinKind.Camp:
                     JoinTile.Used = true;
                     MidbossesBeaten++;
@@ -271,7 +289,7 @@ namespace Game.Core
                 var options = new List<UpgradeDef>();
                 while (options.Count < 2 && left.Count > 0)
                 {
-                    int pick = _random.Next(left.Count);
+                    int pick = _levelRandom.Next(left.Count);
                     options.Add(left[pick]);
                     left.RemoveAt(pick);
                 }

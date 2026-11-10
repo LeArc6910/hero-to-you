@@ -53,7 +53,7 @@ namespace Game.Client
             float ratio = WebBridge.PixelRatio();
             float w = Screen.width / ratio;
             float h = Screen.height / ratio;
-            float zoom = Mathf.Clamp(Mathf.Min(w / 1100f, h / 650f), 1f, 2f);
+            float zoom = Mathf.Clamp(Mathf.Min(w / 1100f, h / 650f), 1f, 2f) * Settings.TextSize / 100f;
             Scale = ratio * zoom;
             Width = Screen.width / Scale;
             Height = Screen.height / Scale;

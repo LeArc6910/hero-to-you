@@ -28,6 +28,7 @@ namespace Game.Core
         void OpenTown()
         {
             if (_shopDay != Day) Restock();
+            PayContract();
             Screen = AdventureScreen.Town;
         }
 
@@ -42,11 +43,11 @@ namespace Game.Core
         {
             _shopDay = Day;
             Shop.Clear();
-            int tier = Math.Min(3, Chapter.Index + (Day >= 3 ? 3 : 2));
+            int tier = Math.Min(4, Chapter.Index + (Day >= 3 ? 3 : 2));
             var pool = Data.ItemList.Where(i => i.Price > 0 && !i.Consumable && i.Tier <= tier).ToList();
             for (int i = 0; i < ShopItems && pool.Count > 0; i++)
             {
-                int pick = _random.Next(pool.Count);
+                int pick = _shopRandom.Next(pool.Count);
                 Shop.Add(new ShopItem { Item = pool[pick], Price = PriceOf(pool[pick].Price) });
                 pool.RemoveAt(pick);
             }
@@ -85,10 +86,12 @@ namespace Game.Core
             {
                 var hero = Heroes[i];
                 if (hero.Down) hero.Hp = 1;
+                bool wounded = hero.Wounds > 0;
+                hero.HealWounds();
                 int before = hero.Hp;
                 hero.Heal(Math.Max(1, hero.MaxHp * InnPercent / 100));
                 hero.GainResolve(hero.MaxResolve);
-                Report.Add($"{hero.Name}: 생명력 +{hero.Hp - before} ({hero.Hp}/{hero.MaxHp}), 결의 가득");
+                Report.Add($"{hero.Name}: 생명력 +{hero.Hp - before} ({hero.Hp}/{hero.MaxHp}), 결의 가득" + (wounded ? ", 상처가 나았다" : ""));
             }
             return null;
         }

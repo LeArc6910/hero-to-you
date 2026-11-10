@@ -55,6 +55,7 @@ namespace Game.Core
         Sand,
         Water,
         Mountain,
+        Snow,
     }
 
     // The fixed places of a chapter map.
@@ -69,6 +70,8 @@ namespace Game.Core
         // A clue for the quest (the watchtower), and the middle boss's camp.
         Clue,
         Camp,
+        // A dungeon: rooms of battles one after another, treasure at the end (Docs/Map.md 던전).
+        Dungeon,
     }
 
     // What a hex holds that the seed placed: an enemy group, an event (?), treasure or herbs.
@@ -94,6 +97,7 @@ namespace Game.Core
             Terrain.Sand => "모래톱",
             Terrain.Water => "물",
             Terrain.Mountain => "산",
+            Terrain.Snow => "눈밭",
             _ => terrain.ToString(),
         };
 
@@ -103,6 +107,7 @@ namespace Game.Core
             Terrain.Forest => 2,
             Terrain.Swamp => 2,
             Terrain.Shallows => 2,
+            Terrain.Snow => 2,
             Terrain.Water => 0,
             Terrain.Mountain => 0,
             _ => 1,
@@ -170,6 +175,7 @@ namespace Game.Core
                         'u' => (Terrain.Ruins, Site.None),
                         'w' => (Terrain.Shallows, Site.None),
                         'b' => (Terrain.Sand, Site.None),
+                        'n' => (Terrain.Snow, Site.None),
                         '~' => (Terrain.Water, Site.None),
                         '^' => (Terrain.Mountain, Site.None),
                         'S' => (Terrain.Plains, Site.Start),
@@ -179,6 +185,7 @@ namespace Game.Core
                         'B' => (Terrain.Ruins, Site.Boss),
                         'C' => (Terrain.Ruins, Site.Clue),
                         'M' => (Terrain.Plains, Site.Camp),
+                        'D' => (Terrain.Ruins, Site.Dungeon),
                         _ => throw new FormatException($"{file}: 지도 {r + 1}번째 줄의 '{ch}'는 땅이나 장소 글자가 아닙니다."),
                     };
                     map.Terrains[r * width + c] = terrain;
@@ -190,6 +197,7 @@ namespace Game.Core
                 int count = map.Sites.Count(s => s == site);
                 if (count != 1) throw new FormatException($"{file}: 장소 {site}가 {count}개입니다(하나여야 합니다).");
             }
+            if (map.Sites.Count(s => s == Site.Dungeon) > 1) throw new FormatException($"{file}: 던전(D)은 하나까지입니다.");
             var reach = map.Connected(map.Find(Site.Start));
             foreach (var hex in map.Hexes())
                 if (map.SiteAt(hex) != Site.None && !reach.Contains(hex)) throw new FormatException($"{file}: {hex}의 장소에 시작 칸에서 갈 수 없습니다.");

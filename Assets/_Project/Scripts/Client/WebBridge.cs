@@ -32,7 +32,21 @@ namespace Game.Client
 #endif
         }
 
+        // A short buzz (hits, the dice) when the settings allow; phones only.
+        public static void Buzz(int ms)
+        {
+            if (!Settings.Vibration) return;
 #if UNITY_WEBGL && !UNITY_EDITOR
+            Vibrate(ms);
+#else
+            if (Application.isMobilePlatform) Handheld.Vibrate();
+#endif
+        }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [DllImport("__Internal")]
+        static extern void Vibrate(int ms);
+
         [DllImport("__Internal")]
         static extern float GetDevicePixelRatio();
 

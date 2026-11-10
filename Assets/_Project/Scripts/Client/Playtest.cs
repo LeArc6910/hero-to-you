@@ -132,6 +132,8 @@ namespace Game.Client
                         while (_played < _battleShown.Events.Count) Play(_battleShown.Events[_played++]);
                         _eventTimer = 0;
                     }
+                    // The bot heard the campfire talks; their cards would only cover the buttons ("talk" shows one).
+                    _talksShown = _adventure.Talks.Count;
                     return "ok " + _adventure.Screen;
                 case "gear":
                     _gearOpen = Arg(1, "on") != "off";
@@ -176,6 +178,41 @@ namespace Game.Client
                     // Puts consumables in a hero's pack: give hero item count.
                     _adventure.Heroes[Number(1)].AddConsumable(Arg(2, Hero.PotionId), Number(3, 1));
                     return "ok";
+                case "talk":
+                    // Shows the last campfire talk again as its card.
+                    if (_adventure.Talks.Count == 0) return "error no talk yet";
+                    _talksShown = _adventure.Talks.Count - 1;
+                    return "ok";
+                case "row":
+                    return Act(() => _adventure.SetRow(Number(1), Arg(2) == "back")) ?? "ok";
+                case "delve":
+                    return Act(_adventure.Delve) ?? "ok";
+                case "leavedungeon":
+                    return Act(_adventure.LeaveDungeon) ?? "ok";
+                case "contract":
+                    return Act(_adventure.TakeContract) ?? "ok";
+                case "difficulty":
+                    _difficulty = Arg(1) == "easy" ? Difficulty.Easy : Difficulty.Normal;
+                    return "ok";
+                case "language":
+                    Settings.Language = Arg(1, "ko");
+                    return "ok";
+                case "textsize":
+                    Settings.TextSize = Number(1, 100);
+                    return "ok";
+                case "wound":
+                    _adventure.Heroes[Number(1)].AddWound();
+                    return "ok";
+                case "chapter":
+                    // Skips to the start of chapter n (1-based) by beating the bosses before it.
+                    int target = Number(1, 2) - 1;
+                    for (int guard = 0; guard < 20 && _adventure.Chapter.Index < target && !_adventure.Over; guard++)
+                    {
+                        if (_adventure.Screen == AdventureScreen.Story) _adventure.Continue();
+                        else _adventure.EndChapterForTest();
+                    }
+                    SaveStore.Write(_adventure.Save());
+                    return "ok " + _adventure.Chapter.Id;
                 case "endchapter":
                     // The chapter's boss beaten without the battle: its ending page comes up.
                     _adventure.EndChapterForTest();
@@ -190,6 +227,7 @@ namespace Game.Client
                     _screen = Arg(1) switch
                     {
                         "journal" => ClientScreen.Journal,
+                        "settings" => ClientScreen.Settings,
                         "party" => ClientScreen.Party,
                         _ => ClientScreen.Title,
                     };
@@ -249,7 +287,8 @@ namespace Game.Client
                 .Add("touch", Ui.Touch)
                 .Add("width", Ui.Width)
                 .Add("height", Ui.Height)
-                .Add("pages", JournalNow.Pages).Add("perks", string.Join(",", ChosenPerks()));
+                .Add("pages", JournalNow.Pages).Add("perks", string.Join(",", ChosenPerks()))
+                .Add("language", Settings.Language).Add("textSize", Settings.TextSize).Add("vibration", Settings.Vibration);
             var adventure = _adventure;
             if (adventure != null)
             {
@@ -261,12 +300,15 @@ namespace Game.Client
                     .Add("chapter", adventure.Chapter.Id).Add("renown", adventure.Renown).Add("rank", adventure.Rank.Title)
                     .Add("unknown", adventure.Map.Tiles.Count(t => !adventure.Knows(t))).Add("explored", adventure.Map.Tiles.Count(t => adventure.Explored(t.Hex)))
                     .Add("canAvoid", adventure.CanAvoid).Add("canScare", adventure.CanScare).Add("footsteps", adventure.Footsteps.Count)
-                    .Add("tip", _tipOpen ?? "").Add("tooltip", Ui.ShownTip ?? "").Add("music", Music.Volume);
+                    .Add("tip", _tipOpen ?? "").Add("tooltip", Ui.ShownTip ?? "").Add("music", Music.Volume)
+                    .Add("difficulty", adventure.Difficulty.ToString()).Add("dungeonRoom", adventure.DungeonRoom).Add("contract", adventure.Contract != null)
+                    .Add("talks", adventure.Talks.Count).Add("talkWaiting", TalkWaiting).Add("story", adventure.Story?.Id ?? "").Add("storyAll", _storyAll);
                 json.List("heroes");
                 foreach (var hero in adventure.Heroes)
                     json.Open().Add("class", hero.Class.Id).Add("level", hero.Level).Add("hp", hero.Hp).Add("max", hero.MaxHp)
                         .Add("resolve", hero.Resolve).Add("grit", hero.Grit).Add("potions", hero.Potions).Add("weapon", hero.Weapon.Id)
                         .Add("items", string.Join(",", hero.Consumables.Where(c => c.Value > 0).Select(c => c.Key + ":" + c.Value)))
+                        .Add("wounds", hero.Wounds).Add("back", hero.Back)
                         .Add("at", adventure.Positions[adventure.Heroes.IndexOf(hero)].ToString()).Close();
                 json.End();
                 if (adventure.Event != null && adventure.Screen == AdventureScreen.Event)

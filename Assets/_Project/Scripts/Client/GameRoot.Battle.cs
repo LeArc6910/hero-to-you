@@ -187,6 +187,7 @@ namespace Game.Client
                 case BattleEventKind.Damage:
                     _shownHp[e.Target] = Mathf.Max(0, _shownHp[e.Target] - e.Amount);
                     _hitAt[e.Target] = _clock;
+                    if (_speed > 0 && _battleShown.Unit(e.Target).IsHero) WebBridge.Buzz(40);
                     Float(e.Target, "-" + e.Amount + (e.Perfect ? "!" : ""), Palette.Damage);
                     if (_speed > 0) Sounds.Play(Sound.Hit);
                     break;
@@ -300,7 +301,7 @@ namespace Game.Client
             Ui.Fill(new Rect(field.x, field.y + skyH, field.width, field.height - skyH), Color.Lerp(ground, Palette.Back, 0.35f));
             Ui.Fill(new Rect(field.x, field.y + skyH, field.width, 2), Color.Lerp(ground, Color.white, 0.15f));
             string mark = TerrainMark(terrain) ?? (terrain == Terrain.Road ? "stones" : null);
-            if (boss) mark = a.Chapter.Index == 0 ? "stones" : "wave";
+            if (boss) mark = (a.Chapter.Index % 3) switch { 0 => "stones", 1 => "wave", _ => "peak" };
             if (mark == null) return;
             var icon = PixelArt.Icon(mark);
             float s = Mathf.Min(field.height * 0.22f, 64);
@@ -316,9 +317,19 @@ namespace Game.Client
 
         static (Color top, Color bottom) BackdropSky(int chapter, bool night, bool boss)
         {
-            if (boss) return chapter == 0 ? (Palette.Hex("#2A1712"), Palette.Hex("#6B3322")) : (Palette.Hex("#0E1A2A"), Palette.Hex("#2E5A6E"));
+            if (boss) return (chapter % 3) switch
+            {
+                0 => (Palette.Hex("#2A1712"), Palette.Hex("#6B3322")),
+                1 => (Palette.Hex("#0E1A2A"), Palette.Hex("#2E5A6E")),
+                _ => (Palette.Hex("#1A2230"), Palette.Hex("#8DA6BC")),
+            };
             if (night) return (Palette.Hex("#0B0D18"), Palette.Hex("#232842"));
-            return chapter == 0 ? (Palette.Hex("#3A3530"), Palette.Hex("#7A6E5E")) : (Palette.Hex("#2E4252"), Palette.Hex("#7895A0"));
+            return (chapter % 3) switch
+            {
+                0 => (Palette.Hex("#3A3530"), Palette.Hex("#7A6E5E")),
+                1 => (Palette.Hex("#2E4252"), Palette.Hex("#7895A0")),
+                _ => (Palette.Hex("#5C6E80"), Palette.Hex("#C9D6E0")),
+            };
         }
 
         void DrawTimeline(Rect r, Battle battle)
@@ -433,7 +444,7 @@ namespace Game.Client
             if (!unit.IsHero && !down && unit.Intent != null && !battle.Over) DrawIntent(new Rect(slot.x + 2, slot.y, slot.width - 4, intentH - 2), unit, battle);
 
             float y = spriteRect.yMax + 2;
-            Ui.Text(new Rect(slot.x, y, slot.width, 16), unit.Name + (unit.IsHero ? $" Lv{unit.Hero.Level}" : ""), 12, down ? Palette.Dim : Palette.Ink, TextAnchor.MiddleCenter, true);
+            Ui.Text(new Rect(slot.x, y, slot.width, 16), unit.Name + (unit.IsHero ? $" Lv{unit.Hero.Level} · {Strings.Get(unit.Hero.Back ? "row.back" : "row.front")}" : ""), 12, down ? Palette.Dim : Palette.Ink, TextAnchor.MiddleCenter, true);
             y += 16;
             float barW = Mathf.Min(slot.width - 12, 150);
             var bar = new Rect(slot.x + (slot.width - barW) / 2, y + 1, barW, 7);

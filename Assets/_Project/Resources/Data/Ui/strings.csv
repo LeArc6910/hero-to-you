@@ -1,0 +1,71 @@
+id,ko,en
+title.name,히어로 투 유,Hero to You
+title.subtitle,영웅에게서 너에게 · 1~3인 협동 턴제 모험,"From a hero, to you · a turn-based co-op adventure for 1–3"
+title.continue,이어하기,Continue
+title.new,혼자 시작 (영웅 셋을 모두 조종),Start solo (lead all three heroes)
+title.new_over,새 모험 (이어하던 것은 지워진다),New adventure (the saved one is lost)
+title.journal,일지 ({0}장),Journal ({0} pages)
+title.coop,협동 (준비 중),Co-op (coming)
+title.settings,설정,Settings
+title.footer,{0}개의 장,{0} chapters
+party.heading,영웅 셋을 고르세요,Choose three heroes
+party.hint,"직업 {0}종 가운데 셋 · 카드를 누르면 고르고, 다시 누르면 뺀다","Three of {0} classes · tap a card to pick, again to drop"
+party.back,뒤로,Back
+party.random,무작위,Random
+party.start,모험 시작,Set out
+party.difficulty,난이도: {0},Difficulty: {0}
+difficulty.easy,쉬움,Easy
+difficulty.normal,보통,Normal
+party.perks,가져가는 장: {0},Pages taken: {0}
+settings.heading,설정,Settings
+settings.text,글자 크기: {0}%,Text size: {0}%
+settings.vibration_on,진동: 켬,Vibration: on
+settings.vibration_off,진동: 끔,Vibration: off
+settings.sound_on,효과음: 켬,Sound effects: on
+settings.sound_off,효과음: 끔,Sound effects: off
+settings.music,음악: {0}%,Music: {0}%
+settings.speed_normal,전투 연출: 보통,Battle playback: normal
+settings.speed_fast,전투 연출: 빠르게,Battle playback: fast
+settings.tips,도움말 다시 보기,Show the tips again
+settings.tips_done,처음 보는 화면마다 도움말이 다시 나온다.,The tips will show again on each new screen.
+settings.language,언어: 한국어,Language: English
+settings.language_note,영어는 메뉴와 도움말만 있다. 이야기와 사건은 한국어로 나온다.,Only the menus and tips are in English yet; the story and events are in Korean.
+settings.back,뒤로,Back
+common.ok,알겠다,Got it
+common.close,닫기,Close
+common.continue,계속,Continue
+common.skip,넘기기,Skip
+tip.map.title,지도,The map
+tip.map.text,영웅마다 차례가 온다. [이동 굴리기]로 이동력을 정하고 갈 칸을 눌러 [이동]. 금색 테두리가 갈 수 있는 칸이다. 어두운 칸은 아직 아무도 보지 못한 안개다. 그 안에 무엇이 있는지는 가 보거나 마을에서 소문을 들어야 안다.,"Each hero takes a turn. [Roll to move] sets how far, then pick a hex and [Move]. Gold edges are hexes you can reach. Dark hexes are fog nobody has seen yet: go there, or hear rumors in town, to know what they hold."
+tip.join.title,전투가 났다,A fight
+tip.join.text,전투가 난 칸에서 2칸 안에 있는 영웅만 함께 싸울 수 있다. 싸운 영웅만 경험치를 받는다. 들판에서 만난 무리는 한 번 피해 갈 수 있다(광전사는 겁줘서 쫓을 수도 있다).,"Only heroes within two hexes of the fight can join, and only those who fight get experience. A group met in the open can be slipped past once (the berserker can scare it off)."
+tip.battle.title,전투,Battle
+tip.battle.text,"기술을 고르고, 필요하면 대상을 누른 뒤 [굴리기]. 굴리기 전에 성공 개수별 확률과 피해가 보인다. 결의를 쓰면 주사위 하나가 확정 성공이 된다. 실패한 주사위는 끈기로 쌓여 결의가 된다. 앞줄은 적의 무작위 공격을 받고, 뒷줄은 근접 공격이 약하다. 버튼을 길게 누르면(마우스는 올리면) 설명이 나온다.","Pick a skill, a target if it needs one, then [Roll]. Before rolling you see the odds and damage for each number of successes. Resolve turns a die into a sure success; failed dice build grit, which becomes resolve. The front row takes the monsters' random blows; the back row hits softer up close. Hold a button (or hover) for its details."
+tip.event.title,사건,Events
+tip.event.text,"선택지를 고르고, 판정이 있으면 누가 할지 고른다. 확률은 미리 보인다. 직업만의 선택지도 있다. 사람들을 도우면 명성이 오르고, 이야기의 결말이 달라진다.","Pick a choice and, if it has a check, who tries it. The odds show first. Some choices belong to one class. Helping people raises your renown and changes how the story ends."
+tip.town.title,마을,Town
+tip.town.text,"여관에서 쉬면 마을에 있는 영웅이 모두 회복하고 상처가 낫는다. 상점의 소모품은 원하는 영웅에게 사 줄 수 있다. 소문은 안개 속을 밝혀 주고, 의뢰를 맡으면 무리 하나를 쫓아내고 보상을 받는다. 마을을 도우면 명성이 오른다.",Resting at the inn heals every hero in town and their wounds. Consumables go to the hero you choose. Rumors lift fog; a contract pays for driving off one group. Helping the town raises renown.
+tip.levelup.title,레벨업,Level up
+tip.levelup.text,강화 둘 가운데 하나를 고른다. 판마다 다른 강화가 나오니 같은 직업도 다르게 자란다.,"Pick one of two upgrades. They differ every run, so the same class grows differently."
+tip.time.title,하루와 밤,Days and night
+tip.time.text,"세 영웅이 한 번씩 움직이면 시간이 흐른다(아침, 낮, 저녁, 밤). 밤에는 이동력이 1 줄고 시야가 좁다. 새 날이 올 때마다 균열이 하나 자라고, 모닥불 곁에서 두 영웅이 이야기를 나누기도 한다.","When all three heroes have moved, time passes (morning, day, evening, night). At night moving costs one more and you see less. Each dawn the rift grows, and two heroes may talk by the fire."
+tip.rift.title,균열,The rift
+tip.rift.text,날마다 하나씩 자라 10이 되면 모험이 끝난다. 6 이상이면 보스가 강해진다. 본 줄거리 장소와 일부 사건이 균열을 줄여 준다.,It grows by one each day; at 10 the adventure is lost. From 6 the boss grows stronger. The main quest sites and some events shrink it.
+tip.renown.title,명성,Renown
+tip.renown.text,사람들을 돕고 보스를 쓰러뜨리면 오른다. 명성이 쌓이면 사람들이 너희를 부르는 이름이 바뀐다. 이름 없는 길손에서 영웅까지.,"It rises when you help people and beat bosses. As it grows, people call you by other names: from nameless wanderers to heroes."
+tip.journal.title,일지,The journal
+tip.journal.text,모험이 끝날 때마다 일지 페이지를 받는다. 페이지로 장을 펼치면 다음 모험을 조금 다르게 시작할 수 있다. 길에서 찾은 옛 영웅의 메모도 여기에 모인다.,Every finished adventure gives journal pages. Spend them to open perks for later runs. The old hero's notes you found gather here too.
+tip.dungeon.title,던전,The dungeon
+tip.dungeon.text,방마다 전투가 이어진다. 방을 지날 때마다 더 들어가거나 나갈 수 있다. 나가도 지난 방은 다시 싸우지 않는다. 가장 깊은 방에 보물이 있다.,"Room after room of battles. After each room, go deeper or leave; rooms cleared stay cleared. Treasure waits in the deepest room."
+tip.wounds.title,상처,Wounds
+tip.wounds.text,"전투에서 쓰러진 영웅은 상처가 남는다. 상처마다 최대 생명력이 10% 줄고(최대 3개), 여관에서 쉬거나 다음 장이 되면 낫는다. 영웅이 영영 죽지는 않는다.",A hero who falls in battle keeps a wound: each takes 10% of their most health (up to three) until an inn rest or the next chapter. Nobody dies for good.
+tip.talk.title,모닥불 곁에서,By the fire
+tip.talk.text,새 날이 밝을 때 두 영웅이 이야기를 나누면 둘 다 결의가 하나 오른다. 파티의 조합마다 다른 이야기가 있다.,"When two heroes talk at dawn, both gain one resolve. Each pairing of classes has its own talks."
+story.tap,누르면 글이 다 나온다,Tap to show it all
+dungeon.heading,{0} · 방 {1}/{2},{0} · room {1}/{2}
+dungeon.delve,더 들어간다,Go deeper
+dungeon.leave,나간다,Leave
+dungeon.hint,더 들어가면 싸운 영웅은 생명력 {0}%를 숨 고르며 되찾는다. 나가도 지난 방은 지난 것으로 남는다.,"Going deeper, the fighters catch their breath ({0}% health). Leaving keeps the cleared rooms."
+talk.heading,모닥불 곁에서,By the fire
+row.front,앞줄,Front
+row.back,뒷줄,Back

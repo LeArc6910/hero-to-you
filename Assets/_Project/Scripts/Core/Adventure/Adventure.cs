@@ -14,8 +14,18 @@ namespace Game.Core
         Event,
         EventResult,
         Town,
+        // Between two rooms of the dungeon: go deeper or leave.
+        DungeonRest,
         Victory,
         Defeat,
+    }
+
+    // How hard the run is (Docs/Map.md 난이도): easy monsters have a quarter less health and the party starts with
+    // one more hope and a little gold. The journal's 가시밭길 makes it harder on top.
+    public enum Difficulty
+    {
+        Easy,
+        Normal,
     }
 
     // What an event choice did (Docs/Narrative.md).
@@ -74,8 +84,18 @@ namespace Game.Core
 
         static readonly string[] TimeNames = { "아침", "낮", "저녁", "밤" };
 
-        readonly GameRandom _random;
-        readonly Fate _fate;
+        // Separate streams for separate things (Docs/Saving.md): when a sheet changes (one more event, a new
+        // item), only the draws of that kind come out differently, and a save's commands still fit the rest.
+        readonly GameRandom _eventRandom;
+        readonly GameRandom _lootRandom;
+        readonly GameRandom _levelRandom;
+        readonly GameRandom _shopRandom;
+        readonly GameRandom _talkRandom;
+        GameRandom _mapRandom;
+        readonly Fate _moveFate;
+        readonly Fate _eventFate;
+        readonly Fate _avoidFate;
+        int _battlesStarted;
         readonly HashSet<string> _flags = new HashSet<string>();
         readonly HashSet<string> _seen = new HashSet<string>();
         readonly List<string> _log = new List<string>();
@@ -90,22 +110,29 @@ namespace Game.Core
 
         Then _then;
 
-        public Adventure(GameData data, IReadOnlyList<string> classIds, ulong seed, IReadOnlyList<string> perks = null)
+        public Adventure(GameData data, IReadOnlyList<string> classIds, ulong seed, IReadOnlyList<string> perks = null, Difficulty difficulty = Difficulty.Normal)
         {
             Data = data ?? throw new ArgumentNullException(nameof(data));
             if (classIds == null || classIds.Count != 3) throw new ArgumentException("A party is three heroes.", nameof(classIds));
             Seed = seed;
             ClassIds = classIds.ToList();
             Perks = (perks ?? new string[0]).Where(p => p.Length > 0).ToList();
-            _random = new GameRandom(seed, 10);
-            _fate = new Fate(seed, 11);
+            Difficulty = difficulty;
+            _eventRandom = new GameRandom(seed, 20);
+            _lootRandom = new GameRandom(seed, 21);
+            _levelRandom = new GameRandom(seed, 22);
+            _shopRandom = new GameRandom(seed, 23);
+            _talkRandom = new GameRandom(seed, 24);
+            _moveFate = new Fate(seed, 11);
+            _eventFate = new Fate(seed, 12);
+            _avoidFate = new Fate(seed, 13);
             foreach (string id in classIds)
             {
                 if (!data.Classes.TryGetValue(id, out var cls) || !cls.Playable) throw new ArgumentException($"No playable class '{id}'.", nameof(classIds));
                 Heroes.Add(new Hero(cls, Heroes.Count));
             }
-            Hope = StartHope;
-            Gold = StartGold;
+            Hope = StartHope + (difficulty == Difficulty.Easy ? 1 : 0);
+            Gold = StartGold + (difficulty == Difficulty.Easy ? 10 : 0);
             StartChapter(0);
             ApplyPerks();
         }
@@ -117,6 +144,7 @@ namespace Game.Core
         // The journal perks this run started with (Docs/Journal.md).
         public IReadOnlyList<string> Perks { get; }
         public bool Hard { get; private set; }
+        public Difficulty Difficulty { get; }
         public List<Hero> Heroes { get; } = new List<Hero>();
         public int Hope { get; internal set; }
         public int Gold { get; internal set; }
@@ -209,6 +237,7 @@ namespace Game.Core
         {
             Chapter = Data.Chapters[index];
             Map = new WorldMap(Chapter.Map);
+            _mapRandom = new GameRandom(Seed, 100 + (ulong)index);
             var start = Map.Tile(Site.Start).Hex;
             Positions.Clear();
             foreach (var _ in Heroes) Positions.Add(start);
@@ -223,6 +252,8 @@ namespace Game.Core
             _rerollDay = 0;
             _eventTile = null;
             _elderMet = false;
+            DungeonRoom = 0;
+            Contract = null;
             Event = null;
             Battle = null;
             if (index > 0)
@@ -231,6 +262,7 @@ namespace Game.Core
                 foreach (var hero in Heroes)
                 {
                     if (hero.Down) hero.Hp = 1;
+                    hero.HealWounds();
                     hero.Heal(hero.MaxHp);
                     hero.GainResolve(hero.MaxResolve);
                 }
