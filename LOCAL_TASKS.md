@@ -111,14 +111,14 @@
 ### 2026-11-10 로컬 세션 (Windows, Unity 6000.6.3f1)
 
 - **웹 데모 설정**: 시크릿 둘, Pages 소스(GitHub Actions), `github-pages` 배포 브랜치(`claude/coop-3player-2d-game-qosx9s`)가 모두 들어가 있다. 사람이 Run workflow로 돌린 첫 빌드(Actions 실행 42786357662)에서 **Unity Personal 라이선스 활성화와 반납은 성공**했다
-- **컴파일 에러 (클라우드가 고칠 것)**: 첫 웹 빌드가 에디터의 스크립트 컴파일에서 실패했다. 로컬 에디터에서도 똑같이 난다
+- **컴파일 에러 (사용자 결정으로 로컬이 고쳤다)**: 첫 웹 빌드가 에디터의 스크립트 컴파일에서 실패했다. 로컬 에디터에서도 똑같이 난다
   ```
   Assets/Tests/EditMode/AdventureTests.cs(98,68): error CS1503: Argument 1: cannot convert from 'int' to 'string'
   Scripts have compiler errors.
   ```
   - 원인: Unity의 NUnit(`com.unity.ext.nunit`의 `unity-custom/nunit.framework.dll`)은 `ConstraintExpression`에 `Contain(string)`만 있고 `Contain(object)`가 없다. 그래서 `Does.Not.Contain(2)`를 문자열 포함으로 읽는다. `dotnet test`의 NUnit 3.14에는 `Contain(object)`가 있어 통과했다. 이 dll의 `ConstraintExpression`에 있는 것: `Contains(object)`, `Contains(string)`, `Contain(string)`, `Member(object)`
-  - 고치는 법: `Has.No.Member(2)`(또는 `Does.Not.Contains(2)`). 로컬에서 이 줄만 임시로 `Has.No.Member(2)`로 바꿔 보니 컴파일되고 아래 테스트가 모두 통과했다. 임시 수정은 되돌렸고 커밋하지 않았다
-  - 다시 생기지 않게: `UnityCompileCheck`가 `Game.Core.Tests`도 Unity의 nunit.framework.dll로 컴파일해 보면 CI에서 잡힌다
-- **에디터에서 열기**: 배치 모드로 `Game.Client.Editor.ProjectSetup.RunBatch`를 돌렸다(위 임시 수정 상태). "Project setup done.", 다른 컴파일 에러·경고는 없었다. 생긴 `.meta` 148개, `ProjectSettings/`, `Packages/packages-lock.json`, `Assets/_Project/Scenes/Main.unity`를 커밋했다. 공개 저장소라 확인했다: 클라우드 프로젝트 ID·조직 ID는 비어 있고 로컬 경로는 들어가지 않았다
-- **Unity 테스트 러너(EditMode)**: 151개 모두 통과(3.3초, 위 임시 수정 상태)
+  - 고친 것: 이 줄을 `Has.No.Member(2)`로 바꿨다. 웹 데모를 바로 띄우려고 사용자가 "여기서 고쳐 푸시"로 정했다(로컬은 `.cs`를 고치지 않는다는 규칙의 이번 한 번 예외). 이 상태로 Unity에서 컴파일되고 아래 테스트가 모두 통과했다
+  - 클라우드가 할 일: `UnityCompileCheck`가 `Game.Core.Tests`도 Unity의 nunit.framework.dll로 컴파일해 보게 하면 이런 에러를 CI에서 먼저 잡는다. 테스트에서 `Does.Not.Contain`에 글자가 아닌 값을 넘기지 않는다(`Has.No.Member` 사용)
+- **에디터에서 열기**: 배치 모드로 `Game.Client.Editor.ProjectSetup.RunBatch`를 돌렸다(위 수정 상태). "Project setup done.", 다른 컴파일 에러·경고는 없었다. 생긴 `.meta` 148개, `ProjectSettings/`, `Packages/packages-lock.json`, `Assets/_Project/Scenes/Main.unity`를 커밋했다. 공개 저장소라 확인했다: 클라우드 프로젝트 ID·조직 ID는 비어 있고 로컬 경로는 들어가지 않았다
+- **Unity 테스트 러너(EditMode)**: 151개 모두 통과(3.3초, 위 수정 상태)
 - **아직 못 한 것**: 웹 데모가 아직 올라가지 않아 1~6번의 휴대폰·손맛 확인은 웹 데모가 뜬 뒤 사람이 한다

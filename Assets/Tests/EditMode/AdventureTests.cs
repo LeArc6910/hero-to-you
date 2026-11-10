@@ -95,7 +95,7 @@ namespace Game.Core.Tests
             typeof(Adventure).GetMethod("Arrive", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(adventure, new object[] { enemy.Hex });
             Assert.That(adventure.Screen, Is.EqualTo(AdventureScreen.Join));
             Assert.That(adventure.JoinCandidates, Does.Contain(0));
-            Assert.That(adventure.JoinCandidates, Does.Not.Contain(2), "멀리 있는 영웅은 못 온다");
+            Assert.That(adventure.JoinCandidates, Has.No.Member(2), "멀리 있는 영웅은 못 온다");
             Assert.That(adventure.Join(new[] { 1 }), Is.Not.Null, "움직인 영웅은 빠질 수 없다");
             Assert.That(adventure.Join(new[] { 0 }), Is.Null);
             Assert.That(adventure.Battle.Heroes.Count(), Is.EqualTo(1));
