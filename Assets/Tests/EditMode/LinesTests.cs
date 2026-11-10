@@ -62,6 +62,17 @@ namespace Game.Core.Tests
             }
         }
 
+        // Every row of every sheet has no more cells than its header (an unquoted comma would cut a text short).
+        [Test]
+        public void NoSheetRowHasMoreCellsThanItsHeader()
+        {
+            foreach (string file in GameData.Files.Concat(GameData.TextFiles).Concat(new[] { "Ui/strings.csv" }))
+            {
+                var table = CsvTable.Read(File.ReadAllText(Path.Combine(TestData.DataFolder, file)));
+                Assert.That(table.LongRows, Is.Empty, $"{file}: 칸이 머리줄보다 많은 줄(쉼표를 따옴표로 감싸지 않았다)");
+            }
+        }
+
         static string[] Values(string template) =>
             Regex.Matches(template, @"\{(\d+)(:[^}]*)?\}").Cast<Match>().Select(m => m.Groups[1].Value).Distinct().OrderBy(v => v).ToArray();
     }

@@ -1,461 +1,461 @@
-event,label,class,requires,stat,dice,need,success,fail,success_text,fail_text
-pilgrim,치료한다,,,wil,2,1,heal_all 4;flag pilgrim_saved;flag kind;bless_all;renown 1,hurt 3,순례자가 눈을 뜬다. 고마워하며 모두에게 축복을 빌어 준다. (모두 생명력 +4. 다음 판정 확정 +1),치료하다 잿가루를 들이마셨다. (생명력 −3)
-pilgrim,기도로 일으킨다,cleric,,,,,heal_all 8;flag pilgrim_saved;flag kind;resolve_all 1;renown 1,,순례자가 일어나 기도에 답한다. 모두의 마음이 단단해진다.,
-pilgrim,돈주머니만 챙긴다,,,,,,gold 15;flag robbed_pilgrim,,금화 15를 챙겼다. 순례자는 아직 쓰러져 있다.,
-pilgrim,지나친다,,,,,,,,너희는 발걸음을 재촉한다.,
-thicket,살피며 들어간다,,,per,2,1,gold 10;xp 3,battle ambush,매복을 먼저 알아차리고 돌아갔다. 버려진 짐에서 금화 10.,덤불 속에서 화살이 날아온다!
-thicket,흔적을 읽는다,hunter,,,,,gold 10;xp 5;potion 1,,사냥꾼이 고블린의 흔적을 읽고 둥지를 피했다. 둥지에서 물약 하나를 슬쩍했다.,
-thicket,돌아간다,,,,,,resolve_all 1,,먼 길이지만 마음 편히 걸었다. (모두 결의 +1),
-peddler,물약을 산다 (금화 10),,,,,,gold -10;potion 1,,물약 하나를 샀다.,
-peddler,흥정한다,,,cha,3,2,potion 2;gold -5,gold -10;potion 1,행상이 혀를 찬다. 금화 5에 물약 둘.,흥정은 실패. 제값을 내고 물약 하나.
-peddler,노름을 건다,gambler,,fixed50,3,2,gold 20;potion 1,gold -10,“한 판 어때?” 도박사가 이겼다. 금화 20과 덤으로 물약 하나.,도박사가 졌다. 금화 10을 잃었다.
-peddler,그냥 간다,,,,,,,,행상이 아쉬운 듯 손을 흔든다.,
-burned_hut,불을 끈다,,,str,2,1,flag kind;hope 1;xp 3;renown 1,hurt 4,불길을 잡았다. 노인들이 연신 고개를 숙인다. (희망 +1),불길에 데었다. (생명력 −4)
-burned_hut,식량을 나눈다 (금화 5),,,,,,gold -5;flag kind;resolve_all 1;renown 1,,노인들이 처음으로 웃는다. (모두 결의 +1),
-burned_hut,지나친다,,,,,,,,연기가 등 뒤로 멀어진다.,
-ash_wind,버틴다,,,wil,3,1,xp 4,hurt_all 3,잿가루 바람이 지나갔다. 버틴 만큼 단단해졌다.,잿가루가 폐를 긁는다. (모두 생명력 −3)
-ash_wind,바위 그늘을 찾는다,,,per,2,1,resolve_all 1,doom 1,바위 그늘에서 바람을 피했다. (모두 결의 +1),그늘을 찾다 길을 잃었다. 하루가 더 걸린다. (균열 +1)
-ash_wind,노래로 기운을 북돋는다,bard,,,,,resolve_all 2,,음유시인의 노래가 바람 소리를 덮는다. (모두 결의 +2),
-lost_child,마을까지 데려다준다,,,,,,flag child_saved;flag kind;hope 1;doom 1;renown 1,,아이를 마을 어귀까지 데려다줬다. 하루가 걸렸지만 아이의 엄마가 울며 고마워한다. (희망 +1 · 균열 +1),
-lost_child,길을 일러 준다,,,cha,2,1,flag child_saved;flag kind;renown 1,flag child_lost,아이가 고개를 끄덕이고 마을 쪽으로 달려간다.,아이는 겁에 질려 엉뚱한 쪽으로 달아났다.
-lost_child,지나친다,,,,,,flag child_lost,,뒤에서 울음소리가 멀어진다.,
-old_well,동전을 던진다 (금화 1),,,fixed50,1,1,gold -1;bless_all,gold -1,동전이 물에 닿는 소리가 맑다. (모두 다음 판정 확정 +1),아무 일도 없다.
-old_well,물을 마신다,,,wil,2,1,heal_all 6,weak_next,물이 시원하다. (모두 생명력 +6),물에서 쇠 맛이 난다. 다음 전투를 약화된 채 시작한다.
-old_well,지나친다,,,,,,,,,
-trapped_fox,풀어 준다,,,agi,2,1,flag spared_fox;flag kind;xp 3;renown 1,hurt 2,여우가 절뚝이며 숲으로 사라진다. 한 번 돌아본다.,덫에 손가락을 물렸다. (생명력 −2)
-trapped_fox,돌봐 준다,beastmaster,,,,,flag spared_fox;flag kind;heal_all 4;potion 1;renown 1,,조련사가 다리를 감싸 주자 여우가 덫 주인의 물약 꾸러미를 물어 온다.,
-trapped_fox,지나친다,,,,,,,,,
-hero_statue,석상을 닦는다,,,,,,resolve_all 1,,먼지를 털자 석상이 조금 덜 쓸쓸해 보인다. (모두 결의 +1),
-hero_statue,받침돌을 살핀다,,,int,2,1,item candle_old,,받침돌 안에서 이름이 새겨진 초를 찾았다. (오래된 초를 얻었다),아무것도 없다.
-hero_statue,맹세를 바친다,knight,,,,,resolve_all 2;flag knight_oath,,기사가 무릎을 꿇는다. 옛 맹세가 다시 입에 붙는다. (모두 결의 +2),
-deserter,이야기를 듣는다,,,cha,2,1,gold 12;flag spared_bandit;xp 3,battle bandits,산적이 숨겨 둔 돈의 자리를 알려 주고 떠난다. (금화 12),“속았다!” 숨어 있던 패거리가 덮친다!
-deserter,붙잡는다,,,,,,battle bandits;flag deserter_taken,,산적이 비명을 지르자 패거리가 몰려온다!,
-deserter,보내 준다,,,,,,flag spared_bandit;flag kind;renown 1,,산적이 고개를 숙이고 서쪽으로 사라진다.,
-knight_banner,깃발을 다시 세운다,knight,,,,,hope 1;flag knight_banner,,낡은 깃발이 바람에 펄럭인다. 지나던 사람들이 걸음을 멈춘다. (희망 +1),
-knight_banner,지나친다,,,,,,,,,
-berserker_home,분노를 삼킨다,berserker,,wil,2,1,resolve 2;xp 5,hurt 4;xp 5,광전사가 숨을 고른다. 분노가 칼날처럼 가라앉는다. (결의 +2),벽을 내리쳐 주먹이 터졌다. 그래도 조금은 풀렸다. (생명력 −4)
-berserker_home,함께 앉아 준다,,,,,,resolve_all 1;flag kind;renown 1,,아무도 말하지 않았다. 그걸로 충분했다. (모두 결의 +1),
-hunter_tracks,뒤를 밟는다,hunter,,per,2,1,gold 15;potion 1;xp 4,battle bandits,발자국 끝에서 산적의 숨긴 짐을 찾았다. (금화 15 · 물약),발자국 끝에 산적들이 기다리고 있었다!
-hunter_tracks,모른 척한다,,,,,,,,,
-elemental_spring,마력을 들이마신다,elementalist,,,,,resolve 2;heal 6,,눈앞이 맑아진다. (결의 +2 · 생명력 +6),
-elemental_spring,병에 담는다,,,int,2,1,potion 1,,빛나는 물을 병에 담았다. (물약 +1),물이 병에 닿자 빛을 잃었다.
-cleric_chapel,종을 친다,cleric,,,,,bless_all;heal_all 5,,종소리가 숲을 건너간다. 모두의 숨이 깊어진다. (모두 생명력 +5 · 확정 +1),
-cleric_chapel,지붕을 손본다,,,str,2,1,hope 1;flag kind;renown 1,hurt 3,무너진 지붕을 떠받쳤다. (희망 +1),서까래가 무너져 내렸다. (생명력 −3)
-gambler_den,판에 앉는다,gambler,,fixed50,3,2,gold 25,gold -10,도박사가 판을 쓸어 담는다. (금화 25),도박사가 털렸다. (금화 −10)
-gambler_den,속임수를 폭로한다,,,per,2,1,gold 10;flag kind;renown 1,battle bandits,주사위에 납이 들어 있었다. 사내들이 돈을 두고 도망친다. (금화 10),“감히!” 사내들이 칼을 뽑는다!
-gambler_den,지나친다,,,,,,,,,
-rogue_wagon,자물쇠를 딴다,rogue,,agi,2,1,loot 2;gold 10,loot 1,자물쇠 셋이 차례로 열린다. 좋은 물건이 들어 있다.,자물쇠 하나만 열렸다. 그래도 무언가 있다.
-rogue_wagon,부순다,,,str,2,2,loot 1,hurt 3,짐칸이 부서지며 물건 하나가 굴러 나온다.,부서진 나무에 팔을 긁혔다. (생명력 −3)
-rogue_wagon,그냥 둔다,,,,,,,,,
-bard_campfire,노래를 부른다,bard,,cha,2,1,hope 1;gold 15;flag kind;renown 1,gold 5,여행자들이 따라 부르기 시작한다. 누군가 동전을 던진다. (희망 +1 · 금화 15),노래는 어색했지만 한 명이 동전을 던져 준다. (금화 5)
-bard_campfire,함께 쉰다,,,,,,heal_all 6,,오랜만에 깊이 잠들었다. (모두 생명력 +6),
-alchemist_mushrooms,재료를 모은다,alchemist,,,,,reagent 3;xp 3,,버섯과 이끼를 조심스레 모았다. (재료 +3),
-alchemist_mushrooms,한 입 먹어 본다,,,wil,2,2,heal 10,weak_next,의외로 맛있다. 기운이 난다. (생명력 +10),배가 뒤틀린다. 다음 전투를 약화된 채 시작한다.
-necro_grave,망자에게 묻는다,necromancer,,,,,flag ghost_told;resolve 2,,망자가 속삭인다. “리엔은 사라진 게 아니다. 돌이 되었다.” (결의 +2),
-necro_grave,묵념한다,,,,,,resolve_all 1,,(모두 결의 +1),
-seer_hill,별을 읽는다,seer,,,,,doom -1;xp 4,,균열이 흐르는 길이 별자리에 비친다. 지름길을 찾았다. (균열 −1),
-seer_hill,지나친다,,,,,,,,,
-beast_deer,치료한다,beastmaster,,,,,flag kind;heal_all 4;potion 1;renown 1,,사슴이 일어나 숲으로 돌아간다. 늑대가 꼬리를 흔든다. (모두 생명력 +4 · 물약 +1),
-beast_deer,화살을 뽑아 준다,,,agi,2,1,flag kind;xp 3;renown 1,,사슴이 비틀거리며 일어난다.,사슴이 놀라 달아났다.
-chest,조심스럽게 연다,,,agi,3,2,gold 20,hurt 6;gold 8,실을 끊지 않고 열었다. 금화 20.,실이 끊기며 바늘이 튀었다. (생명력 −6) 그래도 금화 8은 건졌다.
-chest,부순다,,,str,2,1,gold 8,hurt 4,상자가 부서지며 금화 8이 쏟아진다.,상자가 꿈쩍도 않고 바늘만 튀었다. (생명력 −4)
-chest,덫을 해체한다,hunter,,,,,gold 20;potion 1,,사냥꾼이 덫을 해체했다. 덫에 쓰인 물약까지 챙겼다. 금화 20.,
-chest,자물쇠를 딴다,rogue,,,,,gold 20;loot 1,,도적에게는 장난감 같은 자물쇠다.,
-buried_box,파낸다,,,str,2,1,loot 1;gold 5,gold 5,상자 안에 쓸 만한 물건이 있다.,상자는 반쯤 비어 있었다. (금화 5)
-buried_box,그냥 둔다,,,,,,,,,
-herb_patch,재료를 모은다,alchemist,,,,,reagent 2,,(재료 +2),
-herb_patch,약초를 씹는다,,,,,,heal_all 5,,쓴맛이 혀를 감싼다. (모두 생명력 +5),
-seal_stone,문장을 해독한다,,,int,2,1,flag read_seal;doom -2;xp 5;renown 1,doom 1,문장이 머릿속으로 흘러든다. 봉인석을 누그러뜨리는 법이다. (균열 −2 · 파수꾼이 약해진다),글씨가 너무 닳았다. 한나절을 허비했다. (균열 +1 · 다시 해 볼 수 있다)
-seal_stone,곁에서 밤새 옮겨 적는다,,,,,,flag read_seal;doom 1;xp 5;renown 1,,밤을 새워 문장을 모두 옮겨 적었다. 시간은 걸렸지만 확실하다. (균열 +1 · 파수꾼이 약해진다),
-seal_stone,봉인의 문장을 읊는다,elementalist,,,,,flag read_seal;doom -2;bless_all;xp 5;renown 1,,원소술사가 문장을 읊자 금 사이 연기가 잠시 멎는다. (균열 −2 · 확정 +1 · 파수꾼이 약해진다),
-shrine,기도한다,,,wil,3,2,heal_all 10;resolve_all 1,weak_next,불씨가 환하게 타오른다. (모두 생명력 +10 · 결의 +1),불씨가 꺼지고 차가운 바람이 분다. 다음 전투를 약화된 채 시작한다.
-shrine,성소를 손본다,knight,,,,,hope 1;flag kind;renown 1,,기사가 무너진 돌을 다시 쌓는다. 오래된 맹세가 생각난다. (희망 +1),
-shrine,제물을 바친다 (금화 10),,,,,,gold -10;resolve_all 2,,촛불이 흔들리며 답한다. (모두 결의 +2),
-shrine,지나친다,,,,,,,,너희는 고개만 숙이고 지나간다.,
-elder,이야기를 듣는다,,,,,,flag elder_met;gold 15,,“여비에 보태시오.” 장로가 금화 15를 쥐여 준다.,
-elder,아이 이야기를 전한다,,child_saved,,,,flag elder_met;gold 25;hope 1,,“그 아이를 데려다준 게 당신들이었소?” 장로가 금화 25와 함께 고개를 숙인다. (희망 +1),
-watchtower,파수 일지를 해독한다,,,int,2,1,flag tower_record;xp 5;renown 1,doom 1,번진 글씨를 맞춰 읽었다. 망루의 종을 울려 두었다. (파수꾼이 정령을 부르지 못한다),글씨가 너무 번졌다. 한나절을 허비했다. (균열 +1 · 다시 해 볼 수 있다)
-watchtower,종을 울려 둔다,,,str,2,1,flag tower_record;xp 5;renown 1,hurt 4,녹슨 종이 맑게 울린다. 숲 끝까지 퍼진다. (파수꾼이 정령을 부르지 못한다),종이 꿈쩍도 않고 사다리가 부러졌다. (생명력 −4 · 다시 해 볼 수 있다)
-watchtower,망루를 살핀다,rogue,,,,,flag tower_record;loot 2;xp 5;renown 1,,도적이 종을 울리고 숨겨진 상자까지 찾았다. (파수꾼이 정령을 부르지 못한다),
-wandering_knight,맞서 겨룬다,,,str,3,2,item sword_steel;xp 6,hurt 6,기사가 검을 내린다. “리엔이 고른 사람이 맞군.” 자기 검을 건넨다. (강철 장검),기사의 검이 너희를 넘어뜨린다. (생명력 −6)
-wandering_knight,맹세를 읊는다,knight,,,,,item sword_knight;flag kind;xp 6;renown 1,,두 기사가 같은 맹세를 끝까지 읊는다. 늙은 기사가 웃으며 맹세의 검을 건넨다.,
-wandering_knight,지나친다,,,,,,,,기사가 한숨을 쉰다.,
-ash_spring,손을 넣는다,,,agi,2,1,gold 18,hurt 5,재가 손을 태우기 전에 금화 주머니를 건졌다. (금화 18),재가 손을 태웠다. (생명력 −5)
-ash_spring,물을 걸러 마신다,alchemist,,,,,heal_all 8;reagent 1,,연금술사가 재를 거른 물을 나눠 준다. (모두 생명력 +8 · 재료 +1),
-ash_spring,지나친다,,,,,,,,,
-caravan,말을 고쳐 준다,,,per,2,1,flag kind;gold 12;item potion;renown 1,hurt 2,말이 일어선다. 상인이 고마워하며 돈과 물약을 내민다.,말이 놀라 발길질했다. (생명력 −2)
-caravan,짐을 실어 준다,,,str,2,1,flag kind;gold 8;renown 1,,짐을 다시 실었다. (금화 8),
-caravan,짐을 뒤진다,,,,,,gold 20;flag robbed_caravan,,상인 가족이 보는 앞에서 금화 20을 챙겼다.,
-ember_moths,몸을 숨긴다,,,agi,3,2,xp 3,hurt_all 4,덤불 속에 엎드려 나방 떼를 보냈다.,나방이 스치고 지나갔다. (모두 생명력 −4)
-ember_moths,불을 끈다,elementalist,,,,,xp 5;resolve 1,,원소술사가 서리로 불씨를 꺼뜨린다. (결의 +1),
-ember_moths,짐승에게 맡긴다,beastmaster,,,,,xp 5;heal_all 3,,늑대가 나방을 쫓아낸다.,
-hermit,봉인에 대해 묻는다,,,,,,flag hermit_told;resolve_all 1;doom -1,,“비석, 망루, 그리고 두목. 셋을 알면 파수꾼은 반쪽이네.” (균열 −1 · 모두 결의 +1),
-hermit,약을 얻는다,,,cha,2,1,item antidote;item tonic,item antidote,은자가 해독초와 결의 물약을 싸 준다.,은자가 해독초만 건넨다.
-hermit,별 이야기를 나눈다,seer,,,,,doom -1;xp 5,,점성술사와 은자가 밤새 별을 읽었다. (균열 −1),
-broken_bridge,뛰어 건넌다,,,agi,2,2,xp 4;resolve 1,hurt 6,가뿐히 건넜다. (결의 +1),물에 빠져 떠내려갔다. (생명력 −6)
-broken_bridge,통나무를 걸친다,,,str,2,1,xp 4,doom 1,통나무 다리를 놓았다.,통나무가 자꾸 미끄러진다. 하루가 걸렸다. (균열 +1)
-broken_bridge,돌아간다,,,,,,,,,
-lost_dog,마을로 데려간다,,,,,,flag kind;flag dog_returned;gold 10;renown 1,,개 주인이 울며 금화 10을 쥐여 준다.,
-lost_dog,함께 다닌다,beastmaster,,,,,flag kind;potion 1;xp 4;renown 1,,늑대와 개가 금세 친해졌다. 개가 어디선가 물약을 물어 온다.,
-lost_dog,쫓아 버린다,,,,,,flag dog_chased,,개가 낑낑대며 멀어진다.,
-bandit_toll,통행료를 낸다 (금화 15),,,,,,gold -15,,산적들이 밧줄을 내린다.,
-bandit_toll,말로 넘긴다,,,cha,3,2,xp 5,battle bandits,“…가라.” 산적들이 머쓱하게 비킨다.,“말이 많군!” 산적들이 덤빈다.
-bandit_toll,싸운다,,,,,,battle bandits_big,,무기를 뽑는다!,
-bandit_toll,그림자로 지나간다,rogue,,,,,xp 5;gold 10,,도적이 밧줄을 끊고 산적들의 돈주머니까지 챙겼다.,
-glowing_mushroom,가운데에 앉는다,,,wil,2,1,resolve_all 2;xp 4,weak_next,리엔이 걸었던 길이 꿈에 보인다. (모두 결의 +2),악몽을 꾸었다. 다음 전투를 약화된 채 시작한다.
-glowing_mushroom,버섯을 딴다,,,,,,reagent 2;potion 1,,빛나는 버섯은 좋은 약이 된다.,
-glowing_mushroom,지나친다,,,,,,,,,
-collapsed_mine,돌을 치운다,,,str,3,2,flag kind;hope 1;xp 6;renown 1,hurt_all 3,갇힌 광부들을 꺼냈다. (희망 +1),돌이 무너져 내렸다. (모두 생명력 −3)
-collapsed_mine,뼈들에게 묻는다,necromancer,,,,,flag kind;hope 1;xp 6;renown 1,,망자들이 무너진 길을 알려 준다. 광부들이 살았다. (희망 +1),
-collapsed_mine,지나친다,,,,,,flag miners_left,,두드리는 소리가 점점 약해진다.,
-rift_crack,틈을 메운다,,,wil,3,2,doom -1;xp 5,hurt_all 3;doom 1,틈이 닫혔다. (균열 −1),틈이 더 벌어졌다. (모두 생명력 −3 · 균열 +1)
-rift_crack,봉인의 기도를 올린다,cleric,,,,,doom -1;bless_all,,기도가 틈을 메운다. (균열 −1 · 모두 확정 +1),
-rift_crack,피해서 간다,,,,,,,,,
-old_soldier,이야기를 듣는다,,,,,,resolve_all 1;flag soldier_story,,“리엔은 마지막 봉인 앞에서 웃었다더군.” (모두 결의 +1),
-old_soldier,물약을 나눠 준다,,,,,,flag kind;hope 1;potion -1;renown 1,,노병이 눈시울을 붉힌다. (희망 +1),
-fisher_net,그물을 자른다,,,agi,2,1,flag fisher_saved;flag kind;renown 1;xp 4,hurt 4,그물이 끊어지고 어부가 숨을 몰아쉰다. “은혜는 잊지 않겠소!”,그물에 손이 감겨 함께 끌려갈 뻔했다. 어부는 겨우 빠져나왔다. (생명력 −4)
-fisher_net,끌어올린다,,,str,2,1,flag fisher_saved;flag kind;renown 1;potion 1,hurt 3,어부를 그물째 끌어올렸다. 어부가 품에서 물약을 꺼내 준다.,밀물이 더 빨랐다. 젖은 채 겨우 함께 빠져나왔다. (생명력 −3)
-fisher_net,지나친다,,,,,,flag fisher_left,,너희는 등을 돌린다. 등 뒤에서 물소리가 커진다.,
-drowned_bell,귀를 막고 버틴다,,,wil,3,1,xp 5;resolve_all 1,hurt_all 3;doom 1,종소리가 멀어진다. 버틴 만큼 마음이 단단해졌다. (모두 결의 +1),정신을 차리니 허리까지 물에 잠겨 있었다. 반나절을 잃었다. (모두 생명력 −3 · 균열 +1)
-drowned_bell,종소리의 박자를 읽는다,seer,,,,,doom -1;bless_all;xp 4,,점성술사가 종소리 사이의 침묵을 센다. 균열이 숨을 고르는 박자다. (균열 −1 · 모두 다음 판정 확정 +1),
-drowned_bell,노래로 덮는다,bard,,,,,resolve_all 2;xp 3,,음유시인의 노래가 종소리를 덮는다. 아무도 물 쪽으로 걸어가지 않았다. (모두 결의 +2),
-smuggler_offer,사들인다 (금화 15),,,,,,gold -15;item firebomb;item firebomb;flag smuggler_deal,,밀수꾼이 화염병 둘을 내민다. “좋은 거래였소.” (화염병 2),
-smuggler_offer,정체를 캐묻는다,,,cha,2,1,gold 10;flag kind;renown 1,battle smugglers,밀수꾼이 겁먹고 균열 물건을 버린 채 달아났다. 떨어뜨린 돈주머니에 금화 10.,“말이 많군.” 밀수꾼이 휘파람을 불자 동료들이 나타난다!
-smuggler_offer,지나친다,,,,,,,,밀수꾼이 혀를 차고 그늘로 사라진다.,
-orphan_dock,먹을 것을 나눈다 (금화 5),,,,,,gold -5;flag orphan_fed;flag kind;renown 1;resolve_all 1,,아이들이 처음으로 웃는다. 가장 큰 아이가 “우리도 커서 일지를 들 거예요”라고 말한다. (모두 결의 +1),
-orphan_dock,옛이야기를 들려준다,bard,,,,,flag orphan_fed;flag kind;renown 2;resolve_all 1,,음유시인이 리엔과 마렌의 이야기를 들려준다. 아이들 눈이 반짝인다. 이야기의 끝은 너희가 쓰게 될 것이다. (명성 +2),
-orphan_dock,지나친다,,,,,,flag orphan_left,,아이들의 눈길이 등에 박힌다.,
-wreck,선원들을 묻어 준다,,,,,,flag sailor_buried;flag kind;renown 1;resolve_all 1;doom 1,,모래톱에 선원들을 묻었다. 해가 기울었다. (모두 결의 +1 · 균열 +1),
-wreck,선실을 뒤진다,,,per,2,1,loot 2;xp 3,hurt 4,선장실 바닥 밑에서 쓸 만한 장비를 찾았다.,썩은 바닥이 꺼졌다. (생명력 −4)
-wreck,닥치는 대로 챙긴다,,,,,,gold 20;flag robbed_wreck,,금화 20을 챙겼다. 선원들은 그대로 누워 있다.,
-sea_witch,운을 본다 (금화 5),,,,,,gold -5;bless_all,,“너희 운은 너희가 고른 길에 있구먼.” (모두 다음 판정 확정 +1),
-sea_witch,균열을 묻는다,,,int,2,1,doom -1;xp 3,gold -5,노파가 조개를 흩뿌리고 균열이 약해지는 물때를 알려 준다. (균열 −1),노파가 웃으며 손을 내민다. 아무것도 알려 주지 않았다. (금화 −5)
-sea_witch,별로 맞받아친다,seer,,,,,doom -1;gold 10;xp 4,,점성술사가 노파의 점괘를 하나하나 바로잡는다. 노파가 감탄하며 돈을 돌려준다. (균열 −1 · 금화 +10),
-salt_storm,버틴다,,,wil,3,1,xp 5,hurt_all 3,폭풍이 지나갔다. 버틴 만큼 단단해졌다.,소금이 살갗을 파고든다. (모두 생명력 −3)
-salt_storm,바람을 가른다,elementalist,,,,,resolve_all 1;xp 4,,원소술사가 손을 들자 바람이 갈라진다. (모두 결의 +1),
-salt_storm,창고에 숨는다,,,per,2,1,gold 8,doom 1,창고에서 폭풍을 피했다. 구석에 동전 몇 닢. (금화 +8),창고를 찾다 길을 잃었다. (균열 +1)
-widow,진실을 말해 준다,,,cha,2,1,flag widow_helped;flag kind;renown 1;hope 1,hurt 2,"여인이 오래 울고, 고맙다고 말한다. “이제 기다리지 않아도 되겠군요.” (희망 +1)",여인이 소리치며 조개껍데기를 던진다. (생명력 −2)
-widow,남편의 넋과 이어 준다,necromancer,,,,,flag widow_helped;flag kind;renown 2;hope 1,,사령술사가 물가에서 이름을 부르자 희미한 목소리가 답한다. 여인이 미소 짓는다. (희망 +1 · 명성 +2),
-widow,지나친다,,,,,,,,여인은 계속 바다만 본다.,
-rien_mark,표시를 따라간다,,,per,2,1,gold 15;xp 5,doom 1,표시는 리엔이 숨겨 둔 꾸러미로 이어졌다. (금화 +15),표시가 물에 잠겨 길을 잃었다. (균열 +1)
-rien_mark,옆에 너희의 표시를 새긴다,,,,,,renown 1;resolve_all 1,,리엔의 표시 옆에 너희의 표시를 새겼다. 다음 사람은 둘을 보게 될 것이다. (모두 결의 +1),
-broken_pier,뛰어 건넌다,,,agi,2,1,loot 1;xp 3,hurt 5,무너진 틈을 뛰어넘었다. 지붕에 걸린 장비를 챙겼다.,물에 빠졌다. 따개비에 긁혔다. (생명력 −5)
-broken_pier,널빤지를 놓는다,,,str,2,1,loot 1,resolve_all -1,널빤지 다리를 놓고 건넜다.,널빤지가 부러졌다. 다들 맥이 빠진다. (모두 결의 −1)
-broken_pier,지나친다,,,,,,,,반짝이는 것이 무엇이었는지는 끝내 모른다.,
-sea_shanty,함께 부른다,,,cha,2,1,resolve_all 1;xp 3,,뱃사람들이 어깨를 두드린다. (모두 결의 +1),박자를 놓쳤다. 다들 웃는다.
-sea_shanty,마지막 절을 지어 붙인다,bard,,,,,resolve_all 2;renown 1;flag kind,,음유시인이 종지기를 구하러 온 세 사람의 절을 붙였다. 뱃사람들이 따라 부른다. (모두 결의 +2),
-sea_shanty,가사를 묻는다,,,,,,xp 3,,가사 속 종지기는 리엔을 기다렸다고 한다. 끝까지.,
-net_mender,그물 깁기를 돕는다,,,agi,2,1,flag kind;renown 1;potion 1,resolve -1,노인이 고맙다며 물약을 쥐여 준다.,바늘에 찔렸다. 노인이 혀를 찬다. (결의 −1)
-net_mender,지나친다,,,,,,,,,
-hunter_gulls,바람을 거슬러 다가간다,hunter,,,,,xp 5;gold 10;bless_all,,사냥꾼이 바람을 거슬러 둥지를 지나쳤다. 갈매기들은 끝내 몰랐다. (모두 다음 판정 확정 +1),
-hunter_gulls,돌아간다,,,,,,,,,
-rogue_ledger,장부를 빼낸다,rogue,,,,,gold 20;xp 5;flag ledger_taken,,도적이 장부를 빼냈다. 선장이 누구에게 항구를 팔았는지 적혀 있다. (금화 +20),
-rogue_ledger,지나친다,,,,,,,,,
-necro_drowned,말을 들어 준다,necromancer,,,,,flag kind;renown 1;xp 5;doom -1,,익사자가 마른 목소리로 말한다. “종지기는… 아직… 기다려.” 그리고 물로 돌아간다. (균열 −1),
-necro_drowned,물러선다,,,,,,,,,
-cleric_bell,종을 축복한다,cleric,,,,,heal_all 8;resolve_all 1;flag kind;renown 1,,성직자가 기도하자 작은 종이 맑게 운다. 물속의 큰 종소리가 잠시 멎는다. (모두 생명력 +8 · 결의 +1),
-cleric_bell,그냥 둔다,,,,,,,,,
-sunken_chest,자물쇠를 연다,,,agi,2,1,loot 2,hurt 3,궤짝 안에 잘 싸 둔 장비가 있다.,따개비에 손이 찢어졌다. 궤짝은 열리지 않았다. (생명력 −3)
-sunken_chest,통째로 끌어낸다,,,str,3,2,loot 2;gold 10,hurt 4,궤짝을 끌어내 부쉈다. 장비와 금화 10.,궤짝이 너무 무겁다. 허리를 삐끗했다. (생명력 −4)
-sunken_chest,자물쇠를 따 낸다,rogue,,,,,loot 2;gold 15,,도적이 따개비째 자물쇠를 따 냈다. (금화 +15),
-smuggler_cache,덫을 피해 꺼낸다,,,per,2,1,item firebomb;item smoke;gold 10,battle harbor_ambush,"덫 줄을 피해 꾸러미를 꺼냈다. 화염병, 연막탄, 금화 10.",덫 줄이 당겨지며 호루라기가 울린다. 밀수꾼들이 달려온다!
-smuggler_cache,두고 간다,,,,,,,,,
-sea_herbs,약초를 딴다,,,,,,heal_all 6;potion 1,,짠 바람을 견딘 약초는 약효가 진하다. (모두 생명력 +6 · 물약 +1),
-sea_herbs,재료를 고른다,alchemist,,,,,reagent 3;heal_all 4,,연금술사가 쓸 만한 것만 골라 담았다. (재료 +3),
-lighthouse_letter,편지를 읽는다,,,,,,flag read_letter;renown 1;xp 5,,편지를 끝까지 읽었다. 종지기에게 전해야 할 말이다. (종지기가 망설인다),
-lighthouse_letter,등대에 다시 불을 켠다,,,int,2,1,flag read_letter;doom -2;renown 2;xp 5,doom 1,등대에 백 년 만에 불이 켜졌다. 물속의 종소리가 잠시 멎는다. (균열 −2 · 종지기가 망설인다),기름이 다 말랐다. 한나절을 허비했다. (균열 +1 · 다시 해 볼 수 있다)
-lighthouse_letter,편지를 소리 내어 읊는다,cleric,,,,,flag read_letter;doom -1;bless_all;xp 5,,성직자가 편지를 기도처럼 읊는다. 바다가 조용해진다. (균열 −1 · 확정 +1 · 종지기가 망설인다),
-sluice,톱니를 돌린다,,,str,3,2,flag sluice_shut;xp 5,hurt 4,녹슨 톱니가 비명을 지르며 돌아간다. 수문이 닫혔다. (익사자가 일어서지 못한다),톱니가 꿈쩍도 않는다. 손이 찢어졌다. (생명력 −4 · 다시 해 볼 수 있다)
-sluice,구조를 읽어 잠금쇠를 뺀다,,,int,2,1,flag sluice_shut;xp 5,doom 1,잠금쇠 하나만 빼자 수문이 제 무게로 닫혔다. (익사자가 일어서지 못한다),도면이 너무 낡았다. 한나절을 허비했다. (균열 +1 · 다시 해 볼 수 있다)
-sluice,얼려서 멈춘다,elementalist,,,,,flag sluice_shut;xp 5,,원소술사가 물길을 얼려 수문을 닫았다. (익사자가 일어서지 못한다),
-tide_shrine,바닷물을 붓고 빈다,,,wil,3,2,heal_all 10;resolve_all 1,weak_next,그릇의 물결이 잔잔해진다. (모두 생명력 +10 · 결의 +1),물결이 거칠어진다. 다음 전투를 약화된 채 시작한다.
-tide_shrine,사당을 손본다,knight,,,,,hope 1;flag kind;renown 1,,기사가 무너진 돌을 다시 쌓는다. 누군가 꼭 돌아오길 빌던 자리다. (희망 +1),
-tide_shrine,금화를 바친다 (금화 10),,,,,,gold -10;resolve_all 2,,그릇의 물이 반짝인다. (모두 결의 +2),
-tide_shrine,지나친다,,,,,,,,,
-harbor_elder,이야기를 듣는다,,,,,,gold 15,,“종지기를 쉬게 해 주시오. 그게 리엔이 못 한 일이오.” 장로가 금화 15를 쥐여 준다.,
-harbor_elder,리엔을 변호한다,,,cha,2,1,gold 15;renown 1;hope 1,gold 10,“리엔은 다섯 봉인을 다 닫아야 했습니다.” 장로가 오래 생각하더니 고개를 끄덕인다. (희망 +1),장로는 고개를 젓지만 여비는 챙겨 준다. (금화 +10)
-harbor_elder,아이들 이야기를 전한다,,orphan_fed,,,,gold 25;hope 1;renown 1,,“부두 아이들을 먹인 게 당신들이었소?” 장로가 금화 25와 함께 고개를 숙인다. (희망 +1),
-knight_wreck_banner,깃발을 거둬 묻는다,knight,,,,,flag kind;renown 1;resolve_all 2,,기사가 젖은 깃발을 접어 모래에 묻는다. 백 년 만의 장례다. (모두 결의 +2),
-knight_wreck_banner,지나친다,,,,,,,,,
-berserker_storm,폭풍을 마주 본다,berserker,,,,,xp 6;resolve 3,,광전사가 폭풍 앞에 끝까지 서 있었다. 손의 떨림이 멎었다. (결의 +3),
-berserker_storm,등을 돌린다,,,,,,,,,
-elementalist_tide,물길을 되돌린다,elementalist,,,,,doom -1;xp 5;renown 1,,원소술사가 물의 흐름을 읽어 되돌렸다. 균열의 숨이 느려진다. (균열 −1),
-elementalist_tide,지켜본다,,,,,,,,,
-gambler_dice_ship,판에 낀다,gambler,,fixed50,3,2,gold 25;flag kind;renown 1,gold -10,도박사가 이겼다. 따낸 구명정을 선원들에게 돌려준다. (금화 +25),도박사가 졌다. (금화 −10)
-gambler_dice_ship,지나친다,,,,,,,,,
-bard_old_song,가사를 고쳐 가르친다,bard,,,,,flag kind;renown 2;hope 1,,"“종지기는 기다려, 셋이 왔어.” 아이들이 새 가사로 부른다. (희망 +1 · 명성 +2)",
-bard_old_song,그냥 듣는다,,,,,,xp 2,,노래가 바람에 흩어진다.,
-alchemist_salt,결정을 캔다,alchemist,,,,,reagent 3;item tonic,,연금술사가 소금 결정으로 결의 물약을 만들었다. (재료 +3 · 결의 물약),
-alchemist_salt,두고 간다,,,,,,,,,
-seer_tide_stars,물속 별을 읽는다,seer,,,,,bless_all;doom -1;xp 4,,물에 비친 별은 균열의 별자리였다. 점성술사가 그 틈을 읽어 냈다. (균열 −1 · 모두 확정 +1),
-seer_tide_stars,지나친다,,,,,,,,,
-beast_seal,그물을 풀어 준다,beastmaster,,,,,flag kind;renown 1;heal_all 5,,조련사가 그물을 풀자 바다표범이 물로 미끄러져 간다. 늑대가 꼬리를 흔든다. (모두 생명력 +5),
-beast_seal,지나친다,,,,,,,,,
-frozen_monk,불을 피워 녹인다,,,wil,2,1,flag monk_freed;flag kind;renown 1;hope 1,hurt_all 3,수도사가 숨을 몰아쉰다. “원장님을… 멈춰 주시오.” (희망 +1),얼음이 너무 두껍다. 손이 얼었다. (모두 생명력 −3)
-frozen_monk,기도로 깨운다,cleric,,,,,flag monk_freed;flag kind;renown 2;hope 1;resolve_all 1,,성직자의 기도에 얼음이 녹는다. 수도사가 일어나 수도원 길을 알려 준다. (희망 +1 · 명성 +2),
-frozen_monk,지나친다,,,,,,flag monk_left,,눈이 다시 수도사를 덮는다.,
-snow_pilgrims,불과 먹을 것을 나눈다 (금화 10),,,,,,gold -10;flag pilgrim3_warmed;flag kind;renown 1;resolve_all 1,,순례자들이 불가에 모여 앉는다. 누군가 너희 이름을 묻는다. (모두 결의 +1),
-snow_pilgrims,수도원 길을 일러 준다,,,per,2,1,flag pilgrim3_warmed;flag kind;renown 1,doom 1,길을 일러 주자 순례자들이 고개를 숙이고 떠난다.,길을 잘못 알려 줬다. 되돌아가 바로잡느라 반나절이 걸렸다. (균열 +1)
-snow_pilgrims,지나친다,,,,,,,,,
-wolf_pup,안고 데려간다,,,,,,flag wolfpup_saved;flag kind;renown 1;doom 1,,새끼를 품에 안고 걸었다. 어미의 울음소리를 따라 둥지에 돌려주느라 하루가 걸렸다. (균열 +1),
-wolf_pup,어미에게 돌려보낸다,beastmaster,,,,,flag wolfpup_saved;flag kind;renown 2;bless_all,,조련사가 울음소리로 어미를 불렀다. 어미 늑대가 너희를 한참 보다 사라진다. (모두 확정 +1),
-wolf_pup,그냥 둔다,,,,,,,,,
-cult_offer,거절한다,,,,,,xp 3,,“잊히는 게 무섭지 않은가?” 신도가 비웃으며 사라진다.,
-cult_offer,속는 척 정보를 캔다,,,cha,2,1,flag cult_ritual_known;xp 5;gold 10,battle cultists,신도가 사제의 의식 순서를 떠벌린다. (금화 +10),“거짓말쟁이!” 신도들이 몰려온다!
-cult_offer,거래한다,,,,,,flag cult_bargain;hope -1;gold 40,,신도가 금화 40을 건넨다. 일지 한구석이 검게 그을린다. (희망 −1),
-ice_bridge,조심히 건넌다,,,agi,2,1,xp 4;loot 3,hurt 6,건너편 얼음 동굴에서 장비를 찾았다.,얼음이 깨졌다. (생명력 −6)
-ice_bridge,돌아간다,,,,,,doom 1;resolve_all 1,,먼 길이지만 안전했다. (균열 +1 · 모두 결의 +1),
-choir_ruins,악보를 모아 정리한다,,,int,2,1,flag choir_restored;flag kind;renown 1;resolve_all 1,,흩어진 악보를 맞추자 바람 소리가 노래가 된다. (모두 결의 +1),악보가 너무 낡아 맞출 수 없다.
-choir_ruins,노래한다,bard,,,,,flag choir_restored;flag kind;renown 2;heal_all 8,,음유시인의 노래에 성가대석이 울린다. 백 년 만의 노래다. (모두 생명력 +8),
-choir_ruins,지나친다,,,,,,,,,
-avalanche,달린다,,,agi,3,2,xp 5,hurt_all 6,눈사태를 아슬아슬하게 피했다.,눈더미에 휩쓸렸다. (모두 생명력 −6)
-avalanche,바위 뒤로 숨는다,,,per,2,1,xp 3,hurt_all 4,바위가 눈을 갈랐다.,바위가 작았다. (모두 생명력 −4)
-avalanche,불길로 녹여 막는다,elementalist,,,,,xp 5;resolve_all 1,,원소술사의 불길이 눈사태를 녹여 길을 냈다. (모두 결의 +1),
-hermit_cave,리엔에 대해 묻는다,,,,,,xp 5;flag hermit3_told,,“리엔은 이름을 내놓고 봉인을 닫았지. 그 이름을 기억하는 건 원장뿐이었어. 그게 원장을 얼어붙게 한 거야.”,
-hermit_cave,약을 얻는다 (금화 10),,,,,,gold -10;potion 2,,은수자가 눈풀로 만든 물약을 준다. (물약 2),
-frozen_lake,얼음을 깬다,,,str,3,2,loot 3;gold 20,hurt 6,얼음 아래에서 옛 장비와 금화를 건졌다.,얼음물에 빠졌다. (생명력 −6)
-frozen_lake,발자국을 따라간다,,,per,2,1,xp 6;resolve_all 1,doom 1,발자국은 호수 한가운데에서 무릎을 꿇은 자국으로 끝난다. 리엔은 여기서 무언가를 버렸다. (모두 결의 +1),눈보라에 발자국을 잃었다. (균열 +1)
-frozen_lake,지나친다,,,,,,,,,
-rien_carving,지워진 자리 옆에 너희 이름을 새긴다,,,,,,renown 1;resolve_all 1,,세 이름을 나란히 새겼다. 지워질 때까지 함께다. (모두 결의 +1),
-rien_carving,지워진 이름을 읽어 본다,,,int,2,1,xp 6;bless_all,,긁힌 자국 사이로 희미한 획이 읽힌다. 리엔은 이름을 지우면서도 한 획을 남겼다. (모두 확정 +1),아무것도 읽히지 않는다.
-snow_shelter,쉬어 간다,,,,,,heal_all 10;doom 1,,장작불 옆에서 몸을 녹였다. 하루가 갔다. (모두 생명력 +10 · 균열 +1),
-snow_shelter,장작만 챙긴다,,,,,,resolve_all 1,,다음 사람을 위해 장작 절반을 남겼다. (모두 결의 +1),
-lost_novice,마을까지 데려다준다,,,,,,flag novice_saved;flag kind;renown 1;doom 1;hope 1,,수련생을 마을까지 데려다줬다. 수련생이 수도원 지름길을 그려 준다. (희망 +1 · 균열 +1),
-lost_novice,숨을 곳을 알려 준다,,,cha,2,1,flag novice_saved;flag kind;renown 1,flag novice_lost,수련생이 고개를 끄덕이고 바위 그늘로 숨는다.,수련생이 겁에 질려 신도들 쪽으로 달아났다.
-lost_novice,지나친다,,,,,,flag novice_lost,,,
-knight_order,맹세를 이어 쓴다,knight,,,,,flag kind;renown 2;resolve_all 2;hope 1,,기사가 맹세석에 새 줄을 새긴다. “이름을 잃는 이를 홀로 두지 않는다.” (모두 결의 +2 · 희망 +1),
-knight_order,지나친다,,,,,,,,,
-berserker_cold,분노로 몸을 데운다,berserker,,,,,xp 6;heal 15;resolve 2,,광전사가 고함을 지르자 피가 돈다. 차가운 분노는 처음이다. (생명력 +15 · 결의 +2),
-berserker_cold,동료에게 기댄다,,,,,,resolve_all 1,,셋이 어깨를 붙이고 걸었다. (모두 결의 +1),
-hunter_white_stag,쏘지 않고 따라간다,hunter,,,,,xp 6;doom -1;renown 1,,사슴이 지름길로 이끈다. 눈보라가 갈라진다. (균열 −1),
-hunter_white_stag,지나친다,,,,,,,,,
-elementalist_rune,룬을 해독한다,elementalist,,,,,xp 8;bless_all;flag rune_read,,원소술사가 다섯째 원소의 룬을 읽었다. 이름. 대가를 나누는 법도 적혀 있다. (모두 확정 +1),
-elementalist_rune,만지지 않는다,,,,,,,,,
-cleric_vigil,밤새 기도한다,cleric,,,,,flag kind;renown 2;heal_all 12;doom 1,,성직자가 밤새 기도했다. 새벽에 수도사들의 얼굴이 조금 편안해 보인다. (모두 생명력 +12 · 균열 +1),
-cleric_vigil,지나친다,,,,,,,,,
-gambler_last_bet,받아들인다,gambler,,fixed50,3,2,gold 40;xp 5,hope -1,도박사가 이겼다. 신도가 금화 40을 던지고 달아난다.,도박사가 졌다. 일지는 지켰지만 신도가 희망 한 조각을 빼앗았다. (희망 −1)
-gambler_last_bet,판을 엎는다,,,,,,battle cultists,,“판은 내가 정해.” 신도들이 덤빈다!,
-rogue_reliquary,자물쇠 다섯을 딴다,rogue,,,,,loot 4;xp 5,,다섯째 자물쇠가 열리자 성물이 빛난다.,
-rogue_reliquary,지나친다,,,,,,,,,
-bard_requiem,진혼곡을 부른다,bard,,,,,flag kind;renown 2;resolve_all 2,,노래가 끝나자 얼음 속 얼굴들이 눈을 감는다. (모두 결의 +2 · 명성 +2),
-bard_requiem,지나친다,,,,,,,,,
-alchemist_frostflower,서리꽃을 증류한다,alchemist,,,,,reagent 4;item tonic;item antidote,,서리꽃으로 결의 물약과 해독초를 만들었다. (재료 +4),
-alchemist_frostflower,지나친다,,,,,,,,,
-necro_names,이름을 불러 준다,necromancer,,,,,flag kind;renown 2;xp 6;doom -1,,사령술사가 속삭임을 따라 이름을 하나씩 불렀다. 무덤 위의 서리가 녹는다. (균열 −1),
-necro_names,지나친다,,,,,,,,,
-seer_aurora,오로라를 읽는다,seer,,,,,doom -1;bless_all;xp 5,,오로라는 원장의 기억이 하늘에 번진 것이었다. 점성술사가 그 끝을 읽어 냈다. (균열 −1 · 모두 확정 +1),
-seer_aurora,지나친다,,,,,,,,,
-beast_wolf_mother,상처를 돌본다,beastmaster,,,,,flag kind;flag wolfpup_saved;renown 2;bless_all,,조련사가 어미의 상처를 감싸 준다. 새끼들이 늑대와 장난친다. (모두 확정 +1),
-beast_wolf_mother,물러난다,,,,,,,,,
-ice_chest,얼음을 깬다,,,str,2,1,loot 3;gold 15,hurt 4,얼음이 쪼개지며 상자가 나왔다. (금화 +15),얼음 조각에 베였다. (생명력 −4)
-ice_chest,불로 녹인다,elementalist,,,,,loot 4,,원소술사가 얼음을 녹이자 상자 속 장비가 반짝인다.,
-ice_chest,두고 간다,,,,,,,,,
-cult_cache,슬쩍한다,,,agi,2,1,item firebomb;item smoke;gold 20,battle monastery_ambush,"보급품을 챙겼다. 화염병, 연막탄, 금화 20.",“도둑이다!” 신도들이 몰려온다!
-cult_cache,두고 간다,,,,,,,,,
-snow_herbs,약초를 딴다,,,,,,heal_all 8;potion 1,,추위 속 약초는 약효가 진하다. (모두 생명력 +8 · 물약 +1),
-snow_herbs,재료를 고른다,alchemist,,,,,reagent 3;heal_all 5,,연금술사가 쓸 만한 것만 골랐다. (재료 +3),
-torn_page,찢긴 장을 읽는다,,,,,,flag read_page;renown 1;xp 6,,리엔의 마지막 글씨를 읽었다. 원장에게 전해야 할 말이 있다. (원장이 망설인다),
-torn_page,찢긴 장을 일지에 다시 붙인다,,,int,2,1,flag read_page;doom -2;renown 2;xp 6,doom 1,찢긴 장이 일지에 꼭 맞는다. 리엔의 글씨와 너희의 글씨가 한 권에 모였다. (균열 −2 · 원장이 망설인다),종이가 바스러질 듯해 손대지 못했다. (균열 +1 · 다시 해 볼 수 있다)
-torn_page,함께 읽고 나눠 적는다,,rune_read,,,,flag read_page;flag shared_price;doom -2;renown 2;xp 6;bless_all,,"룬에서 읽은 대로, 세 사람이 대가를 나눠 지는 법을 일지에 적는다. (균열 −2 · 모두 확정 +1 · 원장이 망설인다)",
-bell_tower,얼음을 깨고 종을 울린다,,,str,3,2,flag bell_rung;xp 6,hurt 5,얼음이 깨지고 종이 운다. 망령들이 잠든다. (원장이 망령을 부르지 못한다),종이 꿈쩍도 않는다. 손이 찢어졌다. (생명력 −5 · 다시 해 볼 수 있다)
-bell_tower,종의 줄을 녹인다,,,int,2,1,flag bell_rung;xp 6,doom 1,얼어붙은 줄을 하나씩 녹여 종을 울렸다. (원장이 망령을 부르지 못한다),줄이 끊어졌다. 다른 줄을 찾느라 반나절을 썼다. (균열 +1 · 다시 해 볼 수 있다)
-bell_tower,기도로 울린다,cleric,,,,,flag bell_rung;xp 6;resolve_all 1,,성직자의 기도에 종이 스스로 울린다. (원장이 망령을 부르지 못한다 · 모두 결의 +1),
-snow_shrine,제단의 눈을 치운다,,,,,,flag kind;renown 1;hope 1,,매일 이 제단을 치운 사람이 누구인지 알 것 같다. (희망 +1),
-snow_shrine,기도한다,,,wil,3,2,heal_all 14;resolve_all 1,weak_next,따뜻한 기운이 번진다. (모두 생명력 +14 · 결의 +1),눈바람이 거세진다. 다음 전투를 약화된 채 시작한다.
-snow_shrine,금화를 바친다 (금화 15),,,,,,gold -15;resolve_all 2,,제단 위의 눈이 녹는다. (모두 결의 +2),
-monastery_elder,이야기를 듣는다,,,,,,gold 25,,“원장님을 쉬게 해 주시오.” 촌장이 금화 25를 쥐여 준다.,
-monastery_elder,그 이름을 알려 준다,,hermit3_told,,,,gold 25;renown 1;hope 1,,“리엔… 그게 원장님이 부르던 이름이었구려.” 촌장이 오래 운다. (희망 +1),
-monastery_elder,수련생 이야기를 전한다,,novice_saved,,,,gold 35;hope 1,,“그 아이를 살린 게 당신들이었소?” 촌장이 금화 35를 내민다. (희망 +1),
-monk_ash_kata,잿가루 속에서 수련한다,monk,,,,,xp 6;resolve 2;flag kind,,잿가루가 수도승의 움직임을 따라 소용돌이친다. 지켜보던 아이들이 따라 한다. (결의 +2),
-monk_ash_kata,지나친다,,,,,,,,,
-engi_mill,톱니를 고친다,engineer,,,,,gold 15;flag kind;renown 1,,기술자가 톱니를 손보자 물레방아가 다시 돈다. 주인이 금화 15를 내민다.,
-engi_mill,지나친다,,,,,,,,,
-mnem_statue,기억을 읽는다,mnemonist,,,,,xp 6;bless_all;renown 1,,“이 사람은… 다리를 놓은 석공이었다.” 기억술사가 이름을 되살려 받침돌에 새긴다. (모두 확정 +1),
-mnem_statue,지나친다,,,,,,,,,
-monk_waves,파도와 함께 숨 쉰다,monk,,,,,heal 12;resolve 2;xp 4,,파도의 박자에 숨을 맞추자 몸이 가벼워진다. (생명력 +12 · 결의 +2),
-monk_waves,지나친다,,,,,,,,,
-engi_crane,기중기를 다시 세운다,engineer,,,,,gold 20;flag kind;renown 1;xp 4,,기술자가 지렛대를 다시 걸자 기중기가 일어선다. 선원들이 환호한다. (금화 +20),
-engi_crane,지나친다,,,,,,,,,
-mnem_drowned_names,지워진 이름을 되새긴다,mnemonist,,,,,flag kind;renown 2;doom -1,,기억술사가 거리의 이름을 하나씩 되살렸다. 물이 조금 물러난다. (균열 −1 · 명성 +2),
-mnem_drowned_names,지나친다,,,,,,,,,
-monk_ice_fall,폭포 아래에서 수련한다,monk,,,,,xp 8;resolve 3,,얼음물을 맞으며 버텼다. 산을 내려온 이유를 조금 떠올린다. (결의 +3),
-monk_ice_fall,지나친다,,,,,,,,,
-engi_bell_gear,톱니를 녹이고 맞춘다,engineer,,,,,xp 6;flag bell_rung;renown 1,,시계가 다시 가자 종이 저절로 울린다. 망령들이 잠잠해진다.,
-engi_bell_gear,지나친다,,,,,,,,,
-mnem_abbess_memory,원장의 기억을 모은다,mnemonist,,,,,xp 6;flag read_page;renown 1,,흩어진 기억 속에서 원장이 리엔의 이름을 부르는 소리를 들었다. (원장이 망설인다),
-mnem_abbess_memory,지나친다,,,,,,,,,
-prisoners,사슬을 끊는다,,,str,3,2,flag prisoners_freed;flag kind;renown 2;hope 1,battle order_patrol,사슬이 끊어지자 사람들이 서로를 부둥켜안는다. (희망 +1 · 명성 +2),사슬 소리에 기사들이 몰려온다!
-prisoners,자물쇠를 딴다,rogue,,,,,flag prisoners_freed;flag kind;renown 2;hope 1,,도적이 소리 없이 자물쇠를 땄다. (희망 +1 · 명성 +2),
-prisoners,지나친다,,,,,,flag prisoners_left,,사슬 소리가 왕릉 쪽으로 멀어진다.,
-tomb_offering,제물을 바로 놓는다,,,,,,flag tomb_respected;flag kind;renown 1;bless_all,,제물을 바로 놓자 바람이 잔다. (모두 확정 +1),
-tomb_offering,금붙이를 챙긴다,,,,,,gold 40;flag tomb_looted;hurt_all 4,,금화 40어치를 챙겼다. 모래바람이 살갗을 할퀸다. (모두 생명력 −4),
-deserter4,보내 준다,,,,,,flag deserter4_spared;flag kind;renown 1;xp 5,,기사가 고개를 숙이고 떠나며 왕릉의 지름길을 알려 준다.,
-deserter4,이름을 돌려주는 법을 묻는다,mnemonist,,,,,flag deserter4_spared;flag kind;renown 2;doom -1,,기억술사가 기사의 갑옷에 새겨진 이름들을 하나씩 읽어 풀어 준다. (균열 −1 · 명성 +2),
-deserter4,붙잡는다,,,,,,flag deserter4_taken;gold 20,,기사를 묶어 두고 금화 20을 챙겼다.,
-mirage,쫓아간다,,,wil,3,2,xp 6;heal_all 6,doom 1,신기루 끝에 진짜 샘이 있었다. (모두 생명력 +6),신기루를 쫓다 하루를 잃었다. (균열 +1)
-mirage,별을 보고 길을 잡는다,seer,,,,,xp 6;heal_all 8;doom -1,,점성술사가 별로 길을 잡아 진짜 샘을 찾았다. (모두 생명력 +8 · 균열 −1),
-red_storm,버틴다,,,wil,3,1,xp 6,hurt_all 8,폭풍이 지나갔다.,모래가 살을 파고든다. (모두 생명력 −8)
-red_storm,바위 그늘로 달린다,,,agi,2,1,resolve_all 1,hurt_all 5,바위 그늘에 닿았다. (모두 결의 +1),늦었다. (모두 생명력 −5)
-village_warn,알리고 피하게 한다,,,cha,2,1,flag villagers_warned;flag kind;renown 2;doom 1,doom 1,사람들이 서둘러 짐을 싸서 떠난다. 하루가 걸렸지만 아무도 이름을 잃지 않았다. (명성 +2 · 균열 +1),사람들이 믿지 않는다. 설득하느라 하루가 갔다. (균열 +1)
-village_warn,지나친다,,,,,,,,장터의 웃음소리가 등 뒤로 멀어진다.,
-kings_inscription,비문을 끝까지 읽는다,,,int,2,1,xp 8;bless_all,,비문 끝에 균열을 연 대가가 적혀 있다. 왕은 백성의 이름을 바쳤다. (모두 확정 +1),글씨가 너무 닳았다.
-kings_inscription,지나친다,,,,,,,,,
-scorpion_nest,들어간다,,,agi,3,2,loot 5;gold 20,battle serpents,굴 깊은 곳에서 왕의 보물을 찾았다. (금화 +20),뱀들이 깨어났다!
-scorpion_nest,지나친다,,,,,,,,,
-old_caravan4,물을 나눠 준다 (금화 15),,,,,,gold -15;flag kind;renown 1;potion 1,,상인들이 고맙다며 물약을 하나 준다.,
-old_caravan4,바퀴를 빼 준다,,,str,2,1,flag kind;renown 1;gold 15,hurt 5,대상이 다시 움직인다. 상인이 금화 15를 건넨다.,허리를 삐었다. (생명력 −5)
-old_caravan4,지나친다,,,,,,,,,
-rival_letter,읽는다,,,,,,xp 5;flag sern_letter,,“나도 리엔의 길을 걸었다. 아무도 나를 부르지 않았다. 그래서 이름을 모으기로 했다.” 세른의 글씨다.,
-knight_ch4,묘비에 이름을 다시 새긴다,knight,,,,,flag kind;renown 2;resolve_all 2,,기사가 기억나는 대로 이름을 새긴다. 다른 기사의 이름을 기억해 주는 일이 맹세가 된다. (모두 결의 +2),
-knight_ch4,지나친다,,,,,,,,,
-berserker_ch4,도전한다,berserker,,,,,xp 10;gold 25;resolve 2,,광전사가 돌 병사들을 하나씩 쓰러뜨렸다. 관중석의 망령들이 함성을 지른다. (금화 +25 · 결의 +2),
-berserker_ch4,지나친다,,,,,,,,,
-hunter_ch4,발자국을 따라 막는다,hunter,,,,,flag prisoners_freed;flag kind;renown 2;xp 6,,사냥꾼이 지름길로 앞질러 끌려가던 사람들을 풀어 줬다. (명성 +2),
-hunter_ch4,지나친다,,,,,,,,,
-elementalist_ch4,불을 길들인다,elementalist,,,,,xp 8;doom -1;bless_all,,원소술사가 붉은 불을 잠재웠다. (균열 −1 · 모두 확정 +1),
-elementalist_ch4,지나친다,,,,,,,,,
-cleric_ch4,이름 없는 이들을 위해 기도한다,cleric,,,,,flag kind;renown 2;heal_all 12,,기도가 끝나자 무덤 위로 바람이 지나간다. (모두 생명력 +12 · 명성 +2),
-cleric_ch4,지나친다,,,,,,,,,
-gambler_ch4,던져 본다,gambler,,,,,gold 50;xp 5,,주사위가 모두 6이다. 도박사가 웃으며 금화 50어치를 챙긴다.,
-gambler_ch4,지나친다,,,,,,,,,
-rogue_ch4,금고를 턴다,rogue,,,,,gold 40;loot 4,,"도적이 금고를 열었다. 빼앗긴 것은 주인에게 돌려줄 생각이다, 아마도. (금화 +40)",
-rogue_ch4,지나친다,,,,,,,,,
-bard_ch4,노래를 바꿔 부른다,bard,,,,,flag kind;renown 2;resolve_all 2,,음유시인이 왕 대신 이름 없는 백성들을 노래한다. 바람이 조용해진다. (모두 결의 +2),
-bard_ch4,지나친다,,,,,,,,,
-alchemist_ch4,소금을 정제한다,alchemist,,,,,reagent 4;item tonic;item firebomb,,연금술사가 붉은 소금으로 결의 물약과 화염병을 만들었다. (재료 +4),
-alchemist_ch4,지나친다,,,,,,,,,
-necromancer_ch4,망령의 이야기를 듣는다,necromancer,,,,,xp 8;flag kind;doom -1,,망령은 왕이 아니라 왕에게 이름을 바친 신하였다. 사령술사가 이름을 불러 주자 사라진다. (균열 −1),
-necromancer_ch4,지나친다,,,,,,,,,
-seer_ch4,두 별의 길을 읽는다,seer,,,,,xp 8;bless_all;flag sern_letter,,세른의 별은 혼자 빛난다. 너희 별은 셋이 함께 빛난다. (모두 확정 +1),
-seer_ch4,지나친다,,,,,,,,,
-beastmaster_ch4,물웅덩이를 열어 준다,beastmaster,,,,,flag kind;renown 1;bless_all,,늑대들이 물을 마시고 너희를 한 번 돌아본 뒤 사라진다. (모두 확정 +1),
-beastmaster_ch4,지나친다,,,,,,,,,
-monk_ch4,이름을 읽고 수련한다,monk,,,,,xp 8;resolve 3;heal 10,,수도승이 벽의 이름 하나를 오래 본다. 산을 내려온 이유가 거기 있다. (결의 +3),
-monk_ch4,지나친다,,,,,,,,,
-engineer_ch4,장치를 해체한다,engineer,,,,,xp 8;flag order_scattered;renown 1,,기술자가 장치를 거꾸로 맞춰 기사단의 길을 막았다. (세른이 기사들을 부르지 못한다),
-engineer_ch4,지나친다,,,,,,,,,
-mnemonist_ch4,이름들을 기억해 둔다,mnemonist,,,,,flag kind;renown 2;xp 8;doom -1,,기억술사가 이름들을 모두 외웠다. 언젠가 돌려줄 것이다. (균열 −1 · 명성 +2),
-mnemonist_ch4,지나친다,,,,,,,,,
-tomb_chest,봉인을 푼다,,,int,2,1,loot 5,hurt 6,관 안에 왕의 장비가 있다.,봉인의 저주에 데었다. (생명력 −6)
-tomb_chest,두고 간다,,,,,,,,,
-order_cache,챙긴다,,,agi,2,1,item tonic;item smoke;gold 25,battle tomb_ambush,"결의 물약, 연막탄, 금화 25.",“도둑이다!”
-order_cache,두고 간다,,,,,,,,,
-desert_herbs,물과 약을 얻는다,,,,,,heal_all 10;potion 1,,(모두 생명력 +10 · 물약 +1),
-desert_herbs,재료를 고른다,alchemist,,,,,reagent 3;heal_all 6,,(재료 +3),
-royal_decree,칙령을 해독한다,,,int,3,2,flag read_decree;doom -2;renown 1;xp 8,doom 1,칙령을 읽었다. 세른의 힘은 빼앗은 이름에서 온다. (균열 −2 · 세른이 약해진다),글자가 너무 많다. (균열 +1 · 다시 해 볼 수 있다)
-royal_decree,하루를 들여 옮겨 적는다,,,,,,flag read_decree;doom 1;xp 8,,(균열 +1 · 세른이 약해진다),
-royal_decree,빼앗긴 이름을 읽어 준다,mnemonist,,,,,flag read_decree;doom -2;renown 2;xp 8,,기억술사가 칙령 속 이름들을 소리 내어 읽자 왕릉이 흔들린다. (균열 −2 · 세른이 약해진다),
-order_gate,문을 무너뜨린다,,,str,3,2,flag order_scattered;xp 8,hurt 6,옆문이 무너졌다. (세른이 기사들을 부르지 못한다),돌이 꿈쩍도 않는다. (생명력 −6 · 다시 해 볼 수 있다)
-order_gate,문의 장치를 거꾸로 맞춘다,,,int,2,1,flag order_scattered;xp 8,doom 1,(세른이 기사들을 부르지 못한다),장치가 너무 복잡하다. (균열 +1)
-order_gate,함정으로 막는다,engineer,,,,,flag order_scattered;xp 8;renown 1,,기술자의 함정이 옆문을 지킨다. (세른이 기사들을 부르지 못한다),
-sun_shrine,기도한다,,,wil,3,2,heal_all 16;resolve_all 1,weak_next,(모두 생명력 +16 · 결의 +1),햇볕이 따갑다. 다음 전투를 약화된 채 시작한다.
-sun_shrine,제단을 쓸어 준다,,,,,,flag kind;renown 1;hope 1,,(희망 +1),
-sun_shrine,지나친다,,,,,,,,,
-oasis_elder,이야기를 듣는다,,,,,,gold 30,,“세른도 처음엔 당신들 같았소. 아무도 그를 불러 주지 않았지.” 촌장이 금화 30을 건넨다.,
-oasis_elder,끌려간 이들을 구했다고 전한다,,prisoners_freed,,,,gold 40;hope 1;renown 1,,촌장이 무릎을 꿇는다. (금화 +40 · 희망 +1),
-names_wall,아는 이름을 불러 준다,,,wil,2,1,flag names_returned;flag kind;renown 2,hurt_all 6,부를 때마다 이름 하나가 또렷해진다. (명성 +2),벽이 너희 이름까지 빨아들이려 한다. (모두 생명력 −6)
-names_wall,빼앗긴 이름들을 돌려준다,mnemonist,,,,,flag names_returned;flag kind;renown 3;doom -1,,기억술사가 왕릉에서 외운 이름들을 벽에 돌려준다. (균열 −1 · 명성 +3),
-names_wall,지나친다,,,,,,,,,
-lost_travelers,함께 이름을 찾아 준다,,,cha,2,1,flag kind;renown 2;hope 1;doom 1,doom 1,한 사람이 자기 이름을 떠올리자 다른 사람들도 하나씩 떠올린다. (희망 +1 · 균열 +1),아무도 떠올리지 못했다. 하루가 갔다. (균열 +1)
-lost_travelers,지나친다,,,,,,flag travelers_left,,,
-rift_whisper,거절한다,,,wil,3,2,xp 10;resolve_all 1,hurt_all 6,셋이 서로의 이름을 부르며 버텼다. (모두 결의 +1),속삭임이 머릿속을 긁는다. (모두 생명력 −6)
-rift_whisper,귀를 막고 지나간다,,,,,,hurt_all 3,,(모두 생명력 −3),
-sern_again,손을 내민다,,,,,,flag sern_redeemed;flag kind;renown 3;hope 1,,세른이 오래 망설이다 손을 잡는다. “…나도 불러 주겠어?” (희망 +1 · 명성 +3),
-sern_again,지나친다,,,,,,flag sern_left,,세른이 고개를 숙인다.,
-last_camp,쉬어 간다,,,,,,heal_all 16;resolve_all 1;doom 1,,(모두 생명력 +16 · 결의 +1 · 균열 +1),
-last_camp,지나온 길을 일지에 적는다,,,,,,renown 1;bless_all;xp 6,,"지나온 다섯 장을 적었다. 처음 장의 글씨는 떨렸고, 지금은 아니다. (모두 확정 +1)",
-collapsing_road,달려서 건넌다,,,agi,3,2,xp 8,hurt_all 8,(무사히 건넜다),(모두 생명력 −8)
-collapsing_road,밧줄로 서로 묶는다,,,str,2,1,resolve_all 1;xp 6,hurt_all 4,셋이 서로를 붙잡고 건넜다. (모두 결의 +1),(모두 생명력 −4)
-rien_campsite,표지에 너희 이름을 적는다,,,,,,renown 2;resolve_all 2;flag kind,,리엔의 일지 표지에 세 이름을 나란히 적었다. (모두 결의 +2 · 명성 +2),
-rien_campsite,칼을 묻어 준다,,,,,,flag kind;hope 1,,(희망 +1),
-echo_choir,대답한다,,,cha,2,1,flag kind;renown 2;heal_all 8,battle echoes,메아리들이 하나씩 잠잠해진다. (모두 생명력 +8),메아리들이 성을 낸다!
-echo_choir,지나친다,,,,,,,,,
-knight_ch5,맹세를 외친다,knight,,,,,resolve_all 3;hope 1;flag kind,,“이름을 잃는 이를 홀로 두지 않는다.” 기사의 목소리가 균열 끝까지 울린다. (모두 결의 +3 · 희망 +1),
-knight_ch5,지나친다,,,,,,,,,
-berserker_ch5,하나씩 부른다,berserker,,,,,flag names_returned;flag kind;renown 2;resolve 3,,광전사가 이름을 부를 때마다 화가 아니라 그리움이 차오른다. (명성 +2),
-berserker_ch5,지나친다,,,,,,,,,
-hunter_ch5,작은 발자국을 따라간다,hunter,,,,,xp 10;bless_all;flag kind,,작은 발자국은 이름을 잃은 아이의 것이었다. 사냥꾼이 아이를 데려온다. (모두 확정 +1),
-hunter_ch5,지나친다,,,,,,,,,
-elementalist_ch5,이름의 원소를 엮는다,elementalist,,,,,doom -2;bless_all;xp 8,,원소술사가 셋의 이름을 하나로 엮는다. (균열 −2 · 모두 확정 +1),
-elementalist_ch5,지나친다,,,,,,,,,
-cleric_ch5,신탁을 전한다,cleric,,,,,hope 2;heal_all 12;flag kind,,(희망 +2 · 모두 생명력 +12),
-cleric_ch5,지나친다,,,,,,,,,
-gambler_ch5,판을 엎는다,gambler,,,,,resolve_all 2;xp 8;renown 1,,“이건 운으로 할 판이 아니지.” 도박사가 주사위를 균열에 던져 버린다. (모두 결의 +2),
-gambler_ch5,지나친다,,,,,,,,,
-rogue_ch5,주인들에게 돌려보낸다,rogue,,,,,flag kind;renown 2;hope 1,,물건마다 이름이 있었다. 도적이 처음으로 그 이름들을 소리 내어 읽는다. (희망 +1 · 명성 +2),
-rogue_ch5,지나친다,,,,,,,,,
-bard_ch5,마지막 절을 짓는다,bard,,,,,renown 3;resolve_all 2;flag kind,,마지막 절에는 셋의 이름이 들어갔다. (모두 결의 +2 · 명성 +3),
-bard_ch5,지나친다,,,,,,,,,
-alchemist_ch5,물약을 완성한다,alchemist,,,,,item tonic;item tonic;heal_all 10;reagent 4,,(결의 물약 2 · 모두 생명력 +10 · 재료 +4),
-alchemist_ch5,지나친다,,,,,,,,,
-necromancer_ch5,이름을 불러 준다,necromancer,,,,,flag rien_forgiven;flag kind;renown 3;doom -1,,“리엔.” 망령에게 얼굴이 돌아온다. 웃고 있다. (균열 −1 · 명성 +3),
-necromancer_ch5,지나친다,,,,,,,,,
-seer_ch5,이유를 말해 준다,seer,,,,,bless_all;resolve_all 2;xp 8,,“영웅이라서 고른 게 아니야. 서로를 부를 줄 알아서야.” (모두 확정 +1 · 결의 +2),
-seer_ch5,지나친다,,,,,,,,,
-beastmaster_ch5,짐승들과 함께 간다,beastmaster,,,,,bless_all;hope 1;flag kind,,(모두 확정 +1 · 희망 +1),
-beastmaster_ch5,지나친다,,,,,,,,,
-monk_ch5,스승의 이름을 부른다,monk,,,,,resolve 4;flag names_returned;renown 2,,(결의 +4 · 명성 +2),
-monk_ch5,지나친다,,,,,,,,,
-engineer_ch5,경첩을 살핀다,engineer,,,,,doom -1;xp 10;flag gate_sealed_side,,기술자가 문의 옆 경첩을 잠갔다. (균열 −1 · 이름 없는 것이 부하를 부르지 못한다),
-engineer_ch5,지나친다,,,,,,,,,
-mnemonist_ch5,동료들에게 이름을 맡긴다,mnemonist,,,,,flag kind;renown 3;resolve_all 2,,“내 이름을 기억해 줘.” 둘이 차례로 이름을 부른다. 처음으로 또렷하다. (모두 결의 +2 · 명성 +3),
-mnemonist_ch5,지나친다,,,,,,,,,
-rift_chest,손을 뻗는다,,,agi,2,1,loot 5;gold 30,hurt 8,(금화 +30),틈에 손이 빨려 들어갈 뻔했다. (생명력 −8)
-rift_chest,두고 간다,,,,,,,,,
-pilgrim_pack,짐을 챙기고 이름을 적어 둔다,,,,,,item tonic;item charm;flag kind;renown 1,,(결의 물약 · 행운 부적),
-ash_flowers,꽃을 딴다,,,,,,heal_all 14;potion 1,,(모두 생명력 +14 · 물약 +1),
-ash_flowers,재료를 고른다,alchemist,,,,,reagent 4;heal_all 8,,(재료 +4),
-names_stele,비석을 읽는다,,,int,3,2,flag names_gathered;doom -2;renown 1;xp 10,doom 1,이름 없는 것의 힘은 잊힌 이름에서 온다. 기억하는 만큼 약해진다. (균열 −2 · 이름 없는 것이 약해진다),(균열 +1 · 다시 해 볼 수 있다)
-names_stele,빈칸에 셋의 이름을 함께 새긴다,,,,,,flag names_gathered;flag shared_final;renown 2;xp 10,,한 칸에 세 이름을 겹쳐 새겼다. 대가를 나누겠다는 표시다. (이름 없는 것이 약해진다),
-side_gate,틈을 무너뜨린다,,,str,3,2,flag gate_sealed_side;xp 10,hurt 8,(이름 없는 것이 부하를 부르지 못한다),(생명력 −8 · 다시 해 볼 수 있다)
-side_gate,틈을 봉인한다,,,wil,3,2,flag gate_sealed_side;xp 10,doom 1,(이름 없는 것이 부하를 부르지 못한다),(균열 +1)
-side_gate,경첩을 잠근다,engineer,,,,,flag gate_sealed_side;xp 10,,(이름 없는 것이 부하를 부르지 못한다),
-last_shrine,기도한다,,,wil,2,1,heal_all 20;resolve_all 2,weak_next,(모두 생명력 +20 · 결의 +2),(다음 전투를 약화된 채 시작한다)
-last_shrine,돌 하나를 더 얹는다,,,,,,hope 1;flag kind;renown 1,,(희망 +1),
-gate_elder,받는다,,,,,,gold 40;hope 1,,리엔이 맡긴 작은 주머니다. 금화와 쪽지 한 장. “너는 나보다 덜 외롭기를.” (희망 +1),
-gate_elder,세른과 화해했다고 전한다,,sern_redeemed,,,,gold 50;hope 2;renown 1,,“그 아이도 결국 불러 줄 사람을 만났구려.” (희망 +2),
-back_bandit,길 안내를 받는다,,,,,,flag old_friend;flag kind;hope 1;renown 1,,그가 모래 폭풍을 피하는 샛길을 알려 준다. “그때 보내 줘서… 고마웠어요.” (희망 +1 · 명성 +1),
-back_bandit,그동안의 이야기를 듣는다,,,cha,2,1,flag old_friend;xp 8;resolve_all 1,flag old_friend,그는 균열을 쫓는 무리의 움직임을 알려 준다. (경험치 +8 · 모두 결의 +1),그는 말을 아끼다 길을 떠난다.
-back_child,편지를 읽는다,,,,,,flag old_friend;flag kind;hope 1;resolve_all 1,,“나도 크면 길 잃은 사람을 데려다줄 거예요.” 모두 결의 +1. (희망 +1),
-back_child,답장을 남긴다,,,cha,2,1,flag old_friend;flag kind;renown 2,flag old_friend,답장이 역참에서 역참으로 건너간다. 사람들이 너희 이름을 다시 입에 올린다. (명성 +2),글씨가 마음처럼 써지지 않는다. 그래도 답장은 떠난다.
-back_fisher,물고기를 받는다,,,,,,flag old_friend;flag kind;heal_all 8;potion 1,,짠 물고기가 이렇게 맛있을 줄은 몰랐다. (모두 생명력 +8 · 물약 +1),
-back_fisher,함께 저녁을 먹는다,,,,,,flag old_friend;heal_all 4;hope 1,,어부가 바다 이야기를 한다. 오랜만에 다들 웃는다. (모두 생명력 +4 · 희망 +1),
-back_monk,기도를 받는다,,,,,,flag old_friend;flag kind;bless_all;hope 1,,수도사들의 낮은 노래가 등 뒤에서 이어진다. (모두 축복 · 희망 +1),
-back_monk,함께 버텨 달라 부탁한다,,,wil,2,1,flag old_friend;flag kind;doom -1;renown 1,flag old_friend,수도사들이 균열 가장자리에 줄지어 선다. 균열이 조금 물러난다. (균열 −1 · 명성 +1),수도사들은 아직 두려워한다. 그래도 기도는 이어진다.
-back_pilgrim,등불을 받는다,,,,,,flag old_friend;flag kind;doom -1;renown 1,,등불 하나가 어둠을 한 걸음 밀어낸다. (균열 −1 · 명성 +1),
-back_pilgrim,등불을 다른 이에게 넘기라 한다,,,,,,flag old_friend;flag kind;renown 2;hope 1,,순례자가 웃으며 길가의 피난민에게 등불을 건넨다. (명성 +2 · 희망 +1),
-back_novice,지도를 펼친다,,,,,,flag old_friend;xp 8;renown 1,,옛 지도에 균열 둘레의 샛길이 그려져 있다. (경험치 +8 · 명성 +1),
-back_novice,함께 옛 글을 읽는다,,,int,2,1,flag old_friend;flag kind;xp 12,flag old_friend;xp 4,수련생과 머리를 맞대고 옛 글을 풀었다. (경험치 +12),글이 너무 오래되었다. 그래도 조금은 배웠다. (경험치 +4)
-back_wolf,늑대를 부른다,,,,,,flag old_friend;flag kind;resolve_all 1;hope 1,,늑대가 다가와 손등에 코를 댄다. 밤새 야영지를 지킨다. (모두 결의 +1 · 희망 +1),
-back_wolf,숲으로 돌려보낸다,,,,,,flag old_friend;renown 1,,늑대가 한 번 길게 울고 눈 속으로 사라진다. (명성 +1),
-back_robbed,사과하고 돌려준다 (금화 15),,,,,,gold -15;flag amends;flag kind;renown 2,,순례자가 한참 너희를 보다가 금화를 받는다. “늦었지만… 받겠소.” (명성 +2),
-back_robbed,고개를 숙이고 지나간다,,,,,,flag robbed_remembered;doom 1,,등 뒤로 수군거림이 따라온다. 발이 무겁다. (균열 +1),
-back_fox,여우를 따라간다,,,,,,flag old_friend;flag kind;heal_all 6;hope 1,,여우가 바위 그늘의 샘으로 이끈다. 모두 목을 축인다. (모두 생명력 +6 · 희망 +1),
-back_fox,먹을 것을 나눠 준다,,,,,,flag old_friend;renown 1;xp 4,,"여우가 고기 한 점을 물고 사라졌다가, 길 잃은 대상 쪽으로 너희를 데려간다. (명성 +1 · 경험치 +4)",
-back_widow,편지를 읽는다,,,,,,flag old_friend;flag kind;resolve_all 1;hope 1,,"“남편이 바다에서 돌아오지 못한 날, 당신들만이 진실을 말해 주었어요. 이번에는 당신들이 돌아오기를.” (모두 결의 +1 · 희망 +1)",
-back_widow,꾸러미를 연다,,,,,,flag old_friend;potion 1;gold 10,,"말린 생선과 물약 하나, 은화 몇 닢이 들어 있다. (물약 +1 · 금화 +10)",
-back_smuggler,값을 치른다 (금화 20),,,,,,gold -20;flag smuggler_paid,,밀수꾼이 금화를 세어 보고 고개를 끄덕인다. “장사는 장사지.”,
-back_smuggler,말로 돌려보낸다,,,cha,3,2,flag smuggler_talked;renown 1,battle serpents,"“…그 이름, 노래에서 들었소.” 밀수꾼이 손짓하자 사내들이 물러난다. (명성 +1)",“말은 됐고.” 사내들이 길들인 모래 뱀을 푼다!
-back_smuggler,칼을 뽑는다,,,,,,battle serpents;flag smuggler_fought,,밀수꾼이 휘파람을 불자 모래 속에서 뱀들이 솟는다!,
-back_sailors,함께 노래한다,,,,,,flag old_friend;flag kind;bless_all;hope 1,,넋들의 노래가 너희 목소리에 섞인다. 등이 조금 가벼워진다. (모두 축복 · 희망 +1),
-back_sailors,고개 숙여 보낸다,,,,,,flag old_friend;doom -1,,노래가 잦아들며 균열 가장자리의 바람도 잠잠해진다. (균열 −1),
-back_orphans,아이들을 피난 행렬로 데려간다,,,,,,flag old_friend;flag kind;renown 2;doom 1,,"하루가 걸렸지만, 아이들은 안전한 행렬에 섞였다. (명성 +2 · 균열 +1)",
-back_orphans,길을 일러 주고 먹을 것을 나눈다,,,,,,flag old_friend;flag kind;renown 1;hope 1,,큰아이가 고개를 끄덕이고 다른 아이들을 이끈다. “이번엔 우리가 데려갈게요.” (명성 +1 · 희망 +1),
-back_choir,노래를 듣는다,,,,,,flag old_friend;flag kind;resolve_all 2,,낮은 화음이 균열의 소음을 덮는다. 모두의 손이 떨리지 않는다. (모두 결의 +2),
-back_choir,균열 둘레를 지켜 달라 한다,,,wil,2,1,flag old_friend;doom -1;renown 1,flag old_friend,수사들이 균열 둘레에 줄지어 서서 노래한다. 균열이 조금 물러난다. (균열 −1 · 명성 +1),수사들은 아직 두려워한다. 그래도 노래는 이어진다.
-glass_dunes,유리를 깨서 꺼낸다,,,str,2,1,loot 4,hurt 4,유리 속에서 옛 무기 한 자루가 나왔다.,유리 조각에 손을 베었다. (생명력 −4)
-glass_dunes,유리 조각을 모아 판다,,,,,,gold 18,,상인들이 좋은 값을 쳐 준다. (금화 +18),
-glass_dunes,눈을 가리고 지나간다,,,,,,,,눈을 가리고 조심조심 언덕을 넘었다.,
-buried_well,줄을 이어 물을 긷는다,,,agi,2,1,heal_all 10;flag well_dug,hurt_all 2,시원한 물이 올라온다. 지나가는 대상에게도 길을 일러 둔다. (모두 생명력 +10),줄이 끊어져 모두 모래를 뒤집어썼다. (모두 생명력 −2)
-buried_well,우물을 다시 판다 (하루),,,,,,flag kind;flag well_dug;renown 2;doom 1,,하루 종일 모래를 퍼냈다. 오아시스 마을 사람들이 고마워한다. (명성 +2 · 균열 +1),
-kings_herald,너희의 이름을 밝힌다,,,cha,2,1,renown 1;xp 6,battle tomb_guards,망령이 두루마리에 너희 이름을 적고 길을 비킨다. “기억하겠다.” (명성 +1 · 경험치 +6),망령이 이름을 거부한다. “거짓 이름이다!” 무덤 수호병이 일어난다!
-kings_herald,옛 영웅의 이름을 댄다,,,,,,flag rien_name_used;gold 15,,망령이 움찔하더니 길을 비킨다. 두루마리 아래에서 금화 몇 닢이 떨어졌다. 하지만 너희의 이름은 아니다. (금화 +15),
-kings_herald,싸워서 지나간다,,,,,,battle tomb_guards,,망령이 두루마리를 찢자 수호병들이 모래에서 일어난다!,
-rift_market,마지막 물약을 산다 (금화 15),,,,,,gold -15;potion 2,,상인이 물약 두 병을 건넨다. “이걸로 값은 됐소. 살아 돌아오시오.” (물약 +2),
-rift_market,노래 한 곡을 산다 (금화 5),,,,,,gold -5;resolve_all 1;hope 1,,늙은 가수가 옛 영웅의 노래를 부른다. 가사 끝에 너희 이름이 붙어 있다. (모두 결의 +1 · 희망 +1),
-rift_market,그냥 지나간다,,,,,,,,장터의 소리가 등 뒤로 멀어진다.,
-name_stones,돌 하나를 얹는다,,,,,,flag kind;hope 1;renown 1,,너희 이름 하나를 새겨 얹었다. 누군가 그 돌을 보고 이 길을 걸을 것이다. (희망 +1 · 명성 +1),
-name_stones,이름들을 읽는다,,,,,,xp 8,,이름마다 사연이 있다. 마지막 장을 앞두고 많은 것을 배웠다. (경험치 +8),
-last_light,기름을 나눠 불을 살린다 (금화 10),,,,,,gold -10;flag kind;doom -1;renown 1,,불이 다시 타오른다. 피난민들이 그 불빛을 보고 길을 찾는다. (균열 −1 · 명성 +1),
-last_light,불씨를 일으킨다,,,int,2,1,flag kind;doom -1,hurt 4,불씨가 살아나 불이 다시 타오른다. (균열 −1),불꽃이 튀어 손을 데었다. (생명력 −4)
-last_light,그냥 지나간다,,,,,,flag light_left,,등 뒤에서 불빛이 하나 꺼진다.,
+event,label,class,requires,stat,dice,need,success,fail,success_text,fail_text,label_en,success_text_en,fail_text_en
+pilgrim,치료한다,,,wil,2,1,heal_all 4;flag pilgrim_saved;flag kind;bless_all;renown 1,hurt 3,순례자가 눈을 뜬다. 고마워하며 모두에게 축복을 빌어 준다. (모두 생명력 +4. 다음 판정 확정 +1),치료하다 잿가루를 들이마셨다. (생명력 −3),Tend the pilgrim,"The pilgrim opens their eyes and, with thanks, asks a blessing on you all. (everyone's life +4. +1 sure success on the next roll)","Tending the pilgrim, you breathed in the ash. (life −3)"
+pilgrim,기도로 일으킨다,cleric,,,,,heal_all 8;flag pilgrim_saved;flag kind;resolve_all 1;renown 1,,순례자가 일어나 기도에 답한다. 모두의 마음이 단단해진다.,,Lift them with a prayer,"The pilgrim rises, answering the prayer. Everyone's heart grows steadier.",
+pilgrim,돈주머니만 챙긴다,,,,,,gold 15;flag robbed_pilgrim,,금화 15를 챙겼다. 순례자는 아직 쓰러져 있다.,,Just take the purse,You pocketed 15 gold. The pilgrim is still lying there.,
+pilgrim,지나친다,,,,,,,,너희는 발걸음을 재촉한다.,,Pass by,You hurry on your way.,
+thicket,살피며 들어간다,,,per,2,1,gold 10;xp 3,battle ambush,매복을 먼저 알아차리고 돌아갔다. 버려진 짐에서 금화 10.,덤불 속에서 화살이 날아온다!,Go in carefully,You spotted the ambush first and went around it. 10 gold from an abandoned pack.,Arrows fly out of the thicket!
+thicket,흔적을 읽는다,hunter,,,,,gold 10;xp 5;potion 1,,사냥꾼이 고블린의 흔적을 읽고 둥지를 피했다. 둥지에서 물약 하나를 슬쩍했다.,,Read the tracks,"The hunter read the goblins' tracks and steered clear of their nest, slipping a potion out of it on the way.",
+thicket,돌아간다,,,,,,resolve_all 1,,먼 길이지만 마음 편히 걸었다. (모두 결의 +1),,Go around,"The long way, but an easy walk. (everyone's resolve +1)",
+peddler,물약을 산다 (금화 10),,,,,,gold -10;potion 1,,물약 하나를 샀다.,,Buy a potion (10 gold),You bought a potion.,
+peddler,흥정한다,,,cha,3,2,potion 2;gold -5,gold -10;potion 1,행상이 혀를 찬다. 금화 5에 물약 둘.,흥정은 실패. 제값을 내고 물약 하나.,Haggle,The peddler clicks their tongue. Two potions for 5 gold.,No luck haggling. One potion at full price.
+peddler,노름을 건다,gambler,,fixed50,3,2,gold 20;potion 1,gold -10,“한 판 어때?” 도박사가 이겼다. 금화 20과 덤으로 물약 하나.,도박사가 졌다. 금화 10을 잃었다.,Make a wager,"“Fancy a round?” The gambler won. 20 gold, and a potion thrown in.",The gambler lost. 10 gold gone.
+peddler,그냥 간다,,,,,,,,행상이 아쉬운 듯 손을 흔든다.,,Just move on,"The peddler waves you off, a little disappointed.",
+burned_hut,불을 끈다,,,str,2,1,flag kind;hope 1;xp 3;renown 1,hurt 4,불길을 잡았다. 노인들이 연신 고개를 숙인다. (희망 +1),불길에 데었다. (생명력 −4),Put out the fire,You got the fire under control. The old couple bow to you again and again. (hope +1),The flames burned you. (life −4)
+burned_hut,식량을 나눈다 (금화 5),,,,,,gold -5;flag kind;resolve_all 1;renown 1,,노인들이 처음으로 웃는다. (모두 결의 +1),,Share your food (5 gold),"For the first time, the old couple smile. (everyone's resolve +1)",
+burned_hut,지나친다,,,,,,,,연기가 등 뒤로 멀어진다.,,Pass by,The smoke fades behind you.,
+ash_wind,버틴다,,,wil,3,1,xp 4,hurt_all 3,잿가루 바람이 지나갔다. 버틴 만큼 단단해졌다.,잿가루가 폐를 긁는다. (모두 생명력 −3),Hold on,The ash wind has passed. You are tougher for having weathered it.,The ash scrapes at your lungs. (everyone's life −3)
+ash_wind,바위 그늘을 찾는다,,,per,2,1,resolve_all 1,doom 1,바위 그늘에서 바람을 피했다. (모두 결의 +1),그늘을 찾다 길을 잃었다. 하루가 더 걸린다. (균열 +1),Shelter behind a rock,You waited out the wind in the lee of a rock. (everyone's resolve +1),"Looking for shelter, you lost your way. It costs another day. (Rift +1)"
+ash_wind,노래로 기운을 북돋는다,bard,,,,,resolve_all 2,,음유시인의 노래가 바람 소리를 덮는다. (모두 결의 +2),,Sing to lift spirits,The bard's song drowns out the howl of the wind. (everyone's resolve +2),
+lost_child,마을까지 데려다준다,,,,,,flag child_saved;flag kind;hope 1;doom 1;renown 1,,아이를 마을 어귀까지 데려다줬다. 하루가 걸렸지만 아이의 엄마가 울며 고마워한다. (희망 +1 · 균열 +1),,Walk them to the village,"You walked the child to the edge of the village. It took a day, but the child's mother thanks you through her tears. (hope +1 · Rift +1)",
+lost_child,길을 일러 준다,,,cha,2,1,flag child_saved;flag kind;renown 1,flag child_lost,아이가 고개를 끄덕이고 마을 쪽으로 달려간다.,아이는 겁에 질려 엉뚱한 쪽으로 달아났다.,Point the way,The child nods and runs off toward the village.,"Frightened, the child ran off the wrong way."
+lost_child,지나친다,,,,,,flag child_lost,,뒤에서 울음소리가 멀어진다.,,Pass by,The crying fades behind you.,
+old_well,동전을 던진다 (금화 1),,,fixed50,1,1,gold -1;bless_all,gold -1,동전이 물에 닿는 소리가 맑다. (모두 다음 판정 확정 +1),아무 일도 없다.,Toss a coin (1 gold),The coin meets the water with a clear note. (+1 sure success on everyone's next roll),Nothing happens.
+old_well,물을 마신다,,,wil,2,1,heal_all 6,weak_next,물이 시원하다. (모두 생명력 +6),물에서 쇠 맛이 난다. 다음 전투를 약화된 채 시작한다.,Drink the water,The water is cool. (everyone's life +6),The water tastes of iron. You start the next battle weakened.
+old_well,지나친다,,,,,,,,,,Pass by,,
+trapped_fox,풀어 준다,,,agi,2,1,flag spared_fox;flag kind;xp 3;renown 1,hurt 2,여우가 절뚝이며 숲으로 사라진다. 한 번 돌아본다.,덫에 손가락을 물렸다. (생명력 −2),Free it,The fox limps off into the woods. It looks back once.,The trap bit your fingers. (life −2)
+trapped_fox,돌봐 준다,beastmaster,,,,,flag spared_fox;flag kind;heal_all 4;potion 1;renown 1,,조련사가 다리를 감싸 주자 여우가 덫 주인의 물약 꾸러미를 물어 온다.,,Tend to it,"As the beastmaster binds its leg, the fox fetches the trapper's bundle of potions.",
+trapped_fox,지나친다,,,,,,,,,,Pass by,,
+hero_statue,석상을 닦는다,,,,,,resolve_all 1,,먼지를 털자 석상이 조금 덜 쓸쓸해 보인다. (모두 결의 +1),,Clean the statue,"With the dust brushed off, the statue looks a little less lonely. (everyone's resolve +1)",
+hero_statue,받침돌을 살핀다,,,int,2,1,item candle_old,,받침돌 안에서 이름이 새겨진 초를 찾았다. (오래된 초를 얻었다),아무것도 없다.,Examine the base,Inside the base you found a candle carved with a name. (found an Old Candle),Nothing there.
+hero_statue,맹세를 바친다,knight,,,,,resolve_all 2;flag knight_oath,,기사가 무릎을 꿇는다. 옛 맹세가 다시 입에 붙는다. (모두 결의 +2),,Swear an oath,The knight kneels. The old oath comes back to their lips. (everyone's resolve +2),
+deserter,이야기를 듣는다,,,cha,2,1,gold 12;flag spared_bandit;xp 3,battle bandits,산적이 숨겨 둔 돈의 자리를 알려 주고 떠난다. (금화 12),“속았다!” 숨어 있던 패거리가 덮친다!,Hear him out,The bandit tells you where his stash is hidden and goes. (12 gold),“Fooled you!” His gang springs out of hiding!
+deserter,붙잡는다,,,,,,battle bandits;flag deserter_taken,,산적이 비명을 지르자 패거리가 몰려온다!,,Seize him,"The bandit screams, and his gang comes running!",
+deserter,보내 준다,,,,,,flag spared_bandit;flag kind;renown 1,,산적이 고개를 숙이고 서쪽으로 사라진다.,,Let him go,The bandit bows his head and vanishes to the west.,
+knight_banner,깃발을 다시 세운다,knight,,,,,hope 1;flag knight_banner,,낡은 깃발이 바람에 펄럭인다. 지나던 사람들이 걸음을 멈춘다. (희망 +1),,Raise the banner again,The old banner flaps in the wind. Passersby stop in their tracks. (hope +1),
+knight_banner,지나친다,,,,,,,,,,Pass by,,
+berserker_home,분노를 삼킨다,berserker,,wil,2,1,resolve 2;xp 5,hurt 4;xp 5,광전사가 숨을 고른다. 분노가 칼날처럼 가라앉는다. (결의 +2),벽을 내리쳐 주먹이 터졌다. 그래도 조금은 풀렸다. (생명력 −4),Swallow the rage,"The berserker catches their breath. The rage settles, keen as a blade. (resolve +2)","The berserker punched the wall and split their knuckles. Still, some of it eased. (life −4)"
+berserker_home,함께 앉아 준다,,,,,,resolve_all 1;flag kind;renown 1,,아무도 말하지 않았다. 그걸로 충분했다. (모두 결의 +1),,Sit with them,No one said a word. That was enough. (everyone's resolve +1),
+hunter_tracks,뒤를 밟는다,hunter,,per,2,1,gold 15;potion 1;xp 4,battle bandits,발자국 끝에서 산적의 숨긴 짐을 찾았다. (금화 15 · 물약),발자국 끝에 산적들이 기다리고 있었다!,Follow the trail,"At the end of the tracks, you found the bandits' hidden goods. (15 gold · a potion)","At the end of the tracks, the bandits were waiting!"
+hunter_tracks,모른 척한다,,,,,,,,,,Look away,,
+elemental_spring,마력을 들이마신다,elementalist,,,,,resolve 2;heal 6,,눈앞이 맑아진다. (결의 +2 · 생명력 +6),,Breathe in the magic,Your vision clears. (resolve +2 · life +6),
+elemental_spring,병에 담는다,,,int,2,1,potion 1,,빛나는 물을 병에 담았다. (물약 +1),물이 병에 닿자 빛을 잃었다.,Bottle it,You bottled the glowing water. (potion +1),The water lost its light the moment it touched the bottle.
+cleric_chapel,종을 친다,cleric,,,,,bless_all;heal_all 5,,종소리가 숲을 건너간다. 모두의 숨이 깊어진다. (모두 생명력 +5 · 확정 +1),,Ring the bell,The toll carries across the forest. Everyone breathes deeper. (everyone's life +5 · +1 sure success),
+cleric_chapel,지붕을 손본다,,,str,2,1,hope 1;flag kind;renown 1,hurt 3,무너진 지붕을 떠받쳤다. (희망 +1),서까래가 무너져 내렸다. (생명력 −3),Mend the roof,You shored up the fallen roof. (hope +1),A rafter came crashing down. (life −3)
+gambler_den,판에 앉는다,gambler,,fixed50,3,2,gold 25,gold -10,도박사가 판을 쓸어 담는다. (금화 25),도박사가 털렸다. (금화 −10),Take a seat,The gambler sweeps the table. (25 gold),The gambler got cleaned out. (gold −10)
+gambler_den,속임수를 폭로한다,,,per,2,1,gold 10;flag kind;renown 1,battle bandits,주사위에 납이 들어 있었다. 사내들이 돈을 두고 도망친다. (금화 10),“감히!” 사내들이 칼을 뽑는다!,Expose the cheat,"The dice were loaded. The men flee, leaving their money behind. (10 gold)",“How dare you!” The men draw their blades!
+gambler_den,지나친다,,,,,,,,,,Pass by,,
+rogue_wagon,자물쇠를 딴다,rogue,,agi,2,1,loot 2;gold 10,loot 1,자물쇠 셋이 차례로 열린다. 좋은 물건이 들어 있다.,자물쇠 하나만 열렸다. 그래도 무언가 있다.,Pick the locks,"One by one, all three locks open. There are good things inside.","Only one lock gave way. Still, there's something."
+rogue_wagon,부순다,,,str,2,2,loot 1,hurt 3,짐칸이 부서지며 물건 하나가 굴러 나온다.,부서진 나무에 팔을 긁혔다. (생명력 −3),Smash it,"The cargo bed splinters, and something rolls out.",The splintered wood scratched your arm. (life −3)
+rogue_wagon,그냥 둔다,,,,,,,,,,Leave it,,
+bard_campfire,노래를 부른다,bard,,cha,2,1,hope 1;gold 15;flag kind;renown 1,gold 5,여행자들이 따라 부르기 시작한다. 누군가 동전을 던진다. (희망 +1 · 금화 15),노래는 어색했지만 한 명이 동전을 던져 준다. (금화 5),Sing a song,The travelers begin to sing along. Someone tosses a coin. (hope +1 · 15 gold),"The song came out awkward, but one listener tosses a coin anyway. (5 gold)"
+bard_campfire,함께 쉰다,,,,,,heal_all 6,,오랜만에 깊이 잠들었다. (모두 생명력 +6),,Rest together,You slept deeply for the first time in a long while. (everyone's life +6),
+alchemist_mushrooms,재료를 모은다,alchemist,,,,,reagent 3;xp 3,,버섯과 이끼를 조심스레 모았다. (재료 +3),,Gather reagents,You carefully gathered mushrooms and moss. (reagents +3),
+alchemist_mushrooms,한 입 먹어 본다,,,wil,2,2,heal 10,weak_next,의외로 맛있다. 기운이 난다. (생명력 +10),배가 뒤틀린다. 다음 전투를 약화된 채 시작한다.,Take a bite,Surprisingly tasty. You feel stronger. (life +10),Your stomach twists. You start the next battle weakened.
+necro_grave,망자에게 묻는다,necromancer,,,,,flag ghost_told;resolve 2,,망자가 속삭인다. “리엔은 사라진 게 아니다. 돌이 되었다.” (결의 +2),,Ask the dead,The dead whisper: “Rien did not vanish. Rien became stone.” (resolve +2),
+necro_grave,묵념한다,,,,,,resolve_all 1,,(모두 결의 +1),,Bow in silence,(everyone's resolve +1),
+seer_hill,별을 읽는다,seer,,,,,doom -1;xp 4,,균열이 흐르는 길이 별자리에 비친다. 지름길을 찾았다. (균열 −1),,Read the stars,The Rift's course is mirrored in the constellations. You found a shortcut. (Rift −1),
+seer_hill,지나친다,,,,,,,,,,Pass by,,
+beast_deer,치료한다,beastmaster,,,,,flag kind;heal_all 4;potion 1;renown 1,,사슴이 일어나 숲으로 돌아간다. 늑대가 꼬리를 흔든다. (모두 생명력 +4 · 물약 +1),,Heal it,The deer rises and returns to the woods. The wolf wags its tail. (everyone's life +4 · potion +1),
+beast_deer,화살을 뽑아 준다,,,agi,2,1,flag kind;xp 3;renown 1,,사슴이 비틀거리며 일어난다.,사슴이 놀라 달아났다.,Pull out the arrow,The deer staggers to its feet.,The deer took fright and bolted.
+chest,조심스럽게 연다,,,agi,3,2,gold 20,hurt 6;gold 8,실을 끊지 않고 열었다. 금화 20.,실이 끊기며 바늘이 튀었다. (생명력 −6) 그래도 금화 8은 건졌다.,Open it carefully,You opened it without breaking the thread. 20 gold.,"The thread snapped and a needle sprang out. (life −6) Still, you saved 8 gold."
+chest,부순다,,,str,2,1,gold 8,hurt 4,상자가 부서지며 금화 8이 쏟아진다.,상자가 꿈쩍도 않고 바늘만 튀었다. (생명력 −4),Smash it,The chest breaks open and 8 gold spills out.,"The chest wouldn't budge, and only the needle sprang. (life −4)"
+chest,덫을 해체한다,hunter,,,,,gold 20;potion 1,,사냥꾼이 덫을 해체했다. 덫에 쓰인 물약까지 챙겼다. 금화 20.,,Disarm the trap,The hunter disarmed the trap and even kept the potion it used. 20 gold.,
+chest,자물쇠를 딴다,rogue,,,,,gold 20;loot 1,,도적에게는 장난감 같은 자물쇠다.,,Pick the lock,"To a rogue, this lock is a toy.",
+buried_box,파낸다,,,str,2,1,loot 1;gold 5,gold 5,상자 안에 쓸 만한 물건이 있다.,상자는 반쯤 비어 있었다. (금화 5),Dig it up,There's something useful in the box.,The box was half empty. (5 gold)
+buried_box,그냥 둔다,,,,,,,,,,Leave it,,
+herb_patch,재료를 모은다,alchemist,,,,,reagent 2,,(재료 +2),,Gather reagents,(reagents +2),
+herb_patch,약초를 씹는다,,,,,,heal_all 5,,쓴맛이 혀를 감싼다. (모두 생명력 +5),,Chew the herbs,Bitterness coats your tongue. (everyone's life +5),
+seal_stone,문장을 해독한다,,,int,2,1,flag read_seal;doom -2;xp 5;renown 1,doom 1,문장이 머릿속으로 흘러든다. 봉인석을 누그러뜨리는 법이다. (균열 −2 · 파수꾼이 약해진다),글씨가 너무 닳았다. 한나절을 허비했다. (균열 +1 · 다시 해 볼 수 있다),Decipher the inscription,The words flow into your mind: a way to soften the seal stone. (Rift −2 · the Warden is weakened),The letters are too worn. Half a day wasted. (Rift +1 · you can try again)
+seal_stone,곁에서 밤새 옮겨 적는다,,,,,,flag read_seal;doom 1;xp 5;renown 1,,밤을 새워 문장을 모두 옮겨 적었다. 시간은 걸렸지만 확실하다. (균열 +1 · 파수꾼이 약해진다),,Copy it out overnight,"You stayed up all night copying out every word. It took time, but it's certain. (Rift +1 · the Warden is weakened)",
+seal_stone,봉인의 문장을 읊는다,elementalist,,,,,flag read_seal;doom -2;bless_all;xp 5;renown 1,,원소술사가 문장을 읊자 금 사이 연기가 잠시 멎는다. (균열 −2 · 확정 +1 · 파수꾼이 약해진다),,Recite the seal's words,"As the elementalist recites the words, the smoke from the cracks stops for a moment. (Rift −2 · +1 sure success · the Warden is weakened)",
+shrine,기도한다,,,wil,3,2,heal_all 10;resolve_all 1,weak_next,불씨가 환하게 타오른다. (모두 생명력 +10 · 결의 +1),불씨가 꺼지고 차가운 바람이 분다. 다음 전투를 약화된 채 시작한다.,Pray,The ember flares up bright. (everyone's life +10 · resolve +1),The ember goes out and a cold wind blows. You start the next battle weakened.
+shrine,성소를 손본다,knight,,,,,hope 1;flag kind;renown 1,,기사가 무너진 돌을 다시 쌓는다. 오래된 맹세가 생각난다. (희망 +1),,Repair the shrine,"The knight stacks the fallen stones back up, remembering an old oath. (hope +1)",
+shrine,제물을 바친다 (금화 10),,,,,,gold -10;resolve_all 2,,촛불이 흔들리며 답한다. (모두 결의 +2),,Make an offering (10 gold),The candle flame flickers in answer. (everyone's resolve +2),
+shrine,지나친다,,,,,,,,너희는 고개만 숙이고 지나간다.,,Pass by,You bow your heads and move on.,
+elder,이야기를 듣는다,,,,,,flag elder_met;gold 15,,“여비에 보태시오.” 장로가 금화 15를 쥐여 준다.,,Listen,“For the road.” The elder presses 15 gold into your hands.,
+elder,아이 이야기를 전한다,,child_saved,,,,flag elder_met;gold 25;hope 1,,“그 아이를 데려다준 게 당신들이었소?” 장로가 금화 25와 함께 고개를 숙인다. (희망 +1),,Tell of the child,“So it was you who brought that child home?” The elder bows and gives you 25 gold. (hope +1),
+watchtower,파수 일지를 해독한다,,,int,2,1,flag tower_record;xp 5;renown 1,doom 1,번진 글씨를 맞춰 읽었다. 망루의 종을 울려 두었다. (파수꾼이 정령을 부르지 못한다),글씨가 너무 번졌다. 한나절을 허비했다. (균열 +1 · 다시 해 볼 수 있다),Decipher the watch log,"You pieced the smudged writing together, and rang the watchtower bell. (the Warden cannot summon wisps)",The writing is too smudged. Half a day wasted. (Rift +1 · you can try again)
+watchtower,종을 울려 둔다,,,str,2,1,flag tower_record;xp 5;renown 1,hurt 4,녹슨 종이 맑게 울린다. 숲 끝까지 퍼진다. (파수꾼이 정령을 부르지 못한다),종이 꿈쩍도 않고 사다리가 부러졌다. (생명력 −4 · 다시 해 볼 수 있다),Ring the bell,"The rusty bell rings clear, all the way to the forest's edge. (the Warden cannot summon wisps)","The bell wouldn't budge, and the ladder broke. (life −4 · you can try again)"
+watchtower,망루를 살핀다,rogue,,,,,flag tower_record;loot 2;xp 5;renown 1,,도적이 종을 울리고 숨겨진 상자까지 찾았다. (파수꾼이 정령을 부르지 못한다),,Search the tower,The rogue rang the bell and even found a hidden chest. (the Warden cannot summon wisps),
+wandering_knight,맞서 겨룬다,,,str,3,2,item sword_steel;xp 6,hurt 6,기사가 검을 내린다. “리엔이 고른 사람이 맞군.” 자기 검을 건넨다. (강철 장검),기사의 검이 너희를 넘어뜨린다. (생명력 −6),Cross swords,The knight lowers their sword. “So you really are the ones Rien chose.” Then the knight offers you that sword. (Steel Longsword),The knight's sword knocks you down. (life −6)
+wandering_knight,맹세를 읊는다,knight,,,,,item sword_knight;flag kind;xp 6;renown 1,,두 기사가 같은 맹세를 끝까지 읊는다. 늙은 기사가 웃으며 맹세의 검을 건넨다.,,Recite the oath,"The two knights recite the same oath to its very end. Smiling, the old knight hands over the Sword of the Oath.",
+wandering_knight,지나친다,,,,,,,,기사가 한숨을 쉰다.,,Pass by,The knight sighs.,
+ash_spring,손을 넣는다,,,agi,2,1,gold 18,hurt 5,재가 손을 태우기 전에 금화 주머니를 건졌다. (금화 18),재가 손을 태웠다. (생명력 −5),Reach in,You fished out a coin purse before the ash could burn you. (18 gold),The ash burned your hand. (life −5)
+ash_spring,물을 걸러 마신다,alchemist,,,,,heal_all 8;reagent 1,,연금술사가 재를 거른 물을 나눠 준다. (모두 생명력 +8 · 재료 +1),,Filter and drink,The alchemist shares water strained of ash. (everyone's life +8 · reagents +1),
+ash_spring,지나친다,,,,,,,,,,Pass by,,
+caravan,말을 고쳐 준다,,,per,2,1,flag kind;gold 12;item potion;renown 1,hurt 2,말이 일어선다. 상인이 고마워하며 돈과 물약을 내민다.,말이 놀라 발길질했다. (생명력 −2),Tend the horse,The horse gets to its feet. The grateful merchant offers coin and a potion.,The startled horse kicked. (life −2)
+caravan,짐을 실어 준다,,,str,2,1,flag kind;gold 8;renown 1,,짐을 다시 실었다. (금화 8),,Load the cart,You loaded the cargo back on. (8 gold),
+caravan,짐을 뒤진다,,,,,,gold 20;flag robbed_caravan,,상인 가족이 보는 앞에서 금화 20을 챙겼다.,,Rifle the cargo,"With the merchant family watching, you took 20 gold.",
+ember_moths,몸을 숨긴다,,,agi,3,2,xp 3,hurt_all 4,덤불 속에 엎드려 나방 떼를 보냈다.,나방이 스치고 지나갔다. (모두 생명력 −4),Take cover,You lay flat in the brush and let the swarm pass.,The moths brushed past you. (everyone's life −4)
+ember_moths,불을 끈다,elementalist,,,,,xp 5;resolve 1,,원소술사가 서리로 불씨를 꺼뜨린다. (결의 +1),,Put out the embers,The elementalist snuffs the embers with frost. (resolve +1),
+ember_moths,짐승에게 맡긴다,beastmaster,,,,,xp 5;heal_all 3,,늑대가 나방을 쫓아낸다.,,Leave it to the wolf,The wolf chases off the moths.,
+hermit,봉인에 대해 묻는다,,,,,,flag hermit_told;resolve_all 1;doom -1,,"“비석, 망루, 그리고 두목. 셋을 알면 파수꾼은 반쪽이네.” (균열 −1 · 모두 결의 +1)",,Ask about the seal,"“The memorial, the watchtower, and the chief. Know all three, and the Warden is only half a foe.” (Rift −1 · everyone's resolve +1)",
+hermit,약을 얻는다,,,cha,2,1,item antidote;item tonic,item antidote,은자가 해독초와 결의 물약을 싸 준다.,은자가 해독초만 건넨다.,Ask for medicine,The hermit packs you a remedy herb and a tonic.,The hermit hands over only a remedy herb.
+hermit,별 이야기를 나눈다,seer,,,,,doom -1;xp 5,,점성술사와 은자가 밤새 별을 읽었다. (균열 −1),,Talk of the stars,The seer and the hermit read the stars all night. (Rift −1),
+broken_bridge,뛰어 건넌다,,,agi,2,2,xp 4;resolve 1,hurt 6,가뿐히 건넜다. (결의 +1),물에 빠져 떠내려갔다. (생명력 −6),Jump across,You cleared it easily. (resolve +1),You fell in and were swept downstream. (life −6)
+broken_bridge,통나무를 걸친다,,,str,2,1,xp 4,doom 1,통나무 다리를 놓았다.,통나무가 자꾸 미끄러진다. 하루가 걸렸다. (균열 +1),Lay a log across,You laid a log bridge.,The log kept slipping. It took a day. (Rift +1)
+broken_bridge,돌아간다,,,,,,,,,,Go around,,
+lost_dog,마을로 데려간다,,,,,,flag kind;flag dog_returned;gold 10;renown 1,,개 주인이 울며 금화 10을 쥐여 준다.,,Take it to the village,"In tears, the dog's owner presses 10 gold into your hands.",
+lost_dog,함께 다닌다,beastmaster,,,,,flag kind;potion 1;xp 4;renown 1,,늑대와 개가 금세 친해졌다. 개가 어디선가 물약을 물어 온다.,,Keep it with you,The wolf and the dog are fast friends. The dog fetches a potion from somewhere.,
+lost_dog,쫓아 버린다,,,,,,flag dog_chased,,개가 낑낑대며 멀어진다.,,Shoo it away,The dog whimpers and slinks off.,
+bandit_toll,통행료를 낸다 (금화 15),,,,,,gold -15,,산적들이 밧줄을 내린다.,,Pay the toll (15 gold),The bandits lower the rope.,
+bandit_toll,말로 넘긴다,,,cha,3,2,xp 5,battle bandits,“…가라.” 산적들이 머쓱하게 비킨다.,“말이 많군!” 산적들이 덤빈다.,Talk your way past,"“…Go.” The bandits step aside, sheepish.",“Too much talk!” The bandits attack.
+bandit_toll,싸운다,,,,,,battle bandits_big,,무기를 뽑는다!,,Fight,Weapons out!,
+bandit_toll,그림자로 지나간다,rogue,,,,,xp 5;gold 10,,도적이 밧줄을 끊고 산적들의 돈주머니까지 챙겼다.,,Slip through the shadows,The rogue cut the rope and lifted the bandits' purses too.,
+glowing_mushroom,가운데에 앉는다,,,wil,2,1,resolve_all 2;xp 4,weak_next,리엔이 걸었던 길이 꿈에 보인다. (모두 결의 +2),악몽을 꾸었다. 다음 전투를 약화된 채 시작한다.,Sit in the middle,You dream of the road Rien walked. (everyone's resolve +2),You had a nightmare. You start the next battle weakened.
+glowing_mushroom,버섯을 딴다,,,,,,reagent 2;potion 1,,빛나는 버섯은 좋은 약이 된다.,,Pick the mushrooms,Glowing mushrooms make good medicine.,
+glowing_mushroom,지나친다,,,,,,,,,,Pass by,,
+collapsed_mine,돌을 치운다,,,str,3,2,flag kind;hope 1;xp 6;renown 1,hurt_all 3,갇힌 광부들을 꺼냈다. (희망 +1),돌이 무너져 내렸다. (모두 생명력 −3),Clear the rocks,You got the trapped miners out. (hope +1),The rocks caved in. (everyone's life −3)
+collapsed_mine,뼈들에게 묻는다,necromancer,,,,,flag kind;hope 1;xp 6;renown 1,,망자들이 무너진 길을 알려 준다. 광부들이 살았다. (희망 +1),,Ask the bones,The dead show you the way through the collapse. The miners live. (hope +1),
+collapsed_mine,지나친다,,,,,,flag miners_left,,두드리는 소리가 점점 약해진다.,,Pass by,The knocking grows fainter and fainter.,
+rift_crack,틈을 메운다,,,wil,3,2,doom -1;xp 5,hurt_all 3;doom 1,틈이 닫혔다. (균열 −1),틈이 더 벌어졌다. (모두 생명력 −3 · 균열 +1),Fill the crack,The crack closed. (Rift −1),The crack widened. (everyone's life −3 · Rift +1)
+rift_crack,봉인의 기도를 올린다,cleric,,,,,doom -1;bless_all,,기도가 틈을 메운다. (균열 −1 · 모두 확정 +1),,Offer a sealing prayer,The prayer fills the crack. (Rift −1 · +1 sure success for everyone),
+rift_crack,피해서 간다,,,,,,,,,,Steer clear,,
+old_soldier,이야기를 듣는다,,,,,,resolve_all 1;flag soldier_story,,“리엔은 마지막 봉인 앞에서 웃었다더군.” (모두 결의 +1),,Listen,"“They say Rien smiled, standing before the last seal.” (everyone's resolve +1)",
+old_soldier,물약을 나눠 준다,,,,,,flag kind;hope 1;potion -1;renown 1,,노병이 눈시울을 붉힌다. (희망 +1),,Share a potion,The old soldier's eyes redden. (hope +1),
+fisher_net,그물을 자른다,,,agi,2,1,flag fisher_saved;flag kind;renown 1;xp 4,hurt 4,그물이 끊어지고 어부가 숨을 몰아쉰다. “은혜는 잊지 않겠소!”,그물에 손이 감겨 함께 끌려갈 뻔했다. 어부는 겨우 빠져나왔다. (생명력 −4),Cut the net,"The net parts, and the fisher gasps for air. “I won't forget this!”",Your hand tangled in the net and you were nearly dragged off too. The fisher barely got free. (life −4)
+fisher_net,끌어올린다,,,str,2,1,flag fisher_saved;flag kind;renown 1;potion 1,hurt 3,어부를 그물째 끌어올렸다. 어부가 품에서 물약을 꺼내 준다.,밀물이 더 빨랐다. 젖은 채 겨우 함께 빠져나왔다. (생명력 −3),Haul them up,"You hauled the fisher up, net and all. The fisher pulls a potion from their coat for you.","The tide was faster. Soaked, you both barely made it out. (life −3)"
+fisher_net,지나친다,,,,,,flag fisher_left,,너희는 등을 돌린다. 등 뒤에서 물소리가 커진다.,,Pass by,"You turn your backs. Behind you, the sound of the water grows louder.",
+drowned_bell,귀를 막고 버틴다,,,wil,3,1,xp 5;resolve_all 1,hurt_all 3;doom 1,종소리가 멀어진다. 버틴 만큼 마음이 단단해졌다. (모두 결의 +1),정신을 차리니 허리까지 물에 잠겨 있었다. 반나절을 잃었다. (모두 생명력 −3 · 균열 +1),Cover your ears,The tolling fades. You are steadier for having held on. (everyone's resolve +1),"When you came to, you were waist-deep in the water. Half a day lost. (everyone's life −3 · Rift +1)"
+drowned_bell,종소리의 박자를 읽는다,seer,,,,,doom -1;bless_all;xp 4,,점성술사가 종소리 사이의 침묵을 센다. 균열이 숨을 고르는 박자다. (균열 −1 · 모두 다음 판정 확정 +1),,Read the bell's rhythm,The seer counts the silences between the tolls: the rhythm of the Rift catching its breath. (Rift −1 · +1 sure success on everyone's next roll),
+drowned_bell,노래로 덮는다,bard,,,,,resolve_all 2;xp 3,,음유시인의 노래가 종소리를 덮는다. 아무도 물 쪽으로 걸어가지 않았다. (모두 결의 +2),,Drown it out with song,The bard's song drowns out the bell. No one walked toward the water. (everyone's resolve +2),
+smuggler_offer,사들인다 (금화 15),,,,,,gold -15;item firebomb;item firebomb;flag smuggler_deal,,밀수꾼이 화염병 둘을 내민다. “좋은 거래였소.” (화염병 2),,Buy them (15 gold),The smuggler hands over two firebombs. “Pleasure doing business.” (2 firebombs),
+smuggler_offer,정체를 캐묻는다,,,cha,2,1,gold 10;flag kind;renown 1,battle smugglers,밀수꾼이 겁먹고 균열 물건을 버린 채 달아났다. 떨어뜨린 돈주머니에 금화 10.,“말이 많군.” 밀수꾼이 휘파람을 불자 동료들이 나타난다!,Question them,"Frightened, the smuggler dropped the Rift goods and fled. In the purse left behind: 10 gold.","“Too much talk.” The smuggler whistles, and the rest of the crew appears!"
+smuggler_offer,지나친다,,,,,,,,밀수꾼이 혀를 차고 그늘로 사라진다.,,Pass by,The smuggler clicks their tongue and melts into the shadows.,
+orphan_dock,먹을 것을 나눈다 (금화 5),,,,,,gold -5;flag orphan_fed;flag kind;renown 1;resolve_all 1,,아이들이 처음으로 웃는다. 가장 큰 아이가 “우리도 커서 일지를 들 거예요”라고 말한다. (모두 결의 +1),,Share food (5 gold),"For the first time, the children smile. The oldest says, “When we grow up, we'll carry the journal too.” (everyone's resolve +1)",
+orphan_dock,옛이야기를 들려준다,bard,,,,,flag orphan_fed;flag kind;renown 2;resolve_all 1,,음유시인이 리엔과 마렌의 이야기를 들려준다. 아이들 눈이 반짝인다. 이야기의 끝은 너희가 쓰게 될 것이다. (명성 +2),,Tell an old tale,The bard tells the tale of Rien and Maren. The children's eyes shine. The end of that tale is yours to write. (renown +2),
+orphan_dock,지나친다,,,,,,flag orphan_left,,아이들의 눈길이 등에 박힌다.,,Pass by,You feel the children's eyes on your backs.,
+wreck,선원들을 묻어 준다,,,,,,flag sailor_buried;flag kind;renown 1;resolve_all 1;doom 1,,모래톱에 선원들을 묻었다. 해가 기울었다. (모두 결의 +1 · 균열 +1),,Bury the sailors,You buried the sailors on the sandbar. The sun was sinking. (everyone's resolve +1 · Rift +1),
+wreck,선실을 뒤진다,,,per,2,1,loot 2;xp 3,hurt 4,선장실 바닥 밑에서 쓸 만한 장비를 찾았다.,썩은 바닥이 꺼졌다. (생명력 −4),Search the cabins,"Under the floor of the captain's cabin, you found useful gear.",The rotten floor gave way. (life −4)
+wreck,닥치는 대로 챙긴다,,,,,,gold 20;flag robbed_wreck,,금화 20을 챙겼다. 선원들은 그대로 누워 있다.,,Grab what you can,You took 20 gold. The sailors lie where they fell.,
+sea_witch,운을 본다 (금화 5),,,,,,gold -5;bless_all,,“너희 운은 너희가 고른 길에 있구먼.” (모두 다음 판정 확정 +1),,Have your fortune told (5 gold),“Your luck lies in the road you choose.” (+1 sure success on everyone's next roll),
+sea_witch,균열을 묻는다,,,int,2,1,doom -1;xp 3,gold -5,노파가 조개를 흩뿌리고 균열이 약해지는 물때를 알려 준다. (균열 −1),노파가 웃으며 손을 내민다. 아무것도 알려 주지 않았다. (금화 −5),Ask about the Rift,The old woman scatters her shells and tells you the tide when the Rift runs weak. (Rift −1),The old woman smiles and holds out her hand. She told you nothing. (gold −5)
+sea_witch,별로 맞받아친다,seer,,,,,doom -1;gold 10;xp 4,,점성술사가 노파의 점괘를 하나하나 바로잡는다. 노파가 감탄하며 돈을 돌려준다. (균열 −1 · 금화 +10),,Answer with the stars,"One by one, the seer sets the old woman's readings right. Impressed, she gives the money back. (Rift −1 · gold +10)",
+salt_storm,버틴다,,,wil,3,1,xp 5,hurt_all 3,폭풍이 지나갔다. 버틴 만큼 단단해졌다.,소금이 살갗을 파고든다. (모두 생명력 −3),Hold on,The storm has passed. You are tougher for having weathered it.,The salt digs into your skin. (everyone's life −3)
+salt_storm,바람을 가른다,elementalist,,,,,resolve_all 1;xp 4,,원소술사가 손을 들자 바람이 갈라진다. (모두 결의 +1),,Part the wind,"The elementalist raises a hand, and the wind splits apart. (everyone's resolve +1)",
+salt_storm,창고에 숨는다,,,per,2,1,gold 8,doom 1,창고에서 폭풍을 피했다. 구석에 동전 몇 닢. (금화 +8),창고를 찾다 길을 잃었다. (균열 +1),Hide in a warehouse,You waited out the storm in a warehouse. A few coins in the corner. (gold +8),"Looking for a warehouse, you lost your way. (Rift +1)"
+widow,진실을 말해 준다,,,cha,2,1,flag widow_helped;flag kind;renown 1;hope 1,hurt 2,"여인이 오래 울고, 고맙다고 말한다. “이제 기다리지 않아도 되겠군요.” (희망 +1)",여인이 소리치며 조개껍데기를 던진다. (생명력 −2),Tell her the truth,"She weeps a long while, then thanks you. “Now I can stop waiting.” (hope +1)",She cries out and throws a shell at you. (life −2)
+widow,남편의 넋과 이어 준다,necromancer,,,,,flag widow_helped;flag kind;renown 2;hope 1,,사령술사가 물가에서 이름을 부르자 희미한 목소리가 답한다. 여인이 미소 짓는다. (희망 +1 · 명성 +2),,Reach her husband's spirit,"The necromancer calls his name at the water's edge, and a faint voice answers. She smiles. (hope +1 · renown +2)",
+widow,지나친다,,,,,,,,여인은 계속 바다만 본다.,,Pass by,She keeps staring out to sea.,
+rien_mark,표시를 따라간다,,,per,2,1,gold 15;xp 5,doom 1,표시는 리엔이 숨겨 둔 꾸러미로 이어졌다. (금화 +15),표시가 물에 잠겨 길을 잃었다. (균열 +1),Follow the marks,The marks led to a bundle Rien had hidden. (gold +15),"The marks went under the water, and you lost the trail. (Rift +1)"
+rien_mark,옆에 너희의 표시를 새긴다,,,,,,renown 1;resolve_all 1,,리엔의 표시 옆에 너희의 표시를 새겼다. 다음 사람은 둘을 보게 될 것이다. (모두 결의 +1),,Carve your mark beside it,You carved your own mark beside Rien's. Whoever comes next will see both. (everyone's resolve +1),
+broken_pier,뛰어 건넌다,,,agi,2,1,loot 1;xp 3,hurt 5,무너진 틈을 뛰어넘었다. 지붕에 걸린 장비를 챙겼다.,물에 빠졌다. 따개비에 긁혔다. (생명력 −5),Jump across,You leapt the gap and grabbed the gear caught on the roof.,You fell in and scraped yourself on the barnacles. (life −5)
+broken_pier,널빤지를 놓는다,,,str,2,1,loot 1,resolve_all -1,널빤지 다리를 놓고 건넜다.,널빤지가 부러졌다. 다들 맥이 빠진다. (모두 결의 −1),Lay a plank,You laid a plank across and crossed.,The plank snapped. Everyone's spirits sag. (everyone's resolve −1)
+broken_pier,지나친다,,,,,,,,반짝이는 것이 무엇이었는지는 끝내 모른다.,,Pass by,You never do find out what was glinting.,
+sea_shanty,함께 부른다,,,cha,2,1,resolve_all 1;xp 3,,뱃사람들이 어깨를 두드린다. (모두 결의 +1),박자를 놓쳤다. 다들 웃는다.,Sing along,The sailors clap you on the shoulder. (everyone's resolve +1),You lost the beat. Everyone laughs.
+sea_shanty,마지막 절을 지어 붙인다,bard,,,,,resolve_all 2;renown 1;flag kind,,음유시인이 종지기를 구하러 온 세 사람의 절을 붙였다. 뱃사람들이 따라 부른다. (모두 결의 +2),,Add a last verse,The bard adds a verse about three who came to save the bellringer. The sailors sing along. (everyone's resolve +2),
+sea_shanty,가사를 묻는다,,,,,,xp 3,,가사 속 종지기는 리엔을 기다렸다고 한다. 끝까지.,,Ask about the words,"In the song, the bellringer waited for Rien. To the very end.",
+net_mender,그물 깁기를 돕는다,,,agi,2,1,flag kind;renown 1;potion 1,resolve -1,노인이 고맙다며 물약을 쥐여 준다.,바늘에 찔렸다. 노인이 혀를 찬다. (결의 −1),Help mend the net,The old man thanks you with a potion.,You pricked yourself on the needle. The old man clicks his tongue. (resolve −1)
+net_mender,지나친다,,,,,,,,,,Pass by,,
+hunter_gulls,바람을 거슬러 다가간다,hunter,,,,,xp 5;gold 10;bless_all,,사냥꾼이 바람을 거슬러 둥지를 지나쳤다. 갈매기들은 끝내 몰랐다. (모두 다음 판정 확정 +1),,Approach upwind,The hunter crept past the nests into the wind. The gulls never noticed. (+1 sure success on everyone's next roll),
+hunter_gulls,돌아간다,,,,,,,,,,Go around,,
+rogue_ledger,장부를 빼낸다,rogue,,,,,gold 20;xp 5;flag ledger_taken,,도적이 장부를 빼냈다. 선장이 누구에게 항구를 팔았는지 적혀 있다. (금화 +20),,Steal the ledger,The rogue slipped the ledger out. It says who the captain sold the harbor to. (gold +20),
+rogue_ledger,지나친다,,,,,,,,,,Pass by,,
+necro_drowned,말을 들어 준다,necromancer,,,,,flag kind;renown 1;xp 5;doom -1,,익사자가 마른 목소리로 말한다. “종지기는… 아직… 기다려.” 그리고 물로 돌아간다. (균열 −1),,Listen to it,"In a dry voice, the drowned one says, “The bellringer… is still… waiting.” Then it goes back into the water. (Rift −1)",
+necro_drowned,물러선다,,,,,,,,,,Step back,,
+cleric_bell,종을 축복한다,cleric,,,,,heal_all 8;resolve_all 1;flag kind;renown 1,,성직자가 기도하자 작은 종이 맑게 운다. 물속의 큰 종소리가 잠시 멎는다. (모두 생명력 +8 · 결의 +1),,Bless the bell,"At the cleric's prayer, the little bell rings clear. The great bell beneath the water falls silent for a moment. (everyone's life +8 · resolve +1)",
+cleric_bell,그냥 둔다,,,,,,,,,,Leave it,,
+sunken_chest,자물쇠를 연다,,,agi,2,1,loot 2,hurt 3,궤짝 안에 잘 싸 둔 장비가 있다.,따개비에 손이 찢어졌다. 궤짝은 열리지 않았다. (생명력 −3),Open the lock,Inside the chest is carefully wrapped gear.,"The barnacles tore your hand, and the chest stayed shut. (life −3)"
+sunken_chest,통째로 끌어낸다,,,str,3,2,loot 2;gold 10,hurt 4,궤짝을 끌어내 부쉈다. 장비와 금화 10.,궤짝이 너무 무겁다. 허리를 삐끗했다. (생명력 −4),Haul it out whole,You hauled the chest out and broke it open. Gear and 10 gold.,The chest is too heavy. You wrenched your back. (life −4)
+sunken_chest,자물쇠를 따 낸다,rogue,,,,,loot 2;gold 15,,도적이 따개비째 자물쇠를 따 냈다. (금화 +15),,Pick the lock,"The rogue picked the lock, barnacles and all. (gold +15)",
+smuggler_cache,덫을 피해 꺼낸다,,,per,2,1,item firebomb;item smoke;gold 10,battle harbor_ambush,"덫 줄을 피해 꾸러미를 꺼냈다. 화염병, 연막탄, 금화 10.",덫 줄이 당겨지며 호루라기가 울린다. 밀수꾼들이 달려온다!,Avoid the tripwires,"You slipped past the tripwires and pulled out the bundle. Firebombs, smoke bombs, 10 gold.",A tripwire pulls taut and a whistle shrieks. The smugglers come running!
+smuggler_cache,두고 간다,,,,,,,,,,Leave it behind,,
+sea_herbs,약초를 딴다,,,,,,heal_all 6;potion 1,,짠 바람을 견딘 약초는 약효가 진하다. (모두 생명력 +6 · 물약 +1),,Pick herbs,Herbs that weather the salt wind are potent. (everyone's life +6 · potion +1),
+sea_herbs,재료를 고른다,alchemist,,,,,reagent 3;heal_all 4,,연금술사가 쓸 만한 것만 골라 담았다. (재료 +3),,Pick reagents,The alchemist gathered only the useful ones. (reagents +3),
+lighthouse_letter,편지를 읽는다,,,,,,flag read_letter;renown 1;xp 5,,편지를 끝까지 읽었다. 종지기에게 전해야 할 말이다. (종지기가 망설인다),,Read the letter,You read the letter to the end. These are words the bellringer must hear. (the Bellringer hesitates),
+lighthouse_letter,등대에 다시 불을 켠다,,,int,2,1,flag read_letter;doom -2;renown 2;xp 5,doom 1,등대에 백 년 만에 불이 켜졌다. 물속의 종소리가 잠시 멎는다. (균열 −2 · 종지기가 망설인다),기름이 다 말랐다. 한나절을 허비했다. (균열 +1 · 다시 해 볼 수 있다),Relight the lighthouse,The lighthouse burns for the first time in a hundred years. The bell beneath the water falls silent for a moment. (Rift −2 · the Bellringer hesitates),The oil has all dried up. Half a day wasted. (Rift +1 · you can try again)
+lighthouse_letter,편지를 소리 내어 읊는다,cleric,,,,,flag read_letter;doom -1;bless_all;xp 5,,성직자가 편지를 기도처럼 읊는다. 바다가 조용해진다. (균열 −1 · 확정 +1 · 종지기가 망설인다),,Read the letter aloud,The cleric reads the letter like a prayer. The sea grows quiet. (Rift −1 · +1 sure success · the Bellringer hesitates),
+sluice,톱니를 돌린다,,,str,3,2,flag sluice_shut;xp 5,hurt 4,녹슨 톱니가 비명을 지르며 돌아간다. 수문이 닫혔다. (익사자가 일어서지 못한다),톱니가 꿈쩍도 않는다. 손이 찢어졌다. (생명력 −4 · 다시 해 볼 수 있다),Turn the gears,The rusted gears turn with a shriek. The floodgate is shut. (the drowned cannot rise),The gears won't budge. Your hands are torn. (life −4 · you can try again)
+sluice,구조를 읽어 잠금쇠를 뺀다,,,int,2,1,flag sluice_shut;xp 5,doom 1,잠금쇠 하나만 빼자 수문이 제 무게로 닫혔다. (익사자가 일어서지 못한다),도면이 너무 낡았다. 한나절을 허비했다. (균열 +1 · 다시 해 볼 수 있다),Find the latch to pull,"Pull a single latch, and the floodgate closed under its own weight. (the drowned cannot rise)",The plans are too old. Half a day wasted. (Rift +1 · you can try again)
+sluice,얼려서 멈춘다,elementalist,,,,,flag sluice_shut;xp 5,,원소술사가 물길을 얼려 수문을 닫았다. (익사자가 일어서지 못한다),,Freeze it shut,The elementalist froze the channel and closed the floodgate. (the drowned cannot rise),
+tide_shrine,바닷물을 붓고 빈다,,,wil,3,2,heal_all 10;resolve_all 1,weak_next,그릇의 물결이 잔잔해진다. (모두 생명력 +10 · 결의 +1),물결이 거칠어진다. 다음 전투를 약화된 채 시작한다.,Pour seawater and pray,The ripples in the bowl grow still. (everyone's life +10 · resolve +1),The ripples turn rough. You start the next battle weakened.
+tide_shrine,사당을 손본다,knight,,,,,hope 1;flag kind;renown 1,,기사가 무너진 돌을 다시 쌓는다. 누군가 꼭 돌아오길 빌던 자리다. (희망 +1),,Repair the shrine,The knight stacks the fallen stones back up. Someone once prayed here for a safe return. (hope +1),
+tide_shrine,금화를 바친다 (금화 10),,,,,,gold -10;resolve_all 2,,그릇의 물이 반짝인다. (모두 결의 +2),,Offer gold (10 gold),The water in the bowl glimmers. (everyone's resolve +2),
+tide_shrine,지나친다,,,,,,,,,,Pass by,,
+harbor_elder,이야기를 듣는다,,,,,,gold 15,,“종지기를 쉬게 해 주시오. 그게 리엔이 못 한 일이오.” 장로가 금화 15를 쥐여 준다.,,Listen,“Let the bellringer rest. That's what Rien could not do.” The elder presses 15 gold into your hands.,
+harbor_elder,리엔을 변호한다,,,cha,2,1,gold 15;renown 1;hope 1,gold 10,“리엔은 다섯 봉인을 다 닫아야 했습니다.” 장로가 오래 생각하더니 고개를 끄덕인다. (희망 +1),장로는 고개를 젓지만 여비는 챙겨 준다. (금화 +10),Defend Rien,"“Rien had all five seals to close.” The elder thinks for a long time, then nods. (hope +1)","The elder shakes their head, but still gives you something for the road. (gold +10)"
+harbor_elder,아이들 이야기를 전한다,,orphan_fed,,,,gold 25;hope 1;renown 1,,“부두 아이들을 먹인 게 당신들이었소?” 장로가 금화 25와 함께 고개를 숙인다. (희망 +1),,Tell of the children,“So it was you who fed the children on the docks?” The elder bows and gives you 25 gold. (hope +1),
+knight_wreck_banner,깃발을 거둬 묻는다,knight,,,,,flag kind;renown 1;resolve_all 2,,기사가 젖은 깃발을 접어 모래에 묻는다. 백 년 만의 장례다. (모두 결의 +2),,Take down the banner and bury it,The knight folds the wet banner and buries it in the sand. A funeral a hundred years late. (everyone's resolve +2),
+knight_wreck_banner,지나친다,,,,,,,,,,Pass by,,
+berserker_storm,폭풍을 마주 본다,berserker,,,,,xp 6;resolve 3,,광전사가 폭풍 앞에 끝까지 서 있었다. 손의 떨림이 멎었다. (결의 +3),,Face the storm,The berserker stood before the storm to the very end. Their hands have stopped shaking. (resolve +3),
+berserker_storm,등을 돌린다,,,,,,,,,,Turn away,,
+elementalist_tide,물길을 되돌린다,elementalist,,,,,doom -1;xp 5;renown 1,,원소술사가 물의 흐름을 읽어 되돌렸다. 균열의 숨이 느려진다. (균열 −1),,Turn the water back,The elementalist read the water's flow and turned it back. The Rift's breathing slows. (Rift −1),
+elementalist_tide,지켜본다,,,,,,,,,,Watch,,
+gambler_dice_ship,판에 낀다,gambler,,fixed50,3,2,gold 25;flag kind;renown 1,gold -10,도박사가 이겼다. 따낸 구명정을 선원들에게 돌려준다. (금화 +25),도박사가 졌다. (금화 −10),Join the game,"The gambler won, and gives the lifeboat back to the sailors. (gold +25)",The gambler lost. (gold −10)
+gambler_dice_ship,지나친다,,,,,,,,,,Pass by,,
+bard_old_song,가사를 고쳐 가르친다,bard,,,,,flag kind;renown 2;hope 1,,"“종지기는 기다려, 셋이 왔어.” 아이들이 새 가사로 부른다. (희망 +1 · 명성 +2)",,Teach them new words,"“The bellringer waits, and three have come.” The children sing the new words. (hope +1 · renown +2)",
+bard_old_song,그냥 듣는다,,,,,,xp 2,,노래가 바람에 흩어진다.,,Just listen,The song scatters on the wind.,
+alchemist_salt,결정을 캔다,alchemist,,,,,reagent 3;item tonic,,연금술사가 소금 결정으로 결의 물약을 만들었다. (재료 +3 · 결의 물약),,Mine the crystals,The alchemist made a tonic from the salt crystals. (reagents +3 · a tonic),
+alchemist_salt,두고 간다,,,,,,,,,,Leave them,,
+seer_tide_stars,물속 별을 읽는다,seer,,,,,bless_all;doom -1;xp 4,,물에 비친 별은 균열의 별자리였다. 점성술사가 그 틈을 읽어 냈다. (균열 −1 · 모두 확정 +1),,Read the stars in the water,The stars in the water were the Rift's constellation. The seer read the gap in it. (Rift −1 · +1 sure success for everyone),
+seer_tide_stars,지나친다,,,,,,,,,,Pass by,,
+beast_seal,그물을 풀어 준다,beastmaster,,,,,flag kind;renown 1;heal_all 5,,조련사가 그물을 풀자 바다표범이 물로 미끄러져 간다. 늑대가 꼬리를 흔든다. (모두 생명력 +5),,Untangle the net,"As the beastmaster frees it, the seal slides off into the water. The wolf wags its tail. (everyone's life +5)",
+beast_seal,지나친다,,,,,,,,,,Pass by,,
+frozen_monk,불을 피워 녹인다,,,wil,2,1,flag monk_freed;flag kind;renown 1;hope 1,hurt_all 3,수도사가 숨을 몰아쉰다. “원장님을… 멈춰 주시오.” (희망 +1),얼음이 너무 두껍다. 손이 얼었다. (모두 생명력 −3),Light a fire to thaw them,The monk gasps for breath. “Please… stop the Abbess.” (hope +1),The ice is too thick. Your hands froze. (everyone's life −3)
+frozen_monk,기도로 깨운다,cleric,,,,,flag monk_freed;flag kind;renown 2;hope 1;resolve_all 1,,성직자의 기도에 얼음이 녹는다. 수도사가 일어나 수도원 길을 알려 준다. (희망 +1 · 명성 +2),,Wake them with prayer,The ice melts at the cleric's prayer. The monk rises and shows you the way to the abbey. (hope +1 · renown +2),
+frozen_monk,지나친다,,,,,,flag monk_left,,눈이 다시 수도사를 덮는다.,,Pass by,The snow covers the monk again.,
+snow_pilgrims,불과 먹을 것을 나눈다 (금화 10),,,,,,gold -10;flag pilgrim3_warmed;flag kind;renown 1;resolve_all 1,,순례자들이 불가에 모여 앉는다. 누군가 너희 이름을 묻는다. (모두 결의 +1),,Share fire and food (10 gold),The pilgrims gather around the fire. Someone asks your names. (everyone's resolve +1),
+snow_pilgrims,수도원 길을 일러 준다,,,per,2,1,flag pilgrim3_warmed;flag kind;renown 1,doom 1,길을 일러 주자 순례자들이 고개를 숙이고 떠난다.,길을 잘못 알려 줬다. 되돌아가 바로잡느라 반나절이 걸렸다. (균열 +1),Point the way to the abbey,"You show them the way, and the pilgrims bow and set off.",You gave the wrong directions. Going back to set it right took half a day. (Rift +1)
+snow_pilgrims,지나친다,,,,,,,,,,Pass by,,
+wolf_pup,안고 데려간다,,,,,,flag wolfpup_saved;flag kind;renown 1;doom 1,,새끼를 품에 안고 걸었다. 어미의 울음소리를 따라 둥지에 돌려주느라 하루가 걸렸다. (균열 +1),,Carry it home,"You walked with the pup in your arms, following its mother's howls back to the den. It took a day. (Rift +1)",
+wolf_pup,어미에게 돌려보낸다,beastmaster,,,,,flag wolfpup_saved;flag kind;renown 2;bless_all,,조련사가 울음소리로 어미를 불렀다. 어미 늑대가 너희를 한참 보다 사라진다. (모두 확정 +1),,Return it to its mother,"The beastmaster called the mother with a howl. She watches you a long while, then is gone. (+1 sure success for everyone)",
+wolf_pup,그냥 둔다,,,,,,,,,,Leave it,,
+cult_offer,거절한다,,,,,,xp 3,,“잊히는 게 무섭지 않은가?” 신도가 비웃으며 사라진다.,,Refuse,“Aren't you afraid of being forgotten?” The cultist sneers and vanishes.,
+cult_offer,속는 척 정보를 캔다,,,cha,2,1,flag cult_ritual_known;xp 5;gold 10,battle cultists,신도가 사제의 의식 순서를 떠벌린다. (금화 +10),“거짓말쟁이!” 신도들이 몰려온다!,Play along and pry,The cultist blurts out the steps of the priest's rite. (gold +10),“Liars!” The cultists swarm in!
+cult_offer,거래한다,,,,,,flag cult_bargain;hope -1;gold 40,,신도가 금화 40을 건넨다. 일지 한구석이 검게 그을린다. (희망 −1),,Make the deal,The cultist hands you 40 gold. A corner of the journal blackens. (hope −1),
+ice_bridge,조심히 건넌다,,,agi,2,1,xp 4;loot 3,hurt 6,건너편 얼음 동굴에서 장비를 찾았다.,얼음이 깨졌다. (생명력 −6),Cross carefully,"In an ice cave on the far side, you found gear.",The ice broke. (life −6)
+ice_bridge,돌아간다,,,,,,doom 1;resolve_all 1,,먼 길이지만 안전했다. (균열 +1 · 모두 결의 +1),,Go around,"The long way, but a safe one. (Rift +1 · everyone's resolve +1)",
+choir_ruins,악보를 모아 정리한다,,,int,2,1,flag choir_restored;flag kind;renown 1;resolve_all 1,,흩어진 악보를 맞추자 바람 소리가 노래가 된다. (모두 결의 +1),악보가 너무 낡아 맞출 수 없다.,Gather the sheet music,"As the scattered pages come together, the wind becomes a song. (everyone's resolve +1)",The pages are too old to piece together.
+choir_ruins,노래한다,bard,,,,,flag choir_restored;flag kind;renown 2;heal_all 8,,음유시인의 노래에 성가대석이 울린다. 백 년 만의 노래다. (모두 생명력 +8),,Sing,"The choir stalls ring with the bard's song, the first in a hundred years. (everyone's life +8)",
+choir_ruins,지나친다,,,,,,,,,,Pass by,,
+avalanche,달린다,,,agi,3,2,xp 5,hurt_all 6,눈사태를 아슬아슬하게 피했다.,눈더미에 휩쓸렸다. (모두 생명력 −6),Run,You barely escaped the avalanche.,The snow swept you away. (everyone's life −6)
+avalanche,바위 뒤로 숨는다,,,per,2,1,xp 3,hurt_all 4,바위가 눈을 갈랐다.,바위가 작았다. (모두 생명력 −4),Hide behind a rock,The rock split the snow.,The rock was too small. (everyone's life −4)
+avalanche,불길로 녹여 막는다,elementalist,,,,,xp 5;resolve_all 1,,원소술사의 불길이 눈사태를 녹여 길을 냈다. (모두 결의 +1),,Melt it with fire,The elementalist's flames melted a path through the avalanche. (everyone's resolve +1),
+hermit_cave,리엔에 대해 묻는다,,,,,,xp 5;flag hermit3_told,,“리엔은 이름을 내놓고 봉인을 닫았지. 그 이름을 기억하는 건 원장뿐이었어. 그게 원장을 얼어붙게 한 거야.”,,Ask about Rien,“Rien gave up a name to close the seal. Only the Abbess remembered that name. That is what froze her.”,
+hermit_cave,약을 얻는다 (금화 10),,,,,,gold -10;potion 2,,은수자가 눈풀로 만든 물약을 준다. (물약 2),,Ask for medicine (10 gold),The hermit gives you potions made from snow grass. (2 potions),
+frozen_lake,얼음을 깬다,,,str,3,2,loot 3;gold 20,hurt 6,얼음 아래에서 옛 장비와 금화를 건졌다.,얼음물에 빠졌다. (생명력 −6),Break the ice,"From under the ice, you brought up old gear and gold.",You fell into the icy water. (life −6)
+frozen_lake,발자국을 따라간다,,,per,2,1,xp 6;resolve_all 1,doom 1,발자국은 호수 한가운데에서 무릎을 꿇은 자국으로 끝난다. 리엔은 여기서 무언가를 버렸다. (모두 결의 +1),눈보라에 발자국을 잃었다. (균열 +1),Follow the footprints,"The footprints end in the middle of the lake, in the marks of someone kneeling. Rien left something behind here. (everyone's resolve +1)",You lost the footprints in the blizzard. (Rift +1)
+frozen_lake,지나친다,,,,,,,,,,Pass by,,
+rien_carving,지워진 자리 옆에 너희 이름을 새긴다,,,,,,renown 1;resolve_all 1,,세 이름을 나란히 새겼다. 지워질 때까지 함께다. (모두 결의 +1),,Carve your names beside it,You carved three names side by side. Together until they wear away. (everyone's resolve +1),
+rien_carving,지워진 이름을 읽어 본다,,,int,2,1,xp 6;bless_all,,긁힌 자국 사이로 희미한 획이 읽힌다. 리엔은 이름을 지우면서도 한 획을 남겼다. (모두 확정 +1),아무것도 읽히지 않는다.,Read the scratched-out name,"Between the scratches, a faint stroke can be made out. Even while erasing the name, Rien left one stroke behind. (+1 sure success for everyone)",Nothing can be made out.
+snow_shelter,쉬어 간다,,,,,,heal_all 10;doom 1,,장작불 옆에서 몸을 녹였다. 하루가 갔다. (모두 생명력 +10 · 균열 +1),,Rest here,You warmed yourselves by the fire. A day went by. (everyone's life +10 · Rift +1),
+snow_shelter,장작만 챙긴다,,,,,,resolve_all 1,,다음 사람을 위해 장작 절반을 남겼다. (모두 결의 +1),,Just take firewood,You left half the firewood for whoever comes next. (everyone's resolve +1),
+lost_novice,마을까지 데려다준다,,,,,,flag novice_saved;flag kind;renown 1;doom 1;hope 1,,수련생을 마을까지 데려다줬다. 수련생이 수도원 지름길을 그려 준다. (희망 +1 · 균열 +1),,Walk them to the village,You took the novice to the village. The novice draws you a shortcut to the abbey. (hope +1 · Rift +1),
+lost_novice,숨을 곳을 알려 준다,,,cha,2,1,flag novice_saved;flag kind;renown 1,flag novice_lost,수련생이 고개를 끄덕이고 바위 그늘로 숨는다.,수련생이 겁에 질려 신도들 쪽으로 달아났다.,Show them where to hide,The novice nods and hides in the shelter of a rock.,"Panicked, the novice ran toward the cultists."
+lost_novice,지나친다,,,,,,flag novice_lost,,,,Pass by,,
+knight_order,맹세를 이어 쓴다,knight,,,,,flag kind;renown 2;resolve_all 2;hope 1,,기사가 맹세석에 새 줄을 새긴다. “이름을 잃는 이를 홀로 두지 않는다.” (모두 결의 +2 · 희망 +1),,Add to the oath,The knight carves a new line on the oath stone: “No one who loses their name shall be left alone.” (everyone's resolve +2 · hope +1),
+knight_order,지나친다,,,,,,,,,,Pass by,,
+berserker_cold,분노로 몸을 데운다,berserker,,,,,xp 6;heal 15;resolve 2,,광전사가 고함을 지르자 피가 돈다. 차가운 분노는 처음이다. (생명력 +15 · 결의 +2),,Warm up with rage,"The berserker roars, and the blood starts to flow. A cold rage, for the first time. (life +15 · resolve +2)",
+berserker_cold,동료에게 기댄다,,,,,,resolve_all 1,,셋이 어깨를 붙이고 걸었다. (모두 결의 +1),,Lean on each other,The three of you walked shoulder to shoulder. (everyone's resolve +1),
+hunter_white_stag,쏘지 않고 따라간다,hunter,,,,,xp 6;doom -1;renown 1,,사슴이 지름길로 이끈다. 눈보라가 갈라진다. (균열 −1),,Follow without shooting,The stag leads you onto a shortcut. The blizzard parts. (Rift −1),
+hunter_white_stag,지나친다,,,,,,,,,,Pass by,,
+elementalist_rune,룬을 해독한다,elementalist,,,,,xp 8;bless_all;flag rune_read,,원소술사가 다섯째 원소의 룬을 읽었다. 이름. 대가를 나누는 법도 적혀 있다. (모두 확정 +1),,Decipher the runes,The elementalist read the rune of the fifth element: a name. It also tells how to share the price. (+1 sure success for everyone),
+elementalist_rune,만지지 않는다,,,,,,,,,,Don't touch it,,
+cleric_vigil,밤새 기도한다,cleric,,,,,flag kind;renown 2;heal_all 12;doom 1,,성직자가 밤새 기도했다. 새벽에 수도사들의 얼굴이 조금 편안해 보인다. (모두 생명력 +12 · 균열 +1),,Pray through the night,"The cleric prayed all night. At dawn, the monks' faces look a little more at peace. (everyone's life +12 · Rift +1)",
+cleric_vigil,지나친다,,,,,,,,,,Pass by,,
+gambler_last_bet,받아들인다,gambler,,fixed50,3,2,gold 40;xp 5,hope -1,도박사가 이겼다. 신도가 금화 40을 던지고 달아난다.,도박사가 졌다. 일지는 지켰지만 신도가 희망 한 조각을 빼앗았다. (희망 −1),Take the bet,The gambler won. The cultist throws down 40 gold and runs.,"The gambler lost. The journal is safe, but the cultist took a sliver of hope. (hope −1)"
+gambler_last_bet,판을 엎는다,,,,,,battle cultists,,“판은 내가 정해.” 신도들이 덤빈다!,,Flip the table,“I make the rules here.” The cultists attack!,
+rogue_reliquary,자물쇠 다섯을 딴다,rogue,,,,,loot 4;xp 5,,다섯째 자물쇠가 열리자 성물이 빛난다.,,Pick all five locks,"The fifth lock opens, and the relic shines.",
+rogue_reliquary,지나친다,,,,,,,,,,Pass by,,
+bard_requiem,진혼곡을 부른다,bard,,,,,flag kind;renown 2;resolve_all 2,,노래가 끝나자 얼음 속 얼굴들이 눈을 감는다. (모두 결의 +2 · 명성 +2),,Sing the requiem,"As the song ends, the faces in the ice close their eyes. (everyone's resolve +2 · renown +2)",
+bard_requiem,지나친다,,,,,,,,,,Pass by,,
+alchemist_frostflower,서리꽃을 증류한다,alchemist,,,,,reagent 4;item tonic;item antidote,,서리꽃으로 결의 물약과 해독초를 만들었다. (재료 +4),,Distill the frostflower,From the frostflower came a tonic and a remedy herb. (reagents +4),
+alchemist_frostflower,지나친다,,,,,,,,,,Pass by,,
+necro_names,이름을 불러 준다,necromancer,,,,,flag kind;renown 2;xp 6;doom -1,,사령술사가 속삭임을 따라 이름을 하나씩 불렀다. 무덤 위의 서리가 녹는다. (균열 −1),,Call their names,"Following the whispers, the necromancer called the names one by one. The frost on the graves melts. (Rift −1)",
+necro_names,지나친다,,,,,,,,,,Pass by,,
+seer_aurora,오로라를 읽는다,seer,,,,,doom -1;bless_all;xp 5,,오로라는 원장의 기억이 하늘에 번진 것이었다. 점성술사가 그 끝을 읽어 냈다. (균열 −1 · 모두 확정 +1),,Read the aurora,"The aurora was the Abbess's memory, spread across the sky. The seer read it to its end. (Rift −1 · +1 sure success for everyone)",
+seer_aurora,지나친다,,,,,,,,,,Pass by,,
+beast_wolf_mother,상처를 돌본다,beastmaster,,,,,flag kind;flag wolfpup_saved;renown 2;bless_all,,조련사가 어미의 상처를 감싸 준다. 새끼들이 늑대와 장난친다. (모두 확정 +1),,Tend the wound,The beastmaster binds the mother's wound. The pups play with the wolf. (+1 sure success for everyone),
+beast_wolf_mother,물러난다,,,,,,,,,,Back away,,
+ice_chest,얼음을 깬다,,,str,2,1,loot 3;gold 15,hurt 4,얼음이 쪼개지며 상자가 나왔다. (금화 +15),얼음 조각에 베였다. (생명력 −4),Break the ice,The ice splits and the chest comes free. (gold +15),A shard of ice cut you. (life −4)
+ice_chest,불로 녹인다,elementalist,,,,,loot 4,,원소술사가 얼음을 녹이자 상자 속 장비가 반짝인다.,,Melt it with fire,"As the elementalist melts the ice, the gear in the chest gleams.",
+ice_chest,두고 간다,,,,,,,,,,Leave it behind,,
+cult_cache,슬쩍한다,,,agi,2,1,item firebomb;item smoke;gold 20,battle monastery_ambush,"보급품을 챙겼다. 화염병, 연막탄, 금화 20.",“도둑이다!” 신도들이 몰려온다!,Swipe it,"You took the supplies. Firebombs, smoke bombs, 20 gold.",“Thief!” The cultists swarm in!
+cult_cache,두고 간다,,,,,,,,,,Leave it behind,,
+snow_herbs,약초를 딴다,,,,,,heal_all 8;potion 1,,추위 속 약초는 약효가 진하다. (모두 생명력 +8 · 물약 +1),,Pick herbs,Herbs grown in the cold are potent. (everyone's life +8 · potion +1),
+snow_herbs,재료를 고른다,alchemist,,,,,reagent 3;heal_all 5,,연금술사가 쓸 만한 것만 골랐다. (재료 +3),,Pick reagents,The alchemist picked out only the useful ones. (reagents +3),
+torn_page,찢긴 장을 읽는다,,,,,,flag read_page;renown 1;xp 6,,리엔의 마지막 글씨를 읽었다. 원장에게 전해야 할 말이 있다. (원장이 망설인다),,Read the torn page,You read Rien's last writing. There are words the Abbess must hear. (the Abbess hesitates),
+torn_page,찢긴 장을 일지에 다시 붙인다,,,int,2,1,flag read_page;doom -2;renown 2;xp 6,doom 1,찢긴 장이 일지에 꼭 맞는다. 리엔의 글씨와 너희의 글씨가 한 권에 모였다. (균열 −2 · 원장이 망설인다),종이가 바스러질 듯해 손대지 못했다. (균열 +1 · 다시 해 볼 수 있다),Put the page back in the journal,"The torn page fits the journal perfectly. Rien's writing and yours, together in one book. (Rift −2 · the Abbess hesitates)","The paper looked ready to crumble, and you didn't dare touch it. (Rift +1 · you can try again)"
+torn_page,함께 읽고 나눠 적는다,,rune_read,,,,flag read_page;flag shared_price;doom -2;renown 2;xp 6;bless_all,,"룬에서 읽은 대로, 세 사람이 대가를 나눠 지는 법을 일지에 적는다. (균열 −2 · 모두 확정 +1 · 원장이 망설인다)",,Read it and write it together,"As the runes taught, you write in the journal how the three of you will share the price. (Rift −2 · +1 sure success for everyone · the Abbess hesitates)",
+bell_tower,얼음을 깨고 종을 울린다,,,str,3,2,flag bell_rung;xp 6,hurt 5,얼음이 깨지고 종이 운다. 망령들이 잠든다. (원장이 망령을 부르지 못한다),종이 꿈쩍도 않는다. 손이 찢어졌다. (생명력 −5 · 다시 해 볼 수 있다),"Break the ice, ring the bell",The ice breaks and the bell sings out. The wraiths fall asleep. (the Abbess cannot summon wraiths),The bell won't budge. Your hands are torn. (life −5 · you can try again)
+bell_tower,종의 줄을 녹인다,,,int,2,1,flag bell_rung;xp 6,doom 1,얼어붙은 줄을 하나씩 녹여 종을 울렸다. (원장이 망령을 부르지 못한다),줄이 끊어졌다. 다른 줄을 찾느라 반나절을 썼다. (균열 +1 · 다시 해 볼 수 있다),Thaw the bell ropes,You thawed the frozen ropes one by one and rang the bell. (the Abbess cannot summon wraiths),The rope snapped. Finding another took half a day. (Rift +1 · you can try again)
+bell_tower,기도로 울린다,cleric,,,,,flag bell_rung;xp 6;resolve_all 1,,성직자의 기도에 종이 스스로 울린다. (원장이 망령을 부르지 못한다 · 모두 결의 +1),,Ring it with prayer,"At the cleric's prayer, the bell rings on its own. (the Abbess cannot summon wraiths · everyone's resolve +1)",
+snow_shrine,제단의 눈을 치운다,,,,,,flag kind;renown 1;hope 1,,매일 이 제단을 치운 사람이 누구인지 알 것 같다. (희망 +1),,Clear the snow off the altar,You think you know who has cleared this altar every day. (hope +1),
+snow_shrine,기도한다,,,wil,3,2,heal_all 14;resolve_all 1,weak_next,따뜻한 기운이 번진다. (모두 생명력 +14 · 결의 +1),눈바람이 거세진다. 다음 전투를 약화된 채 시작한다.,Pray,A warmth spreads through you. (everyone's life +14 · resolve +1),The snowy wind picks up. You start the next battle weakened.
+snow_shrine,금화를 바친다 (금화 15),,,,,,gold -15;resolve_all 2,,제단 위의 눈이 녹는다. (모두 결의 +2),,Offer gold (15 gold),The snow on the altar melts. (everyone's resolve +2),
+monastery_elder,이야기를 듣는다,,,,,,gold 25,,“원장님을 쉬게 해 주시오.” 촌장이 금화 25를 쥐여 준다.,,Listen,“Let the Abbess rest.” The village head presses 25 gold into your hands.,
+monastery_elder,그 이름을 알려 준다,,hermit3_told,,,,gold 25;renown 1;hope 1,,“리엔… 그게 원장님이 부르던 이름이었구려.” 촌장이 오래 운다. (희망 +1),,Tell them the name,“Rien… So that was the name she called.” The village head weeps a long while. (hope +1),
+monastery_elder,수련생 이야기를 전한다,,novice_saved,,,,gold 35;hope 1,,“그 아이를 살린 게 당신들이었소?” 촌장이 금화 35를 내민다. (희망 +1),,Tell of the novice,“So it was you who saved that child?” The village head offers you 35 gold. (hope +1),
+monk_ash_kata,잿가루 속에서 수련한다,monk,,,,,xp 6;resolve 2;flag kind,,잿가루가 수도승의 움직임을 따라 소용돌이친다. 지켜보던 아이들이 따라 한다. (결의 +2),,Train in the ash,The ash swirls with the monk's movements. The children watching start to copy them. (resolve +2),
+monk_ash_kata,지나친다,,,,,,,,,,Pass by,,
+engi_mill,톱니를 고친다,engineer,,,,,gold 15;flag kind;renown 1,,기술자가 톱니를 손보자 물레방아가 다시 돈다. 주인이 금화 15를 내민다.,,Fix the gears,"The engineer fixes the gears, and the waterwheel turns again. The miller offers 15 gold.",
+engi_mill,지나친다,,,,,,,,,,Pass by,,
+mnem_statue,기억을 읽는다,mnemonist,,,,,xp 6;bless_all;renown 1,,“이 사람은… 다리를 놓은 석공이었다.” 기억술사가 이름을 되살려 받침돌에 새긴다. (모두 확정 +1),,Read the memory,“This one… was a stonemason who built bridges.” The mnemonist brings the name back and carves it into the base. (+1 sure success for everyone),
+mnem_statue,지나친다,,,,,,,,,,Pass by,,
+monk_waves,파도와 함께 숨 쉰다,monk,,,,,heal 12;resolve 2;xp 4,,파도의 박자에 숨을 맞추자 몸이 가벼워진다. (생명력 +12 · 결의 +2),,Breathe with the waves,"As the monk's breathing falls in with the waves, their body grows light. (life +12 · resolve +2)",
+monk_waves,지나친다,,,,,,,,,,Pass by,,
+engi_crane,기중기를 다시 세운다,engineer,,,,,gold 20;flag kind;renown 1;xp 4,,기술자가 지렛대를 다시 걸자 기중기가 일어선다. 선원들이 환호한다. (금화 +20),,Raise the crane,"The engineer sets the lever back in place, and the crane rises. The sailors cheer. (gold +20)",
+engi_crane,지나친다,,,,,,,,,,Pass by,,
+mnem_drowned_names,지워진 이름을 되새긴다,mnemonist,,,,,flag kind;renown 2;doom -1,,기억술사가 거리의 이름을 하나씩 되살렸다. 물이 조금 물러난다. (균열 −1 · 명성 +2),,Recall the erased names,"One by one, the mnemonist brought back the streets' names. The water draws back a little. (Rift −1 · renown +2)",
+mnem_drowned_names,지나친다,,,,,,,,,,Pass by,,
+monk_ice_fall,폭포 아래에서 수련한다,monk,,,,,xp 8;resolve 3,,얼음물을 맞으며 버텼다. 산을 내려온 이유를 조금 떠올린다. (결의 +3),,Train under the falls,"The monk endured the icy water, and remembers a little of why they came down the mountain. (resolve +3)",
+monk_ice_fall,지나친다,,,,,,,,,,Pass by,,
+engi_bell_gear,톱니를 녹이고 맞춘다,engineer,,,,,xp 6;flag bell_rung;renown 1,,시계가 다시 가자 종이 저절로 울린다. 망령들이 잠잠해진다.,,Thaw and set the gears,"The clock runs again, and the bell rings on its own. The wraiths fall quiet.",
+engi_bell_gear,지나친다,,,,,,,,,,Pass by,,
+mnem_abbess_memory,원장의 기억을 모은다,mnemonist,,,,,xp 6;flag read_page;renown 1,,흩어진 기억 속에서 원장이 리엔의 이름을 부르는 소리를 들었다. (원장이 망설인다),,Gather her memories,"Among the scattered memories, you heard the Abbess calling Rien's name. (the Abbess hesitates)",
+mnem_abbess_memory,지나친다,,,,,,,,,,Pass by,,
+prisoners,사슬을 끊는다,,,str,3,2,flag prisoners_freed;flag kind;renown 2;hope 1,battle order_patrol,사슬이 끊어지자 사람들이 서로를 부둥켜안는다. (희망 +1 · 명성 +2),사슬 소리에 기사들이 몰려온다!,Break the chains,"The chains snap, and the people hold one another tight. (hope +1 · renown +2)",The rattle of the chains brings the knights running!
+prisoners,자물쇠를 딴다,rogue,,,,,flag prisoners_freed;flag kind;renown 2;hope 1,,도적이 소리 없이 자물쇠를 땄다. (희망 +1 · 명성 +2),,Pick the locks,The rogue picked the locks without a sound. (hope +1 · renown +2),
+prisoners,지나친다,,,,,,flag prisoners_left,,사슬 소리가 왕릉 쪽으로 멀어진다.,,Pass by,The rattle of chains fades toward the tomb.,
+tomb_offering,제물을 바로 놓는다,,,,,,flag tomb_respected;flag kind;renown 1;bless_all,,제물을 바로 놓자 바람이 잔다. (모두 확정 +1),,Set the offerings right,"As you set the offerings right, the wind dies down. (+1 sure success for everyone)",
+tomb_offering,금붙이를 챙긴다,,,,,,gold 40;flag tomb_looted;hurt_all 4,,금화 40어치를 챙겼다. 모래바람이 살갗을 할퀸다. (모두 생명력 −4),,Take the gold,You took 40 gold's worth. A sandy wind scours your skin. (everyone's life −4),
+deserter4,보내 준다,,,,,,flag deserter4_spared;flag kind;renown 1;xp 5,,기사가 고개를 숙이고 떠나며 왕릉의 지름길을 알려 준다.,,Let them go,"The knight bows and leaves, telling you a shortcut through the tomb.",
+deserter4,이름을 돌려주는 법을 묻는다,mnemonist,,,,,flag deserter4_spared;flag kind;renown 2;doom -1,,기억술사가 기사의 갑옷에 새겨진 이름들을 하나씩 읽어 풀어 준다. (균열 −1 · 명성 +2),,Ask how to return names,"The mnemonist reads the names carved into the knight's armor one by one, and sets them free. (Rift −1 · renown +2)",
+deserter4,붙잡는다,,,,,,flag deserter4_taken;gold 20,,기사를 묶어 두고 금화 20을 챙겼다.,,Seize them,You tied up the knight and took 20 gold.,
+mirage,쫓아간다,,,wil,3,2,xp 6;heal_all 6,doom 1,신기루 끝에 진짜 샘이 있었다. (모두 생명력 +6),신기루를 쫓다 하루를 잃었다. (균열 +1),Chase it,At the end of the mirage was a real spring. (everyone's life +6),Chasing the mirage cost you a day. (Rift +1)
+mirage,별을 보고 길을 잡는다,seer,,,,,xp 6;heal_all 8;doom -1,,점성술사가 별로 길을 잡아 진짜 샘을 찾았다. (모두 생명력 +8 · 균열 −1),,Steer by the stars,"Steering by the stars, the seer found the real spring. (everyone's life +8 · Rift −1)",
+red_storm,버틴다,,,wil,3,1,xp 6,hurt_all 8,폭풍이 지나갔다.,모래가 살을 파고든다. (모두 생명력 −8),Hold on,The storm has passed.,The sand tears at your flesh. (everyone's life −8)
+red_storm,바위 그늘로 달린다,,,agi,2,1,resolve_all 1,hurt_all 5,바위 그늘에 닿았다. (모두 결의 +1),늦었다. (모두 생명력 −5),Run for the rocks,You reached the shelter of the rocks. (everyone's resolve +1),Too late. (everyone's life −5)
+village_warn,알리고 피하게 한다,,,cha,2,1,flag villagers_warned;flag kind;renown 2;doom 1,doom 1,사람들이 서둘러 짐을 싸서 떠난다. 하루가 걸렸지만 아무도 이름을 잃지 않았다. (명성 +2 · 균열 +1),사람들이 믿지 않는다. 설득하느라 하루가 갔다. (균열 +1),Warn them to flee,"People pack in haste and leave. It took a day, but no one lost their name. (renown +2 · Rift +1)",No one believes you. A day went by trying to convince them. (Rift +1)
+village_warn,지나친다,,,,,,,,장터의 웃음소리가 등 뒤로 멀어진다.,,Pass by,The laughter of the market fades behind you.,
+kings_inscription,비문을 끝까지 읽는다,,,int,2,1,xp 8;bless_all,,비문 끝에 균열을 연 대가가 적혀 있다. 왕은 백성의 이름을 바쳤다. (모두 확정 +1),글씨가 너무 닳았다.,Read it to the end,At the end of the inscription is the price of opening the Rift: the king gave up his people's names. (+1 sure success for everyone),The letters are too worn.
+kings_inscription,지나친다,,,,,,,,,,Pass by,,
+scorpion_nest,들어간다,,,agi,3,2,loot 5;gold 20,battle serpents,굴 깊은 곳에서 왕의 보물을 찾았다. (금화 +20),뱀들이 깨어났다!,Go in,"Deep in the burrow, you found the king's treasure. (gold +20)",The serpents woke!
+scorpion_nest,지나친다,,,,,,,,,,Pass by,,
+old_caravan4,물을 나눠 준다 (금화 15),,,,,,gold -15;flag kind;renown 1;potion 1,,상인들이 고맙다며 물약을 하나 준다.,,Share water (15 gold),The merchants thank you with a potion.,
+old_caravan4,바퀴를 빼 준다,,,str,2,1,flag kind;renown 1;gold 15,hurt 5,대상이 다시 움직인다. 상인이 금화 15를 건넨다.,허리를 삐었다. (생명력 −5),Dig out the wheels,The caravan moves again. A merchant hands you 15 gold.,You strained your back. (life −5)
+old_caravan4,지나친다,,,,,,,,,,Pass by,,
+rival_letter,읽는다,,,,,,xp 5;flag sern_letter,,“나도 리엔의 길을 걸었다. 아무도 나를 부르지 않았다. 그래서 이름을 모으기로 했다.” 세른의 글씨다.,,Read it,“I walked Rien's road too. No one ever called my name. So I decided to gather names.” It is Sern's handwriting.,
+knight_ch4,묘비에 이름을 다시 새긴다,knight,,,,,flag kind;renown 2;resolve_all 2,,기사가 기억나는 대로 이름을 새긴다. 다른 기사의 이름을 기억해 주는 일이 맹세가 된다. (모두 결의 +2),,Carve the names again,The knight carves the names as best they can remember. Remembering another knight's name becomes an oath. (everyone's resolve +2),
+knight_ch4,지나친다,,,,,,,,,,Pass by,,
+berserker_ch4,도전한다,berserker,,,,,xp 10;gold 25;resolve 2,,광전사가 돌 병사들을 하나씩 쓰러뜨렸다. 관중석의 망령들이 함성을 지른다. (금화 +25 · 결의 +2),,Take the challenge,"One by one, the berserker brought down the stone soldiers. The ghosts in the stands roar. (gold +25 · resolve +2)",
+berserker_ch4,지나친다,,,,,,,,,,Pass by,,
+hunter_ch4,발자국을 따라 막는다,hunter,,,,,flag prisoners_freed;flag kind;renown 2;xp 6,,사냥꾼이 지름길로 앞질러 끌려가던 사람들을 풀어 줬다. (명성 +2),,Track and cut them off,"Taking a shortcut, the hunter got ahead and freed the people being dragged off. (renown +2)",
+hunter_ch4,지나친다,,,,,,,,,,Pass by,,
+elementalist_ch4,불을 길들인다,elementalist,,,,,xp 8;doom -1;bless_all,,원소술사가 붉은 불을 잠재웠다. (균열 −1 · 모두 확정 +1),,Tame the fire,The elementalist lulled the red fire to sleep. (Rift −1 · +1 sure success for everyone),
+elementalist_ch4,지나친다,,,,,,,,,,Pass by,,
+cleric_ch4,이름 없는 이들을 위해 기도한다,cleric,,,,,flag kind;renown 2;heal_all 12,,기도가 끝나자 무덤 위로 바람이 지나간다. (모두 생명력 +12 · 명성 +2),,Pray for the nameless,"As the prayer ends, a wind passes over the graves. (everyone's life +12 · renown +2)",
+cleric_ch4,지나친다,,,,,,,,,,Pass by,,
+gambler_ch4,던져 본다,gambler,,,,,gold 50;xp 5,,주사위가 모두 6이다. 도박사가 웃으며 금화 50어치를 챙긴다.,,Give them a roll,"All sixes. Grinning, the gambler pockets 50 gold's worth.",
+gambler_ch4,지나친다,,,,,,,,,,Pass by,,
+rogue_ch4,금고를 턴다,rogue,,,,,gold 40;loot 4,,"도적이 금고를 열었다. 빼앗긴 것은 주인에게 돌려줄 생각이다, 아마도. (금화 +40)",,Rob the vault,The rogue opened the vault. What was taken will go back to its owners. Probably. (gold +40),
+rogue_ch4,지나친다,,,,,,,,,,Pass by,,
+bard_ch4,노래를 바꿔 부른다,bard,,,,,flag kind;renown 2;resolve_all 2,,음유시인이 왕 대신 이름 없는 백성들을 노래한다. 바람이 조용해진다. (모두 결의 +2),,Change the song,"Instead of the king, the bard sings of his nameless people. The wind falls quiet. (everyone's resolve +2)",
+bard_ch4,지나친다,,,,,,,,,,Pass by,,
+alchemist_ch4,소금을 정제한다,alchemist,,,,,reagent 4;item tonic;item firebomb,,연금술사가 붉은 소금으로 결의 물약과 화염병을 만들었다. (재료 +4),,Refine the salt,"From the red salt, the alchemist made tonics and firebombs. (reagents +4)",
+alchemist_ch4,지나친다,,,,,,,,,,Pass by,,
+necromancer_ch4,망령의 이야기를 듣는다,necromancer,,,,,xp 8;flag kind;doom -1,,망령은 왕이 아니라 왕에게 이름을 바친 신하였다. 사령술사가 이름을 불러 주자 사라진다. (균열 −1),,Hear the ghost out,"The ghost was not the king, but a servant who had given the king their name. When the necromancer calls that name, the ghost fades away. (Rift −1)",
+necromancer_ch4,지나친다,,,,,,,,,,Pass by,,
+seer_ch4,두 별의 길을 읽는다,seer,,,,,xp 8;bless_all;flag sern_letter,,세른의 별은 혼자 빛난다. 너희 별은 셋이 함께 빛난다. (모두 확정 +1),,Read both stars' paths,"Sern's star shines alone. Yours shine as three, together. (+1 sure success for everyone)",
+seer_ch4,지나친다,,,,,,,,,,Pass by,,
+beastmaster_ch4,물웅덩이를 열어 준다,beastmaster,,,,,flag kind;renown 1;bless_all,,늑대들이 물을 마시고 너희를 한 번 돌아본 뒤 사라진다. (모두 확정 +1),,Open the waterhole,"The wolves drink, look back at you once, and are gone. (+1 sure success for everyone)",
+beastmaster_ch4,지나친다,,,,,,,,,,Pass by,,
+monk_ch4,이름을 읽고 수련한다,monk,,,,,xp 8;resolve 3;heal 10,,수도승이 벽의 이름 하나를 오래 본다. 산을 내려온 이유가 거기 있다. (결의 +3),,"Read the names, then train",The monk looks long at one name on the wall. The reason they came down the mountain is there. (resolve +3),
+monk_ch4,지나친다,,,,,,,,,,Pass by,,
+engineer_ch4,장치를 해체한다,engineer,,,,,xp 8;flag order_scattered;renown 1,,기술자가 장치를 거꾸로 맞춰 기사단의 길을 막았다. (세른이 기사들을 부르지 못한다),,Take the device apart,The engineer rigged the device in reverse and blocked the knights' way. (Sern cannot summon the knights),
+engineer_ch4,지나친다,,,,,,,,,,Pass by,,
+mnemonist_ch4,이름들을 기억해 둔다,mnemonist,,,,,flag kind;renown 2;xp 8;doom -1,,기억술사가 이름들을 모두 외웠다. 언젠가 돌려줄 것이다. (균열 −1 · 명성 +2),,Commit the names to memory,The mnemonist learned every name by heart. Someday they will be given back. (Rift −1 · renown +2),
+mnemonist_ch4,지나친다,,,,,,,,,,Pass by,,
+tomb_chest,봉인을 푼다,,,int,2,1,loot 5,hurt 6,관 안에 왕의 장비가 있다.,봉인의 저주에 데었다. (생명력 −6),Break the seal,Inside the coffin is the king's gear.,The seal's curse burned you. (life −6)
+tomb_chest,두고 간다,,,,,,,,,,Leave it behind,,
+order_cache,챙긴다,,,agi,2,1,item tonic;item smoke;gold 25,battle tomb_ambush,"결의 물약, 연막탄, 금화 25.",“도둑이다!”,Take it,"A tonic, a smoke bomb, 25 gold.",“Thief!”
+order_cache,두고 간다,,,,,,,,,,Leave it behind,,
+desert_herbs,물과 약을 얻는다,,,,,,heal_all 10;potion 1,,(모두 생명력 +10 · 물약 +1),,Draw water and medicine,(everyone's life +10 · potion +1),
+desert_herbs,재료를 고른다,alchemist,,,,,reagent 3;heal_all 6,,(재료 +3),,Pick reagents,(reagents +3),
+royal_decree,칙령을 해독한다,,,int,3,2,flag read_decree;doom -2;renown 1;xp 8,doom 1,칙령을 읽었다. 세른의 힘은 빼앗은 이름에서 온다. (균열 −2 · 세른이 약해진다),글자가 너무 많다. (균열 +1 · 다시 해 볼 수 있다),Decipher the decree,You read the decree. Sern's power comes from stolen names. (Rift −2 · Sern is weakened),There are too many letters. (Rift +1 · you can try again)
+royal_decree,하루를 들여 옮겨 적는다,,,,,,flag read_decree;doom 1;xp 8,,(균열 +1 · 세른이 약해진다),,Spend a day copying it,(Rift +1 · Sern is weakened),
+royal_decree,빼앗긴 이름을 읽어 준다,mnemonist,,,,,flag read_decree;doom -2;renown 2;xp 8,,기억술사가 칙령 속 이름들을 소리 내어 읽자 왕릉이 흔들린다. (균열 −2 · 세른이 약해진다),,Read the stolen names aloud,"As the mnemonist reads the names in the decree aloud, the tomb shakes. (Rift −2 · Sern is weakened)",
+order_gate,문을 무너뜨린다,,,str,3,2,flag order_scattered;xp 8,hurt 6,옆문이 무너졌다. (세른이 기사들을 부르지 못한다),돌이 꿈쩍도 않는다. (생명력 −6 · 다시 해 볼 수 있다),Bring down the gate,The side gate collapsed. (Sern cannot summon the knights),The stones won't budge. (life −6 · you can try again)
+order_gate,문의 장치를 거꾸로 맞춘다,,,int,2,1,flag order_scattered;xp 8,doom 1,(세른이 기사들을 부르지 못한다),장치가 너무 복잡하다. (균열 +1),Reverse the gate's mechanism,(Sern cannot summon the knights),The mechanism is too complicated. (Rift +1)
+order_gate,함정으로 막는다,engineer,,,,,flag order_scattered;xp 8;renown 1,,기술자의 함정이 옆문을 지킨다. (세른이 기사들을 부르지 못한다),,Block it with traps,The engineer's traps guard the side gate. (Sern cannot summon the knights),
+sun_shrine,기도한다,,,wil,3,2,heal_all 16;resolve_all 1,weak_next,(모두 생명력 +16 · 결의 +1),햇볕이 따갑다. 다음 전투를 약화된 채 시작한다.,Pray,(everyone's life +16 · resolve +1),The sun beats down. You start the next battle weakened.
+sun_shrine,제단을 쓸어 준다,,,,,,flag kind;renown 1;hope 1,,(희망 +1),,Sweep the altar,(hope +1),
+sun_shrine,지나친다,,,,,,,,,,Pass by,,
+oasis_elder,이야기를 듣는다,,,,,,gold 30,,“세른도 처음엔 당신들 같았소. 아무도 그를 불러 주지 않았지.” 촌장이 금화 30을 건넨다.,,Listen,“Sern was like you at first. No one ever called his name.” The village head hands you 30 gold.,
+oasis_elder,끌려간 이들을 구했다고 전한다,,prisoners_freed,,,,gold 40;hope 1;renown 1,,촌장이 무릎을 꿇는다. (금화 +40 · 희망 +1),,Say you freed the captives,The village head falls to their knees. (gold +40 · hope +1),
+names_wall,아는 이름을 불러 준다,,,wil,2,1,flag names_returned;flag kind;renown 2,hurt_all 6,부를 때마다 이름 하나가 또렷해진다. (명성 +2),벽이 너희 이름까지 빨아들이려 한다. (모두 생명력 −6),Call names you know,"With each name you call, a name grows clearer. (renown +2)",The wall tries to draw in your names too. (everyone's life −6)
+names_wall,빼앗긴 이름들을 돌려준다,mnemonist,,,,,flag names_returned;flag kind;renown 3;doom -1,,기억술사가 왕릉에서 외운 이름들을 벽에 돌려준다. (균열 −1 · 명성 +3),,Return the stolen names,The mnemonist gives the wall back the names learned in the tomb. (Rift −1 · renown +3),
+names_wall,지나친다,,,,,,,,,,Pass by,,
+lost_travelers,함께 이름을 찾아 준다,,,cha,2,1,flag kind;renown 2;hope 1;doom 1,doom 1,한 사람이 자기 이름을 떠올리자 다른 사람들도 하나씩 떠올린다. (희망 +1 · 균열 +1),아무도 떠올리지 못했다. 하루가 갔다. (균열 +1),Help them find their names,"One of them remembers their name, and then the others, one by one. (hope +1 · Rift +1)",No one remembered. A day went by. (Rift +1)
+lost_travelers,지나친다,,,,,,flag travelers_left,,,,Pass by,,
+rift_whisper,거절한다,,,wil,3,2,xp 10;resolve_all 1,hurt_all 6,셋이 서로의 이름을 부르며 버텼다. (모두 결의 +1),속삭임이 머릿속을 긁는다. (모두 생명력 −6),Refuse,"You held on, calling one another's names. (everyone's resolve +1)",The whisper scrapes inside your head. (everyone's life −6)
+rift_whisper,귀를 막고 지나간다,,,,,,hurt_all 3,,(모두 생명력 −3),,Cover your ears and go on,(everyone's life −3),
+sern_again,손을 내민다,,,,,,flag sern_redeemed;flag kind;renown 3;hope 1,,세른이 오래 망설이다 손을 잡는다. “…나도 불러 주겠어?” (희망 +1 · 명성 +3),,Offer your hand,"Sern hesitates a long while, then takes your hand. “…Will you call my name too?” (hope +1 · renown +3)",
+sern_again,지나친다,,,,,,flag sern_left,,세른이 고개를 숙인다.,,Pass by,Sern lowers his head.,
+last_camp,쉬어 간다,,,,,,heal_all 16;resolve_all 1;doom 1,,(모두 생명력 +16 · 결의 +1 · 균열 +1),,Rest here,(everyone's life +16 · resolve +1 · Rift +1),
+last_camp,지나온 길을 일지에 적는다,,,,,,renown 1;bless_all;xp 6,,"지나온 다섯 장을 적었다. 처음 장의 글씨는 떨렸고, 지금은 아니다. (모두 확정 +1)",,Write the road in the journal,You wrote down the five chapters behind you. The writing of the first chapter shook. Now it does not. (+1 sure success for everyone),
+collapsing_road,달려서 건넌다,,,agi,3,2,xp 8,hurt_all 8,(무사히 건넜다),(모두 생명력 −8),Run across,(made it across safely),(everyone's life −8)
+collapsing_road,밧줄로 서로 묶는다,,,str,2,1,resolve_all 1;xp 6,hurt_all 4,셋이 서로를 붙잡고 건넜다. (모두 결의 +1),(모두 생명력 −4),Rope yourselves together,"Holding on to one another, the three of you crossed. (everyone's resolve +1)",(everyone's life −4)
+rien_campsite,표지에 너희 이름을 적는다,,,,,,renown 2;resolve_all 2;flag kind,,리엔의 일지 표지에 세 이름을 나란히 적었다. (모두 결의 +2 · 명성 +2),,Write your names on the cover,"On the cover of Rien's journal, you wrote three names side by side. (everyone's resolve +2 · renown +2)",
+rien_campsite,칼을 묻어 준다,,,,,,flag kind;hope 1,,(희망 +1),,Bury the sword,(hope +1),
+echo_choir,대답한다,,,cha,2,1,flag kind;renown 2;heal_all 8,battle echoes,메아리들이 하나씩 잠잠해진다. (모두 생명력 +8),메아리들이 성을 낸다!,Answer,"One by one, the echoes fall quiet. (everyone's life +8)",The echoes turn angry!
+echo_choir,지나친다,,,,,,,,,,Pass by,,
+knight_ch5,맹세를 외친다,knight,,,,,resolve_all 3;hope 1;flag kind,,“이름을 잃는 이를 홀로 두지 않는다.” 기사의 목소리가 균열 끝까지 울린다. (모두 결의 +3 · 희망 +1),,Shout the oath,“No one who loses their name shall be left alone.” The knight's voice rings to the far edge of the Rift. (everyone's resolve +3 · hope +1),
+knight_ch5,지나친다,,,,,,,,,,Pass by,,
+berserker_ch5,하나씩 부른다,berserker,,,,,flag names_returned;flag kind;renown 2;resolve 3,,광전사가 이름을 부를 때마다 화가 아니라 그리움이 차오른다. (명성 +2),,Call them one by one,"With every name the berserker calls, what wells up is not rage, but longing. (renown +2)",
+berserker_ch5,지나친다,,,,,,,,,,Pass by,,
+hunter_ch5,작은 발자국을 따라간다,hunter,,,,,xp 10;bless_all;flag kind,,작은 발자국은 이름을 잃은 아이의 것이었다. 사냥꾼이 아이를 데려온다. (모두 확정 +1),,Follow the small tracks,The small footprints belonged to a child who had lost their name. The hunter brings the child back. (+1 sure success for everyone),
+hunter_ch5,지나친다,,,,,,,,,,Pass by,,
+elementalist_ch5,이름의 원소를 엮는다,elementalist,,,,,doom -2;bless_all;xp 8,,원소술사가 셋의 이름을 하나로 엮는다. (균열 −2 · 모두 확정 +1),,Weave the element of names,The elementalist weaves the three names into one. (Rift −2 · +1 sure success for everyone),
+elementalist_ch5,지나친다,,,,,,,,,,Pass by,,
+cleric_ch5,신탁을 전한다,cleric,,,,,hope 2;heal_all 12;flag kind,,(희망 +2 · 모두 생명력 +12),,Share the oracle,(hope +2 · everyone's life +12),
+cleric_ch5,지나친다,,,,,,,,,,Pass by,,
+gambler_ch5,판을 엎는다,gambler,,,,,resolve_all 2;xp 8;renown 1,,“이건 운으로 할 판이 아니지.” 도박사가 주사위를 균열에 던져 버린다. (모두 결의 +2),,Flip the table,“This isn't a game for luck.” The gambler flings the dice into the Rift. (everyone's resolve +2),
+gambler_ch5,지나친다,,,,,,,,,,Pass by,,
+rogue_ch5,주인들에게 돌려보낸다,rogue,,,,,flag kind;renown 2;hope 1,,물건마다 이름이 있었다. 도적이 처음으로 그 이름들을 소리 내어 읽는다. (희망 +1 · 명성 +2),,Return them to their owners,"Every item had a name. For the first time, the rogue reads those names aloud. (hope +1 · renown +2)",
+rogue_ch5,지나친다,,,,,,,,,,Pass by,,
+bard_ch5,마지막 절을 짓는다,bard,,,,,renown 3;resolve_all 2;flag kind,,마지막 절에는 셋의 이름이 들어갔다. (모두 결의 +2 · 명성 +3),,Write the last verse,The last verse holds three names. (everyone's resolve +2 · renown +3),
+bard_ch5,지나친다,,,,,,,,,,Pass by,,
+alchemist_ch5,물약을 완성한다,alchemist,,,,,item tonic;item tonic;heal_all 10;reagent 4,,(결의 물약 2 · 모두 생명력 +10 · 재료 +4),,Finish the potion,(2 tonics · everyone's life +10 · reagents +4),
+alchemist_ch5,지나친다,,,,,,,,,,Pass by,,
+necromancer_ch5,이름을 불러 준다,necromancer,,,,,flag rien_forgiven;flag kind;renown 3;doom -1,,“리엔.” 망령에게 얼굴이 돌아온다. 웃고 있다. (균열 −1 · 명성 +3),,Call the name,“Rien.” The ghost's face comes back. It is smiling. (Rift −1 · renown +3),
+necromancer_ch5,지나친다,,,,,,,,,,Pass by,,
+seer_ch5,이유를 말해 준다,seer,,,,,bless_all;resolve_all 2;xp 8,,“영웅이라서 고른 게 아니야. 서로를 부를 줄 알아서야.” (모두 확정 +1 · 결의 +2),,Tell them why,“Not because you are heroes. Because you know how to call each other.” (+1 sure success for everyone · resolve +2),
+seer_ch5,지나친다,,,,,,,,,,Pass by,,
+beastmaster_ch5,짐승들과 함께 간다,beastmaster,,,,,bless_all;hope 1;flag kind,,(모두 확정 +1 · 희망 +1),,Go with the beasts,(+1 sure success for everyone · hope +1),
+beastmaster_ch5,지나친다,,,,,,,,,,Pass by,,
+monk_ch5,스승의 이름을 부른다,monk,,,,,resolve 4;flag names_returned;renown 2,,(결의 +4 · 명성 +2),,Call the teacher's name,(resolve +4 · renown +2),
+monk_ch5,지나친다,,,,,,,,,,Pass by,,
+engineer_ch5,경첩을 살핀다,engineer,,,,,doom -1;xp 10;flag gate_sealed_side,,기술자가 문의 옆 경첩을 잠갔다. (균열 −1 · 이름 없는 것이 부하를 부르지 못한다),,Inspect the hinges,The engineer locked the hinge on the gate's side. (Rift −1 · the Nameless cannot summon riftspawn),
+engineer_ch5,지나친다,,,,,,,,,,Pass by,,
+mnemonist_ch5,동료들에게 이름을 맡긴다,mnemonist,,,,,flag kind;renown 3;resolve_all 2,,“내 이름을 기억해 줘.” 둘이 차례로 이름을 부른다. 처음으로 또렷하다. (모두 결의 +2 · 명성 +3),,Leave your name with the others,"“Remember my name.” The other two call it in turn. For the first time, it is clear. (everyone's resolve +2 · renown +3)",
+mnemonist_ch5,지나친다,,,,,,,,,,Pass by,,
+rift_chest,손을 뻗는다,,,agi,2,1,loot 5;gold 30,hurt 8,(금화 +30),틈에 손이 빨려 들어갈 뻔했다. (생명력 −8),Reach for it,(gold +30),Your hand was nearly pulled into the crack. (life −8)
+rift_chest,두고 간다,,,,,,,,,,Leave it behind,,
+pilgrim_pack,짐을 챙기고 이름을 적어 둔다,,,,,,item tonic;item charm;flag kind;renown 1,,(결의 물약 · 행운 부적),,"Take it, and write down the name",(a tonic · a lucky charm),
+ash_flowers,꽃을 딴다,,,,,,heal_all 14;potion 1,,(모두 생명력 +14 · 물약 +1),,Pick the flowers,(everyone's life +14 · potion +1),
+ash_flowers,재료를 고른다,alchemist,,,,,reagent 4;heal_all 8,,(재료 +4),,Pick reagents,(reagents +4),
+names_stele,비석을 읽는다,,,int,3,2,flag names_gathered;doom -2;renown 1;xp 10,doom 1,이름 없는 것의 힘은 잊힌 이름에서 온다. 기억하는 만큼 약해진다. (균열 −2 · 이름 없는 것이 약해진다),(균열 +1 · 다시 해 볼 수 있다),Read the stone,"The Nameless draws its power from forgotten names. The more you remember, the weaker it grows. (Rift −2 · the Nameless is weakened)",(Rift +1 · you can try again)
+names_stele,빈칸에 셋의 이름을 함께 새긴다,,,,,,flag names_gathered;flag shared_final;renown 2;xp 10,,한 칸에 세 이름을 겹쳐 새겼다. 대가를 나누겠다는 표시다. (이름 없는 것이 약해진다),,Carve all three names in the blank,"You carved the three names one over another in a single space, a sign that you will share the price. (the Nameless is weakened)",
+side_gate,틈을 무너뜨린다,,,str,3,2,flag gate_sealed_side;xp 10,hurt 8,(이름 없는 것이 부하를 부르지 못한다),(생명력 −8 · 다시 해 볼 수 있다),Collapse the gap,(the Nameless cannot summon riftspawn),(life −8 · you can try again)
+side_gate,틈을 봉인한다,,,wil,3,2,flag gate_sealed_side;xp 10,doom 1,(이름 없는 것이 부하를 부르지 못한다),(균열 +1),Seal the gap,(the Nameless cannot summon riftspawn),(Rift +1)
+side_gate,경첩을 잠근다,engineer,,,,,flag gate_sealed_side;xp 10,,(이름 없는 것이 부하를 부르지 못한다),,Lock the hinges,(the Nameless cannot summon riftspawn),
+last_shrine,기도한다,,,wil,2,1,heal_all 20;resolve_all 2,weak_next,(모두 생명력 +20 · 결의 +2),(다음 전투를 약화된 채 시작한다),Pray,(everyone's life +20 · resolve +2),(you start the next battle weakened)
+last_shrine,돌 하나를 더 얹는다,,,,,,hope 1;flag kind;renown 1,,(희망 +1),,Add one more stone,(hope +1),
+gate_elder,받는다,,,,,,gold 40;hope 1,,리엔이 맡긴 작은 주머니다. 금화와 쪽지 한 장. “너는 나보다 덜 외롭기를.” (희망 +1),,Accept it,"A small pouch Rien left in trust. Gold, and a note: “May you be less lonely than I was.” (hope +1)",
+gate_elder,세른과 화해했다고 전한다,,sern_redeemed,,,,gold 50;hope 2;renown 1,,“그 아이도 결국 불러 줄 사람을 만났구려.” (희망 +2),,Say you made peace with Sern,“So that boy found someone to call his name in the end.” (hope +2),
+back_bandit,길 안내를 받는다,,,,,,flag old_friend;flag kind;hope 1;renown 1,,그가 모래 폭풍을 피하는 샛길을 알려 준다. “그때 보내 줘서… 고마웠어요.” (희망 +1 · 명성 +1),,Let him guide you,"He shows you a side path that avoids the sandstorms. “Thanks… for letting me go, back then.” (hope +1 · renown +1)",
+back_bandit,그동안의 이야기를 듣는다,,,cha,2,1,flag old_friend;xp 8;resolve_all 1,flag old_friend,그는 균열을 쫓는 무리의 움직임을 알려 준다. (경험치 +8 · 모두 결의 +1),그는 말을 아끼다 길을 떠난다.,Hear his story,He tells you how the band chasing the Rift is moving. (XP +8 · everyone's resolve +1),He keeps his words to himself and goes on his way.
+back_child,편지를 읽는다,,,,,,flag old_friend;flag kind;hope 1;resolve_all 1,,“나도 크면 길 잃은 사람을 데려다줄 거예요.” 모두 결의 +1. (희망 +1),,Read the letter,"“When I grow up, I'll walk lost people home too.” Everyone's resolve +1. (hope +1)",
+back_child,답장을 남긴다,,,cha,2,1,flag old_friend;flag kind;renown 2,flag old_friend,답장이 역참에서 역참으로 건너간다. 사람들이 너희 이름을 다시 입에 올린다. (명성 +2),글씨가 마음처럼 써지지 않는다. 그래도 답장은 떠난다.,Leave a reply,Your reply travels from post house to post house. People speak your names again. (renown +2),"The words won't come out the way you want. Still, the reply goes on its way."
+back_fisher,물고기를 받는다,,,,,,flag old_friend;flag kind;heal_all 8;potion 1,,짠 물고기가 이렇게 맛있을 줄은 몰랐다. (모두 생명력 +8 · 물약 +1),,Accept the fish,Who knew salted fish could taste so good? (everyone's life +8 · potion +1),
+back_fisher,함께 저녁을 먹는다,,,,,,flag old_friend;heal_all 4;hope 1,,어부가 바다 이야기를 한다. 오랜만에 다들 웃는다. (모두 생명력 +4 · 희망 +1),,Share supper,"The fisher tells stories of the sea. For the first time in a while, everyone laughs. (everyone's life +4 · hope +1)",
+back_monk,기도를 받는다,,,,,,flag old_friend;flag kind;bless_all;hope 1,,수도사들의 낮은 노래가 등 뒤에서 이어진다. (모두 축복 · 희망 +1),,Accept their prayer,The monks' low chant carries on behind you. (a blessing for everyone · hope +1),
+back_monk,함께 버텨 달라 부탁한다,,,wil,2,1,flag old_friend;flag kind;doom -1;renown 1,flag old_friend,수도사들이 균열 가장자리에 줄지어 선다. 균열이 조금 물러난다. (균열 −1 · 명성 +1),수도사들은 아직 두려워한다. 그래도 기도는 이어진다.,Ask them to hold the line,The monks line up along the edge of the Rift. The Rift draws back a little. (Rift −1 · renown +1),"The monks are still afraid. Still, the prayer goes on."
+back_pilgrim,등불을 받는다,,,,,,flag old_friend;flag kind;doom -1;renown 1,,등불 하나가 어둠을 한 걸음 밀어낸다. (균열 −1 · 명성 +1),,Take the lantern,A single lantern pushes the dark back one step. (Rift −1 · renown +1),
+back_pilgrim,등불을 다른 이에게 넘기라 한다,,,,,,flag old_friend;flag kind;renown 2;hope 1,,순례자가 웃으며 길가의 피난민에게 등불을 건넨다. (명성 +2 · 희망 +1),,Ask them to pass it on,"Smiling, the pilgrim hands the lantern to a refugee by the road. (renown +2 · hope +1)",
+back_novice,지도를 펼친다,,,,,,flag old_friend;xp 8;renown 1,,옛 지도에 균열 둘레의 샛길이 그려져 있다. (경험치 +8 · 명성 +1),,Unroll the map,The old map shows the side paths around the Rift. (XP +8 · renown +1),
+back_novice,함께 옛 글을 읽는다,,,int,2,1,flag old_friend;flag kind;xp 12,flag old_friend;xp 4,수련생과 머리를 맞대고 옛 글을 풀었다. (경험치 +12),글이 너무 오래되었다. 그래도 조금은 배웠다. (경험치 +4),Read the old text together,"Heads together with the novice, you worked out the old text. (XP +12)","The writing is too old. Still, you learned a little. (XP +4)"
+back_wolf,늑대를 부른다,,,,,,flag old_friend;flag kind;resolve_all 1;hope 1,,늑대가 다가와 손등에 코를 댄다. 밤새 야영지를 지킨다. (모두 결의 +1 · 희망 +1),,Call the wolf,"The wolf comes and touches its nose to the back of your hand, then guards the camp all night. (everyone's resolve +1 · hope +1)",
+back_wolf,숲으로 돌려보낸다,,,,,,flag old_friend;renown 1,,늑대가 한 번 길게 울고 눈 속으로 사라진다. (명성 +1),,Send it back to the wild,The wolf gives one long howl and disappears into the snow. (renown +1),
+back_robbed,사과하고 돌려준다 (금화 15),,,,,,gold -15;flag amends;flag kind;renown 2,,순례자가 한참 너희를 보다가 금화를 받는다. “늦었지만… 받겠소.” (명성 +2),,Apologize and repay (15 gold),"The pilgrim looks at you a long while, then takes the gold. “It's late… but I'll take it.” (renown +2)",
+back_robbed,고개를 숙이고 지나간다,,,,,,flag robbed_remembered;doom 1,,등 뒤로 수군거림이 따라온다. 발이 무겁다. (균열 +1),,Bow your heads and pass,The whispers follow you. Your feet are heavy. (Rift +1),
+back_fox,여우를 따라간다,,,,,,flag old_friend;flag kind;heal_all 6;hope 1,,여우가 바위 그늘의 샘으로 이끈다. 모두 목을 축인다. (모두 생명력 +6 · 희망 +1),,Follow the fox,The fox leads you to a spring in the shade of a rock. Everyone drinks their fill. (everyone's life +6 · hope +1),
+back_fox,먹을 것을 나눠 준다,,,,,,flag old_friend;renown 1;xp 4,,"여우가 고기 한 점을 물고 사라졌다가, 길 잃은 대상 쪽으로 너희를 데려간다. (명성 +1 · 경험치 +4)",,Share some food,"The fox trots off with a scrap of meat, then leads you to a lost caravan. (renown +1 · XP +4)",
+back_widow,편지를 읽는다,,,,,,flag old_friend;flag kind;resolve_all 1;hope 1,,"“남편이 바다에서 돌아오지 못한 날, 당신들만이 진실을 말해 주었어요. 이번에는 당신들이 돌아오기를.” (모두 결의 +1 · 희망 +1)",,Read the letter,"“The day my husband did not come back from the sea, only you told me the truth. This time, may you come back.” (everyone's resolve +1 · hope +1)",
+back_widow,꾸러미를 연다,,,,,,flag old_friend;potion 1;gold 10,,"말린 생선과 물약 하나, 은화 몇 닢이 들어 있다. (물약 +1 · 금화 +10)",,Open the bundle,"Inside are dried fish, a potion, and a few silver coins. (potion +1 · gold +10)",
+back_smuggler,값을 치른다 (금화 20),,,,,,gold -20;flag smuggler_paid,,밀수꾼이 금화를 세어 보고 고개를 끄덕인다. “장사는 장사지.”,,Pay up (20 gold),The smuggler counts the gold and nods. “Business is business.”,
+back_smuggler,말로 돌려보낸다,,,cha,3,2,flag smuggler_talked;renown 1,battle serpents,"“…그 이름, 노래에서 들었소.” 밀수꾼이 손짓하자 사내들이 물러난다. (명성 +1)",“말은 됐고.” 사내들이 길들인 모래 뱀을 푼다!,Talk them into leaving,"“…That name. I've heard it in the songs.” The smuggler waves, and the men fall back. (renown +1)",“Enough talk.” The men set their tamed sand serpents loose!
+back_smuggler,칼을 뽑는다,,,,,,battle serpents;flag smuggler_fought,,밀수꾼이 휘파람을 불자 모래 속에서 뱀들이 솟는다!,,Draw your weapons,"The smuggler whistles, and serpents burst up from the sand!",
+back_sailors,함께 노래한다,,,,,,flag old_friend;flag kind;bless_all;hope 1,,넋들의 노래가 너희 목소리에 섞인다. 등이 조금 가벼워진다. (모두 축복 · 희망 +1),,Sing with them,The spirits' song mingles with your voices. Your shoulders feel a little lighter. (a blessing for everyone · hope +1),
+back_sailors,고개 숙여 보낸다,,,,,,flag old_friend;doom -1,,노래가 잦아들며 균열 가장자리의 바람도 잠잠해진다. (균열 −1),,Bow and see them off,"The song fades, and the wind at the edge of the Rift grows still. (Rift −1)",
+back_orphans,아이들을 피난 행렬로 데려간다,,,,,,flag old_friend;flag kind;renown 2;doom 1,,"하루가 걸렸지만, 아이들은 안전한 행렬에 섞였다. (명성 +2 · 균열 +1)",,Lead them to the refugees,"It took a day, but the children are safe among the line of refugees. (renown +2 · Rift +1)",
+back_orphans,길을 일러 주고 먹을 것을 나눈다,,,,,,flag old_friend;flag kind;renown 1;hope 1,,큰아이가 고개를 끄덕이고 다른 아이들을 이끈다. “이번엔 우리가 데려갈게요.” (명성 +1 · 희망 +1),,"Show the way, share food","The oldest nods and leads the others. “This time, we'll be the ones who take them.” (renown +1 · hope +1)",
+back_choir,노래를 듣는다,,,,,,flag old_friend;flag kind;resolve_all 2,,낮은 화음이 균열의 소음을 덮는다. 모두의 손이 떨리지 않는다. (모두 결의 +2),,Listen to the song,Low harmonies drown out the noise of the Rift. No one's hands are shaking. (everyone's resolve +2),
+back_choir,균열 둘레를 지켜 달라 한다,,,wil,2,1,flag old_friend;doom -1;renown 1,flag old_friend,수사들이 균열 둘레에 줄지어 서서 노래한다. 균열이 조금 물러난다. (균열 −1 · 명성 +1),수사들은 아직 두려워한다. 그래도 노래는 이어진다.,Ask them to guard the Rift,The monks line up around the Rift and sing. The Rift draws back a little. (Rift −1 · renown +1),"The monks are still afraid. Still, the song goes on."
+glass_dunes,유리를 깨서 꺼낸다,,,str,2,1,loot 4,hurt 4,유리 속에서 옛 무기 한 자루가 나왔다.,유리 조각에 손을 베었다. (생명력 −4),Break the glass,An old weapon came out of the glass.,A shard of glass cut your hand. (life −4)
+glass_dunes,유리 조각을 모아 판다,,,,,,gold 18,,상인들이 좋은 값을 쳐 준다. (금화 +18),,Gather shards to sell,The merchants pay a good price. (gold +18),
+glass_dunes,눈을 가리고 지나간다,,,,,,,,눈을 가리고 조심조심 언덕을 넘었다.,,Shield your eyes and pass,"Eyes shielded, you crossed the dune with care.",
+buried_well,줄을 이어 물을 긷는다,,,agi,2,1,heal_all 10;flag well_dug,hurt_all 2,시원한 물이 올라온다. 지나가는 대상에게도 길을 일러 둔다. (모두 생명력 +10),줄이 끊어져 모두 모래를 뒤집어썼다. (모두 생명력 −2),"Splice the rope, draw water","Cool water comes up. You leave directions for passing caravans, too. (everyone's life +10)","The rope snapped, and everyone got showered with sand. (everyone's life −2)"
+buried_well,우물을 다시 판다 (하루),,,,,,flag kind;flag well_dug;renown 2;doom 1,,하루 종일 모래를 퍼냈다. 오아시스 마을 사람들이 고마워한다. (명성 +2 · 균열 +1),,Dig the well out (a day),You shoveled sand all day. The people of Oasis Village are grateful. (renown +2 · Rift +1),
+kings_herald,너희의 이름을 밝힌다,,,cha,2,1,renown 1;xp 6,battle tomb_guards,망령이 두루마리에 너희 이름을 적고 길을 비킨다. “기억하겠다.” (명성 +1 · 경험치 +6),망령이 이름을 거부한다. “거짓 이름이다!” 무덤 수호병이 일어난다!,Give your names,The ghost writes your names on the scroll and steps aside. “I shall remember.” (renown +1 · XP +6),The ghost rejects the names. “False names!” The tomb guards rise!
+kings_herald,옛 영웅의 이름을 댄다,,,,,,flag rien_name_used;gold 15,,망령이 움찔하더니 길을 비킨다. 두루마리 아래에서 금화 몇 닢이 떨어졌다. 하지만 너희의 이름은 아니다. (금화 +15),,Give the old hero's name,The ghost flinches and steps aside. A few gold coins fall from beneath the scroll. But it was not your name. (gold +15),
+kings_herald,싸워서 지나간다,,,,,,battle tomb_guards,,망령이 두루마리를 찢자 수호병들이 모래에서 일어난다!,,Fight your way through,"The ghost tears the scroll, and guards rise from the sand!",
+rift_market,마지막 물약을 산다 (금화 15),,,,,,gold -15;potion 2,,상인이 물약 두 병을 건넨다. “이걸로 값은 됐소. 살아 돌아오시오.” (물약 +2),,Buy the last potions (15 gold),The merchant hands you two bottles. “That covers it. Come back alive.” (potion +2),
+rift_market,노래 한 곡을 산다 (금화 5),,,,,,gold -5;resolve_all 1;hope 1,,늙은 가수가 옛 영웅의 노래를 부른다. 가사 끝에 너희 이름이 붙어 있다. (모두 결의 +1 · 희망 +1),,Buy a song (5 gold),"An old singer sings of the old hero. At the end of the song, your names have been added. (everyone's resolve +1 · hope +1)",
+rift_market,그냥 지나간다,,,,,,,,장터의 소리가 등 뒤로 멀어진다.,,Just walk on,The sounds of the market fade behind you.,
+name_stones,돌 하나를 얹는다,,,,,,flag kind;hope 1;renown 1,,너희 이름 하나를 새겨 얹었다. 누군가 그 돌을 보고 이 길을 걸을 것이다. (희망 +1 · 명성 +1),,Add a stone,You carved a name of your own on a stone and laid it on the pile. Someone will see it and walk this road. (hope +1 · renown +1),
+name_stones,이름들을 읽는다,,,,,,xp 8,,이름마다 사연이 있다. 마지막 장을 앞두고 많은 것을 배웠다. (경험치 +8),,Read the names,"Every name has a story. With the last chapter ahead, you learned a great deal. (XP +8)",
+last_light,기름을 나눠 불을 살린다 (금화 10),,,,,,gold -10;flag kind;doom -1;renown 1,,불이 다시 타오른다. 피난민들이 그 불빛을 보고 길을 찾는다. (균열 −1 · 명성 +1),,Share oil to save the flame (10 gold),The fire blazes again. Refugees see its light and find their way. (Rift −1 · renown +1),
+last_light,불씨를 일으킨다,,,int,2,1,flag kind;doom -1,hurt 4,불씨가 살아나 불이 다시 타오른다. (균열 −1),불꽃이 튀어 손을 데었다. (생명력 −4),Rekindle the ember,"The ember catches, and the fire burns again. (Rift −1)",A spark leapt and burned your hand. (life −4)
+last_light,그냥 지나간다,,,,,,flag light_left,,등 뒤에서 불빛이 하나 꺼진다.,,Just walk on,"Behind you, a light goes out.",

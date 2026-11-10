@@ -56,6 +56,9 @@ namespace Game.Core
         public List<string> Header { get; }
         public List<CsvRow> Rows { get; }
 
+        // Lines of rows with more cells than the header (a comma without quotes around its cell).
+        public List<int> LongRows { get; private set; } = new List<int>();
+
         // The language the rows read their text in (null for Korean, the sheets' own). Set by GameData.Load.
         [System.ThreadStatic] internal static string Language;
 
@@ -65,11 +68,14 @@ namespace Game.Core
             if (records.Count == 0) return new CsvTable(new List<string>(), new List<CsvRow>());
 
             var header = records[0].Fields.Select(h => h.Trim().ToLowerInvariant()).ToList();
-            var rows = records.Skip(1)
+            var kept = records.Skip(1)
                 .Where(r => !r.Fields.All(string.IsNullOrWhiteSpace) && !r.Fields[0].TrimStart().StartsWith("#"))
-                .Select(r => new CsvRow(r.Line, header, r.Fields, Language))
                 .ToList();
-            return new CsvTable(header, rows);
+            var rows = kept.Select(r => new CsvRow(r.Line, header, r.Fields, Language)).ToList();
+            var table = new CsvTable(header, rows);
+            // A row with more cells than the header lost a quote around a comma: its last cells are read wrong.
+            table.LongRows = kept.Where(r => r.Fields.Count > header.Count).Select(r => r.Line).ToList();
+            return table;
         }
 
         public List<string> MissingColumns(params string[] required) => required.Where(c => !Header.Contains(c)).ToList();
