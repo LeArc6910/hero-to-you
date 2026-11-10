@@ -1,5 +1,7 @@
 # hero-to-you
 
+> **사용자에게는 언제나 한국어로 말한다.** 작업 보고, 중간 안내, 질문, 마지막 요약까지 모두 한국어다. 도구 결과나 서브에이전트 보고, 코드, 시험 결과가 영어여도 사용자에게 쓰는 글은 한국어로 옮겨 쓴다(사용자 요청, 2026-11-10에 다시 강조). 커밋 메시지만 영어다.
+
 For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000.6.3f1. 기획과 기술 원칙은 `Docs/Design.md`(개발 가이드라인)에 있고, 방향이 바뀌면 그 문서를 먼저 고친다. 세부는 `Docs/Dice.md`(주사위), `Docs/Combat.md`(전투), `Docs/Classes.md`(직업 15종), `Docs/Narrative.md`(이야기·사건), `Docs/Map.md`(지도·장), `Docs/Saving.md`(저장), `Docs/Journal.md`(판을 넘는 일지), `Docs/Localization.md`(영어판 준비), `Docs/WebDemo.md`(웹 데모), `Docs/WebDemoSetup.md`(사람이 처음 한 번 하는 웹 데모 설정), `Docs/Playtest.md`(클라우드 플레이 시험).
 
 ## 작업 분담
