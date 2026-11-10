@@ -234,12 +234,10 @@ namespace Game.Client
             }
         }
 
-        static string StatusFloat(BattleEvent e) => e.Status switch
+        static string StatusFloat(BattleEvent e) => e.Note switch
         {
-            StatusKind.Taunt => "도발",
-            StatusKind.Howl => "울부짖음",
-            _ when e.Text != null && e.Text.Contains("축복") => "축복",
-            _ when e.Text != null && e.Text.Contains("행운") => "행운",
+            "bless" => Strings.Get("battle.float_bless"),
+            "lucky" => Strings.Get("battle.float_lucky"),
             _ => StatusNames.Name(e.Status, Sheets),
         };
 

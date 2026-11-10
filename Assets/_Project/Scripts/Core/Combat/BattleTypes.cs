@@ -45,6 +45,9 @@ namespace Game.Core
         public bool Perfect { get; internal set; }
         public string Text { get; internal set; }
 
+        // What a status event is when it is not one of StatusKind ("bless", "lucky"), for the screen's floating word.
+        public string Note { get; internal set; } = "";
+
         public override string ToString() => Text ?? Kind.ToString();
     }
 

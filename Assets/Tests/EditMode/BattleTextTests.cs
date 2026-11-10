@@ -5,18 +5,6 @@ using NUnit.Framework;
 
 namespace Game.Core.Tests
 {
-    // The battles some tests make without the sheets write their log from the Korean sheets (Battle.TextSheets), so
-    // those tests can read it.
-    [SetUpFixture]
-    public class BattleTextSetUp
-    {
-        [OneTimeSetUp]
-        public void WriteBattlesWithoutSheetsFromTheSheets() => Battle.TextSheets = TestData.Data;
-
-        [OneTimeTearDown]
-        public void Forget() => Battle.TextSheets = null;
-    }
-
     // The battle log and the battle's refusals come from Data/Text/battle.csv in the sheets' language (Docs/Localization.md).
     public class BattleTextTests
     {

@@ -76,10 +76,6 @@ namespace Game.Core
 
         public Unit Unit(int id) => id >= 0 && id < _units.Count ? _units[id] : null;
 
-        // The sheets a battle made without them (some tests) takes its sentences from; with none, each sentence is
-        // written as its id. Text only: the rules never read it.
-        internal static GameData TextSheets { get; set; }
-
         // The battle log's and the refusals' sentences (Data/Text/battle.csv) in the language the sheets were loaded in.
         Sentences Words { get; }
 
@@ -89,7 +85,8 @@ namespace Game.Core
 
             public Sentences(GameData data) => _data = data;
 
-            GameData Data => _data ?? TextSheets;
+            // A battle made without the sheets writes each sentence as its id.
+            GameData Data => _data;
 
             public string Line(string id, params object[] args) => Data?.Line(id, args) ?? id;
 

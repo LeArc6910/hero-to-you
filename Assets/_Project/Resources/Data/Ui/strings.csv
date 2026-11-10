@@ -181,3 +181,5 @@ tutorial.result,무슨 일이 있었는지 읽고 [계속]을 누르세요.,Read
 tutorial.town,마을이다. 여관에서 쉬거나 물약을 살 수 있다. 다 했으면 [마을을 떠난다].,"A town. Rest at the inn or buy potions. When you are done, [Leave town]."
 tutorial.levelup,레벨이 올랐다. 강화 카드 하나를 고르세요. 판마다 다르게 자란다.,Level up! Pick one upgrade card. Every run grows differently.
 tutorial.off,안내 끄기,Hide guide
+battle.float_bless,축복,Blessed
+battle.float_lucky,행운,Lucky

@@ -264,11 +264,11 @@ namespace Game.Core
                     foreach (var kind in new[] { StatusKind.Burn, StatusKind.Weak })
                         if (target.Statuses.Remove(kind))
                             Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = target.Id, Status = kind, Text = Words.Line("battle.status.cleared", target.Name, Words.Status(kind)) });
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Amount = 1, Text = Words.Line("battle.bless", target.Name) });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Amount = 1, Note = "bless", Text = Words.Line("battle.bless", target.Name) });
                     break;
                 case "lucky":
                     target.Hero.Luck += 2;
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Amount = 2, Text = Words.Line("battle.lucky_coin", target.Name) });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Amount = 2, Note = "lucky", Text = Words.Line("battle.lucky_coin", target.Name) });
                     break;
                 case "hide":
                     actor.Statuses[StatusKind.Hidden] = 1;

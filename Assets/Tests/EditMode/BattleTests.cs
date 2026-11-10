@@ -20,14 +20,14 @@ namespace Game.Core.Tests
         }
 
         static Battle Duel(string[] classes, MonsterDef monster, ulong seed = 1) =>
-            new Battle(TestData.Party(classes), new List<MonsterDef> { monster }, seed);
+            new Battle(TestData.Party(classes), new List<MonsterDef> { monster }, seed, false, TestData.Data);
 
         [Test]
         public void TheSameSeedAndCommandsGiveTheSameBattle()
         {
             string Run()
             {
-                var battle = new Battle(TestData.Party("knight", "hunter", "cleric"), TestData.Monsters("goblin", "goblin", "goblin_archer"), 99);
+                var battle = new Battle(TestData.Party("knight", "hunter", "cleric"), TestData.Monsters("goblin", "goblin", "goblin_archer"), 99, false, TestData.Data);
                 var random = new GameRandom(5);
                 for (int i = 0; i < 200 && !battle.Over; i++) Assert.That(battle.Do(BattleBot.Choose(battle, random)), Is.Null);
                 return string.Join("\n", battle.Events.Select(e => e.Text));
@@ -40,7 +40,7 @@ namespace Game.Core.Tests
         [Test]
         public void TheFirstTurnIsAHerosAndTheTimelineStartsWithIt()
         {
-            var battle = new Battle(TestData.Party("knight", "hunter", "cleric"), TestData.Monsters("goblin"), 3);
+            var battle = new Battle(TestData.Party("knight", "hunter", "cleric"), TestData.Monsters("goblin"), 3, false, TestData.Data);
             Assert.That(battle.State, Is.EqualTo(BattleState.HeroTurn));
             var timeline = battle.Timeline(8);
             Assert.That(timeline.Count, Is.EqualTo(8));
@@ -50,7 +50,7 @@ namespace Game.Core.Tests
         [Test]
         public void MonstersShowWhatTheyWillDo()
         {
-            var battle = new Battle(TestData.Party("knight", "hunter", "cleric"), TestData.Monsters("bandit", "goblin_archer"), 4);
+            var battle = new Battle(TestData.Party("knight", "hunter", "cleric"), TestData.Monsters("bandit", "goblin_archer"), 4, false, TestData.Data);
             foreach (var monster in battle.Monsters)
             {
                 Assert.That(monster.Intent, Is.Not.Null);
@@ -128,7 +128,7 @@ namespace Game.Core.Tests
         [Test]
         public void ATauntTurnsEveryIntentToTheKnight()
         {
-            var battle = new Battle(TestData.Party("knight", "hunter", "cleric"), TestData.Monsters("goblin", "goblin", "goblin_archer"), 8);
+            var battle = new Battle(TestData.Party("knight", "hunter", "cleric"), TestData.Monsters("goblin", "goblin", "goblin_archer"), 8, false, TestData.Data);
             var knight = HeroUnit(battle, "knight");
             for (int i = 0; i < 20 && battle.Current != knight; i++) Attack(battle);
             Assert.That(battle.Current, Is.SameAs(knight));
@@ -186,7 +186,7 @@ namespace Game.Core.Tests
         {
             var party = TestData.Party("berserker");
             party[0].Hp = party[0].MaxHp / 2;
-            var battle = new Battle(party, new List<MonsterDef> { TestData.Dummy() }, 1);
+            var battle = new Battle(party, new List<MonsterDef> { TestData.Dummy() }, 1, false, TestData.Data);
             var hero = battle.Current;
             var chop = hero.Hero.Skill(Hero.AttackId);
             Assert.That(Battle.Rage(hero), Is.EqualTo(16));
@@ -223,7 +223,7 @@ namespace Game.Core.Tests
         {
             var party = TestData.Party("cleric", "knight");
             party[1].Hp = 0;
-            var battle = new Battle(party, new List<MonsterDef> { TestData.Dummy() }, 2);
+            var battle = new Battle(party, new List<MonsterDef> { TestData.Dummy() }, 2, false, TestData.Data);
             var cleric = battle.Current;
             var knight = HeroUnit(battle, "knight");
             Assert.That(knight.Down, Is.True);
@@ -237,7 +237,7 @@ namespace Game.Core.Tests
         {
             var party = TestData.Party("hunter");
             party[0].Hp = 5;
-            var battle = new Battle(party, new List<MonsterDef> { TestData.Dummy() }, 2);
+            var battle = new Battle(party, new List<MonsterDef> { TestData.Dummy() }, 2, false, TestData.Data);
             var hero = battle.Current;
             Assert.That(battle.Do(new BattleCommand(hero.Id, BattleCommand.Potion, hero.Id)), Is.Null);
             Assert.That(hero.Hp, Is.EqualTo(5 + Battle.PotionHeal));
@@ -247,7 +247,7 @@ namespace Game.Core.Tests
         [Test]
         public void TheBossChangesItsPatternAtHalfHealth()
         {
-            var battle = new Battle(TestData.Party("knight", "hunter", "cleric"), TestData.Monsters("ash_warden"), 5);
+            var battle = new Battle(TestData.Party("knight", "hunter", "cleric"), TestData.Monsters("ash_warden"), 5, false, TestData.Data);
             var boss = battle.Monsters.First();
             boss.Hp = boss.MaxHp / 2 + 2;
             var hero = battle.Current;
