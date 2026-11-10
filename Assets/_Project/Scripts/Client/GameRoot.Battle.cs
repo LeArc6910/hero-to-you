@@ -467,11 +467,14 @@ namespace Game.Client
             if (!Settings.LessMotion && _lungeAt.TryGetValue(unit.Id, out float swung) && _clock - swung < 0.3f) lunge = Mathf.Sin((_clock - swung) / 0.3f * Mathf.PI) * sprite * 0.18f;
             var toward = unit.IsHero || unit.Side == Side.Party ? (Ui.Portrait ? new Vector2(0, -1) : new Vector2(1, 0)) : (Ui.Portrait ? new Vector2(0, 1) : new Vector2(-1, 0));
             float breath = down || Settings.LessMotion ? 0 : Mathf.Sin(_clock * 2.2f + unit.Id * 1.3f) * sprite * 0.015f;
-            var spriteRect = new Rect(slot.x + (slot.width - sprite) / 2 + shake + toward.x * lunge, slot.y + intentH + 2 + toward.y * lunge + breath + (down ? sprite * 0.18f : 0), sprite, sprite - (down ? sprite * 0.18f : 0));
+            // A fallen hero with its own lying picture is drawn whole; anything else fallen lies low and squashed.
+            bool lying = down && unit.IsHero && PixelArt.HasPose(unit.Hero.Class.Id, PixelArt.Pose.Down);
+            float sink = down && !lying ? sprite * 0.18f : 0;
+            var spriteRect = new Rect(slot.x + (slot.width - sprite) / 2 + shake + toward.x * lunge, slot.y + intentH + 2 + toward.y * lunge + breath + sink, sprite, sprite - sink);
             _unitRects[unit.Id] = spriteRect;
             Ui.Fill(new Rect(spriteRect.x + sprite * 0.15f, spriteRect.yMax - sprite * 0.06f, sprite * 0.7f, sprite * 0.08f), new Color(0, 0, 0, 0.35f));
-            var tint = down ? new Color(0.4f, 0.4f, 0.45f, 0.45f) : hit ? new Color(1f, 0.55f, 0.5f, 1f) : (Color?)null;
-            var pose = down ? PixelArt.Pose.Stand : hit ? PixelArt.Pose.Hit : lunge > 0 ? PixelArt.Pose.Attack : PixelArt.Pose.Stand;
+            var tint = lying ? new Color(0.72f, 0.7f, 0.78f, 0.9f) : down ? new Color(0.4f, 0.4f, 0.45f, 0.45f) : hit ? new Color(1f, 0.55f, 0.5f, 1f) : (Color?)null;
+            var pose = lying ? PixelArt.Pose.Down : down ? PixelArt.Pose.Stand : hit ? PixelArt.Pose.Hit : lunge > 0 ? PixelArt.Pose.Attack : PixelArt.Pose.Stand;
             Ui.Image(spriteRect, Sprite(unit, pose), tint);
 
             if (!unit.IsHero && !down && unit.Intent != null && !battle.Over) DrawIntent(new Rect(slot.x + 2, slot.y, slot.width - 4, intentH - 2), unit, battle);

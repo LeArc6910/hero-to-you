@@ -203,6 +203,11 @@ namespace Game.Core
             return Map.Reach(Positions[MapHero], MovePoints, StopsFor, t => TerrainCost(hero, t));
         }
 
+        // The hexes the last move walked through, start to stop, and whose they were: for the screen to show the walk
+        // (a new list each move). Not part of the state that is saved or decided by.
+        public IReadOnlyList<Hex> LastWalk { get; private set; } = new List<Hex>();
+        public int LastWalker { get; private set; } = -1;
+
         public string Move(Hex to)
         {
             string error = MapTurn();
@@ -216,10 +221,13 @@ namespace Game.Core
             MovePoints = 0;
             // Walk the way; what fog hid stops the hero where it is.
             var stop = to;
+            var walked = new List<Hex> { path[0] };
+            int walker = MapHero;
             for (int i = 1; i < path.Count; i++)
             {
                 _cameFrom = path[i - 1];
                 Positions[MapHero] = path[i];
+                walked.Add(path[i]);
                 UpdateSight();
                 if (i < path.Count - 1 && Map.Stops(Map.Tile(path[i])))
                 {
@@ -228,6 +236,8 @@ namespace Game.Core
                     break;
                 }
             }
+            LastWalk = walked;
+            LastWalker = walker;
             Arrive(stop);
             return null;
         }

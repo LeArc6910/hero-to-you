@@ -26,33 +26,62 @@ namespace Game.Client
             return texture;
         }
 
-        // What a battler is doing: standing, the instant of its blow, or the recoil of being struck.
+        // What a figure is doing: standing, the instant of its blow, the recoil of being struck, the two steps of a walk
+        // on the map, lying fallen.
         public enum Pose
         {
             Stand,
             Attack,
             Hit,
+            Walk1,
+            Walk2,
+            Down,
         }
 
-        // A hero standing, or in its attack or hit pose: the class's own drawn pose ("knight_attack") where there is
-        // one, otherwise the standing picture leaned forward (attack) or back and down (hit).
+        static string Suffix(Pose pose) => pose switch
+        {
+            Pose.Attack => "_attack",
+            Pose.Hit => "_hit",
+            Pose.Walk1 => "_walk1",
+            Pose.Walk2 => "_walk2",
+            Pose.Down => "_down",
+            _ => "",
+        };
+
+        static char Kind(Pose pose) => pose switch
+        {
+            Pose.Attack => 'a',
+            Pose.Hit => 'b',
+            Pose.Walk1 => 'w',
+            Pose.Walk2 => 'x',
+            Pose.Down => 'd',
+            _ => 'h',
+        };
+
+        // Whether the class has its own drawn picture for the pose (a fallen hero without one is drawn lying low).
+        public static bool HasPose(string classId, Pose pose) => pose == Pose.Stand || Heroes.ContainsKey(classId + Suffix(pose));
+
+        // A hero in a pose: the class's own drawn picture ("knight_attack", "knight_walk1", "knight_down") where there
+        // is one; otherwise the standing picture leaned forward (attack) or back and down (hit), or just standing.
         public static Texture2D Hero(string classId, string color, Pose pose = Pose.Stand)
         {
-            char kind = pose == Pose.Attack ? 'a' : pose == Pose.Hit ? 'b' : 'h';
+            char kind = Kind(pose);
             if (Known(kind, classId, color, out var known)) return known;
             var stand = Heroes.TryGetValue(classId, out var rows) ? rows : Wanderer;
-            if (pose != Pose.Stand && !Heroes.TryGetValue(classId + (pose == Pose.Attack ? "_attack" : "_hit"), out rows))
-                rows = Lean(stand, pose, true);
+            if (pose != Pose.Stand && !Heroes.TryGetValue(classId + Suffix(pose), out rows))
+                rows = pose == Pose.Attack || pose == Pose.Hit ? Lean(stand, pose, true) : stand;
             return Keep(kind, classId, color, Make($"hero:{classId}:{kind}", rows ?? stand, color));
         }
 
-        // A monster standing or posed by leaning (monsters face left; `facingRight` for the summons on the heroes' side).
+        // A monster in a pose: its own drawn attack/hit picture ("goblin_attack") where there is one, otherwise the
+        // standing picture leaned (monsters face left; `facingRight` for the summons on the heroes' side).
         public static Texture2D Monster(string monsterId, string color, Pose pose = Pose.Stand, bool facingRight = false)
         {
+            if (pose != Pose.Attack && pose != Pose.Hit) pose = Pose.Stand;
             char kind = pose == Pose.Stand ? 'm' : pose == Pose.Attack ? (facingRight ? 'r' : 'n') : (facingRight ? 's' : 'o');
             if (Known(kind, monsterId, color, out var known)) return known;
             var stand = Monsters.TryGetValue(monsterId, out var rows) ? rows : Monsters["goblin"];
-            var posed = pose == Pose.Stand ? stand : Lean(stand, pose, facingRight);
+            var posed = pose == Pose.Stand ? stand : Monsters.TryGetValue(monsterId + Suffix(pose), out var drawn) ? drawn : Lean(stand, pose, facingRight);
             return Keep(kind, monsterId, color, Make($"monster:{monsterId}:{kind}", posed, color));
         }
 

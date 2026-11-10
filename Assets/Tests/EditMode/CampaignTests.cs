@@ -130,6 +130,22 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void AMoveKeepsTheHexesItWalkedForTheScreen()
+        {
+            var a = OnMap(3);
+            int mover = a.MapHero;
+            var from = a.Positions[mover];
+            a.Heroes[mover].Luck = Adventure.MoveDice;
+            Assert.That(a.RollMove(), Is.Null);
+            var target = a.Reachable().Keys.OrderByDescending(h => h.Distance(from)).ThenBy(h => h.Row).ThenBy(h => h.Col).First();
+            Assert.That(a.Move(target), Is.Null);
+            Assert.That(a.LastWalker, Is.EqualTo(mover));
+            Assert.That(a.LastWalk[0], Is.EqualTo(from));
+            Assert.That(a.LastWalk[a.LastWalk.Count - 1], Is.EqualTo(a.Positions[mover]));
+            for (int i = 1; i < a.LastWalk.Count; i++) Assert.That(a.LastWalk[i].Distance(a.LastWalk[i - 1]), Is.EqualTo(1), "한 칸씩 걷는다");
+        }
+
+        [Test]
         public void TheLastChapterWonIsAVictoryWithPages()
         {
             var a = OnMap();

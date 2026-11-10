@@ -203,19 +203,37 @@ namespace Game.Client
                 if (reachable) Ui.Image(rect, rim, Palette.WithAlpha(Palette.Gold, 0.7f));
                 if (_picked == tile.Hex) Ui.Image(rect, rim, Palette.Accent);
             }
-            // Heroes on top, side by side when they share a hex.
+            // Heroes on top, side by side when they share a hex; the one who just moved walks its way there first.
+            WatchWalk(a);
+            int walker = WalkingHero(out var walkFrom, out var walkTo, out float walkStep, out int walkFrame);
             for (int i = 0; i < a.Heroes.Count; i++)
             {
                 var hero = a.Heroes[i];
+                if (i == walker)
+                {
+                    float big = size * 1.25f;
+                    var walking = origin + Vector2.Lerp(HexCenter(walkFrom, size), HexCenter(walkTo, size), walkStep);
+                    var wr = new Rect(walking.x - big / 2, walking.y - big * 0.62f, big, big);
+                    bool left = HexCenter(walkTo, size).x < HexCenter(walkFrom, size).x;
+                    Ui.Fill(new Rect(wr.x + big * 0.2f, wr.yMax - 2, big * 0.6f, 3), Palette.Gold);
+                    Ui.Image(wr, PixelArt.Hero(hero.Class.Id, hero.Class.Color, walkFrame == 0 ? PixelArt.Pose.Walk1 : PixelArt.Pose.Walk2), null, left);
+                    continue;
+                }
                 var at = a.Positions[i];
-                var together = Enumerable.Range(0, a.Heroes.Count).Where(j => a.Positions[j] == at).ToList();
-                int slot = together.IndexOf(i);
-                float token = size * (together.Count > 1 ? 0.95f : 1.25f);
+                int count = 0, slot = 0;
+                for (int j = 0; j < a.Heroes.Count; j++)
+                {
+                    if (j == walker || a.Positions[j] != at) continue;
+                    if (j == i) slot = count;
+                    count++;
+                }
+                float token = size * (count > 1 ? 0.95f : 1.25f);
                 var c = origin + HexCenter(at, size);
-                float dx = together.Count > 1 ? (slot - (together.Count - 1) / 2f) * token * 0.6f : 0;
+                float dx = count > 1 ? (slot - (count - 1) / 2f) * token * 0.6f : 0;
                 var r = new Rect(c.x - token / 2 + dx, c.y - token * 0.62f, token, token);
                 if (i == a.MapHero) Ui.Fill(new Rect(r.x + token * 0.2f, r.yMax - 2, token * 0.6f, 3), Palette.Gold);
-                Ui.Image(r, PixelArt.Hero(hero.Class.Id, hero.Class.Color), hero.Down ? new Color(0.5f, 0.5f, 0.5f, 0.6f) : (Color?)null);
+                bool lying = hero.Down && PixelArt.HasPose(hero.Class.Id, PixelArt.Pose.Down);
+                Ui.Image(r, PixelArt.Hero(hero.Class.Id, hero.Class.Color, lying ? PixelArt.Pose.Down : PixelArt.Pose.Stand), hero.Down ? new Color(0.5f, 0.5f, 0.5f, 0.6f) : (Color?)null);
             }
             // Picking: one tap picks a reachable hex (the panel shows it), [이동] goes.
             foreach (var hex in reach.Keys)
@@ -227,6 +245,54 @@ namespace Game.Client
         }
 
         static readonly Color Fogged = new Color(0.42f, 0.4f, 0.48f, 1);
+
+        // ---- The walk: a hero who moved walks the hexes it passed, two steps a hex (Docs/WebDemo.md 도트 다듬기) ----
+
+        const float WalkSecondsPerHex = 0.16f;
+        Adventure _walkAdventure;
+        IReadOnlyList<Hex> _walkSeen;
+        int _walker = -1;
+        float _walkStart;
+
+        // A new walk starts when the adventure's last walk changes (any move: the player's, the bot's); not for the walk
+        // a loaded save ends on, and not with less motion.
+        void WatchWalk(Adventure a)
+        {
+            if (!ReferenceEquals(a, _walkAdventure))
+            {
+                _walkAdventure = a;
+                _walkSeen = a.LastWalk;
+                _walker = -1;
+                return;
+            }
+            if (ReferenceEquals(a.LastWalk, _walkSeen)) return;
+            _walkSeen = a.LastWalk;
+            if (Settings.LessMotion || a.LastWalk.Count < 2 || a.LastWalker < 0) return;
+            _walker = a.LastWalker;
+            _walkStart = Time.unscaledTime;
+        }
+
+        // The walking hero (or -1), the hexes of the step it is on, how far along, and which of the two walk pictures.
+        int WalkingHero(out Hex from, out Hex to, out float along, out int frame)
+        {
+            from = to = default;
+            along = 0;
+            frame = 0;
+            if (_walker < 0 || _walkSeen == null) return -1;
+            float t = (Time.unscaledTime - _walkStart) / WalkSecondsPerHex;
+            int steps = _walkSeen.Count - 1;
+            if (t >= steps)
+            {
+                _walker = -1;
+                return -1;
+            }
+            int step = Mathf.Max(0, (int)t);
+            from = _walkSeen[step];
+            to = _walkSeen[step + 1];
+            along = t - step;
+            frame = (int)(t * 2) % 2;
+            return _walker;
+        }
 
         static string GroundPattern(Terrain terrain) => terrain switch
         {

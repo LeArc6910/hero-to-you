@@ -3,7 +3,7 @@
 without Unity. Reads the same letter rows and palette the game does. Fails when a picture's rows are uneven.
 Colours come from the fixed palette (Resources/Data/Ui/palette.csv) as in the game (GamePalette): every letter is a
 palette colour, and `c`/`d`/`C` are the class or monster colour and one ramp step darker/lighter (poses such as
-"knight_attack" take their class's colour).
+"knight_attack", "knight_walk1", "knight_down" take their class's colour).
 
     python3 DevTools/ArtPreview/preview.py out.png
 
@@ -105,7 +105,7 @@ def main(target):
     sheet = Image.new("RGBA", (cell * 6, cell * ((len(names) + 5) // 6)), (20, 18, 26, 255))
     for i, name in enumerate(names):
         rows = found[name]
-        base = re.sub(r"_(attack|hit)$", "", name)
+        base = re.sub(r"_(attack|hit|walk1|walk2|down)$", "", name)
         main_color = snap(hex_color(tints.get(base, "#8888AA")), ramps, where)
         tones = {"c": main_color, "d": step(main_color, -1, ramps, where), "C": step(main_color, 1, ramps, where)}
         image = Image.new("RGBA", (len(rows[0]), len(rows)), (0, 0, 0, 0))
