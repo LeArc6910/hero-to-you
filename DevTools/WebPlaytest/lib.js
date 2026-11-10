@@ -43,6 +43,8 @@ const Profiles = {
 // One browser page with the game loaded and its console collected.
 async function open(browser, run, profile, url) {
   const context = await browser.newContext({ ...profile.context });
+  // The end screen's [기록 복사] writes to the clipboard; a headless browser refuses unless allowed.
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: new URL(url).origin }).catch(() => {});
   const page = await context.newPage();
   const game = { run, profile, context, page, logs: [], touch: !!profile.touch };
   page.on('console', m => {

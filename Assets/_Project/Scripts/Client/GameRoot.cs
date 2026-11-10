@@ -286,9 +286,13 @@ namespace Game.Client
 
         string _tipOpen;
 
+        // A tip opened by hand (the help links, the playtests) counts as seen, so it does not open again by itself
+        // the moment it is closed.
         internal void ShowTip(string id)
         {
-            if (Tips.Exists(id)) _tipOpen = id;
+            if (!Tips.Exists(id)) return;
+            Tips.FirstTime(id);
+            _tipOpen = id;
         }
 
         void FirstTip(string id)

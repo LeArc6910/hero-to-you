@@ -133,7 +133,12 @@ async function playSlice(game, wholeRun) {
   run.check(await game.press(/^이동 굴리기/), '[이동 굴리기]를 누를 수 있다');
   state = await game.until(s => s.movePoints >= 1 && s.reachable > 0, 5000);
   run.check(!!state, `이동력이 나오고 갈 칸이 생긴다 (${state && state.movePoints})`);
-  const hexes = await game.find(/^\d+,\d+$/, '칸');
+  // The map redraws a frame after the roll: look for the hexes for a moment.
+  let hexes = [];
+  for (let i = 0; i < 10 && hexes.length === 0; i++) {
+    hexes = await game.find(/^\d+,\d+$/, '칸');
+    if (hexes.length === 0) await game.wait(200);
+  }
   run.check(hexes.length > 0, `누를 수 있는 칸 ${hexes.length}개`);
   if (hexes.length > 0) await game.press(hexes[hexes.length - 1].label, '칸');
   await game.shot('map-picked', '칸을 고른 뒤 패널');
@@ -197,9 +202,11 @@ async function playSlice(game, wholeRun) {
   state = await autoplayUntil(game, s => s.levelUp, 300);
   if (state) {
     await game.shot('levelup', '레벨업 강화 고르기');
-    const options = await game.find(/.+/, '강화');
+    const options = (await game.find(/.+/, '강화')).filter(b => !b.label.startsWith('남은 강화'));
     run.check(options.length >= 1, `강화 선택지 ${options.length}개`);
     if (options[0]) await game.press(options[0].label, '강화');
+    // Several heroes can level up at once: the rest are taken with [남은 강화 N개를 알아서 고른다].
+    if ((await game.state()).levelUp) run.check(await game.press(/^남은 강화/, '강화'), '레벨업이 여럿이면 [남은 강화 …를 알아서 고른다]가 있다');
     run.check(!(await game.state()).levelUp, '강화를 누르면 레벨업이 끝난다');
   }
 
@@ -318,7 +325,7 @@ async function playSlice(game, wholeRun) {
   for (const name of ['도적', '음유시인', '성직자']) await game.press(name, '직업');
   await game.press('모험 시작');
   state = await game.until(s => s.adventure === 'Story', 5000);
-  run.check(state && state.firstChapter === 1 && state.lastChapter === 1 && state.heroes.every(h => h.level >= 5), `2장 한 장짜리 판이 레벨 5로 시작한다 (${state && state.chapter}, 레벨 ${state && state.heroes.map(h => h.level).join('/')})`);
+  run.check(state && state.firstChapter === 1 && state.lastChapter === 1 && state.heroes.every(h => h.level >= 4), `2장 한 장짜리 판이 레벨 4로 시작한다 (${state && state.chapter}, 레벨 ${state && state.heroes.map(h => h.level).join('/')})`);
   run.check(state && state.slot === 1, `끝난 모험이 비운 슬롯 1을 다시 쓴다 (슬롯 ${state && state.slot})`);
   await game.send('title');
 

@@ -413,3 +413,4 @@ journal.class,{0}: 모험 {1} · 끝까지 {2},{0}: adventures {1} · finished {
 party.class_stats,생명력 {0} · 결의 {1},HP {0} · Resolve {1}
 party.class_soon,준비 중 (M5),Coming soon (M5)
 title.dev_build,개발판,dev build
+party.class_hp,생명력 {0},Life {0}

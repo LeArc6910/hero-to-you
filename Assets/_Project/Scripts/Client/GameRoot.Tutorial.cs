@@ -106,12 +106,18 @@ namespace Game.Client
         {
             if (!TutorialOn || TutorialStep.Length == 0 || TutorialStep == "wait" || _tipOpen != null) return;
             string text = Strings.Get("tutorial." + TutorialStep);
-            float w = Mathf.Min(560, Ui.Width - 16);
+            // Sideways the map and the battle keep a panel on the right: the line stays over the left part, at the
+            // bottom of the map or under the battle's turn bar. Upright it sits under the top strip, clear of the
+            // panel and the footer buttons below.
+            bool battle = _adventure.Battle != null && (_adventure.Screen == AdventureScreen.Battle || BattlePlaying);
+            bool sideways = !Ui.Portrait && (battle || _adventure.Screen == AdventureScreen.Map);
+            float w = sideways ? Mathf.Min(560, Ui.Width * 0.6f - 12) : Mathf.Min(560, Ui.Width - 16);
             float textW = w - 104;
             float h = Mathf.Max(48, Ui.TextHeight(text, 12.5f, textW) + 14);
-            // Above the footer buttons of the screens (they sit in the last 54 points).
-            var r = new Rect((Ui.Width - w) / 2, Ui.Height - 58 - h, w, h);
-            if (_adventure.Battle != null && (_adventure.Screen == AdventureScreen.Battle || BattlePlaying)) r.y = 50;
+            var r = new Rect(sideways ? 8 : (Ui.Width - w) / 2, Ui.Height - 58 - h, w, h);
+            if (sideways && !battle) r.y = Ui.Height - h - 8;
+            if (battle) r.y = 50;
+            else if (Ui.Portrait && _adventure.Screen == AdventureScreen.Map) r.y = 96;
             Ui.Panel(r, new Color(0.10f, 0.08f, 0.16f, 0.94f), Palette.Gold);
             Ui.Text(new Rect(r.x + 10, r.y + 6, textW, h - 12), text, 12.5f, Palette.Ink, TextAnchor.MiddleLeft, false, true);
             if (Ui.Button(new Rect(r.xMax - 92, r.y + (h - 44) / 2, 86, 44), Strings.Get("tutorial.off"), 12, true, Look.Quiet, "안내"))

@@ -284,6 +284,10 @@ namespace Game.Client
             float cardH = Mathf.Clamp(cardW * 1.05f, 120, 190);
             // Sideways, the two rows of six fit without scrolling when there is room.
             if (!Ui.Portrait) cardH = Mathf.Max(110, Mathf.Min(cardH, (area.height - gap) / 2));
+            // Tall enough for the longest class text at this width (narrow phones, English, big text); the list scrolls.
+            float iconH = Mathf.Min(cardW * 0.42f, 64);
+            float longest = classes.Max(c => Ui.TextHeight(c.Mechanic, 11, cardW - 12));
+            cardH = Mathf.Max(cardH, iconH + 14 + longest + 6);
             int rows = (classes.Count + columns - 1) / columns;
             float content = rows * (cardH + gap);
             _partyScroll = Ui.Scroll(area, _partyScroll, content - area.height, ref _partyDragging, ref _partyLastY);
@@ -461,10 +465,16 @@ namespace Game.Client
             float icon = Mathf.Min(card.width * 0.42f, 64);
             Ui.Image(new Rect(card.x + 6, card.y + 6, icon, icon), PixelArt.Hero(cls.Id, cls.Color), cls.Playable ? (Color?)null : new Color(0.35f, 0.35f, 0.4f, 1));
             float tx = card.x + icon + 10;
-            float tw = card.xMax - tx - 4;
-            Ui.Text(new Rect(tx, card.y + 6, tw, 20), cls.Name, 16, cls.Playable ? Palette.Ink : Palette.Dim, TextAnchor.MiddleLeft, true);
+            // Room for the order badge in the corner; long names get a smaller size instead of running off the card.
+            float tw = card.xMax - tx - 4 - (chosen ? 24 : 0);
+            float nameSize = 16;
+            while (nameSize > 11 && Ui.TextWidth(cls.Name, nameSize, true) > tw) nameSize -= 1;
+            Ui.Text(new Rect(tx, card.y + 6, tw, 20), cls.Name, nameSize, cls.Playable ? Palette.Ink : Palette.Dim, TextAnchor.MiddleLeft, true);
             Ui.Text(new Rect(tx, card.y + 26, tw, 16), cls.Role, 12, Palette.Journal);
-            if (cls.Playable) Ui.Text(new Rect(tx, card.y + 42, tw, 16), Strings.Format("party.class_stats", cls.Hp, cls.Resolve), 11, Palette.Dim);
+            // Life and resolve, or only life when the card is too narrow for both.
+            string stats = Strings.Format("party.class_stats", cls.Hp, cls.Resolve);
+            if (Ui.TextWidth(stats, 11) > card.xMax - tx - 4) stats = Strings.Format("party.class_hp", cls.Hp);
+            if (cls.Playable) Ui.Text(new Rect(tx, card.y + 42, card.xMax - tx - 4, 16), stats, 11, Palette.Dim);
             else Ui.Text(new Rect(tx, card.y + 42, tw, 16), Strings.Get("party.class_soon"), 11, Palette.Dim);
             Ui.Text(new Rect(card.x + 6, card.y + icon + 10, card.width - 12, card.height - icon - 14), cls.Mechanic, 11, cls.Playable ? Palette.Ink : Palette.Dim, TextAnchor.UpperLeft, false, true);
             if (chosen)
