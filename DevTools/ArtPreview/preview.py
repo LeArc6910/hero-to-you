@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Draws the game's code-drawn pixel art (Assets/_Project/Scripts/Client/Art/PixelArt.cs) into one PNG, to look at
-without Unity. Reads the same letter rows and palette the game does. Fails when a picture's rows are uneven.
+"""Draws the game's pixel art (the letter-row pictures in Assets/_Project/Resources/Data/Art/*.txt, drawn by
+Client/Art/PixelArt.cs) into one PNG, to look at without Unity. Reads the same letter rows and palette the game does. Fails when a picture's rows are uneven.
 Colours come from the fixed palette (Resources/Data/Ui/palette.csv) as in the game (GamePalette): every letter is a
 palette colour, and `c`/`d`/`C` are the class or monster colour and one ramp step darker/lighter (poses such as
 "knight_attack", "knight_walk1", "knight_down" take their class's colour).
@@ -21,6 +21,28 @@ SOURCE = ROOT / "Assets/_Project/Scripts/Client/Art/PixelArt.cs"
 CLASSES = ROOT / "Assets/_Project/Resources/Data/Classes/classes.csv"
 MONSTERS = ROOT / "Assets/_Project/Resources/Data/Monsters/monsters.csv"
 PALETTE = ROOT / "Assets/_Project/Resources/Data/Ui/palette.csv"
+ART = ROOT / "Assets/_Project/Resources/Data/Art"
+ART_FILES = ("heroes", "monsters", "icons", "ui")
+
+
+def load_art():
+    """Every picture of the art files, as PixelArt.Read reads them: '!name', then rows; '#' lines are notes."""
+    found = {}
+    for file in ART_FILES:
+        name, rows = None, []
+        for line in (ART / f"{file}.txt").read_text(encoding="utf-8").split("\n"):
+            line = line.rstrip("\r")
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("!"):
+                if name and rows:
+                    found[name] = rows
+                name, rows = line[1:].strip(), []
+                continue
+            rows.append(line)
+        if name and rows:
+            found[name] = rows
+    return found
 
 
 def load_palette():
@@ -95,7 +117,7 @@ def main(target):
     source = SOURCE.read_text(encoding="utf-8")
     letters, ramps, where = load_palette()
     tints = {**colors_of(CLASSES), **colors_of(MONSTERS)}
-    found = pictures(source)
+    found = load_art()
     bad = [name for name, rows in found.items() if len({len(r) for r in rows}) != 1]
     if bad:
         sys.exit("uneven rows in: " + ", ".join(bad))
