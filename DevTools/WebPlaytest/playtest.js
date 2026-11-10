@@ -205,9 +205,14 @@ async function playSlice(game, wholeRun) {
     const options = (await game.find(/.+/, '강화')).filter(b => !b.label.startsWith('남은 강화'));
     run.check(options.length >= 1, `강화 선택지 ${options.length}개`);
     if (options[0]) await game.press(options[0].label, '강화');
-    // Several heroes can level up at once: the rest are taken with [남은 강화 N개를 알아서 고른다].
-    if ((await game.state()).levelUp) run.check(await game.press(/^남은 강화/, '강화'), '레벨업이 여럿이면 [남은 강화 …를 알아서 고른다]가 있다');
-    run.check(!(await game.state()).levelUp, '강화를 누르면 레벨업이 끝난다');
+    // Several heroes can level up at once: the next card comes up, and with more than one still waiting
+    // [남은 강화 N개를 알아서 고른다] takes them all.
+    for (let i = 0; i < 12 && (await game.state()).levelUp; i++) {
+      if (await game.press(/^남은 강화/, '강화', { quiet: true })) continue;
+      const next = (await game.find(/.+/, '강화')).filter(b => !b.label.startsWith('남은 강화'));
+      if (next[0]) await game.press(next[0].label, '강화');
+    }
+    run.check(!(await game.state()).levelUp, '강화를 누르면 레벨업이 끝난다(쌓인 강화까지)');
   }
 
   // Save and continue: reload the page, then [이어하기].
