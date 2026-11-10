@@ -783,7 +783,8 @@ namespace Game.Client
             Ui.Tip(autoRect, Strings.Get("battle.auto_tip"));
             if (!AwaitingHero)
             {
-                string title = battle.Over ? Strings.Get(battle.State == BattleState.Won ? "battle.won" : battle.State == BattleState.Fled ? "battle.fled" : "battle.lost") : _turnActor >= 0 && !battle.Unit(_turnActor).IsHero ? Strings.Get("battle.enemy_turn") : "…";
+                // The result only once its last blow has played (Core knows it as soon as the command is given).
+                string title = battle.Over && !BattlePlaying ? Strings.Get(battle.State == BattleState.Won ? "battle.won" : battle.State == BattleState.Fled ? "battle.fled" : "battle.lost") : _turnActor >= 0 && !battle.Unit(_turnActor).IsHero ? Strings.Get("battle.enemy_turn") : "…";
                 Ui.Text(new Rect(inner.x, inner.y, inner.width - 96, 44), title, 16, Palette.Ink, TextAnchor.MiddleLeft, true);
                 DrawLog(new Rect(inner.x, inner.y + 48, inner.width, inner.height - 48));
                 return;
