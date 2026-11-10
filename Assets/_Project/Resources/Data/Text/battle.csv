@@ -1,1 +1,82 @@
 id,ko,en
+battle.turn,{0}의 차례,{0}'s turn
+battle.victory,"승리! 경험치 {0}, 금화 {1}","Victory! {0} XP, {1} gold"
+battle.defeat,모두 쓰러졌다…,Everyone has fallen…
+battle.intent,{0}의 다음 행동: {1} → {2},{0}'s next move: {1} → {2}
+battle.intent.all,모두,everyone
+battle.intent.self,자신,itself
+battle.roll,{0}의 {1}: {2}% ×{3} → 성공 {4},{0}'s {1}: {2}% ×{3} → {4} succeeded
+battle.roll.sure,{0}의 {1}: {2}% ×{3} (확정 {5}) → 성공 {4},{0}'s {1}: {2}% ×{3} ({5} sure) → {4} succeeded
+battle.roll.perfect,{0} 완벽!,{0} Perfect!
+battle.grit,{0}: 끈기가 차서 결의 +{1},"{0}: grit fills up, resolve +{1}"
+battle.damage,{0}: {1} {2} 피해,{0}: {2} damage ({1})
+battle.damage.perfect,{0}: {1} {2} 피해 (완벽!),"{0}: {2} damage ({1}, perfect!)"
+battle.cause.thorns,가시,Thorns
+battle.cause.backfire,판돈을 잃어,Lost wager
+battle.miss,{0}: 빗나감,{0}: miss
+battle.down,{0} 쓰러짐,{0} falls
+battle.heal,{0}: +{1} 회복,{0}: +{1} healed
+battle.revive,{0:이} 일어났다 (생명력 {1}),{0} gets back up ({1} life)
+battle.regen,{0}: +{1} (되살아나는 힘),{0}: +{1} (regeneration)
+battle.resolve,{0}: 결의 +{1},{0}: resolve +{1}
+battle.luck,{0}: 다음 판정 확정 +{1},{0}: next roll +{1} sure
+battle.appears,{0:이} 나타났다!,{0} appears!
+battle.howl,{0}: {1}! 다음 공격 위력 +3,{0}: {1}! Next attack +3 power
+battle.status.off,{0}: {1:이} 풀렸다,{0}: {1} wears off
+battle.status.cleared,{0}: {1:이} 걷혔다,{0}: {1} cleared
+battle.stun.skip,{0}: 기절해서 차례를 넘긴다,"{0}: stunned, loses the turn"
+battle.chill.slow,{0}: 냉기로 다음 차례가 늦어진다,"{0}: chilled, the next turn comes later"
+battle.boss.seal,{0}: {1}의 {2:을} 빼앗았다 ({3}차례 못 쓴다),{0}: takes {1}'s {2} (unusable for {3} turns)
+battle.boss.erase,{0}: {1}의 이름이 흐려졌다 ({2}차례 기본 공격만),{0}: {1}'s name fades (basic attacks only for {2} turns)
+battle.boss.brand,{0}: 낙인에 결의 −1 ({1}/{2}),{0}: the brand burns away 1 resolve ({1}/{2})
+battle.guard,{0:이} {1:을} 지킨다 (방어도 +{2}),{0} guards {1} (armor +{2})
+battle.taunt,{0}: 도발! 모든 적이 노린다 (방어도 +{1}),{0}: Taunt! Every enemy aims at {0} (armor +{1})
+battle.taunt.end,{0}: 도발이 끝났다,{0}: the taunt ends
+battle.bless,{0}: 축복 (다음 판정 확정 +1),{0}: Blessing (next roll +1 sure)
+battle.lucky_coin,{0}: 행운의 동전 (다음 판정 확정 +2),{0}: Lucky Coin (next roll +2 sure)
+battle.hide,{0}: 그림자 속으로 숨었다,{0}: slips into the shadows
+battle.unhide,{0}: 그림자에서 나왔다,{0}: steps out of the shadows
+battle.song.courage,용기의 노래: 모든 아군 확률 +{0},Song of Courage: every ally +{0} chance
+battle.song.rest,안식의 노래: 아군이 차례마다 생명력 +{0},Song of Rest: allies +{0} life each turn
+battle.song.rest.heal,{0}: 안식의 노래 +{1},{0}: Song of Rest +{1}
+battle.song.end,노래가 그쳤다,The song ends
+battle.encore,{0}: 앙코르! 바로 다음 차례,{0}: Encore! Acts next
+battle.souls,{0}: 영혼 +{1} ({2}),{0}: souls +{1} ({2})
+battle.raise,{0}: 해골이 일어났다 (생명력 {1}),{0}: a skeleton rises ({1} life)
+battle.bone_wall,{0}: 뼈의 벽! 모든 적이 해골을 노린다 (방어도 +{1}),{0}: Bone Wall! Every enemy aims at the skeleton (armor +{1})
+battle.foretell,{0}: 예언! 모든 적의 다음 공격 확률 −{1},{0}: Prophecy! Every enemy's next attack −{1} chance
+battle.twist,"{0}: 운명 바꾸기, 다음 수 하나({1})를 버렸다","{0}: Twist Fate, discards the next die ({1})"
+battle.meditate,"{0}: 명상, 기 {1}, 생명력 +{2}","{0}: Meditate, ki {1}, life +{2}"
+battle.turret,{0}: 포탑을 세웠다 (생명력 {1}),{0}: builds a turret ({1} life)
+battle.wolf.up,{0}: 늑대가 다시 일어났다 (생명력 {1}),{0}: the wolf is back up ({1} life)
+battle.echo.text,{0}을 되새긴다. {1},Echoes {0}. {1}
+battle.flee,도망,Flee
+battle.flee.roll,{0}의 도망: {1}% ×{2} → 성공 {3} (필요 {4}),{0} tries to flee: {1}% ×{2} → {3} succeeded (need {4})
+battle.flee.done,{0}: 모두 데리고 빠져나왔다,{0}: gets everyone out
+battle.flee.failed,{0}: 도망치지 못했다,{0}: could not get away
+battle.flee.smoke,{0}: {1}! 연기 속으로 모두 빠져나왔다,{0}: {1}! Everyone slips away in the smoke
+battle.reason.blessing,축복 {0},Blessing {0}
+battle.reason.luck,행운 {0},Luck {0}
+battle.reason.blessing_luck,축복·행운 {0},Blessing & Luck {0}
+battle.reason.mark,표식 {0},Mark {0}
+battle.reason.follow_up,협공 {0},Pack attack {0}
+battle.reason.ambush,기습 {0},Ambush {0}
+battle.reason.resonance,공명 {0},Resonance {0}
+battle.error.not_your_turn,지금은 이 영웅의 차례가 아닙니다.,It is not this hero's turn.
+battle.error.not_a_skill,{0}의 기술이 아닙니다: {1},Not a skill of {0}: {1}
+battle.error.cooldown,{0}: 차례 {1}번 뒤에 쓸 수 있습니다.,"{0}: on cooldown, turns left: {1}."
+battle.error.no_target,{0}: 대상을 고르세요.,{0}: choose a target.
+battle.error.resolve,결의는 0~{0}개 쓸 수 있습니다.,You can spend 0 to {0} resolve.
+battle.error.reagents,{0}: 재료가 모자랍니다 ({1}/{2}).,{0}: not enough reagents ({1}/{2}).
+battle.error.souls,{0}: 영혼이 모자랍니다 ({1}/{2}).,{0}: not enough souls ({1}/{2}).
+battle.error.ki,{0}: 기가 모자랍니다 ({1}/{2}).,{0}: not enough ki ({1}/{2}).
+battle.error.echo_nothing,되새길 동료의 기술이 아직 없습니다(동료가 먼저 기술을 쓰면 된다).,No ally skill to echo yet (an ally has to use one first).
+battle.error.echo_cannot,{0}: 그 기술은 되새길 수 없습니다.,{0}: that skill cannot be echoed.
+battle.error.one_skeleton,해골은 한 번에 하나만 일으킵니다.,Only one skeleton can be raised at a time.
+battle.error.no_skeleton,일어서 있는 해골이 없습니다.,No skeleton is standing.
+battle.error.no_combo,{0}: 연계가 없습니다(먼저 다른 행동을 하세요).,{0}: no combo yet (take another action first).
+battle.error.wolf_down,늑대가 쓰러져 있습니다(야성의 부름으로 일으킵니다).,The wolf is down (Wild Call brings it back).
+battle.error.no_such_item,그런 소모품은 없습니다: {0},No such consumable: {0}
+battle.error.none_left,{0}이 없습니다.,No {0} left.
+battle.error.self_only,{0}은 자신에게만 씁니다.,{0} can only be used on yourself.
+battle.error.boss_flee,보스에게서는 도망칠 수 없습니다.,There is no running from a boss.

@@ -58,7 +58,7 @@ namespace Game.Core
             echo.Cooldown = own.Cooldown;
             echo.CostKind = "";
             echo.CostAmount = 0;
-            echo.Text = $"{_lastAllySkill.Name}을 되새긴다. {_lastAllySkill.Text}";
+            echo.Text = Words.Line("battle.echo.text", _lastAllySkill.Name, _lastAllySkill.Text);
             return echo;
         }
 
@@ -183,16 +183,16 @@ namespace Game.Core
         // Why the skill cannot be used now beyond its cooldown and target, or null.
         string CannotUse(Unit actor, SkillDef skill)
         {
-            if (skill.CostKind == "reagent" && actor.Hero.Reagents < skill.CostAmount) return $"{skill.Name}: 재료가 모자랍니다 ({actor.Hero.Reagents}/{skill.CostAmount}).";
-            if (skill.CostKind == "soul" && actor.Souls < skill.CostAmount) return $"{skill.Name}: 영혼이 모자랍니다 ({actor.Souls}/{skill.CostAmount}).";
-            if (skill.CostKind == "ki" && actor.Ki < skill.CostAmount) return $"{skill.Name}: 기가 모자랍니다 ({actor.Ki}/{skill.CostAmount}).";
-            if (skill.Effect == "echo") return "되새길 동료의 기술이 아직 없습니다(동료가 먼저 기술을 쓰면 된다).";
-            if (skill.Id == EchoId && Array.IndexOf(Echoable, skill.Effect) < 0) return $"{skill.Name}: 그 기술은 되새길 수 없습니다.";
-            if (skill.Effect == "raise" && SummonOf(actor, GameData.SkeletonId) is Unit skeleton && !skeleton.Down) return "해골은 한 번에 하나만 일으킵니다.";
-            if (skill.Effect == "bonewall" && !(SummonOf(actor, GameData.SkeletonId) is Unit bones && !bones.Down)) return "일어서 있는 해골이 없습니다.";
-            if (skill.Effect == "finisher" && actor.Combo == 0) return $"{skill.Name}: 연계가 없습니다(먼저 다른 행동을 하세요).";
+            if (skill.CostKind == "reagent" && actor.Hero.Reagents < skill.CostAmount) return Words.Line("battle.error.reagents", skill.Name, actor.Hero.Reagents, skill.CostAmount);
+            if (skill.CostKind == "soul" && actor.Souls < skill.CostAmount) return Words.Line("battle.error.souls", skill.Name, actor.Souls, skill.CostAmount);
+            if (skill.CostKind == "ki" && actor.Ki < skill.CostAmount) return Words.Line("battle.error.ki", skill.Name, actor.Ki, skill.CostAmount);
+            if (skill.Effect == "echo") return Words.Line("battle.error.echo_nothing");
+            if (skill.Id == EchoId && Array.IndexOf(Echoable, skill.Effect) < 0) return Words.Line("battle.error.echo_cannot", skill.Name);
+            if (skill.Effect == "raise" && SummonOf(actor, GameData.SkeletonId) is Unit skeleton && !skeleton.Down) return Words.Line("battle.error.one_skeleton");
+            if (skill.Effect == "bonewall" && !(SummonOf(actor, GameData.SkeletonId) is Unit bones && !bones.Down)) return Words.Line("battle.error.no_skeleton");
+            if (skill.Effect == "finisher" && actor.Combo == 0) return Words.Line("battle.error.no_combo", skill.Name);
             if ((skill.Effect == "wolfguard" || skill.Effect == "command") && !(SummonOf(actor, GameData.CompanionWolfId) is Unit wolf && !wolf.Down))
-                return "늑대가 쓰러져 있습니다(야성의 부름으로 일으킵니다).";
+                return Words.Line("battle.error.wolf_down");
             return null;
         }
 
@@ -215,7 +215,7 @@ namespace Game.Core
             {
                 int gain = marked ? 3 : 1;
                 necro.Souls = Math.Min(SoulCap, necro.Souls + gain);
-                Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = necro.Id, Target = necro.Id, Amount = gain, Text = $"{necro.Name}: 영혼 +{gain} ({necro.Souls})" });
+                Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = necro.Id, Target = necro.Id, Amount = gain, Text = Words.Line("battle.souls", necro.Name, gain, necro.Souls) });
             }
         }
 
@@ -224,7 +224,7 @@ namespace Game.Core
             if (Song == Song.None) return;
             Song = Song.None;
             SongBy = -1;
-            Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Text = "노래가 그쳤다" });
+            Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Text = Words.Line("battle.song.end") });
         }
 
         void Guard(Unit guard, Unit target, Unit until)
@@ -234,7 +234,7 @@ namespace Game.Core
             target.GuardedBy = guard.Id;
             target.GuardUntil = until.Id;
             guard.GuardTarget = target.Id;
-            Emit(new BattleEvent { Kind = BattleEventKind.Guard, Actor = guard.Id, Target = target.Id, Text = $"{Korean.Subject(guard.Name)} {Korean.Object(target.Name)} 지킨다 (방어도 +{GuardArmor})" });
+            Emit(new BattleEvent { Kind = BattleEventKind.Guard, Actor = guard.Id, Target = target.Id, Text = Words.Line("battle.guard", guard.Name, target.Name, GuardArmor) });
         }
 
         void Support(Unit actor, SkillDef skill, Unit target, CheckResult check)
@@ -248,7 +248,7 @@ namespace Game.Core
                     int armor = (check?.Successes ?? 0) + (check != null && check.Perfect && skill.Perfect == "armor1" ? 1 : 0);
                     actor.TauntArmor = armor;
                     actor.Statuses[StatusKind.Taunt] = 1;
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Status = StatusKind.Taunt, Amount = armor, Text = $"{actor.Name}: 도발! 모든 적이 노린다 (방어도 +{armor})" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Status = StatusKind.Taunt, Amount = armor, Text = Words.Line("battle.taunt", actor.Name, armor) });
                     foreach (var monster in Monsters.Where(m => !m.Down && m.Intent != null && m.Intent.Skill.Target == MonsterTarget.One))
                     {
                         if (monster.Intent.Target == actor.Id) continue;
@@ -263,28 +263,28 @@ namespace Game.Core
                     target.Hero.Blessing++;
                     foreach (var kind in new[] { StatusKind.Burn, StatusKind.Weak })
                         if (target.Statuses.Remove(kind))
-                            Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = target.Id, Status = kind, Text = $"{target.Name}: {Korean.Subject(StatusNames.Name(kind))} 걷혔다" });
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Amount = 1, Text = $"{target.Name}: 축복 (다음 판정 확정 +1)" });
+                            Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = target.Id, Status = kind, Text = Words.Line("battle.status.cleared", target.Name, Words.Status(kind)) });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Amount = 1, Text = Words.Line("battle.bless", target.Name) });
                     break;
                 case "lucky":
                     target.Hero.Luck += 2;
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Amount = 2, Text = $"{target.Name}: 행운의 동전 (다음 판정 확정 +2)" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Amount = 2, Text = Words.Line("battle.lucky_coin", target.Name) });
                     break;
                 case "hide":
                     actor.Statuses[StatusKind.Hidden] = 1;
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Status = StatusKind.Hidden, Text = $"{actor.Name}: 그림자 속으로 숨었다" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Status = StatusKind.Hidden, Text = Words.Line("battle.hide", actor.Name) });
                     Retarget(actor);
                     break;
                 case "song_courage":
                 case "song_rest":
                     Song = skill.Effect == "song_courage" ? Song.Courage : Song.Rest;
                     SongBy = actor.Id;
-                    string what = Song == Song.Courage ? $"용기의 노래: 모든 아군 확률 +{CourageBonus + SongPower}" : $"안식의 노래: 아군이 차례마다 생명력 +{RestHeal}";
+                    string what = Song == Song.Courage ? Words.Line("battle.song.courage", CourageBonus + SongPower) : Words.Line("battle.song.rest", RestHeal);
                     Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Text = what });
                     break;
                 case "encore":
                     target.Ready = _units.Where(u => !u.Down && u.Id != target.Id).Select(u => u.Ready).DefaultIfEmpty(0).Min() - 1;
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Text = $"{target.Name}: 앙코르! 바로 다음 차례" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Text = Words.Line("battle.encore", target.Name) });
                     break;
                 case "raise":
                     var skeleton = SummonOf(actor, GameData.SkeletonId);
@@ -296,7 +296,7 @@ namespace Game.Core
                     }
                     else skeleton = Summon(actor, GameData.SkeletonId, hp, 0);
                     skeleton.Ready = actor.Ready + Wait(skeleton.Speed, 50);
-                    Emit(new BattleEvent { Kind = BattleEventKind.Revive, Actor = actor.Id, Target = skeleton.Id, Amount = skeleton.Hp, Text = $"{actor.Name}: 해골이 일어났다 (생명력 {skeleton.Hp})" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.Revive, Actor = actor.Id, Target = skeleton.Id, Amount = skeleton.Hp, Text = Words.Line("battle.raise", actor.Name, skeleton.Hp) });
                     ChooseIntent(skeleton);
                     break;
                 case "deathmark":
@@ -306,7 +306,7 @@ namespace Game.Core
                     var wall = SummonOf(actor, GameData.SkeletonId);
                     wall.TauntArmor = BoneWallArmor;
                     wall.Statuses[StatusKind.Taunt] = 1;
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = wall.Id, Status = StatusKind.Taunt, Amount = BoneWallArmor, Text = $"{actor.Name}: 뼈의 벽! 모든 적이 해골을 노린다 (방어도 +{BoneWallArmor})" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = wall.Id, Status = StatusKind.Taunt, Amount = BoneWallArmor, Text = Words.Line("battle.bone_wall", actor.Name, BoneWallArmor) });
                     foreach (var monster in Monsters.Where(m => !m.Down && m.Intent != null && m.Intent.Skill.Target == MonsterTarget.One && m.Intent.Target != wall.Id))
                     {
                         monster.Intent.Target = wall.Id;
@@ -316,11 +316,11 @@ namespace Game.Core
                 case "foretell":
                     int cut = ForetellCut + actor.Hero.Special("foretell");
                     foreach (var monster in Monsters.Where(m => !m.Down)) monster.Statuses[StatusKind.Foretold] = cut;
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Status = StatusKind.Foretold, Text = $"{actor.Name}: 예언! 모든 적의 다음 공격 확률 −{cut}" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Status = StatusKind.Foretold, Text = Words.Line("battle.foretell", actor.Name, cut) });
                     break;
                 case "twist":
                     int dropped = Fate.Next();
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Amount = dropped, Text = $"{actor.Name}: 운명 바꾸기, 다음 수 하나({dropped})를 버렸다" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Amount = dropped, Text = Words.Line("battle.twist", actor.Name, dropped) });
                     break;
                 case "wolfguard":
                     var guardWolf = SummonOf(actor, GameData.CompanionWolfId);
@@ -330,7 +330,7 @@ namespace Game.Core
                     actor.Ki = Math.Min(KiCap + actor.Hero.Special("ki_cap"), actor.Ki + MeditateKi);
                     int calm = actor.Hp;
                     actor.Hero.Heal(MeditateHeal + actor.Hero.Special("meditate"));
-                    Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = actor.Id, Amount = actor.Hp - calm, Text = $"{actor.Name}: 명상, 기 {actor.Ki}, 생명력 +{actor.Hp - calm}" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = actor.Id, Amount = actor.Hp - calm, Text = Words.Line("battle.meditate", actor.Name, actor.Ki, actor.Hp - calm) });
                     break;
                 case "turret":
                     var turret = SummonOf(actor, GameData.TurretId);
@@ -342,7 +342,7 @@ namespace Game.Core
                     }
                     else turret = Summon(actor, GameData.TurretId, turretHp, actor.Hero.Special("turret_power") + actor.Hero.Level / 3);
                     turret.Ready = actor.Ready + Wait(turret.Speed, 50);
-                    Emit(new BattleEvent { Kind = BattleEventKind.Revive, Actor = actor.Id, Target = turret.Id, Amount = turret.Hp, Text = $"{actor.Name}: 포탑을 세웠다 (생명력 {turret.Hp})" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.Revive, Actor = actor.Id, Target = turret.Id, Amount = turret.Hp, Text = Words.Line("battle.turret", actor.Name, turret.Hp) });
                     ChooseIntent(turret);
                     break;
                 case "call":
@@ -352,17 +352,17 @@ namespace Game.Core
                     {
                         wolf.Hp = Math.Max(1, wolf.MaxHp / 2);
                         wolf.Ready = actor.Ready + Wait(wolf.Speed, 50);
-                        Emit(new BattleEvent { Kind = BattleEventKind.Revive, Actor = actor.Id, Target = wolf.Id, Amount = wolf.Hp, Text = $"{actor.Name}: 늑대가 다시 일어났다 (생명력 {wolf.Hp})" });
+                        Emit(new BattleEvent { Kind = BattleEventKind.Revive, Actor = actor.Id, Target = wolf.Id, Amount = wolf.Hp, Text = Words.Line("battle.wolf.up", actor.Name, wolf.Hp) });
                         ChooseIntent(wolf);
                     }
                     else
                     {
                         int before = wolf.Hp;
                         wolf.Hp = Math.Min(wolf.MaxHp, wolf.Hp + WolfCallHeal);
-                        if (wolf.Hp > before) Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = wolf.Id, Amount = wolf.Hp - before, Text = $"늑대: +{wolf.Hp - before} 회복" });
+                        if (wolf.Hp > before) Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = wolf.Id, Amount = wolf.Hp - before, Text = Words.Line("battle.heal", wolf.Name, wolf.Hp - before) });
                     }
                     wolf.Statuses[StatusKind.Howl] = 3;
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = wolf.Id, Target = wolf.Id, Status = StatusKind.Howl, Text = "늑대: 울부짖음! 다음 공격 위력 +3" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = wolf.Id, Target = wolf.Id, Status = StatusKind.Howl, Text = Words.Line("battle.howl", wolf.Name, Words.Status(StatusKind.Howl)) });
                     break;
             }
         }
@@ -377,10 +377,10 @@ namespace Game.Core
                     Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = actor.Id, Amount = actor.Hp - before, Text = $"{actor.Name}: {skill.Name} +{actor.Hp - before}" });
             }
             if (skill.Effect == "backfire" && check.Successes <= BackfireAtMost)
-                Hurt(actor, BackfireDamage, actor.Id, false, "판돈을 잃어", leaveOne: true);
+                Hurt(actor, BackfireDamage, actor.Id, false, Words.Line("battle.cause.backfire"), leaveOne: true);
             if (skill.Effect == "finisher") actor.Combo = 0;
             if (actor.Statuses.Remove(StatusKind.Hidden))
-                Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = actor.Id, Status = StatusKind.Hidden, Text = $"{actor.Name}: 그림자에서 나왔다" });
+                Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = actor.Id, Status = StatusKind.Hidden, Text = Words.Line("battle.unhide", actor.Name) });
             // The wolf bites the same enemy right after: a combo attack.
             if (skill.Effect == "command" && !target.Down)
             {

@@ -38,6 +38,7 @@ namespace Game.Core
             if (heroes == null || heroes.Count == 0) throw new ArgumentException("A battle needs heroes.", nameof(heroes));
             if (monsters == null || monsters.Count == 0) throw new ArgumentException("A battle needs monsters.", nameof(monsters));
             _data = data;
+            Words = new Sentences(data);
             Fate = new Fate(seed, 1);
             _ai = new GameRandom(seed, 2);
 
@@ -74,6 +75,26 @@ namespace Game.Core
         public int GoldReward => Monsters.Sum(m => m.Monster.Gold);
 
         public Unit Unit(int id) => id >= 0 && id < _units.Count ? _units[id] : null;
+
+        // The sheets a battle made without them (some tests) takes its sentences from; with none, each sentence is
+        // written as its id. Text only: the rules never read it.
+        internal static GameData TextSheets { get; set; }
+
+        // The battle log's and the refusals' sentences (Data/Text/battle.csv) in the language the sheets were loaded in.
+        Sentences Words { get; }
+
+        sealed class Sentences
+        {
+            readonly GameData _data;
+
+            public Sentences(GameData data) => _data = data;
+
+            GameData Data => _data ?? TextSheets;
+
+            public string Line(string id, params object[] args) => Data?.Line(id, args) ?? id;
+
+            public string Status(StatusKind kind) => StatusNames.Name(kind, Data);
+        }
 
         // Two goblins are 고블린 A and 고블린 B; a lone one is just 고블린.
         static IEnumerable<(MonsterDef, string)> Names(IReadOnlyList<MonsterDef> monsters)
@@ -140,13 +161,13 @@ namespace Game.Core
                 if (Monsters.All(m => m.Down))
                 {
                     State = BattleState.Won;
-                    Emit(new BattleEvent { Kind = BattleEventKind.Victory, Amount = XpReward, Text = $"승리! 경험치 {XpReward}, 금화 {GoldReward}" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.Victory, Amount = XpReward, Text = Words.Line("battle.victory", XpReward, GoldReward) });
                     return;
                 }
                 if (Heroes.All(h => h.Down))
                 {
                     State = BattleState.Lost;
-                    Emit(new BattleEvent { Kind = BattleEventKind.Defeat, Text = "모두 쓰러졌다…" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.Defeat, Text = Words.Line("battle.defeat") });
                     return;
                 }
 
@@ -176,7 +197,7 @@ namespace Game.Core
                     if (best == null) break;
                     target.AvailableAt[best.Id] = target.TurnsTaken + SealTurns + 1;
                     target.Blocked[best.Id] = "seal";
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Text = $"{actor.Name}: {target.Name}의 {Korean.Object(best.Name)} 빼앗았다 ({SealTurns}차례 못 쓴다)" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Text = Words.Line("battle.boss.seal", actor.Name, target.Name, best.Name, SealTurns) });
                     break;
                 case "erase":
                     foreach (var s in own)
@@ -184,7 +205,7 @@ namespace Game.Core
                         target.AvailableAt[s.Id] = Math.Max(target.AvailableAt.TryGetValue(s.Id, out int at) ? at : 0, target.TurnsTaken + EraseTurns + 1);
                         if (!target.Blocked.ContainsKey(s.Id)) target.Blocked[s.Id] = "erase";
                     }
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Text = $"{actor.Name}: {target.Name}의 이름이 흐려졌다 ({EraseTurns}차례 기본 공격만)" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Text = Words.Line("battle.boss.erase", actor.Name, target.Name, EraseTurns) });
                     break;
                 case "freeze":
                     AddStatus(target, StatusKind.Stun, 1);
@@ -194,7 +215,7 @@ namespace Game.Core
                     if (target.Hero.Resolve > 0)
                     {
                         target.Hero.Resolve--;
-                        Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Amount = -1, Text = $"{target.Name}: 낙인에 결의 −1 ({target.Hero.Resolve}/{target.Hero.MaxResolve})" });
+                        Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Amount = -1, Text = Words.Line("battle.boss.brand", target.Name, target.Hero.Resolve, target.Hero.MaxResolve) });
                     }
                     AddStatus(target, StatusKind.Burn, BurnTurns);
                     break;
@@ -209,42 +230,42 @@ namespace Game.Core
         {
             if (!target.IsHero || attacker.Down) return;
             int thorns = target.Hero.Equipment.Where(i => i.Effect == "thorns").Sum(i => i.EffectAmount);
-            if (thorns > 0) Hurt(attacker, thorns, target.Id, false, "가시");
+            if (thorns > 0) Hurt(attacker, thorns, target.Id, false, Words.Line("battle.cause.thorns"));
         }
 
         // The start of a unit's turn: what was set up until its turn ends, songs, burns, stuns. False when it cannot act.
         bool StartTurn(Unit unit)
         {
             unit.TurnsTaken++;
-            Emit(new BattleEvent { Kind = BattleEventKind.Turn, Actor = unit.Id, Text = $"{unit.Name}의 차례" });
+            Emit(new BattleEvent { Kind = BattleEventKind.Turn, Actor = unit.Id, Text = Words.Line("battle.turn", unit.Name) });
             int regen = unit.IsHero && !unit.Down ? unit.Hero.Equipment.Where(i => i.Effect == "regen").Sum(i => i.EffectAmount) : 0;
             if (regen > 0 && unit.Hp < unit.MaxHp)
             {
                 int was = unit.Hp;
                 unit.Hero.Heal(regen);
-                Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = unit.Id, Target = unit.Id, Amount = unit.Hp - was, Text = $"{unit.Name}: +{unit.Hp - was} (되살아나는 힘)" });
+                Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = unit.Id, Target = unit.Id, Amount = unit.Hp - was, Text = Words.Line("battle.regen", unit.Name, unit.Hp - was) });
             }
 
             foreach (var guarded in _units.Where(u => u.GuardUntil == unit.Id).ToList()) EndGuard(guarded);
             if (unit.Statuses.Remove(StatusKind.Taunt))
             {
                 unit.TauntArmor = 0;
-                Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = unit.Id, Status = StatusKind.Taunt, Text = $"{unit.Name}: 도발이 끝났다" });
+                Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = unit.Id, Status = StatusKind.Taunt, Text = Words.Line("battle.taunt.end", unit.Name) });
             }
             if (unit.IsHero && Song == Song.Rest)
             {
                 int before = unit.Hp;
                 unit.Hero.Heal(RestHeal);
-                if (unit.Hp > before) Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = SongBy, Target = unit.Id, Amount = unit.Hp - before, Text = $"{unit.Name}: 안식의 노래 +{unit.Hp - before}" });
+                if (unit.Hp > before) Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = SongBy, Target = unit.Id, Amount = unit.Hp - before, Text = Words.Line("battle.song.rest.heal", unit.Name, unit.Hp - before) });
             }
             if (unit.Has(StatusKind.Burn))
             {
-                Hurt(unit, BurnDamage, -1, false, "화상");
+                Hurt(unit, BurnDamage, -1, false, Words.Status(StatusKind.Burn));
                 if (unit.Down) return false;
             }
             if (unit.Statuses.Remove(StatusKind.Stun))
             {
-                Emit(new BattleEvent { Kind = BattleEventKind.Skip, Actor = unit.Id, Text = $"{unit.Name}: 기절해서 차례를 넘긴다" });
+                Emit(new BattleEvent { Kind = BattleEventKind.Skip, Actor = unit.Id, Text = Words.Line("battle.stun.skip", unit.Name) });
                 EndTurn(unit, 100);
                 return false;
             }
@@ -265,7 +286,7 @@ namespace Game.Core
             if (unit.Statuses.Remove(StatusKind.Chill))
             {
                 wait = wait * ChillPercent / 100;
-                Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = unit.Id, Status = StatusKind.Chill, Text = $"{unit.Name}: 냉기로 다음 차례가 늦어진다" });
+                Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = unit.Id, Status = StatusKind.Chill, Text = Words.Line("battle.chill.slow", unit.Name) });
             }
             unit.Ready += wait;
             foreach (var kind in new[] { StatusKind.Burn, StatusKind.Mark, StatusKind.Weak, StatusKind.Corrode, StatusKind.DeathMark, StatusKind.Daze })
@@ -278,7 +299,7 @@ namespace Game.Core
                 }
                 unit.Statuses.Remove(kind);
                 if (!unit.Down)
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = unit.Id, Status = kind, Text = $"{unit.Name}: {Korean.Subject(StatusNames.Name(kind))} 풀렸다" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = unit.Id, Status = kind, Text = Words.Line("battle.status.off", unit.Name, Words.Status(kind)) });
             }
         }
 
@@ -289,7 +310,7 @@ namespace Game.Core
             if (unit.Down) return;
             unit.Statuses.TryGetValue(kind, out int had);
             unit.Statuses[kind] = Math.Max(had, turns);
-            Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Target = unit.Id, Status = kind, Amount = turns, Text = $"{unit.Name}: {StatusNames.Name(kind)}" });
+            Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Target = unit.Id, Status = kind, Amount = turns, Text = $"{unit.Name}: {Words.Status(kind)}" });
         }
 
         // Damage after armor (physical) or ward (magic). Anything that landed does at least 1.
@@ -315,7 +336,7 @@ namespace Game.Core
                 Target = target.Id,
                 Amount = dealt,
                 Perfect = perfect,
-                Text = $"{target.Name}: {what} {dealt} 피해" + (perfect ? " (완벽!)" : ""),
+                Text = perfect ? Words.Line("battle.damage.perfect", target.Name, what, dealt) : Words.Line("battle.damage", target.Name, what, dealt),
             });
             if (target.Down) KnockDown(target);
             else if (target.IsFoe) CheckPhase(target);
@@ -329,7 +350,7 @@ namespace Game.Core
             unit.TauntArmor = 0;
             if (unit.GuardTarget >= 0) EndGuard(_units[unit.GuardTarget]);
             EndGuard(unit);
-            Emit(new BattleEvent { Kind = BattleEventKind.Down, Target = unit.Id, Text = $"{unit.Name} 쓰러짐" });
+            Emit(new BattleEvent { Kind = BattleEventKind.Down, Target = unit.Id, Text = Words.Line("battle.down", unit.Name) });
             if (unit.IsFoe) GainSouls(marked);
             if (unit.Id == SongBy) EndSong();
             // Whoever aimed at the fallen picks someone else, and shows it.
@@ -357,7 +378,7 @@ namespace Game.Core
                 var unit = new Unit(_units.Count, summonDef, called.Count > 1 ? $"{summonDef.Name} {(char)('A' + index)}" : summonDef.Name);
                 unit.Ready = monster.Ready + Wait(unit.Speed, 50) + index;
                 _units.Add(unit);
-                Emit(new BattleEvent { Kind = BattleEventKind.Revive, Actor = monster.Id, Target = unit.Id, Amount = unit.Hp, Text = $"{Korean.Subject(unit.Name)} 나타났다!" });
+                Emit(new BattleEvent { Kind = BattleEventKind.Revive, Actor = monster.Id, Target = unit.Id, Amount = unit.Hp, Text = Words.Line("battle.appears", unit.Name) });
                 ChooseIntent(unit);
             }
         }
@@ -385,11 +406,11 @@ namespace Game.Core
             var intent = actor.Intent;
             string whom = intent.Skill.Target switch
             {
-                MonsterTarget.All => "모두",
-                MonsterTarget.Self => "자신",
+                MonsterTarget.All => Words.Line("battle.intent.all"),
+                MonsterTarget.Self => Words.Line("battle.intent.self"),
                 _ => intent.Target >= 0 ? _units[intent.Target].Name : "?",
             };
-            Emit(new BattleEvent { Kind = BattleEventKind.Intent, Actor = actor.Id, Target = intent.Target, Skill = intent.Skill.Id, SkillName = intent.Skill.Name, Text = $"{actor.Name}의 다음 행동: {intent.Skill.Name} → {whom}" });
+            Emit(new BattleEvent { Kind = BattleEventKind.Intent, Actor = actor.Id, Target = intent.Target, Skill = intent.Skill.Id, SkillName = intent.Skill.Name, Text = Words.Line("battle.intent", actor.Name, intent.Skill.Name, whom) });
         }
 
         // A living opponent to aim at: for monsters, the taunting knight if there is one; nobody hidden while anyone
@@ -452,7 +473,7 @@ namespace Game.Core
                 if (skill.Effect == "howl")
                 {
                     actor.Statuses[StatusKind.Howl] = 3;
-                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Status = StatusKind.Howl, Text = $"{actor.Name}: {skill.Name}! 다음 공격 위력 +3" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Status = StatusKind.Howl, Text = Words.Line("battle.howl", actor.Name, skill.Name) });
                 }
                 else
                 {
@@ -493,8 +514,7 @@ namespace Game.Core
             }
             chance = Dice.ClampChance(chance);
             var check = Fate.Roll(skill.Dice, chance, sure);
-            string sureText = sure > 0 ? $" (확정 {sure})" : "";
-            Emit(new BattleEvent { Kind = BattleEventKind.Roll, Actor = actor.Id, Target = skill.Target == MonsterTarget.All ? -1 : targets[0].Id, Skill = skill.Id, SkillName = skill.Name, Check = check, Perfect = check.Perfect, Text = $"{actor.Name}의 {skill.Name}: {chance}% ×{check.Dice}{sureText} → 성공 {check.Successes}" });
+            Emit(new BattleEvent { Kind = BattleEventKind.Roll, Actor = actor.Id, Target = skill.Target == MonsterTarget.All ? -1 : targets[0].Id, Skill = skill.Id, SkillName = skill.Name, Check = check, Perfect = check.Perfect, Text = RollLine(actor.Name, skill.Name, chance, check.Dice, sure, check.Successes, false) });
 
             int power = skill.Power + actor.PowerBonus;
             if (actor.Statuses.TryGetValue(StatusKind.Howl, out int howl))
@@ -510,7 +530,7 @@ namespace Game.Core
                 int damage = Mitigate(value, target, skill.Kind == "physical");
                 if (damage <= 0)
                 {
-                    Emit(new BattleEvent { Kind = BattleEventKind.Miss, Actor = actor.Id, Target = target.Id, Text = $"{target.Name}: 빗나감" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.Miss, Actor = actor.Id, Target = target.Id, Text = Words.Line("battle.miss", target.Name) });
                     continue;
                 }
                 Hurt(target, damage, actor.Id, false, skill.Name);
@@ -520,6 +540,15 @@ namespace Game.Core
                 if (skill.Effect == "chill" && check.Successes > 0) AddStatus(target, StatusKind.Chill, 1);
                 if (skill.Effect == "weaken" && check.Successes > 0) AddStatus(target, StatusKind.Weak, WeakTurns);
             }
+        }
+
+        // The log line of a roll: "기사의 베기: 65% ×3 (확정 1) → 성공 2 완벽!"
+        string RollLine(string who, string what, int chance, int dice, int sure, int successes, bool perfect)
+        {
+            string line = sure > 0
+                ? Words.Line("battle.roll.sure", who, what, chance, dice, successes, sure)
+                : Words.Line("battle.roll", who, what, chance, dice, successes);
+            return perfect ? Words.Line("battle.roll.perfect", line) : line;
         }
 
         // ---- Heroes ----
@@ -551,7 +580,7 @@ namespace Game.Core
         {
             var preview = new SkillPreview();
             var actor = Unit(command.Actor);
-            if (State != BattleState.HeroTurn || actor == null || actor.Id != CurrentId) return Fail(preview, "지금은 이 영웅의 차례가 아닙니다.");
+            if (State != BattleState.HeroTurn || actor == null || actor.Id != CurrentId) return Fail(preview, Words.Line("battle.error.not_your_turn"));
             var hero = actor.Hero;
 
             if (BattleCommand.IsUse(command.Skill)) return PreviewUse(preview, actor, command);
@@ -559,13 +588,13 @@ namespace Game.Core
 
             var skill = SkillOf(actor, command.Skill);
             preview.Skill = skill;
-            if (skill == null) return Fail(preview, $"{hero.Name}의 기술이 아닙니다: {command.Skill}");
+            if (skill == null) return Fail(preview, Words.Line("battle.error.not_a_skill", hero.Name, command.Skill));
             int wait = Cooldown(actor, skill);
-            if (wait > 0) return Fail(preview, $"{skill.Name}: 차례 {wait}번 뒤에 쓸 수 있습니다.");
+            if (wait > 0) return Fail(preview, Words.Line("battle.error.cooldown", skill.Name, wait));
             string cannot = CannotUse(actor, skill);
             if (cannot != null) return Fail(preview, cannot);
             var target = TargetOf(actor, skill, command.Target);
-            if (target == null) return Fail(preview, $"{skill.Name}: 대상을 고르세요.");
+            if (target == null) return Fail(preview, Words.Line("battle.error.no_target", skill.Name));
 
             if (!skill.Rolls)
             {
@@ -578,25 +607,26 @@ namespace Game.Core
             preview.Dice = dice;
             preview.Chance = ChanceOf(actor, skill);
             int free = 0;
-            void Add(int amount, string why)
+            // `reason` names the sure successes with their number: "표식 1".
+            void Add(int amount, string reason)
             {
                 if (amount <= 0) return;
                 free += amount;
-                preview.Reasons.Add($"{why} {amount}");
+                preview.Reasons.Add(reason);
             }
-            Add(hero.Blessing, "축복");
-            Add(hero.Luck, "행운");
+            Add(hero.Blessing, Words.Line("battle.reason.blessing", hero.Blessing));
+            Add(hero.Luck, Words.Line("battle.reason.luck", hero.Luck));
             if (skill.Damages && skill.Target == SkillTarget.Enemy)
             {
-                if (target.Has(StatusKind.Mark)) Add(1, "표식");
-                if (_lastAttacker >= 0 && _lastAttacker != actor.Id && _lastAttacked == target.Id) Add(1, "협공");
+                if (target.Has(StatusKind.Mark)) Add(1, Words.Line("battle.reason.mark", 1));
+                if (_lastAttacker >= 0 && _lastAttacker != actor.Id && _lastAttacked == target.Id) Add(1, Words.Line("battle.reason.follow_up", 1));
             }
-            if (skill.Damages && actor.Has(StatusKind.Hidden)) Add(1, "기습");
-            if (Resonates(actor, skill)) Add(1, "공명");
+            if (skill.Damages && actor.Has(StatusKind.Hidden)) Add(1, Words.Line("battle.reason.ambush", 1));
+            if (Resonates(actor, skill)) Add(1, Words.Line("battle.reason.resonance", 1));
             preview.Free = Math.Min(free, dice);
             preview.ResolveRoom = Math.Min(hero.Resolve, dice - preview.Free);
             if (command.Resolve < 0 || command.Resolve > preview.ResolveRoom)
-                return Fail(preview, $"결의는 0~{preview.ResolveRoom}개 쓸 수 있습니다.");
+                return Fail(preview, Words.Line("battle.error.resolve", preview.ResolveRoom));
             preview.Resolve = command.Resolve;
             preview.Odds = new CheckOdds(dice, preview.Chance, preview.Free + preview.Resolve);
             preview.ValueBySuccesses = new int[dice + 1];
@@ -686,10 +716,9 @@ namespace Game.Core
                 hero.Blessing = 0;
                 hero.Luck = 0;
                 check = Fate.Roll(preview.Dice, preview.Chance, preview.Guaranteed);
-                string sure = check.Guaranteed > 0 ? $" (확정 {check.Guaranteed})" : "";
-                Emit(new BattleEvent { Kind = BattleEventKind.Roll, Actor = actor.Id, Target = target.Id, Skill = skill.Id, SkillName = skill.Name, Check = check, Perfect = check.Perfect, Text = $"{actor.Name}의 {skill.Name}: {preview.Chance}% ×{check.Dice}{sure} → 성공 {check.Successes}" + (check.Perfect ? " 완벽!" : "") });
+                Emit(new BattleEvent { Kind = BattleEventKind.Roll, Actor = actor.Id, Target = target.Id, Skill = skill.Id, SkillName = skill.Name, Check = check, Perfect = check.Perfect, Text = RollLine(actor.Name, skill.Name, preview.Chance, check.Dice, check.Guaranteed, check.Successes, check.Perfect) });
                 int gained = hero.AddGrit(check.RolledFailures);
-                if (gained > 0) Emit(new BattleEvent { Kind = BattleEventKind.ResolveGained, Actor = actor.Id, Amount = gained, Text = $"{actor.Name}: 끈기가 차서 결의 +{gained}" });
+                if (gained > 0) Emit(new BattleEvent { Kind = BattleEventKind.ResolveGained, Actor = actor.Id, Amount = gained, Text = Words.Line("battle.grit", actor.Name, gained) });
             }
             int successes = check?.Successes ?? 0;
             bool perfect = check != null && check.Perfect;
@@ -714,16 +743,16 @@ namespace Game.Core
                         {
                             int was = other.Hp;
                             other.Hero.Heal(heal);
-                            Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = other.Id, Amount = other.Hp - was, Perfect = perfect, Text = $"{other.Name}: +{other.Hp - was} 회복" });
+                            Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = other.Id, Amount = other.Hp - was, Perfect = perfect, Text = Words.Line("battle.heal", other.Name, other.Hp - was) });
                         }
                     int before = target.Hp;
                     target.Hero.Heal(heal);
-                    Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = target.Id, Amount = target.Hp - before, Perfect = perfect, Text = $"{target.Name}: +{target.Hp - before} 회복" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = target.Id, Amount = target.Hp - before, Perfect = perfect, Text = Words.Line("battle.heal", target.Name, target.Hp - before) });
                     break;
                 case SkillKind.Revive:
                     int hp = EffectOn(actor, skill, target, successes, check?.Dice ?? 0);
                     target.Hp = Math.Min(target.MaxHp, hp);
-                    Emit(new BattleEvent { Kind = BattleEventKind.Revive, Actor = actor.Id, Target = target.Id, Amount = target.Hp, Text = $"{Korean.Subject(target.Name)} 일어났다 (생명력 {target.Hp})" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.Revive, Actor = actor.Id, Target = target.Id, Amount = target.Hp, Text = Words.Line("battle.revive", target.Name, target.Hp) });
                     break;
                 case SkillKind.Support:
                     Support(actor, skill, target, check);
@@ -750,7 +779,7 @@ namespace Game.Core
                 int damage = Reduce(skill, value, t);
                 if (damage <= 0)
                 {
-                    Emit(new BattleEvent { Kind = BattleEventKind.Miss, Actor = actor.Id, Target = t.Id, Text = $"{t.Name}: 빗나감" });
+                    Emit(new BattleEvent { Kind = BattleEventKind.Miss, Actor = actor.Id, Target = t.Id, Text = Words.Line("battle.miss", t.Name) });
                     continue;
                 }
                 int before = t.Hp;

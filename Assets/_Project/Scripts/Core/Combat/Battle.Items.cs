@@ -30,11 +30,11 @@ namespace Game.Core
             string id = command.Skill.Substring(BattleCommand.UsePrefix.Length);
             var item = ItemOf(id);
             preview.Item = item;
-            if (item == null || !item.Consumable) return Fail(preview, $"그런 소모품은 없습니다: {id}");
-            if (actor.Hero.Count(id) <= 0) return Fail(preview, $"{item.Name}이 없습니다.");
+            if (item == null || !item.Consumable) return Fail(preview, Words.Line("battle.error.no_such_item", id));
+            if (actor.Hero.Count(id) <= 0) return Fail(preview, Words.Line("battle.error.none_left", item.Name));
             var user = Unit(command.Target);
-            if (user != null && user.Id != actor.Id && !item.Use.Any(u => u.Verb == "bomb")) return Fail(preview, $"{item.Name}은 자신에게만 씁니다.");
-            if (item.Use.Any(u => u.Verb == "flee") && !CanFlee) return Fail(preview, "보스에게서는 도망칠 수 없습니다.");
+            if (user != null && user.Id != actor.Id && !item.Use.Any(u => u.Verb == "bomb")) return Fail(preview, Words.Line("battle.error.self_only", item.Name));
+            if (item.Use.Any(u => u.Verb == "flee") && !CanFlee) return Fail(preview, Words.Line("battle.error.boss_flee"));
             preview.Odds = new CheckOdds(0, 100, 0);
             int value = 0;
             foreach (var use in item.Use)
@@ -61,20 +61,20 @@ namespace Game.Core
                     case "heal":
                         int before = actor.Hp;
                         hero.Heal(HealOf(actor, use.Amount));
-                        if (actor.Hp > before) Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = actor.Id, Amount = actor.Hp - before, Text = $"{actor.Name}: +{actor.Hp - before} 회복" });
+                        if (actor.Hp > before) Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = actor.Id, Amount = actor.Hp - before, Text = Words.Line("battle.heal", actor.Name, actor.Hp - before) });
                         break;
                     case "resolve":
                         hero.GainResolve(use.Amount);
-                        Emit(new BattleEvent { Kind = BattleEventKind.ResolveGained, Actor = actor.Id, Amount = use.Amount, Text = $"{actor.Name}: 결의 +{use.Amount}" });
+                        Emit(new BattleEvent { Kind = BattleEventKind.ResolveGained, Actor = actor.Id, Amount = use.Amount, Text = Words.Line("battle.resolve", actor.Name, use.Amount) });
                         break;
                     case "cleanse":
                         foreach (var kind in new[] { StatusKind.Burn, StatusKind.Weak, StatusKind.Corrode })
                             if (actor.Statuses.Remove(kind))
-                                Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = actor.Id, Status = kind, Text = $"{actor.Name}: {Korean.Subject(StatusNames.Name(kind))} 걷혔다" });
+                                Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = actor.Id, Status = kind, Text = Words.Line("battle.status.cleared", actor.Name, Words.Status(kind)) });
                         break;
                     case "luck":
                         hero.Luck += use.Amount;
-                        Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Amount = use.Amount, Text = $"{actor.Name}: 다음 판정 확정 +{use.Amount}" });
+                        Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Amount = use.Amount, Text = Words.Line("battle.luck", actor.Name, use.Amount) });
                         break;
                     case "bomb":
                         foreach (var monster in Monsters.Where(m => !m.Down).ToList())
@@ -84,7 +84,7 @@ namespace Game.Core
                         }
                         break;
                     case "flee":
-                        Escape(actor, $"{actor.Name}: {item.Name}! 연기 속으로 모두 빠져나왔다");
+                        Escape(actor, Words.Line("battle.flee.smoke", actor.Name, item.Name));
                         return;
                 }
             }
@@ -96,16 +96,16 @@ namespace Game.Core
         // Running away: the current hero's agility, three dice, two successes; resolve can buy sure ones.
         SkillPreview PreviewFlee(SkillPreview preview, Unit actor, BattleCommand command)
         {
-            if (!CanFlee) return Fail(preview, "보스에게서는 도망칠 수 없습니다.");
+            if (!CanFlee) return Fail(preview, Words.Line("battle.error.boss_flee"));
             var hero = actor.Hero;
             preview.Dice = FleeDice;
             preview.Need = FleeNeed;
             preview.Chance = Dice.ClampChance(hero.Stat(Stat.Agility));
             int free = Math.Min(FleeDice, hero.Blessing + hero.Luck);
-            if (free > 0) preview.Reasons.Add($"축복·행운 {free}");
+            if (free > 0) preview.Reasons.Add(Words.Line("battle.reason.blessing_luck", free));
             preview.Free = free;
             preview.ResolveRoom = Math.Min(hero.Resolve, FleeDice - free);
-            if (command.Resolve < 0 || command.Resolve > preview.ResolveRoom) return Fail(preview, $"결의는 0~{preview.ResolveRoom}개 쓸 수 있습니다.");
+            if (command.Resolve < 0 || command.Resolve > preview.ResolveRoom) return Fail(preview, Words.Line("battle.error.resolve", preview.ResolveRoom));
             preview.Resolve = command.Resolve;
             preview.Odds = new CheckOdds(FleeDice, preview.Chance, free + command.Resolve);
             preview.ValueBySuccesses = new int[FleeDice + 1];
@@ -120,15 +120,15 @@ namespace Game.Core
             hero.Blessing = 0;
             hero.Luck = 0;
             var check = Fate.Roll(FleeDice, preview.Chance, preview.Guaranteed);
-            Emit(new BattleEvent { Kind = BattleEventKind.Roll, Actor = actor.Id, Target = actor.Id, Skill = BattleCommand.Flee, SkillName = "도망", Check = check, Perfect = check.Perfect, Text = $"{actor.Name}의 도망: {preview.Chance}% ×{FleeDice} → 성공 {check.Successes} (필요 {FleeNeed})" });
+            Emit(new BattleEvent { Kind = BattleEventKind.Roll, Actor = actor.Id, Target = actor.Id, Skill = BattleCommand.Flee, SkillName = Words.Line("battle.flee"), Check = check, Perfect = check.Perfect, Text = Words.Line("battle.flee.roll", actor.Name, preview.Chance, FleeDice, check.Successes, FleeNeed) });
             hero.AddGrit(check.RolledFailures);
             _lastAttacker = _lastAttacked = -1;
             if (check.Successes >= FleeNeed)
             {
-                Escape(actor, $"{actor.Name}: 모두 데리고 빠져나왔다");
+                Escape(actor, Words.Line("battle.flee.done", actor.Name));
                 return;
             }
-            Emit(new BattleEvent { Kind = BattleEventKind.Miss, Actor = actor.Id, Target = actor.Id, Text = $"{actor.Name}: 도망치지 못했다" });
+            Emit(new BattleEvent { Kind = BattleEventKind.Miss, Actor = actor.Id, Target = actor.Id, Text = Words.Line("battle.flee.failed", actor.Name) });
             AfterAction(actor, null);
             EndTurn(actor, 100);
             Advance();
