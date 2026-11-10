@@ -388,9 +388,10 @@ namespace Game.Client
             if (infoW > 120) Ui.Text(new Rect(info.x + 90, info.y, 60, r.height), _adventure.BossBattle ? Strings.Get("battle.boss") : Strings.Format("common.day", _adventure.Day), 12, _adventure.BossBattle ? Palette.Damage : Palette.Dim, TextAnchor.MiddleRight);
         }
 
-        static Texture2D Sprite(Unit unit) => unit.IsHero
-            ? PixelArt.Hero(unit.Hero.Class.Id, unit.Hero.Class.Color)
-            : PixelArt.Monster(unit.Monster.Id, unit.Monster.Color);
+        // The unit's picture in its pose: the blow while lunging, the recoil while hit (Docs/WebDemo.md 도트 다듬기).
+        static Texture2D Sprite(Unit unit, PixelArt.Pose pose = PixelArt.Pose.Stand) => unit.IsHero
+            ? PixelArt.Hero(unit.Hero.Class.Id, unit.Hero.Class.Color, pose)
+            : PixelArt.Monster(unit.Monster.Id, unit.Monster.Color, pose, unit.Side == Side.Party);
 
         void DrawUnits(Rect field, Battle battle)
         {
@@ -470,7 +471,8 @@ namespace Game.Client
             _unitRects[unit.Id] = spriteRect;
             Ui.Fill(new Rect(spriteRect.x + sprite * 0.15f, spriteRect.yMax - sprite * 0.06f, sprite * 0.7f, sprite * 0.08f), new Color(0, 0, 0, 0.35f));
             var tint = down ? new Color(0.4f, 0.4f, 0.45f, 0.45f) : hit ? new Color(1f, 0.55f, 0.5f, 1f) : (Color?)null;
-            Ui.Image(spriteRect, Sprite(unit), tint);
+            var pose = down ? PixelArt.Pose.Stand : hit ? PixelArt.Pose.Hit : lunge > 0 ? PixelArt.Pose.Attack : PixelArt.Pose.Stand;
+            Ui.Image(spriteRect, Sprite(unit, pose), tint);
 
             if (!unit.IsHero && !down && unit.Intent != null && !battle.Over) DrawIntent(new Rect(slot.x + 2, slot.y, slot.width - 4, intentH - 2), unit, battle);
 

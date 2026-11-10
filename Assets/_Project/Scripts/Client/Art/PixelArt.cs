@@ -3,42 +3,14 @@ using UnityEngine;
 
 namespace Game.Client
 {
-    // The prototype's pixel art, drawn in code (no image files to import): each picture is rows of letters, one
-    // letter a pixel, read through a palette. Heroes face right, monsters face left. 'c' and 'd' are the class's (or
-    // monster's) own color and its shade. DevTools/ArtPreview/preview.py draws these same rows into a PNG to look at
-    // without Unity. Textures are made once and sampled to the nearest pixel, so they stay crisp at any size.
+    // The game's pixel art, drawn in code (no image files to import; user decision 2026-11-10: pixel art): each picture
+    // is rows of letters, one letter a point, read through the fixed palette (GamePalette, Resources/Data/Ui/palette.csv).
+    // Heroes face right, monsters face left (summons that stand with the heroes face right). 'c', 'd' and 'C' are the
+    // class's (or monster's) own colour and one step darker or lighter on its palette ramp. Heroes and monsters are
+    // 32×32, chapter bosses 48×48, icons 24×24. DevTools/ArtPreview/preview.py draws these same rows into a PNG to look
+    // at without Unity. Textures are made once and sampled to the nearest point, so they stay crisp at any size.
     static class PixelArt
     {
-        // The letters of the small pictures drawn before the fixed palette (16×16 heroes and monsters, 12×12 icons),
-        // with the colours they were drawn in; each is snapped to the palette (GamePalette) when the picture is made.
-        // Pictures drawn at full size (24 rows or more) use the palette's own letters (Resources/Data/Ui/palette.csv).
-        static readonly Dictionary<char, string> Legacy = new Dictionary<char, string>
-        {
-            ['k'] = "#1B1820",
-            ['s'] = "#E8B48A",
-            ['S'] = "#B9825E",
-            ['h'] = "#4A3424",
-            ['H'] = "#C9A15A",
-            ['m'] = "#C9CED6",
-            ['M'] = "#7D8591",
-            ['w'] = "#7A5232",
-            ['W'] = "#F4F1EA",
-            ['g'] = "#E8C15A",
-            ['r'] = "#C8473C",
-            ['o'] = "#E8873A",
-            ['b'] = "#5C8FD6",
-            ['G'] = "#6E8F3A",
-            ['l'] = "#9DBA5A",
-            ['y'] = "#E6E2B0",
-            ['p'] = "#8A6BBE",
-            ['a'] = "#9A8F86",
-            ['A'] = "#655D57",
-            ['e'] = "#FF7A3A",
-            ['B'] = "#2E4F7A",
-            ['n'] = "#4F8A8A",
-            ['N'] = "#D8C08A",
-        };
-
         static readonly Dictionary<string, Texture2D> Cache = new Dictionary<string, Texture2D>();
 
         // Pictures are asked for many times a frame (every hex, every unit): found by (kind, name, color) without
@@ -54,30 +26,72 @@ namespace Game.Client
             return texture;
         }
 
-        public static Texture2D Hero(string classId, string color)
+        // What a battler is doing: standing, the instant of its blow, or the recoil of being struck.
+        public enum Pose
         {
-            if (Known('h', classId, color, out var known)) return known;
-            return Keep('h', classId, color, Make("hero:" + classId, Heroes.TryGetValue(classId, out var rows) ? rows : Wanderer, color, true));
+            Stand,
+            Attack,
+            Hit,
         }
 
-        public static Texture2D Monster(string monsterId, string color)
+        // A hero standing, or in its attack or hit pose: the class's own drawn pose ("knight_attack") where there is
+        // one, otherwise the standing picture leaned forward (attack) or back and down (hit).
+        public static Texture2D Hero(string classId, string color, Pose pose = Pose.Stand)
         {
-            if (Known('m', monsterId, color, out var known)) return known;
-            return Keep('m', monsterId, color, Make("monster:" + monsterId, Monsters.TryGetValue(monsterId, out var rows) ? rows : Monsters["goblin"], color, true));
+            char kind = pose == Pose.Attack ? 'a' : pose == Pose.Hit ? 'b' : 'h';
+            if (Known(kind, classId, color, out var known)) return known;
+            var stand = Heroes.TryGetValue(classId, out var rows) ? rows : Wanderer;
+            if (pose != Pose.Stand && !Heroes.TryGetValue(classId + (pose == Pose.Attack ? "_attack" : "_hit"), out rows))
+                rows = Lean(stand, pose, true);
+            return Keep(kind, classId, color, Make($"hero:{classId}:{kind}", rows ?? stand, color));
         }
 
-        // Pictures of 24 rows or more (24×24 icons, 32×32 heroes and monsters, 48×48 bosses) are drawn in the palette's
-        // letters and shaded by hand. Smaller ones are the older letter rows: snapped to the palette, and with `finish`
-        // (a small hero or monster) drawn at twice the size with the finishing pass below. Every colour comes from the
-        // palette: `c` is the class or monster colour, `d` one step darker on its ramp, `C` one step lighter.
-        public static Texture2D Make(string key, string[] rows, string color, bool finish = false)
+        // A monster standing or posed by leaning (monsters face left; `facingRight` for the summons on the heroes' side).
+        public static Texture2D Monster(string monsterId, string color, Pose pose = Pose.Stand, bool facingRight = false)
         {
-            key += color + (finish ? "+" : "");
+            char kind = pose == Pose.Stand ? 'm' : pose == Pose.Attack ? (facingRight ? 'r' : 'n') : (facingRight ? 's' : 'o');
+            if (Known(kind, monsterId, color, out var known)) return known;
+            var stand = Monsters.TryGetValue(monsterId, out var rows) ? rows : Monsters["goblin"];
+            var posed = pose == Pose.Stand ? stand : Lean(stand, pose, facingRight);
+            return Keep(kind, monsterId, color, Make($"monster:{monsterId}:{kind}", posed, color));
+        }
+
+        // The picture's rows sheared: the feet stay, the head goes up to two points toward the facing side for a blow,
+        // or away from it for a hit, which also sinks the picture one row. Points pushed past the edge are dropped.
+        static string[] Lean(string[] rows, Pose pose, bool facingRight)
+        {
+            int height = rows.Length, width = rows[0].Length;
+            int most = Mathf.Max(1, width / 16);
+            int toward = (pose == Pose.Attack ? 1 : -1) * (facingRight ? 1 : -1) * most;
+            int sink = pose == Pose.Hit ? 1 : 0;
+            var leaned = new string[height];
+            var line = new char[width];
+            for (int y = 0; y < height; y++)
+            {
+                int from = y - sink;
+                for (int x = 0; x < width; x++) line[x] = '.';
+                if (from >= 0)
+                {
+                    int shift = Mathf.RoundToInt(toward * (float)(height - 1 - from) / (height - 1));
+                    for (int x = 0; x < width; x++)
+                    {
+                        int to = x + shift;
+                        if (to >= 0 && to < width) line[to] = rows[from][x];
+                    }
+                }
+                leaned[y] = new string(line);
+            }
+            return leaned;
+        }
+
+        // Every colour comes from the palette: `c` is the class or monster colour, `d` one step darker on its ramp, `C`
+        // one step lighter; any other letter is the palette's own (magenta shows a letter the palette does not have).
+        public static Texture2D Make(string key, string[] rows, string color)
+        {
+            key += color;
             if (Cache.TryGetValue(key, out var cached) && cached != null) return cached;
             int height = rows.Length;
             int width = rows[0].Length;
-            bool full = height >= 24;
-            finish &= !full;
             var main = GamePalette.Snap(Palette.Hex(color ?? "#888888"));
             var shade = GamePalette.Darker(main);
             var light = GamePalette.Lighter(main);
@@ -94,16 +108,9 @@ namespace Game.Client
                     else if (c == 'c') pixel = main;
                     else if (c == 'd') pixel = shade;
                     else if (c == 'C') pixel = light;
-                    else if (full) pixel = GamePalette.Letter(c, out var letter) ? letter : missing;
-                    else pixel = Legacy.TryGetValue(c, out string hex) ? GamePalette.Snap(Palette.Hex(hex)) : missing;
+                    else pixel = GamePalette.Letter(c, out var letter) ? letter : missing;
                     pixels[y * width + x] = pixel;
                 }
-            }
-            if (finish)
-            {
-                pixels = Finish(pixels, width, height);
-                width *= 2;
-                height *= 2;
             }
             var texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
             {
@@ -155,62 +162,7 @@ namespace Game.Client
             return texture;
         }
 
-        // ---- The finishing pass (user decision 2026-11-10: the art stays pixel art, drawn in code) ----
-
-        // The letter rows at twice the size, then: the dark outline thinned to one point (half what it was), and in
-        // each coloured part a lit edge toward the top left and a shaded edge toward the bottom right, one step along
-        // the colour's palette ramp, so the shapes read with volume (three tones from two). Thin parts lit on both sides keep their colour. Shapes stay exactly
-        // as drawn (no smoothing: small crosses and blades would melt). Pixels run bottom-up, as Texture2D keeps them.
-        static Color32[] Finish(Color32[] small, int width, int height)
-        {
-            int w = width * 2, h = height * 2;
-            var big = new Color32[w * h];
-            for (int y = 0; y < h; y++)
-                for (int x = 0; x < w; x++)
-                    big[y * w + x] = small[y / 2 * width + x / 2];
-            var ink = GamePalette.Ink;
-            bool Ink(Color32 c) => c.a > 0 && c.r == ink.r && c.g == ink.g && c.b == ink.b;
-            bool Clear(Color32[] p, int x, int y) => x < 0 || y < 0 || x >= w || y >= h || p[y * w + x].a == 0;
-            bool InkAt(Color32[] p, int x, int y) => x >= 0 && y >= 0 && x < w && y < h && Ink(p[y * w + x]);
-            bool TouchesClear(Color32[] p, int x, int y) => Clear(p, x - 1, y) || Clear(p, x + 1, y) || Clear(p, x, y - 1) || Clear(p, x, y + 1);
-
-            // The outer half of the outline: an ink point on the outside whose inward neighbour is ink too.
-            var thin = (Color32[])big.Clone();
-            for (int y = 0; y < h; y++)
-                for (int x = 0; x < w; x++)
-                {
-                    if (!Ink(big[y * w + x]) || !TouchesClear(big, x, y)) continue;
-                    if ((InkAt(big, x - 1, y) && !TouchesClear(big, x - 1, y)) || (InkAt(big, x + 1, y) && !TouchesClear(big, x + 1, y))
-                        || (InkAt(big, x, y - 1) && !TouchesClear(big, x, y - 1)) || (InkAt(big, x, y + 1) && !TouchesClear(big, x, y + 1)))
-                        thin[y * w + x] = default;
-                }
-            // A corner the thinning left standing alone (both its ink neighbours went): it goes too.
-            var clean = (Color32[])thin.Clone();
-            for (int y = 0; y < h; y++)
-                for (int x = 0; x < w; x++)
-                {
-                    if (!Ink(thin[y * w + x]) || !Clear(thin, x - 1, y) || !Clear(thin, x + 1, y) || !Clear(thin, x, y - 1) || !Clear(thin, x, y + 1)) continue;
-                    if ((InkAt(big, x - 1, y) && Clear(thin, x - 1, y)) || (InkAt(big, x + 1, y) && Clear(thin, x + 1, y))
-                        || (InkAt(big, x, y - 1) && Clear(thin, x, y - 1)) || (InkAt(big, x, y + 1) && Clear(thin, x, y + 1)))
-                        clean[y * w + x] = default;
-                }
-            // Light from the top left (y + 1 is up here), shade toward the bottom right.
-            bool Edge(int x, int y) => Clear(clean, x, y) || InkAt(clean, x, y);
-            var done = (Color32[])clean.Clone();
-            for (int y = 0; y < h; y++)
-                for (int x = 0; x < w; x++)
-                {
-                    var c = clean[y * w + x];
-                    if (c.a == 0 || Ink(c)) continue;
-                    bool lit = Edge(x, y + 1) || Edge(x - 1, y);
-                    bool dark = Edge(x, y - 1) || Edge(x + 1, y);
-                    if (lit && !dark) done[y * w + x] = GamePalette.Lighter(c);
-                    else if (dark && !lit) done[y * w + x] = GamePalette.Darker(c);
-                }
-            return done;
-        }
-
-        // ---- Heroes (16×16, facing right) ----
+        // ---- Heroes (32×32, facing right; a class may add "<id>_attack" and "<id>_hit" poses) ----
 
         static readonly string[] Wanderer =
         {
@@ -2298,30 +2250,42 @@ namespace Game.Client
             },
         };
 
-        // ---- Small icons (8×8) ----
+        // ---- Small icons for the party strip (14×14: one point per two screen pixels on a phone) ----
 
         public static readonly string[] Heart =
         {
-            "........",
-            ".kk..kk.",
-            "krrkkrrk",
-            "krrrrrrk",
-            "krrrrrrk",
-            ".krrrrk.",
-            "..krrk..",
-            "...kk...",
+            "..............",
+            "..kkk....kkk..",
+            ".kZeek..keerk.",
+            "kZeerrkkerrrTk",
+            "kerrrrrrrrrrTk",
+            "kerrrrrrrrrrTk",
+            "kerrrrrrrrrTTk",
+            ".krrrrrrrrrTk.",
+            "..krrrrrrrTk..",
+            "...krrrrrTk...",
+            "....krrrTk....",
+            ".....krTk.....",
+            "......kk......",
+            "..............",
         };
 
         public static readonly string[] Coin =
         {
-            "........",
-            "..kkkk..",
-            ".kggggk.",
-            "kgggWggk",
-            "kggggggk",
-            "kgggggk.",
-            ".kggggk.",
-            "..kkkk..",
+            "..............",
+            "....kkkkkk....",
+            "...kyyyyggk...",
+            "..kyggggggjk..",
+            ".kyggyyyygjjk.",
+            ".kygyggggjgjk.",
+            ".kygyggggjgjk.",
+            ".kygyggggjgjk.",
+            ".kyggjjjjggjk.",
+            ".kggggggggjjk.",
+            "..kjggggggjk..",
+            "...kjjjjjjk...",
+            "....kkkkkk....",
+            "..............",
         };
 
         public static Texture2D Icon(string name)
@@ -2336,7 +2300,7 @@ namespace Game.Client
             return made == null ? null : Keep('i', name, null, made);
         }
 
-        // ---- The map (12×12 marks drawn on the hexes) ----
+        // ---- The map and battle icons (24×24: marks on the hexes, places, status and boss-rule signs) ----
 
         public static readonly Dictionary<string, string[]> MapIcons = new Dictionary<string, string[]>
         {

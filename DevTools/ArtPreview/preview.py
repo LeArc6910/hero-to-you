@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Draws the game's code-drawn pixel art (Assets/_Project/Scripts/Client/Art/PixelArt.cs) into one PNG, to look at
 without Unity. Reads the same letter rows and palette the game does. Fails when a picture's rows are uneven.
-Colours come from the fixed palette (Resources/Data/Ui/palette.csv) as in the game (GamePalette): small pictures'
-letters are snapped to it, full-size pictures (24 rows or more) use the palette's own letters, `c`/`d`/`C` are the
-class or monster colour and one ramp step darker/lighter. Small heroes and monsters get the game's finishing pass
-(PixelArt.Finish): twice the size, the outline thinned to one point, edges lit and shaded one ramp step.
+Colours come from the fixed palette (Resources/Data/Ui/palette.csv) as in the game (GamePalette): every letter is a
+palette colour, and `c`/`d`/`C` are the class or monster colour and one ramp step darker/lighter (poses such as
+"knight_attack" take their class's colour).
 
     python3 DevTools/ArtPreview/preview.py out.png
 
@@ -87,42 +86,6 @@ def pictures(source):
     return found
 
 
-def finish(image, ink, ramps, where):
-    """The game's PixelArt.Finish, on a Pillow image: keep both in step when either changes."""
-    w, h = image.width * 2, image.height * 2
-    big = image.resize((w, h), Image.NEAREST)
-    px = big.load()
-    clear = lambda p, x, y: not (0 <= x < w and 0 <= y < h) or p[x, y][3] == 0
-    is_ink = lambda c: c[3] > 0 and c[:3] == ink[:3]
-    ink_at = lambda p, x, y: 0 <= x < w and 0 <= y < h and is_ink(p[x, y])
-    touches = lambda p, x, y: clear(p, x - 1, y) or clear(p, x + 1, y) or clear(p, x, y - 1) or clear(p, x, y + 1)
-    near = lambda x, y: [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
-    thin_img = big.copy(); thin = thin_img.load()
-    for y in range(h):
-        for x in range(w):
-            if is_ink(px[x, y]) and touches(px, x, y) and any(ink_at(px, nx, ny) and not touches(px, nx, ny) for nx, ny in near(x, y)):
-                thin[x, y] = (0, 0, 0, 0)
-    clean_img = thin_img.copy(); clean = clean_img.load()
-    for y in range(h):
-        for x in range(w):
-            if is_ink(thin[x, y]) and all(clear(thin, nx, ny) for nx, ny in near(x, y)) and any(ink_at(px, nx, ny) and clear(thin, nx, ny) for nx, ny in near(x, y)):
-                clean[x, y] = (0, 0, 0, 0)
-    done_img = clean_img.copy(); done = done_img.load()
-    edge = lambda x, y: clear(clean, x, y) or ink_at(clean, x, y)
-    for y in range(h):
-        for x in range(w):
-            c = clean[x, y]
-            if c[3] == 0 or is_ink(c):
-                continue
-            lit = edge(x, y - 1) or edge(x - 1, y)
-            dark = edge(x, y + 1) or edge(x + 1, y)
-            if lit and not dark:
-                done[x, y] = step(tuple(c[:3]) + (255,), 1, ramps, where)
-            elif dark and not lit:
-                done[x, y] = step(tuple(c[:3]) + (255,), -1, ramps, where)
-    return done_img
-
-
 def colors_of(csv_path):
     with open(csv_path, encoding="utf-8", newline="") as f:
         return {row["id"]: row["color"] for row in csv.DictReader(f) if row.get("color", "").startswith("#")}
@@ -130,7 +93,6 @@ def colors_of(csv_path):
 
 def main(target):
     source = SOURCE.read_text(encoding="utf-8")
-    legacy = {k: hex_color(v) for k, v in re.findall(r"\['(\w)'\] = \"(#[0-9A-Fa-f]{6})\"", source)}
     letters, ramps, where = load_palette()
     tints = {**colors_of(CLASSES), **colors_of(MONSTERS)}
     found = pictures(source)
@@ -143,27 +105,18 @@ def main(target):
     sheet = Image.new("RGBA", (cell * 6, cell * ((len(names) + 5) // 6)), (20, 18, 26, 255))
     for i, name in enumerate(names):
         rows = found[name]
-        main_color = snap(hex_color(tints.get(name, "#8888AA")), ramps, where)
+        base = re.sub(r"_(attack|hit)$", "", name)
+        main_color = snap(hex_color(tints.get(base, "#8888AA")), ramps, where)
         tones = {"c": main_color, "d": step(main_color, -1, ramps, where), "C": step(main_color, 1, ramps, where)}
-        full = len(rows) >= 24
         image = Image.new("RGBA", (len(rows[0]), len(rows)), (0, 0, 0, 0))
         for y, row in enumerate(rows):
             for x, ch in enumerate(row):
                 if ch == ".":
                     continue
-                if ch in tones:
-                    color = tones[ch]
-                elif full:
-                    color = letters.get(ch, (255, 0, 255, 255))
-                else:
-                    color = snap(legacy[ch], ramps, where) if ch in legacy else (255, 0, 255, 255)
+                color = tones[ch] if ch in tones else letters.get(ch, (255, 0, 255, 255))
                 image.putpixel((x, y), color)
-        if name in tints and not full:
-            image = finish(image, letters["k"], ramps, where).resize((image.width * scale, image.height * scale), Image.NEAREST)
-        elif full:
-            image = image.resize((image.width * scale // 2, image.height * scale // 2), Image.NEAREST)
-        else:
-            image = image.resize((image.width * scale, image.height * scale), Image.NEAREST)
+        # Pictures are 24 to 48 points; drawn at half the old scale so a 48×48 boss fits its cell.
+        image = image.resize((image.width * scale // 2, image.height * scale // 2), Image.NEAREST)
         sheet.alpha_composite(image, (i % 6 * cell + 6, i // 6 * cell + 6))
     sheet.save(target)
     print(f"{target}: {len(names)} pictures")
