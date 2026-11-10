@@ -8,18 +8,18 @@
 
 아래를 하면 푸시마다 https://learc6910.github.io/hero-to-you/ 가 갱신되고, 클라우드가 그 페이지로 PC·휴대폰 화면 시험을 한다. 저장소는 이미 public이다. **화면마다 무엇을 누르는지, 문제가 생기면 어떻게 하는지는 `Docs/WebDemoSetup.md`에 단계별로 있다.**
 
-- [ ] Settings > Secrets and variables > Actions > New repository secret: `UNITY_EMAIL`, `UNITY_PASSWORD`. pray-to에 넣은 것과 같은 Unity 계정이면 된다(시크릿은 저장소마다 따로라서 이 저장소에도 넣어야 한다). 소셜 로그인이나 2단계 인증 없이 https://id.unity.com 에 이메일·비밀번호로 들어가지는 계정. **값은 이 파일이나 커밋, 채팅에 절대 적지 않는다**
-- [ ] Settings > Pages > Build and deployment > Source를 **GitHub Actions**로
-- [ ] Settings > Environments > `github-pages` > Deployment branches: 처음 배포는 기본 브랜치에서만 허용된다. 지금 작업 브랜치(`claude/coop-3player-2d-game-qosx9s`)가 이 저장소의 첫 브랜치라 기본 브랜치일 것이다. 나중에 `main`을 기본으로 바꾸면 `main`에서 배포된다. 작업 브랜치에서도 배포하려면 여기서 그 브랜치(또는 `claude/*`)를 더한다
-- [ ] Actions 탭 > Web demo > Run workflow로 첫 빌드를 돌리거나, 클라우드에 "웹 빌드 돌려줘"라고 한다. 첫 빌드는 20분 안팎(Unity 이미지 받기와 Library 만들기). 실패하면 실행 링크를 클라우드에 알려 주면 로그를 보고 고친다
+- [x] Settings > Secrets and variables > Actions > New repository secret: `UNITY_EMAIL`, `UNITY_PASSWORD`. pray-to에 넣은 것과 같은 Unity 계정이면 된다(시크릿은 저장소마다 따로라서 이 저장소에도 넣어야 한다). 소셜 로그인이나 2단계 인증 없이 https://id.unity.com 에 이메일·비밀번호로 들어가지는 계정. **값은 이 파일이나 커밋, 채팅에 절대 적지 않는다**
+- [x] Settings > Pages > Build and deployment > Source를 **GitHub Actions**로
+- [x] Settings > Environments > `github-pages` > Deployment branches: 처음 배포는 기본 브랜치에서만 허용된다. 지금 작업 브랜치(`claude/coop-3player-2d-game-qosx9s`)가 이 저장소의 첫 브랜치라 기본 브랜치일 것이다. 나중에 `main`을 기본으로 바꾸면 `main`에서 배포된다. 작업 브랜치에서도 배포하려면 여기서 그 브랜치(또는 `claude/*`)를 더한다
+- [x] Actions 탭 > Web demo > Run workflow로 첫 빌드를 돌리거나, 클라우드에 "웹 빌드 돌려줘"라고 한다. 첫 빌드는 20분 안팎(Unity 이미지 받기와 Library 만들기). 실패하면 실행 링크를 클라우드에 알려 주면 로그를 보고 고친다 — 2026-11-10 돌렸고 라이선스는 됐지만 컴파일 에러로 실패했다(아래 결과 보고)
 
 ### (선택) Unity 에디터에서 열어 보기
 
 에디터에서 열어 볼 때만 필요하다. 웹 데모는 이것 없이도 된다.
 
-- [ ] Unity Hub에서 **Unity 6000.6.3f1**(pray-to와 같은 버전)으로 이 폴더를 연다. 처음 열면 패키지를 받고 임포트하느라 몇 분 걸린다
-- [ ] 메뉴 **Game > Set Up Project** 한 번. 설정과 `Assets/_Project/Scenes/Main.unity`가 생긴다. Play를 누르면 타이틀이 뜬다
-- [ ] 생긴 `.meta`, `ProjectSettings/`, `Packages/packages-lock.json`, `Main.unity`를 커밋해도 되고 안 해도 된다(웹 빌드는 없어도 된다). 커밋하면 다음부터 GUID가 고정된다
+- [x] Unity Hub에서 **Unity 6000.6.3f1**(pray-to와 같은 버전)으로 이 폴더를 연다. 처음 열면 패키지를 받고 임포트하느라 몇 분 걸린다
+- [x] 메뉴 **Game > Set Up Project** 한 번. 설정과 `Assets/_Project/Scenes/Main.unity`가 생긴다. Play를 누르면 타이틀이 뜬다
+- [x] 생긴 `.meta`, `ProjectSettings/`, `Packages/packages-lock.json`, `Main.unity`를 커밋해도 되고 안 해도 된다(웹 빌드는 없어도 된다). 커밋하면 다음부터 GUID가 고정된다
 - 로컬에서는 `.cs`를 고치지 않는다. 컴파일 에러나 이상한 점은 아래 "결과 보고"에 Console 로그와 함께 적으면 클라우드가 고친다
 
 ### 매번: 직접 해 보고 느낌 적기
@@ -107,3 +107,18 @@
 ## 결과 보고
 
 (사람이나 로컬 세션이 날짜와 함께 위에서부터 적는다)
+
+### 2026-11-10 로컬 세션 (Windows, Unity 6000.6.3f1)
+
+- **웹 데모 설정**: 시크릿 둘, Pages 소스(GitHub Actions), `github-pages` 배포 브랜치(`claude/coop-3player-2d-game-qosx9s`)가 모두 들어가 있다. 사람이 Run workflow로 돌린 첫 빌드(Actions 실행 42786357662)에서 **Unity Personal 라이선스 활성화와 반납은 성공**했다
+- **컴파일 에러 (클라우드가 고칠 것)**: 첫 웹 빌드가 에디터의 스크립트 컴파일에서 실패했다. 로컬 에디터에서도 똑같이 난다
+  ```
+  Assets/Tests/EditMode/AdventureTests.cs(98,68): error CS1503: Argument 1: cannot convert from 'int' to 'string'
+  Scripts have compiler errors.
+  ```
+  - 원인: Unity의 NUnit(`com.unity.ext.nunit`의 `unity-custom/nunit.framework.dll`)은 `ConstraintExpression`에 `Contain(string)`만 있고 `Contain(object)`가 없다. 그래서 `Does.Not.Contain(2)`를 문자열 포함으로 읽는다. `dotnet test`의 NUnit 3.14에는 `Contain(object)`가 있어 통과했다. 이 dll의 `ConstraintExpression`에 있는 것: `Contains(object)`, `Contains(string)`, `Contain(string)`, `Member(object)`
+  - 고치는 법: `Has.No.Member(2)`(또는 `Does.Not.Contains(2)`). 로컬에서 이 줄만 임시로 `Has.No.Member(2)`로 바꿔 보니 컴파일되고 아래 테스트가 모두 통과했다. 임시 수정은 되돌렸고 커밋하지 않았다
+  - 다시 생기지 않게: `UnityCompileCheck`가 `Game.Core.Tests`도 Unity의 nunit.framework.dll로 컴파일해 보면 CI에서 잡힌다
+- **에디터에서 열기**: 배치 모드로 `Game.Client.Editor.ProjectSetup.RunBatch`를 돌렸다(위 임시 수정 상태). "Project setup done.", 다른 컴파일 에러·경고는 없었다. 생긴 `.meta` 148개, `ProjectSettings/`, `Packages/packages-lock.json`, `Assets/_Project/Scenes/Main.unity`를 커밋했다. 공개 저장소라 확인했다: 클라우드 프로젝트 ID·조직 ID는 비어 있고 로컬 경로는 들어가지 않았다
+- **Unity 테스트 러너(EditMode)**: 151개 모두 통과(3.3초, 위 임시 수정 상태)
+- **아직 못 한 것**: 웹 데모가 아직 올라가지 않아 1~6번의 휴대폰·손맛 확인은 웹 데모가 뜬 뒤 사람이 한다
