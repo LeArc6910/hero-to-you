@@ -73,7 +73,7 @@ namespace Game.Client
                 // Someone saved in an earlier chapter waits by a fire, facing the party.
                 float fire = s * 0.7f;
                 float flicker = Settings.LessMotion ? 0 : Mathf.Sin(time * 9) * 0.08f;
-                Ui.Image(new Rect(r.x + r.width * 0.62f, r.yMax - fire - 6, fire, fire), PixelArt.Icon("camp"), new Color(1, 1, 1, 0.9f + flicker));
+                Ui.Image(new Rect(r.x + r.width * 0.62f, r.yMax - fire - 6, fire, fire), PixelArt.Icon("flame"), new Color(1, 1, 1, 0.9f + flicker));
                 float who = Mathf.Min(r.height * 0.36f, 56);
                 Ui.Image(new Rect(r.x + r.width * 0.62f + fire, r.yMax - who - 4, who, who), PixelArt.Hero("wanderer", "#9A8F88"), null, true);
             }
