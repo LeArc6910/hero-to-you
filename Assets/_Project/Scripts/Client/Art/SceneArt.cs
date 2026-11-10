@@ -29,32 +29,100 @@ namespace Game.Client
             GUI.color = old;
         }
 
-        // The place behind a battle: the picture as wide as the rect, its horizon (row 64) on `horizonY`, the sky carried
-        // up past its top in a darker band and its ground carried down past its bottom. False when there is no picture.
-        public static bool DrawBackdrop(Rect r, string scene, float horizonY, Color tint)
+        // ---- The battle's ground in perspective (user request 2026-11-10: the field seen at an angle) ----
+
+        // The picture's rows down to a little below its horizon stay as drawn (the far ground); nearer, the ground is a
+        // plane in the picture's own ground colours: lines running off to a vanishing point behind the foes, cross
+        // lines closer together toward the horizon, and grit that grows with nearness. Made once per place and size.
+        const int FarGroundRows = 6;
+        static readonly Dictionary<(string, int, int, int), Texture2D> Grounds = new Dictionary<(string, int, int, int), Texture2D>();
+
+        public static bool DrawBattleGround(Rect field, string scene, float horizonY, float vanishingX, Color tint)
         {
             var picture = PixelArt.Picture(scene);
             if (picture == null) return false;
             float w = picture.width, h = picture.height, horizonRow = h * 2 / 3;
-            float s = r.width / w;
-            float top = horizonY - horizonRow * s, bottom = top + h * s;
+            float s = field.width / w;
+            float top = horizonY - horizonRow * s;
+            int keep = (int)horizonRow + FarGroundRows;
+            float stripBottom = top + keep * s;
+            if (Event.current.type != EventType.Repaint) return true;
             var old = GUI.color;
             GUI.color = tint;
-            if (top > r.y)
+            if (top > field.y) Ui.Fill(new Rect(field.x, field.y, field.width, top - field.y + 1), tint * (Color)PixelArt.PictureEdge(scene, true));
+            float y0 = Mathf.Max(field.y, top);
+            if (stripBottom > y0)
             {
-                var sky = PixelArt.PictureEdge(scene, true);
-                float above = top - r.y;
-                Ui.Image(new Rect(r.x, r.y, r.width, above + 1), PixelArt.Sky(GamePalette.Darker(sky), sky, r.width / Mathf.Max(1, above)), tint);
+                float from = (y0 - top) / s;
+                GUI.DrawTextureWithTexCoords(Ui.ToPixels(new Rect(field.x, y0, field.width, stripBottom - y0)), picture, new Rect(0, (h - keep) / h, 1, (keep - from) / h));
             }
-            if (bottom < r.yMax) Ui.Fill(new Rect(r.x, bottom - 1, r.width, r.yMax - bottom + 1), tint * (Color)PixelArt.PictureEdge(scene, false));
-            float y0 = Mathf.Max(r.y, top), y1 = Mathf.Min(r.yMax, bottom);
-            if (y1 > y0 && Event.current.type == EventType.Repaint)
+            if (field.yMax > stripBottom)
             {
-                float from = (y0 - top) / s, to = (y1 - top) / s;
-                GUI.DrawTextureWithTexCoords(Ui.ToPixels(new Rect(r.x, y0, r.width, y1 - y0)), picture, new Rect(0, (h - to) / h, 1, (to - from) / h));
+                int gw = (int)w, gh = Mathf.Max(1, Mathf.CeilToInt((field.yMax - stripBottom) / s));
+                int vanishing = Mathf.RoundToInt((vanishingX - field.x) / s);
+                var ground = Ground(scene, gw, gh, vanishing, (stripBottom - horizonY) / s);
+                GUI.DrawTexture(Ui.ToPixels(new Rect(field.x, stripBottom, field.width, gh * s)), ground);
             }
             GUI.color = old;
             return true;
+        }
+
+        static Texture2D Ground(string scene, int width, int height, int vanishing, float belowHorizon)
+        {
+            var key = (scene, width, height, vanishing);
+            if (Grounds.TryGetValue(key, out var made) && made != null) return made;
+            var (most, next) = PixelArt.PictureColors(scene, 76, 96);
+            Color32 lines = GamePalette.Lighter(most), far = GamePalette.Darker(most);
+            var pixels = new Color32[width * height];
+            float depth = height + belowHorizon;
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                    pixels[(height - 1 - y) * width + x] = most;
+            void Set(int x, int y, Color32 c)
+            {
+                if (x >= 0 && x < width && y >= 0 && y < height) pixels[(height - 1 - y) * width + x] = c;
+            }
+            // Cross lines, closer together toward the horizon.
+            for (int k = 1; k < 12; k++)
+            {
+                int y = Mathf.RoundToInt(depth * Mathf.Pow(k / 11f, 1.9f) - belowHorizon);
+                for (int x = 0; x < width; x += 1) if (((x + k) & 1) == 0) Set(x, y, lines);
+            }
+            // Lines from the vanishing point, every so often along the bottom edge.
+            for (int k = -10; k <= 10; k++)
+            {
+                float bottomX = vanishing + k * width * 0.16f;
+                for (int y = 0; y < height; y++)
+                {
+                    float t = (y + belowHorizon) / depth;
+                    Set(Mathf.RoundToInt(vanishing + (bottomX - vanishing) * t), y, lines);
+                }
+            }
+            // Grit, bigger nearer; the same for the same place.
+            var random = new System.Random(scene.Length * 7919 + width);
+            int grains = width * height / 90;
+            for (int i = 0; i < grains; i++)
+            {
+                float t = Mathf.Pow((float)random.NextDouble(), 0.7f);
+                int y = (int)(t * (height - 1)), x = random.Next(width);
+                int size = 1 + (int)(2 * t);
+                for (int dy = 0; dy < Mathf.Max(1, size / 2); dy++)
+                    for (int dx = 0; dx < size; dx++) Set(x + dx, y + dy, next);
+            }
+            // The ground nearest the horizon a step darker, dithered into the rest (it reads as farther).
+            for (int y = 0; y < Mathf.Min(height, 6); y++)
+                for (int x = 0; x < width; x++)
+                    if (((x + y) & 1) == 0 && y < 3 || ((x * 3 + y) % 4 == 0 && y < 6)) Set(x, y, far);
+            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.HideAndDontSave,
+            };
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            Grounds[key] = texture;
+            return texture;
         }
 
         // A picture over a whole screen: as big as covering it needs, but never so big that fewer than `minColumns` of

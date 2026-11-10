@@ -212,6 +212,15 @@ async function playSlice(game, wholeRun) {
     // battle plays on by itself for a few seconds until a blow lands.
     let art = await game.ask('art');
     run.check(!!art.backdrop, `전투 뒤에 장의 장소 그림이 깔린다 (${art.backdrop})`);
+    // The diagonal field (BattleLayout): the foes stand farther off (higher up) and smaller than the party; on a wide
+    // screen they are also to the right.
+    const side = party => (art.units || []).filter(u => u.party === party);
+    const mean = (list, key) => list.reduce((sum, u) => sum + u[key], 0) / Math.max(1, list.length);
+    const heroes = side(true), foes = side(false);
+    run.check(heroes.length > 0 && foes.length > 0 && mean(foes, 'y') < mean(heroes, 'y') && mean(foes, 'size') < mean(heroes, 'size'),
+      `적이 아군보다 멀리(위에) 작게 선다 (발 높이 ${Math.round(mean(foes, 'y'))} < ${Math.round(mean(heroes, 'y'))}, 크기 ${Math.round(mean(foes, 'size'))} < ${Math.round(mean(heroes, 'size'))})`);
+    const upright = game.profile.context.viewport.height > game.profile.context.viewport.width;
+    if (!upright) run.check(mean(foes, 'x') > mean(heroes, 'x'), '가로 화면에서 적은 오른쪽 위, 아군은 왼쪽 아래에 선다');
     // Played slowly (an effect lasts 0.24 s at speed 1) so the photo catches the next blow's effect.
     const before = art.flashes || 0;
     await game.send('speed 0.15; autobattle');

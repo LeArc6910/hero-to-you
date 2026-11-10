@@ -225,6 +225,67 @@ namespace Game.Client
             return GamePalette.Letter(most, out var color) ? color : GamePalette.Ink;
         }
 
+        // The two colours most of a picture's rows `from`..`to` are (its ground, for the battle's ground plane).
+        public static (Color32 most, Color32 next) PictureColors(string name, int from, int to)
+        {
+            if (!Scenes.TryGetValue(name, out var rows) || rows.Length == 0) return (GamePalette.Ink, GamePalette.Ink);
+            var counts = new Dictionary<char, int>();
+            for (int y = Mathf.Max(0, from); y < Mathf.Min(rows.Length, to); y++)
+                foreach (char c in rows[y])
+                    if (c != '.') counts[c] = counts.TryGetValue(c, out int n) ? n + 1 : 1;
+            char first = '.', second = '.';
+            foreach (var pair in counts)
+            {
+                if (first == '.' || pair.Value > counts[first])
+                {
+                    second = first;
+                    first = pair.Key;
+                }
+                else if (second == '.' || pair.Value > counts[second]) second = pair.Key;
+            }
+            var most = GamePalette.Letter(first, out var a) ? a : GamePalette.Ink;
+            var next = GamePalette.Letter(second, out var b) ? b : GamePalette.Darker(most);
+            return (most, next);
+        }
+
+        // An oval lying on the ground (a shadow, or a ring under the unit whose turn it is), white to be tinted.
+        public static Texture2D Oval(bool ring)
+        {
+            if (Known('o', ring ? "ring" : "fill", null, out var known)) return known;
+            const int w = 24, h = 8;
+            var rows = new string[h];
+            for (int y = 0; y < h; y++)
+            {
+                var row = new char[w];
+                for (int x = 0; x < w; x++)
+                {
+                    float dx = (x + 0.5f - w / 2f) / (w / 2f), dy = (y + 0.5f - h / 2f) / (h / 2f);
+                    float d = dx * dx + dy * dy;
+                    row[x] = d <= 1 && (!ring || d >= 0.55f) ? 'W' : '.';
+                }
+                rows[y] = new string(row);
+            }
+            return Keep('o', ring ? "ring" : "fill", null, MakeWhite(rows));
+        }
+
+        static Texture2D MakeWhite(string[] rows)
+        {
+            int width = rows[0].Length, height = rows.Length;
+            var pixels = new Color32[width * height];
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                    pixels[(height - 1 - y) * width + x] = rows[y][x] == '.' ? new Color32(0, 0, 0, 0) : new Color32(255, 255, 255, 255);
+            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.HideAndDontSave,
+            };
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            return texture;
+        }
+
         static readonly string[] Frames = { "_1", "_2", "_3" };
 
         // One frame (0-2) of a hit effect (effects.txt: slash, pierce, impact, spell, fire, frost, heal), or null.

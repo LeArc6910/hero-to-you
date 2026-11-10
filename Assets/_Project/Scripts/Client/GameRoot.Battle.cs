@@ -326,8 +326,14 @@ namespace Game.Client
         int _flashesShown;
         string _backdropShown;
 
-        internal string ArtReport() =>
-            $"{{\"title\":{(PixelArt.Picture("title") != null ? "true" : "false")},\"backdrop\":\"{_backdropShown ?? ""}\",\"flashes\":{_flashesShown}}}";
+        internal string ArtReport()
+        {
+            // Where the last battle's units stood: feet and size, the party's and the foes' (BattleLayout).
+            var units = new System.Text.StringBuilder();
+            foreach (var place in _places)
+                units.Append(units.Length > 0 ? "," : "").Append($"{{\"party\":{(place.Party ? "true" : "false")},\"x\":{Mathf.RoundToInt(place.Foot.x)},\"y\":{Mathf.RoundToInt(place.Foot.y)},\"size\":{Mathf.RoundToInt(place.Size)}}}");
+            return $"{{\"title\":{(PixelArt.Picture("title") != null ? "true" : "false")},\"backdrop\":\"{_backdropShown ?? ""}\",\"flashes\":{_flashesShown},\"units\":[{units}]}}";
+        }
 
         void Flash(int unit, string name, bool fromRight)
         {
@@ -398,19 +404,20 @@ namespace Game.Client
             DrawPanel(panel, battle);
         }
 
-        // The place the battle happens, behind the units: the chapter's sky, the ground of the hex it started on and
-        // a few shapes of it (trees, stones, waves), drawn from code like the rest of the art.
+        // The place the battle happens, behind the units: the chapter's picture over a ground seen at an angle; without a
+        // picture, the chapter's sky, the ground of the hex it started on and a few shapes of it (trees, stones, waves).
         void DrawBackdrop(Rect field)
         {
             var a = _adventure;
             var tile = a.JoinTile;
             var terrain = tile?.Terrain ?? Terrain.Plains;
             bool boss = a.BossBattle;
-            float skyH = field.height * 0.62f;
-            // The chapter's place (its prologue's picture), darker and bluer at night, redder against the boss.
+            float skyH = BattleLayout.Horizon(field, Ui.Portrait) - field.y;
+            // The chapter's place (its prologue's picture) with its ground laid out in perspective toward the foes,
+            // darker and bluer at night, redder against the boss.
             var tint = boss ? new Color(1f, 0.78f, 0.74f) : a.Night ? new Color(0.55f, 0.58f, 0.8f) : Color.white;
             string scene = ChapterScene();
-            if (SceneArt.DrawBackdrop(field, scene, field.y + skyH, tint))
+            if (SceneArt.DrawBattleGround(field, scene, field.y + skyH, BattleLayout.VanishingX(field, Ui.Portrait), tint))
             {
                 _backdropShown = scene;
                 return;
@@ -492,112 +499,138 @@ namespace Game.Client
             ? PixelArt.Hero(unit.Hero.Class.Id, unit.Hero.Class.Color, pose)
             : PixelArt.Monster(unit.Monster.Id, unit.Monster.Color, pose, unit.Side == Side.Party);
 
+        // ---- Where the units stand: the party near at the lower left, the foes off at the upper right (BattleLayout) ----
+
+        const float LabelH = 40, IntentH = 30, HeroLabelW = 128, FoeLabelW = 112;
+
+        List<BattleLayout.Place> _places = new List<BattleLayout.Place>();
+        readonly List<BattleLayout.Place> _byDepth = new List<BattleLayout.Place>();
+        readonly List<BattleLayout.Spot> _partySpots = new List<BattleLayout.Spot>(), _foeSpots = new List<BattleLayout.Spot>();
+        int _layoutKey;
+        static readonly System.Comparison<BattleLayout.Place> FartherFirst = (a, b) => a.Foot.y.CompareTo(b.Foot.y);
+
+        // Laid out again only when the field or who stands on it changes (a summon, a hero changing rows).
+        void LayOut(Rect field, Battle battle)
+        {
+            int key = ((int)field.width * 31 + (int)field.height) * 31 + (int)field.y + (Ui.Portrait ? 7 : 0);
+            foreach (var unit in battle.Units) key = key * 31 + unit.Id * 4 + (unit.IsHero && unit.Hero.Back ? 2 : 0) + (unit.Side == Side.Party ? 1 : 0);
+            if (key == _layoutKey && _places.Count == battle.Units.Count) return;
+            _layoutKey = key;
+            _partySpots.Clear();
+            _foeSpots.Clear();
+            foreach (var unit in battle.Party)
+                _partySpots.Add(new BattleLayout.Spot { Id = unit.Id, Party = true, Front = !unit.IsHero || !unit.Hero.Back, LabelW = HeroLabelW, LabelH = LabelH });
+            foreach (var unit in battle.Monsters)
+                _foeSpots.Add(new BattleLayout.Spot { Id = unit.Id, Big = unit.Monster.Size > 1, LabelW = FoeLabelW, LabelH = LabelH + IntentH });
+            _places = BattleLayout.Lay(field, Ui.Portrait, _partySpots, _foeSpots);
+        }
+
         void DrawUnits(Rect field, Battle battle)
         {
-            // The party side: heroes, then their summons (the skeleton, the wolf).
-            var heroes = battle.Party.ToList();
-            var monsters = battle.Monsters.ToList();
-            if (Ui.Portrait)
-            {
-                var monsterArea = new Rect(field.x + 4, field.y + 4, field.width - 8, field.height * 0.56f);
-                var heroArea = new Rect(field.x + 4, monsterArea.yMax, field.width - 8, field.yMax - monsterArea.yMax - 2);
-                LayoutRow(monsterArea, monsters, battle);
-                LayoutRow(heroArea, heroes, battle);
-            }
-            else
-            {
-                var heroArea = new Rect(field.x + 6, field.y + 4, field.width * 0.42f, field.height - 8);
-                var monsterArea = new Rect(heroArea.xMax + 8, field.y + 4, field.xMax - heroArea.xMax - 12, field.height - 8);
-                int heroColumns = heroes.Count > 3 ? 2 : 1;
-                int heroRows = (heroes.Count + heroColumns - 1) / heroColumns;
-                float hw = heroArea.width / heroColumns;
-                for (int i = 0; i < heroes.Count; i++)
-                {
-                    float h = heroArea.height / heroRows;
-                    DrawUnit(new Rect(heroArea.x + i / heroRows * hw, heroArea.y + i % heroRows * h, hw - 4, h - 4), heroes[i], battle);
-                }
-                int columns = monsters.Count > 3 ? 2 : 1;
-                int perColumn = (monsters.Count + columns - 1) / columns;
-                float cw = monsterArea.width / columns;
-                for (int i = 0; i < monsters.Count; i++)
-                {
-                    int column = i / perColumn;
-                    int row = i % perColumn;
-                    float h = monsterArea.height / perColumn;
-                    DrawUnit(new Rect(monsterArea.x + column * cw, monsterArea.y + row * h, cw - 4, h - 4), monsters[i], battle);
-                }
-            }
+            LayOut(field, battle);
+            // The farther first, so the nearer stand in front of them; then every label over all of them.
+            _byDepth.Clear();
+            _byDepth.AddRange(_places);
+            _byDepth.Sort(FartherFirst);
+            foreach (var place in _byDepth) DrawFigure(place, battle.Unit(place.Id), battle);
+            foreach (var place in _byDepth) DrawLabel(place, battle.Unit(place.Id), battle);
         }
 
-        void LayoutRow(Rect area, List<Unit> units, Battle battle)
+        int ShownHp(Unit unit) => _shownHp.TryGetValue(unit.Id, out int shown) ? shown : unit.Hp;
+
+        // The way a unit lunges: across the diagonal toward the other side.
+        static Vector2 Toward(Unit unit)
         {
-            int columns = Mathf.Min(units.Count, 3);
-            int rows = (units.Count + columns - 1) / columns;
-            float w = area.width / columns;
-            float h = area.height / rows;
-            for (int i = 0; i < units.Count; i++)
-                DrawUnit(new Rect(area.x + i % columns * w, area.y + i / columns * h, w - 4, h - 4), units[i], battle);
+            var toFoes = Ui.Portrait ? new Vector2(0.29f, -0.96f) : new Vector2(0.88f, -0.48f);
+            return unit.IsHero || unit.Side == Side.Party ? toFoes : -toFoes;
         }
 
-        void DrawUnit(Rect slot, Unit unit, Battle battle)
+        void DrawFigure(BattleLayout.Place place, Unit unit, Battle battle)
         {
-            int hp = _shownHp.TryGetValue(unit.Id, out int shown) ? shown : unit.Hp;
-            bool down = hp <= 0;
+            if (unit == null) return;
+            bool down = ShownHp(unit) <= 0;
             bool acting = unit.Id == _turnActor && !battle.Over;
             bool targetable = AwaitingHero && IsTargetable(battle, unit);
             bool targeted = AwaitingHero && _target == unit.Id && NeedsTarget(battle);
-
-            if (acting) Ui.Fill(slot, Palette.WithAlpha(Palette.Gold, 0.10f));
-            if (targeted) Ui.Frame(slot, Palette.Accent, 2.5f);
-            else if (targetable) Ui.Frame(slot, Palette.WithAlpha(Palette.Accent, 0.55f), 1.5f);
-            else if (acting) Ui.Frame(slot, Palette.Gold, 1.5f);
-
-            bool big = !unit.IsHero && unit.Monster.Size > 1;
-            float textH = 44;
-            float intentH = unit.IsHero ? 0 : 30;
-            float sprite = Mathf.Min(slot.height - textH - intentH - 4, slot.width * (big ? 0.8f : 0.5f));
-            sprite = Mathf.Max(16, Mathf.Floor(sprite / 8) * 8);
+            float size = place.Size;
+            // On the ground: its shadow, and a ring for whose turn it is or who is aimed at.
+            var oval = new Rect(place.Foot.x - size * 0.38f, place.Foot.y - size * 0.09f, size * 0.76f, size * 0.18f);
+            Ui.Image(oval, PixelArt.Oval(false), new Color(0, 0, 0, 0.38f));
+            if (targeted || acting || targetable)
+                Ui.Image(new Rect(oval.x - 3, oval.y - 1, oval.width + 6, oval.height + 2), PixelArt.Oval(true), targeted ? Palette.Accent : acting ? Palette.Gold : Palette.WithAlpha(Palette.Accent, 0.55f));
             // Motion (Docs/Design.md 그림): a slow breath while standing, a lunge toward the other side when attacking,
             // a shake and a red flash when hit, lying low when down.
             float at = -10;
             bool hit = !Settings.LessMotion && _hitAt.TryGetValue(unit.Id, out at) && _clock - at < 0.25f;
             float shake = hit ? Mathf.Sin((_clock - at) * 80) * 3 : 0;
             float lunge = 0;
-            if (!Settings.LessMotion && _lungeAt.TryGetValue(unit.Id, out float swung) && _clock - swung < 0.3f) lunge = Mathf.Sin((_clock - swung) / 0.3f * Mathf.PI) * sprite * 0.18f;
-            var toward = unit.IsHero || unit.Side == Side.Party ? (Ui.Portrait ? new Vector2(0, -1) : new Vector2(1, 0)) : (Ui.Portrait ? new Vector2(0, 1) : new Vector2(-1, 0));
-            float breath = down || Settings.LessMotion ? 0 : Mathf.Sin(_clock * 2.2f + unit.Id * 1.3f) * sprite * 0.015f;
+            if (!Settings.LessMotion && _lungeAt.TryGetValue(unit.Id, out float swung) && _clock - swung < 0.3f) lunge = Mathf.Sin((_clock - swung) / 0.3f * Mathf.PI) * size * 0.22f;
+            var toward = Toward(unit);
+            float breath = down || Settings.LessMotion ? 0 : Mathf.Sin(_clock * 2.2f + unit.Id * 1.3f) * size * 0.015f;
             // A fallen hero with its own lying picture is drawn whole; anything else fallen lies low and squashed.
             bool lying = down && unit.IsHero && PixelArt.HasPose(unit.Hero.Class.Id, PixelArt.Pose.Down);
-            float sink = down && !lying ? sprite * 0.18f : 0;
-            var spriteRect = new Rect(slot.x + (slot.width - sprite) / 2 + shake + toward.x * lunge, slot.y + intentH + 2 + toward.y * lunge + breath + sink, sprite, sprite - sink);
+            float sink = down && !lying ? size * 0.18f : 0;
+            var spriteRect = new Rect(place.Sprite.x + shake + toward.x * lunge, place.Sprite.y + toward.y * lunge + breath + sink, size, size - sink);
             _unitRects[unit.Id] = spriteRect;
-            Ui.Fill(new Rect(spriteRect.x + sprite * 0.15f, spriteRect.yMax - sprite * 0.06f, sprite * 0.7f, sprite * 0.08f), new Color(0, 0, 0, 0.35f));
             var tint = lying ? new Color(0.72f, 0.7f, 0.78f, 0.9f) : down ? new Color(0.4f, 0.4f, 0.45f, 0.45f) : hit ? new Color(1f, 0.55f, 0.5f, 1f) : (Color?)null;
             var pose = lying ? PixelArt.Pose.Down : down ? PixelArt.Pose.Stand : hit ? PixelArt.Pose.Hit : lunge > 0 ? PixelArt.Pose.Attack : PixelArt.Pose.Stand;
             Ui.Image(spriteRect, Sprite(unit, pose), tint);
+        }
 
-            if (!unit.IsHero && !down && unit.Intent != null && !battle.Over) DrawIntent(new Rect(slot.x + 2, slot.y, slot.width - 4, intentH - 2), unit, battle);
+        // Above the head: a foe's next move, then the name, the health bar and a line of numbers and states, on a dark
+        // plate edged for the turn or the aim. The column from the label to the feet takes the tap.
+        void DrawLabel(BattleLayout.Place place, Unit unit, Battle battle)
+        {
+            if (unit == null) return;
+            int hp = ShownHp(unit);
+            bool down = hp <= 0;
+            bool acting = unit.Id == _turnActor && !battle.Over;
+            bool targetable = AwaitingHero && IsTargetable(battle, unit);
+            bool targeted = AwaitingHero && _target == unit.Id && NeedsTarget(battle);
+            var r = place.Label;
+            if (!unit.IsHero)
+            {
+                if (!down && unit.Intent != null && !battle.Over) DrawIntent(new Rect(r.x, r.y, r.width, IntentH - 3), unit, battle);
+                r = new Rect(r.x, r.y + IntentH, r.width, r.height - IntentH);
+            }
+            Ui.Fill(r, new Color(0.06f, 0.05f, 0.08f, down ? 0.4f : 0.62f));
+            if (targeted) Ui.Frame(r, Palette.Accent, 2);
+            else if (acting) Ui.Frame(r, Palette.Gold, 1.5f);
+            else if (targetable) Ui.Frame(r, Palette.WithAlpha(Palette.Accent, 0.55f), 1);
+            float inner = r.width - 6;
+            if (Event.current.type == EventType.Repaint)
+            {
+                string name = unit.Name;
+                if (unit.IsHero)
+                {
+                    // As much as fits: the row, then the level, give way first.
+                    string full = $"{unit.Name} Lv{unit.Hero.Level} · {Strings.Get(unit.Hero.Back ? "row.back" : "row.front")}";
+                    string shorter = $"{unit.Name} Lv{unit.Hero.Level}";
+                    name = Ui.TextWidth(full, 11, true) <= inner ? full : Ui.TextWidth(shorter, 11, true) <= inner ? shorter : unit.Name;
+                }
+                Ui.Text(new Rect(r.x + 3, r.y + 1, inner, 15), name, FitSize(name, inner, 11, true), down ? Palette.Dim : Palette.Ink, TextAnchor.MiddleCenter, true);
+                string line = down ? Strings.Get("hero.down") : $"{hp}/{unit.MaxHp}";
+                if (unit.IsHero && !down) line += " · " + Strings.Format("hero.resolve", unit.Hero.Resolve) + (unit.Hero.Blessing + unit.Hero.Luck > 0 ? " · " + Strings.Format("battle.sure_plus", unit.Hero.Blessing + unit.Hero.Luck) : "");
+                string statuses = StatusLine(unit, battle);
+                if (statuses.Length > 0) line += " · " + statuses;
+                Ui.Text(new Rect(r.x + 3, r.y + 24, inner, 14), line, FitSize(line, inner, 10), down ? Palette.Damage : Palette.Dim, TextAnchor.MiddleCenter);
+            }
+            Ui.Bar(new Rect(r.x + 4, r.y + 17, r.width - 8, 6), unit.MaxHp > 0 ? (float)hp / unit.MaxHp : 0, unit.IsHero ? Palette.HpHero : Palette.Hp);
 
-            float y = spriteRect.yMax + 2;
-            Ui.Text(new Rect(slot.x, y, slot.width, 16), unit.Name + (unit.IsHero ? $" Lv{unit.Hero.Level} · {Strings.Get(unit.Hero.Back ? "row.back" : "row.front")}" : ""), 12, down ? Palette.Dim : Palette.Ink, TextAnchor.MiddleCenter, true);
-            y += 16;
-            float barW = Mathf.Min(slot.width - 12, 150);
-            var bar = new Rect(slot.x + (slot.width - barW) / 2, y + 1, barW, 7);
-            Ui.Bar(bar, unit.MaxHp > 0 ? (float)hp / unit.MaxHp : 0, unit.IsHero ? Palette.HpHero : Palette.Hp);
-            y += 9;
-            string line = down ? Strings.Get("hero.down") : $"{hp}/{unit.MaxHp}";
-            if (unit.IsHero && !down) line += " · " + Strings.Format("hero.resolve", unit.Hero.Resolve) + (unit.Hero.Blessing + unit.Hero.Luck > 0 ? " · " + Strings.Format("battle.sure_plus", unit.Hero.Blessing + unit.Hero.Luck) : "");
-            string statuses = StatusLine(unit, battle);
-            if (statuses.Length > 0) line += " · " + statuses;
-            Ui.Text(new Rect(slot.x, y, slot.width, 15), line, 10.5f, down ? Palette.Damage : Palette.Dim, TextAnchor.MiddleCenter);
-
-            if (targetable && Ui.Hit(slot, unit.Name, true, "대상")) _target = unit.Id;
+            if (targetable && Ui.Hit(place.Column, unit.Name, true, "대상")) _target = unit.Id;
             if (!unit.IsHero)
             {
                 string about = unit.Monster.Ward > 0 ? Strings.Format("battle.monster_ward", unit.Name, unit.Monster.Text, unit.Monster.Armor, unit.Monster.Ward)
                     : Strings.Format("battle.monster", unit.Name, unit.Monster.Text, unit.Monster.Armor);
-                Ui.Tip(slot, about + (unit.Intent != null && !down ? "\n" + Strings.Format("battle.next_action", unit.Intent.Skill.Name, unit.Intent.Skill.Text) : ""));
+                Ui.Tip(place.Column, about + (unit.Intent != null && !down ? "\n" + Strings.Format("battle.next_action", unit.Intent.Skill.Name, unit.Intent.Skill.Text) : ""));
             }
+        }
+
+        // The size that fits the words into the width (half points down to 8), for narrow labels in a crowded row.
+        static float FitSize(string text, float width, float size, bool bold = false)
+        {
+            float wide = Ui.TextWidth(text, size, bold);
+            return wide <= width ? size : Mathf.Max(8, Mathf.Floor(size * width / wide * 2) / 2);
         }
 
         static string StatusLine(Unit unit, Battle battle)
@@ -619,12 +652,16 @@ namespace Game.Client
             };
             string what = intent.Skill.Damages ? $"{intent.Skill.Name} → {whom}" : intent.Skill.Name;
             string dice = intent.Skill.Damages ? Strings.Format("battle.intent_dice", intent.Skill.Dice, intent.Skill.Power + (monster.Status.TryGetValue(StatusKind.Howl, out int howl) ? howl : 0)) : Strings.Get("battle.intent_buff");
-            Ui.Fill(r, new Color(0.25f, 0.12f, 0.08f, 0.85f));
+            Ui.Fill(r, new Color(0.25f, 0.12f, 0.08f, 0.88f));
             Ui.Frame(r, Palette.WithAlpha(Palette.Intent, 0.7f), 1);
-            Ui.Text(new Rect(r.x + 3, r.y, r.width - 6, r.height * 0.55f), what, 10.5f, Palette.Intent, TextAnchor.MiddleCenter, true);
-            Ui.Text(new Rect(r.x + 3, r.y + r.height * 0.5f, r.width - 6, r.height * 0.5f), dice, 9.5f, Palette.Ink, TextAnchor.MiddleCenter);
             // A boss rule on this blow: a mark, a gold edge, and what it does on a long press.
             string rule = RuleIcon(intent.Skill.Effect);
+            float inner = r.width - 6 - (rule != null ? 14 : 0);
+            if (Event.current.type == EventType.Repaint)
+            {
+                Ui.Text(new Rect(r.x + 3, r.y, inner, r.height * 0.55f), what, FitSize(what, inner, 10.5f, true), Palette.Intent, TextAnchor.MiddleCenter, true);
+                Ui.Text(new Rect(r.x + 3, r.y + r.height * 0.5f, inner, r.height * 0.5f), dice, FitSize(dice, inner, 9.5f), Palette.Ink, TextAnchor.MiddleCenter);
+            }
             if (rule != null)
             {
                 Ui.Frame(r, Palette.Gold, 2);
