@@ -151,6 +151,9 @@ namespace Game.Core
         public int Combo { get; internal set; }
         public int Souls { get; internal set; }
 
+        // The monk's ki (Docs/Classes.md 수도승): one for each blow that lands, spent by its skills.
+        public int Ki { get; internal set; }
+
         // Skill id → the turn (TurnsTaken) it can be used again.
         internal Dictionary<string, int> AvailableAt { get; } = new Dictionary<string, int>();
 

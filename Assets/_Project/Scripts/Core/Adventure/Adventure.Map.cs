@@ -126,6 +126,7 @@ namespace Game.Core
             if (cost <= 1) return cost;
             if (hero.Class.Id == "hunter" && terrain == Terrain.Forest) return 1;
             if (hero.Class.Id == "beastmaster" && (terrain == Terrain.Forest || terrain == Terrain.Swamp)) return 1;
+            if (hero.Class.Id == "monk" && (terrain == Terrain.Snow || terrain == Terrain.Sand || terrain == Terrain.Shallows)) return 1;
             return cost;
         }
 
@@ -277,7 +278,7 @@ namespace Game.Core
 
         void Arrive(Hex hex)
         {
-            foreach (var other in Heroes.Where((h, i) => i != MapHero && h.Down && Positions[i] == hex))
+            foreach (var other in Heroes.Where((h, i) => i != MapHero && h.Down && !h.Dead && Positions[i] == hex))
             {
                 other.Hp = 1;
                 Report.Add($"{Korean.Subject(Current.Name)} {Korean.Object(other.Name)} 부축해 일으켰다");
@@ -351,7 +352,7 @@ namespace Game.Core
             Day++;
             Doom++;
             Report.Add($"{Day}일째 아침. 균열 {Doom}/{DoomMax}");
-            foreach (var hero in Heroes.Where(h => h.Down))
+            foreach (var hero in Heroes.Where(h => h.Down && !h.Dead))
             {
                 if (Hope <= 0) continue;
                 Hope--;

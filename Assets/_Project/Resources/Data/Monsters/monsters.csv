@@ -22,3 +22,16 @@ snow_troll,눈 트롤,90,8,65,2,0,12,8,troll_smash troll_smash troll_quake,,0,,n
 cultist,균열 신도,42,12,72,1,0,9,14,cult_knife cult_flame,,0,,no,#6B3A5A,1,균열을 신으로 섬기는 자들. 약한 쪽을 노린다.,
 rift_priest,균열 사제,150,12,72,2,1,24,45,priest_lash priest_flame cult_knife,priest_lash priest_flame priest_flame,40,“균열이 열리면 아무도 잊히지 않는다! 모두 하나가 된다!”,no,#4A2440,1,수도원을 차지한 신도들의 우두머리.,cultist
 frozen_abbess,얼어붙은 원장,400,12,72,1,2,50,70,abbess_staff abbess_frost abbess_gather abbess_blizzard abbess_staff,abbess_crush abbess_gather abbess_blizzard abbess_frost abbess_staff,50,“리엔… 너는 이름을 버리고 갔지… 나는 기억을 버리지 못했다…”,yes,#9FB8D0,2,리엔에게 봉인 의식을 가르친 수도원장. 백 년 동안 얼음 속에서 기억을 지켰다.,ice_wraith ice_wraith
+turret,포탑,20,9,75,2,0,0,0,turret_shot,,0,,no,#8C8C7A,1,기술자의 포탑.,
+tomb_guard,무덤 수호병,62,9,70,3,0,12,10,guard_spear guard_spear guard_wall,,0,,no,#8A5A3A,1,왕릉을 지키는 돌 병사. 방어도가 높다.,
+sand_serpent,모래 뱀,55,15,72,0,0,11,6,serpent_bite serpent_venom,,0,,no,#C8A050,1,모래 속에서 튀어나온다. 독니에 물리면 약해진다.,
+order_knight,기억 기사,65,11,72,2,0,13,18,oknight_cut oknight_shout oknight_cut,,0,,no,#5A2A3A,1,남의 이름을 빼앗아 영원히 기억되려는 기사단.,
+red_shade,붉은 망령,50,13,75,0,3,12,8,shade_flame shade_wail,,0,,no,#C84A3A,1,왕과 함께 묻힌 신하들의 넋.,
+knight_captain,기사단장 칼라,170,12,74,3,1,30,60,captain4_blade oknight_shout captain4_blade,captain4_blade captain4_rend oknight_shout,40,“이름은 빼앗는 자의 것이다!”,no,#7A2030,1,기억 기사단의 단장. 빼앗은 이름이 갑옷에 새겨져 있다.,order_knight
+sern,일지를 훔친 자 세른,430,13,74,2,2,60,90,sern_blade sern_steal sern_gather sern_crown sern_blade,sern_rend sern_gather sern_crown sern_steal sern_blade,50,“나도 리엔의 길을 걸었다! 그런데 왜 너희만 이름을 얻지?”,yes,#4A1A2A,2,리엔의 일지를 베껴 그 길을 먼저 걸은 사람. 혼자 영웅이 되려 했다.,order_knight order_knight
+rift_spawn,균열 새끼,52,16,74,0,0,13,6,spawn_claw spawn_claw spawn_leap,,0,,no,#5A3A6A,1,균열에서 기어 나온 것. 빠르다.,
+void_eye,공허의 눈,48,13,78,0,3,14,8,void_gaze void_blink,,0,,no,#2A2A4A,1,바라보는 것의 이름을 지운다.,
+ash_colossus,잿빛 거상,130,8,68,3,0,18,12,colossus_fist colossus_fist colossus_stomp,,0,,no,#6A6A70,1,잊힌 도시가 모여 일어선 거상.,
+echo_shade,메아리,58,12,74,1,1,13,8,echo_mock echo_cry,,0,,no,#8A8AAA,1,잊힌 사람의 마지막 말만 남은 그림자.,
+rien_shadow,리엔의 그림자,190,13,76,2,2,34,70,shadow_blade shadow_name shadow_blade,shadow_blade shadow_rend shadow_name,40,"“이름을… 돌려줘… 아니, 가져가지 마…”",no,#3A3A5A,1,이름을 내놓은 영웅에게서 떨어져 나온 그림자.,echo_shade
+nameless,이름 없는 것,520,13,76,2,2,80,120,nameless_touch nameless_forget nameless_gather nameless_void nameless_touch,nameless_crush nameless_gather nameless_void nameless_forget nameless_touch,50,“우리는… 잊힌… 모든… 이름… 너희도… 곧…”,yes,#1A1A2A,2,균열 그 자체. 잊힌 모든 이름이 뭉친 것.,rift_spawn rift_spawn

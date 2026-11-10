@@ -28,8 +28,9 @@ namespace Game.Core
         static List<BattleCommand> Options(Battle battle, Unit actor)
         {
             var options = new List<BattleCommand>();
-            foreach (var skill in actor.Hero.Skills)
+            foreach (var own in actor.Hero.Skills)
             {
+                var skill = battle.SkillOf(actor, own.Id);
                 if (battle.Cooldown(actor, skill) > 0) continue;
                 foreach (var target in battle.Targets(actor, skill))
                 {
@@ -47,7 +48,7 @@ namespace Game.Core
             var hero = actor.Hero;
             var living = battle.Heroes.Where(h => !h.Down).ToList();
             var enemies = battle.Monsters.Where(m => !m.Down).ToList();
-            SkillDef SkillOf(BattleCommand o) => hero.Skill(o.Skill);
+            SkillDef SkillOf(BattleCommand o) => battle.SkillOf(actor, o.Skill);
             BattleCommand Find(string effectOrKind, int target = -1) => options.FirstOrDefault(o =>
             {
                 var skill = SkillOf(o);

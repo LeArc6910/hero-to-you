@@ -71,3 +71,21 @@ m_command,beastmaster,호흡,cooldown beast_command -1,협공 명령 대기 −1
 m_spear,beastmaster,창술,power attack +3,기본 공격 위력 +3
 m_sense,beastmaster,짐승의 감각,stat per +6,감각 +6
 m_hp,beastmaster,야생의 몸,hp +8,최대 생명력 +8
+mo_palm,monk,깊은 장풍,power monk_palm +4,장풍 위력 +4
+mo_flow,monk,흐르는 기,special ki_cap +2,기 최대치 +2
+mo_start,monk,아침 수련,special ki_start +2,전투를 기 3으로 시작
+mo_calm,monk,고요한 숨,special meditate +6,명상 회복 +6
+mo_feet,monk,바람 같은 발,stat agi +6,민첩 +6
+mo_body,monk,단련된 몸,hp +8,최대 생명력 +8
+en_armor,engineer,두꺼운 포탑,special turret_hp +12,포탑 생명력 +12
+en_gun,engineer,강한 포신,special turret_power +3,포탑 공격 위력 +3
+en_fast,engineer,빠른 조립,cooldown engi_turret -1,포탑 세우기 대기 −1
+en_snare,engineer,질긴 올가미,dice engi_snare +1,올가미 주사위 +1
+en_bolt,engineer,무거운 화살,power attack +3,기본 공격 위력 +3
+en_eye,engineer,정밀한 눈,stat per +6,감각 +6
+mn_quick,mnemonist,빠른 되새김,cooldown mnem_echo -1,되새김 대기 −1
+mn_recall,mnemonist,선명한 회상,power mnem_recall +4,회상 회복 +4
+mn_forget,mnemonist,깊은 망각,dice mnem_forget +1,망각 주사위 +1
+mn_mind,mnemonist,기억의 궁전,stat int +6,지능 +6
+mn_will,mnemonist,흐리지 않는 나,resolve +1,결의 +1
+mn_body,mnemonist,빌린 체력,hp +8,최대 생명력 +8

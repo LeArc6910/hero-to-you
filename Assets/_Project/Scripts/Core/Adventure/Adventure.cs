@@ -110,8 +110,9 @@ namespace Game.Core
 
         Then _then;
 
-        public Adventure(GameData data, IReadOnlyList<string> classIds, ulong seed, IReadOnlyList<string> perks = null, Difficulty difficulty = Difficulty.Normal)
+        public Adventure(GameData data, IReadOnlyList<string> classIds, ulong seed, IReadOnlyList<string> perks = null, Difficulty difficulty = Difficulty.Normal, bool hardcore = false)
         {
+            Hardcore = hardcore;
             Data = data ?? throw new ArgumentNullException(nameof(data));
             if (classIds == null || classIds.Count != 3) throw new ArgumentException("A party is three heroes.", nameof(classIds));
             Seed = seed;
@@ -145,6 +146,17 @@ namespace Game.Core
         public IReadOnlyList<string> Perks { get; }
         public bool Hard { get; private set; }
         public Difficulty Difficulty { get; }
+
+        // The hardcore mode (Docs/Combat.md 하드코어): a hero who falls with no hope left is gone for good, and a new
+        // companion can be taken on in town.
+        public bool Hardcore { get; }
+
+        // What the run did, for the journal's achievements (Docs/Journal.md).
+        public int Falls { get; private set; }
+        public int DungeonsCleared { get; private set; }
+        public int ContractsDone { get; private set; }
+        public IReadOnlyList<string> Endings => _endings;
+        readonly List<string> _endings = new List<string>();
         public List<Hero> Heroes { get; } = new List<Hero>();
         public int Hope { get; internal set; }
         public int Gold { get; internal set; }
@@ -233,10 +245,27 @@ namespace Game.Core
 
         // ---- Chapters and story pages ----
 
+        // How many commands the log had when this chapter began (Docs/Saving.md 장 처음부터 다시).
+        public int ChapterStart { get; private set; }
+
+        // The save of this run as it was when the chapter began, to try the chapter again after losing it. Null in
+        // the hardcore mode and on the hard road, where a loss is a loss.
+        public string ChapterStartSave()
+        {
+            if (Hardcore || Hard) return null;
+            var lines = Save().Replace("\r", "").Split('\n').ToList();
+            int header = lines.FindIndex(l => !(l.StartsWith(SaveHeader) || l.StartsWith("seed ") || l.StartsWith("party ") || l.StartsWith("perks") || l.StartsWith("level ") || l == "hardcore" || l.StartsWith("sheets ")));
+            if (header < 0) header = lines.Count;
+            return string.Join("\n", lines.Take(header + ChapterStart)) + "\n";
+        }
+
         void StartChapter(int index)
         {
+            ChapterStart = _log.Count;
             Chapter = Data.Chapters[index];
-            Map = new WorldMap(Chapter.Map);
+            // One of the chapter's maps, drawn by the seed alone (Docs/Map.md 지도 그리기).
+            var maps = Chapter.Maps.Count > 0 ? Chapter.Maps : new[] { Chapter.Map };
+            Map = new WorldMap(maps[new GameRandom(Seed, 300 + (ulong)index).Next(maps.Count)]);
             _mapRandom = new GameRandom(Seed, 100 + (ulong)index);
             var start = Map.Tile(Site.Start).Hex;
             Positions.Clear();
@@ -261,6 +290,7 @@ namespace Game.Core
                 // Between chapters the party rests and gathers itself.
                 foreach (var hero in Heroes)
                 {
+                    if (hero.Dead) continue;
                     if (hero.Down) hero.Hp = 1;
                     hero.HealWounds();
                     hero.Heal(hero.MaxHp);
@@ -341,8 +371,10 @@ namespace Game.Core
             ChaptersCleared++;
             int kindness = Chapter.KindFlags.Count(HasFlag);
             int grimness = Chapter.GrimFlags.Count(HasFlag);
-            string ending = kindness >= Chapter.KindNeed ? Chapter.EpilogueKind : grimness >= Chapter.GrimNeed ? Chapter.EpilogueGrim : Chapter.Epilogue;
+            bool kind = kindness >= Chapter.KindNeed && Renown >= Chapter.KindRenown;
+            string ending = kind ? Chapter.EpilogueKind : grimness >= Chapter.GrimNeed ? Chapter.EpilogueGrim : Chapter.Epilogue;
             if (ending == Chapter.EpilogueKind) _kindEndings++;
+            _endings.Add(ending == Chapter.EpilogueKind ? "kind" : ending == Chapter.EpilogueGrim ? "grim" : "plain");
             ShowStory(ending, Then.NextChapter);
         }
 

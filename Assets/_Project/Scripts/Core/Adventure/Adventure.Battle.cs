@@ -196,9 +196,17 @@ namespace Game.Core
                 Screen = AdventureScreen.BattleResult;
                 return;
             }
-            // Every hero who fell keeps a wound (Docs/Combat.md 상처).
+            // Every hero who fell keeps a wound (Docs/Combat.md 상처); in the hardcore mode one who fell with no hope
+            // left is gone for good.
             foreach (var hero in _fighters.Where(h => h.Down))
             {
+                Falls++;
+                if (Hardcore && Hope <= 0)
+                {
+                    hero.Dead = true;
+                    Report.Add($"{Korean.Topic(hero.Name)} 희망 없이 쓰러져 영영 떠났다. 마을에서 새 동료가 일지를 이어받을 수 있다.");
+                    continue;
+                }
                 hero.AddWound();
                 Report.Add($"{hero.Name}: 상처 {hero.Wounds}/{Hero.MaxWounds} (최대 생명력 −{Hero.WoundPercent * hero.Wounds}%, 여관에서 낫는다)");
             }
@@ -219,7 +227,7 @@ namespace Game.Core
             int gold = Battle.GoldReward;
             Gold += gold;
             Report.Add($"경험치 {xp}(싸운 영웅만), 금화 {gold}");
-            foreach (var hero in _fighters.Where(h => h.Down))
+            foreach (var hero in _fighters.Where(h => h.Down && !h.Dead))
             {
                 if (Hope <= 0)
                 {

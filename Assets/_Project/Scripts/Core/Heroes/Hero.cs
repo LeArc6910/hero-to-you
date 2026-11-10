@@ -9,8 +9,8 @@ namespace Game.Core
     public sealed class Hero
     {
         // Total experience for each level: level 2 at 10, level 3 at 25 and so on (Docs/Combat.md 보상).
-        public static readonly int[] LevelXp = { 0, 10, 25, 45, 70, 100, 140, 190, 250, 320 };
-        public const int MaxLevel = 10;
+        public static readonly int[] LevelXp = { 0, 10, 25, 45, 70, 100, 140, 190, 250, 320, 400, 490, 590, 700 };
+        public static int MaxLevel => LevelXp.Length;
         public const int LevelHp = 4;
         public const int LevelStat = 3;
         public const int StatCap = 95;
@@ -121,6 +121,9 @@ namespace Game.Core
         // Front or back row in battle (Docs/Combat.md 줄): the front takes the monsters' blows, the back hits less
         // hard up close.
         public bool Back { get; internal set; }
+
+        // Gone for good (the hardcore mode, Docs/Combat.md 하드코어): never gets up again.
+        public bool Dead { get; internal set; }
         public int ArmorValue => Class.Armor + _upgradeArmor + Equipment.Sum(i => i.Armor);
         public int MaxResolve => Class.Resolve + _upgradeResolve + Equipment.Sum(i => i.Resolve);
         public int GritCap => Math.Max(2, Class.GritCap + _upgradeGrit);

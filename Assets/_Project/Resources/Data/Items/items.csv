@@ -66,6 +66,25 @@ armor_rune,룬 갑옷,armor,heavy,4,160,,,0,0,0,,100,,4,0,0,agi -5,,
 coat_snow,눈표범 외투,armor,light,4,150,,,0,0,0,,100,,1,10,1,,,결의 +1.
 heart_ice,얼음 심장석,trinket,charm,4,130,,,0,0,0,,100,,0,14,0,,,
 ring_vow,맹세의 반지,trinket,ring,4,130,,,0,0,0,,100,,0,0,1,str 5 wil 5,,결의 +1.
+fist_wraps,낡은 손싸개,weapon,fist,1,0,연타,agi,3,7,0,physical,80,crit150,0,0,0,,,빠르다(지연 80%).
+fist_iron,쇠 손싸개,weapon,fist,2,45,연타,agi,3,9,0,physical,80,crit150,0,0,0,,,
+fist_tiger,호랑이 발톱,weapon,fist,3,90,연타,agi,4,9,0,physical,80,crit200,0,0,0,str 5,,
+fist_dragon,용의 손,weapon,fist,4,145,연타,agi,4,11,0,physical,80,crit200,0,0,0,wil 5,,
+crossbow_light,가벼운 석궁,weapon,crossbow,1,0,석궁,per,3,9,0,physical,110,crit150,0,0,0,,,무겁지만 멀리서 정확하다.
+crossbow_heavy,무거운 석궁,weapon,crossbow,2,45,석궁,per,3,11,0,physical,110,crit150,0,0,0,,,
+crossbow_repeat,연발 석궁,weapon,crossbow,3,90,석궁,per,4,11,0,physical,110,crit150,0,0,0,,,
+crossbow_siege,공성 석궁,weapon,crossbow,4,145,석궁,per,4,14,0,physical,120,crit200,0,0,0,,,
+tome_worn,닳은 책,weapon,tome,1,0,기억의 빛,int,3,7,25,magic,100,crit150,0,0,0,,,남의 기억이 적힌 책.
+tome_bound,가죽 장정 책,weapon,tome,2,45,기억의 빛,int,3,9,25,magic,100,crit150,0,0,0,,,
+tome_silver,은빛 책,weapon,tome,3,90,기억의 빛,int,3,10,25,magic,100,crit150,0,0,1,,,
+tome_ancient,옛 왕의 책,weapon,tome,4,145,기억의 빛,int,4,10,25,magic,100,crit150,0,0,1,int 5,,
+sword_king,왕의 장검,weapon,sword,5,200,베기,str,4,15,0,physical,100,crit200,0,0,0,wil 5,,왕릉에서 나온 검.
+bow_star,별 활,weapon,bow,5,200,사격,per,4,14,0,physical,100,crit200,0,0,0,agi 5,,
+staff_rift,균열 지팡이,weapon,staff,5,205,마력탄,int,3,13,25,magic,100,crit150,0,0,0,int 5,,
+orb_dawn,새벽 구슬,weapon,orb,5,205,별빛,int,4,12,25,magic,100,crit150,0,0,1,,,
+armor_king,왕의 갑옷,armor,heavy,5,220,,,0,0,0,,100,,5,0,0,agi -5,,
+robe_dawn,새벽 로브,armor,light,5,200,,,0,0,0,,100,,1,14,2,,,결의 +2.
+amulet_names,이름의 목걸이,trinket,amulet,5,180,,,0,0,0,,100,,0,10,1,,,잊힌 이름들이 새겨져 있다.
 potion,회복 물약,consumable,consumable,1,8,,,0,0,0,,50,,0,0,0,,heal 15,생명력 15 회복(연금술사는 1.5배).
 tonic,결의 물약,consumable,consumable,1,12,,,0,0,0,,50,,0,0,0,,resolve 2,결의 +2.
 antidote,해독초,consumable,consumable,1,6,,,0,0,0,,50,,0,0,0,,cleanse;heal 5,화상·약화·부식을 걷고 생명력 5 회복.

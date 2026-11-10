@@ -1,0 +1,10 @@
+# 챕터 5 균열의 문 (Docs/Map.md). x 갈라진 땅.
+^^^xxx^^^xxx^^^
+^S..xx.uu.xRx.^
+^.T.r..xux.xx.^
+^xx.rr..H..xux^
+^x.x.rrr.xxCx.^
+^.xux..rr.xx.D^
+^^xx.xx.rrrr.B^
+^^xMx.xux.uuxx^
+^^^xxx^^^xxx^^^

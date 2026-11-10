@@ -19,3 +19,14 @@ k_r_ch2,2,knight,rogue,,"rogue: 영웅이 동료를 두고 갔대. 기사님은 
 bs_g_ch3,3,berserker,gambler,,berserker: 춥다. 화도 얼어붙을 것 같아.|gambler: 그럼 내기하자. 누가 먼저 수도원 문을 두드리나.|berserker: …넌 늘 날 웃기는구나.
 e_s_ch3,3,elementalist,seer,,elementalist: 찢긴 장에 봉인 의식이 적혀 있었대.|seer: 그리고 리엔이 사라진 이유도. 별이 이 장 근처에서 흐려져.|elementalist: 그럼 우리가 마저 읽자.
 c_n_ch3,3,cleric,necromancer,,cleric: 수도원의 종은 망자를 위해 울렸답니다.|necromancer: 그럼 오늘은 내가 종을 대신하지.|cleric: 함께 울리죠. 우리 둘이니까.
+mo_k,0,monk,knight,,monk: 맹세는 무겁지 않소?|knight: 무겁소. 그래서 내려놓지 않는 것이오.|monk: 산에서는 내려놓는 법을 배웠소. 당신에게선 드는 법을 배우겠군요.
+en_a,0,engineer,alchemist,,"engineer: 네 폭탄, 바닥 경첩에 하나 더 넣으면 두 배로 터져.|alchemist: 그러다 우리가 날아가.|engineer: 그러니까 포탑 뒤에서 던지라는 거지."
+mn_s,0,mnemonist,seer,,mnemonist: 너는 앞을 보고 나는 뒤를 봐.|seer: 그럼 둘이 있으면 길을 잃을 일이 없겠네.|mnemonist: 지금이 어딘지만 누가 알려 주면.
+mn_b,0,mnemonist,bard,,bard: 내 노래를 되새기면 어떻게 들려?|mnemonist: 네가 부를 때보다 조금 슬퍼.|bard: …그게 좋은 노래라는 뜻이야.
+mo_bs,0,monk,berserker,,berserker: 넌 왜 화를 안 내?|monk: 화도 기요. 쌓았다가 한 번에.|berserker: 그건 좀 멋있네.
+en_h,0,engineer,hunter,,"hunter: 포탑이 나보다 잘 쏘네.|engineer: 포탑은 바람을 못 읽어.|hunter: 그럼 바람은 내가 읽고, 쏘는 건 같이 하자."
+k_c_ch4,4,knight,cleric,,knight: 세른도 처음엔 우리 같았다더군.|cleric: 같은 길을 걸어도 혼자 걸었겠지요.|knight: 그렇다면 우리는 서로를 놓치지 맙시다.
+r_g_ch4,4,rogue,gambler,,gambler: 왕의 금은 탐나지 않아?|rogue: 탐나. 근데 이번엔 주인 이름이 다 적혀 있잖아.|gambler: 너 많이 변했다.
+n_mn_ch5,5,necromancer,mnemonist,,necromancer: 리엔의 망령을 불러도 얼굴이 없어.|mnemonist: 기억하는 사람이 없어서야. 우리가 기억하면 돼.|necromancer: …그럼 오늘부터 리엔은 우리 동료다.
+e_s_ch5,5,elementalist,seer,,"elementalist: 대가가 이름 하나라면, 누가 내?|seer: 별은 셋이 함께 빛나.|elementalist: 그럼 셋이 같이 내자. 하나씩 조금씩."
+b_c_ch5,5,bard,cleric,,bard: 마지막 노래의 끝을 아직 못 정했어.|cleric: 끝은 우리가 정하는 게 아니라 부르는 사람들이 정하지요.|bard: 그럼 많이 불러 달라고 해야겠다.

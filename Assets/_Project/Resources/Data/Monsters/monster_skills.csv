@@ -48,3 +48,35 @@ abbess_frost,서리 기도,2,10,0,magic,all,random,110,chill,모두 냉기.
 abbess_gather,눈보라 모으기,0,0,0,buff,self,random,80,charge,눈보라를 모은다. 다음 차례에 모두를 얼린다!
 abbess_blizzard,눈보라,4,14,0,magic,all,random,130,chill,모아 둔 눈보라가 몰아친다. 모두 냉기.
 abbess_crush,얼음 기둥,4,21,0,physical,one,strongest,130,,
+turret_shot,쏘기,2,8,0,physical,one,weakest,100,,포탑이 가장 약한 적을 쏜다.
+guard_spear,창 찌르기,3,17,0,physical,one,random,100,,
+guard_wall,방패 벽,2,12,0,physical,all,random,120,,방패로 모두를 밀친다.
+serpent_bite,물기,3,15,0,physical,one,weakest,90,,
+serpent_venom,독니,2,13,0,physical,one,random,100,weaken,독니에 물리면 약해진다.
+oknight_cut,베기,3,15,0,physical,one,random,100,,
+oknight_shout,이름 부르기,2,7,0,magic,all,random,110,weaken,빼앗은 이름들을 외친다. 모두 약화.
+shade_flame,붉은 불,2,13,0,magic,one,random,100,burn,화상.
+shade_wail,곡소리,2,9,0,magic,all,random,110,,
+captain4_blade,단장의 검,3,17,0,physical,one,strongest,110,,
+captain4_rend,갑옷 쪼개기,4,21,0,physical,one,strongest,130,,
+sern_blade,세른의 검,3,18,0,physical,one,random,100,,
+sern_steal,이름 빼앗기,2,9,0,magic,all,random,110,weaken,너희의 이름을 빼앗으려 한다. 모두 약화.
+sern_gather,붉은 왕의 힘,0,0,0,buff,self,random,80,charge,붉은 왕의 힘을 모은다. 다음 차례에 왕관이 떨어진다!
+sern_crown,붉은 왕관,4,14,0,magic,all,random,130,burn,왕관의 불이 모두를 태운다.
+sern_rend,두 손 베기,4,22,0,physical,one,strongest,130,,
+spawn_claw,할퀴기,3,14,0,physical,one,random,90,,
+spawn_leap,덮치기,3,17,0,physical,one,weakest,120,,
+void_gaze,지우는 눈길,2,13,0,magic,one,random,100,chill,냉기.
+void_blink,깜빡임,2,8,0,magic,all,random,110,weaken,모두 약화.
+colossus_fist,거상의 주먹,3,26,0,physical,one,strongest,120,,
+colossus_stomp,짓밟기,2,16,0,physical,all,random,130,,
+echo_mock,흉내,3,14,0,physical,one,random,100,,
+echo_cry,마지막 말,2,9,0,magic,all,random,110,chill,냉기.
+shadow_blade,그림자 검,3,18,0,physical,one,random,100,,
+shadow_name,이름 없는 울음,2,10,0,magic,all,random,110,weaken,모두 약화.
+shadow_rend,그림자 가르기,4,22,0,physical,one,strongest,130,,
+nameless_touch,지우는 손,3,20,0,physical,one,random,100,,
+nameless_forget,망각,2,10,0,magic,all,random,110,weaken,모두의 이름이 흐려진다. 약화.
+nameless_gather,모든 이름 모으기,0,0,0,buff,self,random,80,charge,잊힌 이름들이 모여든다. 다음 차례에 공허가 터진다!
+nameless_void,공허,4,16,0,magic,all,random,130,chill,모아 둔 이름들이 터진다. 모두 냉기.
+nameless_crush,짓눌러 지우기,4,25,0,physical,one,strongest,130,,

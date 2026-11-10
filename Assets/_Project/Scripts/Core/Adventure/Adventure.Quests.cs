@@ -38,6 +38,7 @@ namespace Game.Core
                 return;
             }
             JoinTile.Used = true;
+            DungeonsCleared++;
             int gold = 20 * (Chapter.Index + 1);
             Gold += gold;
             var loot = Loot(Chapter.Index + 2);
@@ -127,6 +128,7 @@ namespace Game.Core
         void PayContract()
         {
             if (Contract == null || !Contract.Done) return;
+            ContractsDone++;
             Gold += Contract.Gold;
             Report.Add($"의뢰 보상: 금화 +{Contract.Gold}");
             GainRenown(1, Report);

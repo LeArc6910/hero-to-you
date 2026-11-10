@@ -56,6 +56,8 @@ namespace Game.Core
         Water,
         Mountain,
         Snow,
+        // Cracked ground near the rift.
+        Rift,
     }
 
     // The fixed places of a chapter map.
@@ -98,6 +100,7 @@ namespace Game.Core
             Terrain.Water => "물",
             Terrain.Mountain => "산",
             Terrain.Snow => "눈밭",
+            Terrain.Rift => "갈라진 땅",
             _ => terrain.ToString(),
         };
 
@@ -108,6 +111,7 @@ namespace Game.Core
             Terrain.Swamp => 2,
             Terrain.Shallows => 2,
             Terrain.Snow => 2,
+            Terrain.Rift => 2,
             Terrain.Water => 0,
             Terrain.Mountain => 0,
             _ => 1,
@@ -176,6 +180,7 @@ namespace Game.Core
                         'w' => (Terrain.Shallows, Site.None),
                         'b' => (Terrain.Sand, Site.None),
                         'n' => (Terrain.Snow, Site.None),
+                        'x' => (Terrain.Rift, Site.None),
                         '~' => (Terrain.Water, Site.None),
                         '^' => (Terrain.Mountain, Site.None),
                         'S' => (Terrain.Plains, Site.Start),

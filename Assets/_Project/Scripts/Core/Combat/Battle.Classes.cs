@@ -29,6 +29,34 @@ namespace Game.Core
         public const int WolfCallHeal = 8;
         public const int SkeletonHp = 16;
         public const int WolfHp = 18;
+        public const int KiCap = 5;
+        public const int MeditateKi = 2;
+        public const int MeditateHeal = 6;
+        public const int TurretHp = 24;
+        public const string EchoId = "mnem_echo";
+
+        // Effects the mnemonist can echo: those that need nothing of the class that first used them.
+        static readonly string[] Echoable = { "", "burn", "chill", "lifesteal", "mark", "bless", "lucky", "weaken", "corrode", "foretell", "guard", "taunt", "encore", "song_courage", "song_rest", "snare", "pierce" };
+
+        // The last skill a hero other than the mnemonist used, for its echo.
+        SkillDef _lastAllySkill;
+
+        // The skill a command names for this unit: its own, or for the mnemonist's echo, the last ally skill made
+        // its own (no cost, its own cooldown, rolled with the mnemonist's abilities).
+        public SkillDef SkillOf(Unit actor, string id)
+        {
+            var own = actor.Hero?.Skill(id);
+            if (own == null || own.Effect != "echo") return own;
+            if (_lastAllySkill == null) return own;
+            var echo = _lastAllySkill.Clone();
+            echo.Id = own.Id;
+            echo.Name = $"{own.Name}: {_lastAllySkill.Name}";
+            echo.Cooldown = own.Cooldown;
+            echo.CostKind = "";
+            echo.CostAmount = 0;
+            echo.Text = $"{_lastAllySkill.Name}을 되새긴다. {_lastAllySkill.Text}";
+            return echo;
+        }
 
         // The song the bard keeps up, and which unit sings it (-1 for none).
         public Song Song { get; private set; }
@@ -46,7 +74,13 @@ namespace Game.Core
         {
             if (!unit.IsHero || unit.Down) return;
             if (weakStart) unit.Statuses[StatusKind.Weak] = WeakTurns;
-            if (Is(unit, "necromancer")) unit.Souls = 2 + unit.Hero.Special("soul_start");
+            if (Is(unit, "necromancer"))
+            {
+                unit.Souls = 2 + unit.Hero.Special("soul_start");
+                // The necromancer walks in with a skeleton already up: it stands in front (Docs/Classes.md).
+                Summon(unit, GameData.SkeletonId, SkeletonHp + unit.Hero.Special("skeleton_hp"), 0);
+            }
+            if (Is(unit, "monk")) unit.Ki = 1 + unit.Hero.Special("ki_start");
             if (Is(unit, "beastmaster")) Summon(unit, GameData.CompanionWolfId, WolfHp + 2 * (unit.Hero.Level - 1) + unit.Hero.Special("wolf_hp"), unit.Hero.Special("wolf_power"));
         }
 
@@ -136,6 +170,9 @@ namespace Game.Core
         {
             if (skill.CostKind == "reagent" && actor.Hero.Reagents < skill.CostAmount) return $"{skill.Name}: 재료가 모자랍니다 ({actor.Hero.Reagents}/{skill.CostAmount}).";
             if (skill.CostKind == "soul" && actor.Souls < skill.CostAmount) return $"{skill.Name}: 영혼이 모자랍니다 ({actor.Souls}/{skill.CostAmount}).";
+            if (skill.CostKind == "ki" && actor.Ki < skill.CostAmount) return $"{skill.Name}: 기가 모자랍니다 ({actor.Ki}/{skill.CostAmount}).";
+            if (skill.Effect == "echo") return "되새길 동료의 기술이 아직 없습니다(동료가 먼저 기술을 쓰면 된다).";
+            if (skill.Id == EchoId && Array.IndexOf(Echoable, skill.Effect) < 0) return $"{skill.Name}: 그 기술은 되새길 수 없습니다.";
             if (skill.Effect == "raise" && SummonOf(actor, GameData.SkeletonId) is Unit skeleton && !skeleton.Down) return "해골은 한 번에 하나만 일으킵니다.";
             if (skill.Effect == "finisher" && actor.Combo == 0) return $"{skill.Name}: 연계가 없습니다(먼저 다른 행동을 하세요).";
             if ((skill.Effect == "wolfguard" || skill.Effect == "command") && !(SummonOf(actor, GameData.CompanionWolfId) is Unit wolf && !wolf.Down))
@@ -147,6 +184,7 @@ namespace Game.Core
         {
             if (skill.CostKind == "reagent") actor.Hero.Reagents -= skill.CostAmount;
             if (skill.CostKind == "soul") actor.Souls -= skill.CostAmount;
+            if (skill.CostKind == "ki") actor.Ki -= skill.CostAmount;
         }
 
         // After any action: the rogue's combo grows (the finisher spent it before).
@@ -260,6 +298,25 @@ namespace Game.Core
                 case "wolfguard":
                     var guardWolf = SummonOf(actor, GameData.CompanionWolfId);
                     Guard(guardWolf, target, actor);
+                    break;
+                case "meditate":
+                    actor.Ki = Math.Min(KiCap + actor.Hero.Special("ki_cap"), actor.Ki + MeditateKi);
+                    int calm = actor.Hp;
+                    actor.Hero.Heal(MeditateHeal + actor.Hero.Special("meditate"));
+                    Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = actor.Id, Amount = actor.Hp - calm, Text = $"{actor.Name}: 명상, 기 {actor.Ki}, 생명력 +{actor.Hp - calm}" });
+                    break;
+                case "turret":
+                    var turret = SummonOf(actor, GameData.TurretId);
+                    int turretHp = TurretHp + actor.Hero.Special("turret_hp") + 2 * (actor.Hero.Level - 1);
+                    if (turret != null)
+                    {
+                        turret.Hp = turretHp;
+                        turret.Statuses.Clear();
+                    }
+                    else turret = Summon(actor, GameData.TurretId, turretHp, actor.Hero.Special("turret_power") + actor.Hero.Level / 3);
+                    turret.Ready = actor.Ready + Wait(turret.Speed, 50);
+                    Emit(new BattleEvent { Kind = BattleEventKind.Revive, Actor = actor.Id, Target = turret.Id, Amount = turret.Hp, Text = $"{actor.Name}: 포탑을 세웠다 (생명력 {turret.Hp})" });
+                    ChooseIntent(turret);
                     break;
                 case "call":
                     var wolf = SummonOf(actor, GameData.CompanionWolfId);

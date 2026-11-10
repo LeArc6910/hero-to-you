@@ -1,0 +1,19 @@
+id,name,rule,text
+first_steps,첫 발자국,runs 1,모험을 한 번 끝까지 가 본다(이기든 지든).
+first_seal,첫 봉인,chapters 1,첫 장을 지난다.
+half_way,반쯤 온 길,chapters 3,세 장을 지난다.
+the_end,일지의 끝,win,캠페인을 끝까지 간다.
+kind_heart,돌아보는 사람,kind_ending,한 장을 다정한 결말로 끝낸다.
+heavy_page,무거운 장,grim_ending,한 장을 쓸쓸한 결말로 끝낸다.
+all_kind,모두를 데려간 길,kind_all,모든 장을 다정한 결말로 이긴다.
+renowned,노래가 된 이름,renown 30,한 판에 명성 30에 닿는다.
+delver,깊은 곳까지,dungeons 3,한 판에 던전 셋을 끝까지 간다.
+for_hire,의뢰꾼,contracts 3,한 판에 의뢰 셋을 마친다.
+campfire,모닥불 이야기꾼,talks 8,한 판에 동료 대화를 여덟 번 듣는다.
+footsteps,발자취를 모은 이,notes 30,옛 메모를 30개 모은다(여러 판에 걸쳐).
+thorny,가시밭길,hard_win,가시밭길로 캠페인을 이긴다.
+no_return,돌아오지 않는 길,hardcore_win,하드코어로 캠페인을 이긴다.
+gentle,천천히 걸어도,easy_win,쉬움으로 캠페인을 이긴다.
+many_hands,여러 손,classes 9,아홉 직업으로 각각 한 번 이상 이긴다.
+all_hands,모든 손,classes 15,모든 직업으로 각각 한 번 이상 이긴다.
+untouched,넘어지지 않은 길,no_fall,한 번도 쓰러지지 않고 캠페인을 이긴다.

@@ -32,3 +32,12 @@ seer_twist,seer,운명 바꾸기,,0,0,0,support,self,40,1,,twist,,,운명의 흐
 beast_command,beastmaster,협공 명령,per,2,6,0,physical,enemy,100,1,,command,crit150,,조련사가 찌르고 늑대가 바로 같은 적을 문다(협공).
 beast_guard,beastmaster,지켜라,,0,0,0,support,other_ally,60,2,,wolfguard,,,늑대가 아군 하나를 대신 맞아 준다(조련사의 다음 차례까지).
 beast_call,beastmaster,야성의 부름,,0,0,0,support,self,70,3,,call,,,늑대가 생명력 8을 회복하고 다음 공격 위력 +3. 쓰러졌으면 절반으로 일어난다.
+monk_palm,monk,장풍,wil,3,10,25,magic,enemy,100,1,,pierce,crit150,ki 2,기 2. 방어도와 마법 방어를 꿰뚫는다.
+monk_meditate,monk,명상,,0,0,0,support,self,60,2,,meditate,,,"기 +2, 생명력 6 회복."
+monk_sweep,monk,휩쓸기 차기,agi,2,6,0,physical,all_enemies,110,2,,,crit150,,모든 적을 걷어찬다.
+engi_turret,engineer,포탑 세우기,,0,0,0,support,self,90,3,,turret,,,앞줄에 포탑을 세운다(이미 있으면 고친다). 포탑은 스스로 쏘고 대신 맞는다.
+engi_snare,engineer,올가미,per,3,7,0,physical,enemy,100,2,,snare,crit150,,성공 2개 이상이면 적이 다음 차례를 쉰다.
+engi_flash,engineer,섬광탄,int,2,4,0,magic,all_enemies,100,2,,weaken,crit150,,모든 적에게 섬광. 성공하면 약화.
+mnem_echo,mnemonist,되새김,,0,0,0,support,self,80,2,,echo,,,동료가 마지막으로 쓴 기술을 비용 없이 한 번 더 쓴다(해골·늑대·포탑을 부르는 기술은 빼고).
+mnem_recall,mnemonist,회상,wil,3,12,50,heal,ally,100,1,,,crit150,,좋았던 날을 떠올리게 해 생명력을 되찾게 한다.
+mnem_forget,mnemonist,망각,int,2,6,25,magic,enemy,90,1,,chill,crit150,,적이 하려던 일을 잊게 한다. 성공하면 다음 차례가 늦어진다.

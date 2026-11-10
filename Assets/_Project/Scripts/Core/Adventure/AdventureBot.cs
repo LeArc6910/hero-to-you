@@ -104,6 +104,15 @@ namespace Game.Core
                 if (a.CanHearRumors && a.Gold >= Adventure.RumorCost + 25) return a.Rumor();
                 if (a.CanDonate && a.Gold >= a.DonationCost + 60) return a.Donate();
                 if (a.CanTakeContract) return a.TakeContract();
+                // The smithy: the weapon or armor with the fewest forged levels, while the gold lasts.
+                foreach (var (hero, slot) in a.Heroes.Where(h => !h.Dead).SelectMany(h => new[] { (h, ItemSlot.Weapon), (h, ItemSlot.Armor) })
+                    .OrderBy(p => (p.Item2 == ItemSlot.Weapon ? p.h.Weapon : p.h.Armor)?.Plus ?? 9))
+                {
+                    var item = slot == ItemSlot.Weapon ? hero.Weapon : hero.Armor;
+                    if (Adventure.CanForge(item) && a.Gold >= a.ForgePrice(item) + 50) return a.Forge(a.Heroes.IndexOf(hero), slot);
+                }
+                var recruit = a.Recruits().FirstOrDefault();
+                if (recruit != null) return a.Recruit(recruit.Id);
                 if (a.CanMeetElder) return a.Elder();
             }
             return a.LeaveTown();

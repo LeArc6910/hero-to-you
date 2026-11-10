@@ -14,6 +14,9 @@ namespace Game.Core
 
         readonly HashSet<string> _unlocked = new HashSet<string>();
         readonly HashSet<string> _notes = new HashSet<string>();
+        readonly HashSet<string> _achieved = new HashSet<string>();
+        readonly Dictionary<string, int> _classRuns = new Dictionary<string, int>();
+        readonly Dictionary<string, int> _classWins = new Dictionary<string, int>();
 
         // Pages not spent yet, and all ever earned.
         public int Pages { get; private set; }
@@ -26,6 +29,14 @@ namespace Game.Core
 
         // The events whose old notes were found in some run.
         public IReadOnlyCollection<string> Notes => _notes;
+
+        // Achievements earned (Data/Journal/achievements.csv), and those the last recorded run earned.
+        public IReadOnlyCollection<string> Achieved => _achieved;
+        public List<AchievementDef> NewAchievements { get; } = new List<AchievementDef>();
+
+        // Runs and victories with each class (Docs/Journal.md 기록).
+        public int RunsWith(string classId) => _classRuns.TryGetValue(classId, out int n) ? n : 0;
+        public int WinsWith(string classId) => _classWins.TryGetValue(classId, out int n) ? n : 0;
 
         public bool Has(string perk) => _unlocked.Contains(perk);
 
@@ -57,8 +68,42 @@ namespace Game.Core
             ChaptersCleared += adventure.ChaptersCleared;
             BestRenown = Math.Max(BestRenown, adventure.Renown);
             foreach (var card in adventure.Footsteps) _notes.Add(card.Id);
+            bool won = adventure.Screen == AdventureScreen.Victory;
+            foreach (var hero in adventure.Heroes)
+            {
+                _classRuns[hero.Class.Id] = RunsWith(hero.Class.Id) + 1;
+                if (won) _classWins[hero.Class.Id] = WinsWith(hero.Class.Id) + 1;
+            }
+            NewAchievements.Clear();
+            foreach (var achievement in adventure.Data.Achievements)
+            {
+                if (_achieved.Contains(achievement.Id) || !Earned(achievement, adventure, won)) continue;
+                _achieved.Add(achievement.Id);
+                NewAchievements.Add(achievement);
+            }
             return pages;
         }
+
+        bool Earned(AchievementDef a, Adventure run, bool won) => a.Rule switch
+        {
+            "win" => won,
+            "chapters" => run.ChaptersCleared >= a.Amount,
+            "kind_ending" => run.Endings.Contains("kind"),
+            "grim_ending" => run.Endings.Contains("grim"),
+            "kind_all" => won && run.Endings.Count > 0 && run.Endings.All(e => e == "kind"),
+            "renown" => run.Renown >= a.Amount,
+            "dungeons" => run.DungeonsCleared >= a.Amount,
+            "contracts" => run.ContractsDone >= a.Amount,
+            "talks" => run.Talks.Count >= a.Amount,
+            "notes" => _notes.Count >= a.Amount,
+            "hard_win" => won && run.Hard,
+            "hardcore_win" => won && run.Hardcore,
+            "easy_win" => won && run.Difficulty == Difficulty.Easy,
+            "classes" => _classWins.Count >= a.Amount,
+            "runs" => Runs >= a.Amount,
+            "no_fall" => won && run.Falls == 0,
+            _ => false,
+        };
 
         public string ToText()
         {
@@ -73,6 +118,9 @@ namespace Game.Core
             Line("renown", BestRenown);
             text.Append("unlocked ").Append(string.Join(",", _unlocked.OrderBy(s => s, StringComparer.Ordinal))).Append('\n');
             text.Append("notes ").Append(string.Join(",", _notes.OrderBy(s => s, StringComparer.Ordinal))).Append('\n');
+            text.Append("achieved ").Append(string.Join(",", _achieved.OrderBy(s => s, StringComparer.Ordinal))).Append('\n');
+            text.Append("classruns ").Append(string.Join(",", _classRuns.OrderBy(p => p.Key, StringComparer.Ordinal).Select(p => $"{p.Key}:{p.Value}"))).Append('\n');
+            text.Append("classwins ").Append(string.Join(",", _classWins.OrderBy(p => p.Key, StringComparer.Ordinal).Select(p => $"{p.Key}:{p.Value}"))).Append('\n');
             return text.ToString();
         }
 
@@ -102,6 +150,18 @@ namespace Game.Core
                         break;
                     case "notes":
                         foreach (string id in value.Split(',').Where(s => s.Length > 0)) journal._notes.Add(id);
+                        break;
+                    case "achieved":
+                        foreach (string id in value.Split(',').Where(s => s.Length > 0)) journal._achieved.Add(id);
+                        break;
+                    case "classruns":
+                    case "classwins":
+                        var counts = key == "classruns" ? journal._classRuns : journal._classWins;
+                        foreach (string pair in value.Split(',').Where(s => s.Contains(":")))
+                        {
+                            string[] kv = pair.Split(':');
+                            if (int.TryParse(kv[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int count)) counts[kv[0]] = Math.Max(0, count);
+                        }
                         break;
                 }
             }

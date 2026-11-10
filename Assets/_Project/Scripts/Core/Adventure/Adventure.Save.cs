@@ -23,6 +23,7 @@ namespace Game.Core
             text.Append("party ").Append(string.Join(",", ClassIds)).Append('\n');
             text.Append("perks ").Append(string.Join(",", Perks)).Append('\n');
             text.Append("level ").Append(Difficulty.ToString().ToLowerInvariant()).Append('\n');
+            if (Hardcore) text.Append("hardcore\n");
             text.Append("sheets ").Append(Data.Fingerprint).Append('\n');
             foreach (string line in _log) text.Append(line).Append('\n');
             return text.ToString();
@@ -53,6 +54,7 @@ namespace Game.Core
             int first = 3;
             var perks = new List<string>();
             var difficulty = Difficulty.Normal;
+            bool hardcore = false;
             string sheets = null;
             for (; first < lines.Count; first++)
             {
@@ -60,12 +62,13 @@ namespace Game.Core
                 if (line.StartsWith("perks")) perks = line.Substring(5).Trim().Split(',').Where(p => p.Length > 0).ToList();
                 else if (line.StartsWith("level ")) Enum.TryParse(line.Substring(6), true, out difficulty);
                 else if (line.StartsWith("sheets ")) sheets = line.Substring(7);
+                else if (line == "hardcore") hardcore = true;
                 else break;
             }
             Adventure adventure;
             try
             {
-                adventure = new Adventure(data, lines[2].Substring(6).Split(','), seed, perks, difficulty);
+                adventure = new Adventure(data, lines[2].Substring(6).Split(','), seed, perks, difficulty, hardcore);
             }
             catch (ArgumentException e)
             {
@@ -124,6 +127,8 @@ namespace Game.Core
                 case "delve": return Delve();
                 case "leavedungeon": return LeaveDungeon();
                 case "contract": return TakeContract();
+                case "forge": return Forge(N(1), (ItemSlot)Enum.Parse(typeof(ItemSlot), w[2], true));
+                case "recruit": return Recruit(w[1]);
                 case "use": return UseItem(N(1), w[2]);
                 case "buy": return Buy(N(1), w.Length > 2 ? N(2) : -1);
                 case "sell": return Sell(N(1));

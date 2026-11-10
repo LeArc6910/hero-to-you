@@ -85,6 +85,7 @@ namespace Game.Core
             foreach (int i in TownHeroes())
             {
                 var hero = Heroes[i];
+                if (hero.Dead) continue;
                 if (hero.Down) hero.Hp = 1;
                 bool wounded = hero.Wounds > 0;
                 hero.HealWounds();
@@ -190,6 +191,85 @@ namespace Game.Core
             Report.Clear();
             Report.Add($"금화 {DonationCost}로 무너진 집을 고치는 일을 도왔다.");
             GainRenown(1, Report);
+            return null;
+        }
+
+        // ---- The smithy (Docs/Map.md 대장간) ----
+
+        public const int MaxPlus = 3;
+        public const int ForgeBase = 30;
+        public const int EngineerDiscount = 30;
+
+        // What forging the item one more level costs: more for better items and higher levels; the bard and the
+        // engineer bargain.
+        public int ForgePrice(ItemDef item)
+        {
+            int price = ForgeBase * (item.Tier + item.Plus + 1);
+            if (Standing("engineer")) price = price * (100 - EngineerDiscount) / 100;
+            return PriceOf(price);
+        }
+
+        public static bool CanForge(ItemDef item) => item != null && !item.Consumable && item.Plus < MaxPlus;
+
+        // Makes a worn weapon (power +2), armor (armor +1) or trinket (health +4) one level better.
+        public string Forge(int heroIndex, ItemSlot slot)
+        {
+            string error = InTown();
+            if (error != null) return error;
+            if (heroIndex < 0 || heroIndex >= Heroes.Count) return "영웅을 고르세요.";
+            var hero = Heroes[heroIndex];
+            var item = slot == ItemSlot.Weapon ? hero.Weapon : slot == ItemSlot.Armor ? hero.Armor : hero.Trinket;
+            if (!CanForge(item)) return item == null ? "끼고 있는 것이 없습니다." : $"{Korean.Topic(item.Name)} 더 강화할 수 없습니다.";
+            int price = ForgePrice(item);
+            if (Gold < price) return $"금화가 모자랍니다 ({price}).";
+            Gold -= price;
+            var forged = item.Clone();
+            forged.Plus = item.Plus + 1;
+            string baseName = item.Plus > 0 ? item.Name.Substring(0, item.Name.LastIndexOf(" +", StringComparison.Ordinal)) : item.Name;
+            forged.Name = $"{baseName} +{forged.Plus}";
+            forged.Price = item.Price + price / 2;
+            switch (slot)
+            {
+                case ItemSlot.Weapon:
+                    forged.Attack.Power += 2;
+                    break;
+                case ItemSlot.Armor:
+                    forged.Armor += 1;
+                    break;
+                default:
+                    forged.Hp += 4;
+                    break;
+            }
+            hero.Equip(forged);
+            Record($"forge {heroIndex} {slot.ToString().ToLowerInvariant()}");
+            Report.Clear();
+            Report.Add($"{hero.Name}: {Korean.Object(forged.Name)} 벼렸다 (금화 −{price})");
+            return null;
+        }
+
+        // ---- New companions (the hardcore mode) ----
+
+        // Classes that could take a fallen hero's place: playable and not in the party now.
+        public List<ClassDef> Recruits() =>
+            !Hardcore || !Heroes.Any(h => h.Dead) ? new List<ClassDef>() : Data.PlayableClasses.Where(c => Heroes.All(h => h.Class.Id != c.Id)).ToList();
+
+        // A new companion takes the first fallen hero's place, a level below the lowest of the others.
+        public string Recruit(string classId)
+        {
+            string error = InTown();
+            if (error != null) return error;
+            int index = Heroes.FindIndex(h => h.Dead);
+            if (index < 0) return "새 동료를 맞을 자리가 없습니다.";
+            var cls = Recruits().FirstOrDefault(c => c.Id == classId);
+            if (cls == null) return "그 직업은 맞을 수 없습니다.";
+            Record($"recruit {classId}");
+            Report.Clear();
+            int level = Math.Max(1, Heroes.Where(h => !h.Dead).Select(h => h.Level).DefaultIfEmpty(1).Min() - 1);
+            var hero = new Hero(cls, index);
+            Heroes[index] = hero;
+            Positions[index] = Map.Tile(Site.Town).Hex;
+            Report.Add($"{Korean.Subject(hero.Name)} 일지를 이어받아 함께 걷기로 했다.");
+            if (level > 1) GainXp(hero, Hero.LevelXp[level - 1]);
             return null;
         }
 

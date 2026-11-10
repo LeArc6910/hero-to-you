@@ -89,12 +89,64 @@ namespace Game.Core.Tests
             necro.Hero.Blessing = 3;
             Act(battle, Hero.AttackId, battle.Monsters.First(m => m.MaxHp == 1).Id);
             Assert.That(necro.Souls, Is.EqualTo(3), "적이 쓰러지면 영혼 +1");
-            Act(battle, "necro_raise", necro.Id);
             var skeleton = battle.Summons.Single();
-            Assert.That(skeleton.Side, Is.EqualTo(Side.Party));
+            Assert.That(skeleton.Side, Is.EqualTo(Side.Party), "해골 하나와 함께 전투를 시작한다");
             Assert.That(skeleton.Intent, Is.Not.Null);
             Assert.That(battle.Unit(skeleton.Intent.Target).IsFoe, Is.True, "해골은 적을 노린다");
+            Assert.That(battle.Preview(new BattleCommand(necro.Id, "necro_raise", necro.Id)).Ok, Is.False, "서 있는 해골이 있으면 못 일으킨다");
+            skeleton.Hp = 0;
+            Act(battle, "necro_raise", necro.Id);
+            Assert.That(battle.Summons.Single().Hp, Is.GreaterThan(0), "쓰러진 해골을 다시 일으킨다");
             Assert.That(necro.Souls, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void TheMonkGathersKiAndItsPalmGoesThroughArmor()
+        {
+            var battle = new Battle(TestData.Party("monk"), new List<MonsterDef> { TestData.Dummy(armor: 5) }, 5, false, TestData.Data);
+            var monk = battle.Current;
+            Assert.That(monk.Ki, Is.EqualTo(1));
+            monk.Hero.Blessing = 3;
+            Act(battle, Hero.AttackId, battle.Monsters.First().Id);
+            Assert.That(monk.Ki, Is.EqualTo(2), "맞히면 기 +1");
+            var preview = battle.Preview(new BattleCommand(monk.Id, "monk_palm", battle.Monsters.First().Id));
+            Assert.That(preview.Ok, Is.True);
+            int raw = preview.ValueBySuccesses.Last();
+            Assert.That(raw, Is.GreaterThan(5), "방어도 5를 꿰뚫는다");
+            Act(battle, "monk_palm", battle.Monsters.First().Id);
+            Assert.That(monk.Ki, Is.EqualTo(1), "기 2를 쓰고, 맞혀서 다시 1");
+            Assert.That(battle.Preview(new BattleCommand(monk.Id, "monk_palm", battle.Monsters.First().Id)).Ok, Is.False, "기가 모자라면 못 쓴다");
+        }
+
+        [Test]
+        public void TheEngineerBuildsATurretThatStandsInFront()
+        {
+            var battle = new Battle(TestData.Party("engineer"), new List<MonsterDef> { TestData.Dummy() }, 5, false, TestData.Data);
+            var engineer = battle.Current;
+            Act(battle, "engi_turret", engineer.Id);
+            var turret = battle.Summons.Single();
+            Assert.That(turret.Monster.Id, Is.EqualTo(GameData.TurretId));
+            Assert.That(Battle.InFront(turret), Is.True);
+            Assert.That(Battle.InFront(engineer), Is.False, "기술자는 뒷줄");
+        }
+
+        [Test]
+        public void TheMnemonistEchoesTheLastAllySkill()
+        {
+            var battle = new Battle(TestData.Party("cleric", "mnemonist"), new List<MonsterDef> { TestData.Dummy(speed: 1) }, 7, false, TestData.Data);
+            var mnemonist = battle.Heroes.First(h => h.Hero.Class.Id == "mnemonist");
+            for (int i = 0; i < 20 && battle.Current != null && battle.Current.Hero?.Class.Id != "cleric"; i++)
+                Act(battle, Hero.AttackId, battle.Monsters.First().Id);
+            if (battle.Current?.Hero?.Class.Id == "mnemonist")
+                Assert.That(battle.Preview(new BattleCommand(mnemonist.Id, Battle.EchoId, mnemonist.Id)).Ok, Is.False, "되새길 것이 없으면 못 쓴다");
+            var cleric = battle.Heroes.First(h => h.Hero.Class.Id == "cleric");
+            var heal = cleric.Hero.Skills.First(s => s.Kind == SkillKind.Heal);
+            for (int i = 0; i < 20 && battle.Current != cleric; i++) Act(battle, Hero.AttackId, battle.Monsters.First().Id);
+            Act(battle, heal.Id, cleric.Id);
+            for (int i = 0; i < 20 && battle.Current != mnemonist; i++) Act(battle, Hero.AttackId, battle.Monsters.First().Id);
+            var echo = battle.SkillOf(mnemonist, Battle.EchoId);
+            Assert.That(echo.Kind, Is.EqualTo(SkillKind.Heal), "되새김은 동료의 치유가 된다");
+            Assert.That(battle.Preview(new BattleCommand(mnemonist.Id, Battle.EchoId, cleric.Id)).Ok, Is.True);
         }
 
         [Test]

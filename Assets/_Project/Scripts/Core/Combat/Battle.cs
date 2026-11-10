@@ -459,6 +459,7 @@ namespace Game.Core
                 Hurt(target, damage, actor.Id, false, skill.Name);
                 if (skill.Effect == "burn" && check.Successes > 0) AddStatus(target, StatusKind.Burn, BurnTurns);
                 if (skill.Effect == "chill" && check.Successes > 0) AddStatus(target, StatusKind.Chill, 1);
+                if (skill.Effect == "weaken" && check.Successes > 0) AddStatus(target, StatusKind.Weak, WeakTurns);
             }
         }
 
@@ -496,7 +497,7 @@ namespace Game.Core
             if (BattleCommand.IsUse(command.Skill)) return PreviewUse(preview, actor, command);
             if (command.Skill == BattleCommand.Flee) return PreviewFlee(preview, actor, command);
 
-            var skill = hero.Skill(command.Skill);
+            var skill = SkillOf(actor, command.Skill);
             preview.Skill = skill;
             if (skill == null) return Fail(preview, $"{hero.Name}의 기술이 아닙니다: {command.Skill}");
             int wait = Cooldown(actor, skill);
@@ -572,7 +573,7 @@ namespace Game.Core
                 case SkillKind.Physical:
                 case SkillKind.Magic:
                     var targets = skill.Target == SkillTarget.AllEnemies ? Monsters.Where(m => !m.Down) : new[] { target };
-                    return targets.Sum(t => Mitigate(value, t, skill.Kind == SkillKind.Physical));
+                    return targets.Sum(t => Reduce(skill, value, t));
                 case SkillKind.Heal:
                     return value;
                 case SkillKind.Revive:
@@ -660,11 +661,15 @@ namespace Game.Core
                     break;
             }
             if (skill.Element.Length > 0) actor.LastElement = skill.Element;
+            if (!Is(actor, "mnemonist") && skill.Id != EchoId) _lastAllySkill = skill;
             AfterAction(actor, skill);
             EndTurn(actor, skill.Delay);
             Advance();
             return null;
         }
+
+        // Armor (or ward) taken off a blow; the monk's piercing palm goes straight through.
+        int Reduce(SkillDef skill, int value, Unit target) => skill.Effect == "pierce" ? value : Mitigate(value, target, skill.Kind == SkillKind.Physical);
 
         void Attack(Unit actor, SkillDef skill, Unit target, CheckResult check)
         {
@@ -673,7 +678,7 @@ namespace Game.Core
             int total = 0;
             foreach (var t in targets)
             {
-                int damage = Mitigate(value, t, skill.Kind == SkillKind.Physical);
+                int damage = Reduce(skill, value, t);
                 if (damage <= 0)
                 {
                     Emit(new BattleEvent { Kind = BattleEventKind.Miss, Actor = actor.Id, Target = t.Id, Text = $"{t.Name}: 빗나감" });
@@ -682,12 +687,14 @@ namespace Game.Core
                 int before = t.Hp;
                 Hurt(t, damage, actor.Id, check.Perfect, skill.Name);
                 total += before - t.Hp;
+                if (Is(actor, "monk") && before > t.Hp && actor.Ki < KiCap + actor.Hero.Special("ki_cap")) actor.Ki++;
                 if (check.Successes > 0)
                 {
                     if (skill.Effect == "burn") AddStatus(t, StatusKind.Burn, BurnTurns);
                     if (skill.Effect == "chill") AddStatus(t, StatusKind.Chill, 1);
                     if (skill.Effect == "weaken") AddStatus(t, StatusKind.Weak, WeakTurns);
                     if (skill.Effect == "corrode") AddStatus(t, StatusKind.Corrode, CorrodeTurns);
+                    if (skill.Effect == "snare" && check.Successes >= 2) AddStatus(t, StatusKind.Stun, 1);
                 }
                 if (check.Perfect && skill.Perfect == "stun") AddStatus(t, StatusKind.Stun, 1);
             }

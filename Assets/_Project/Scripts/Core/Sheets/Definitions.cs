@@ -276,6 +276,17 @@ namespace Game.Core
     // A weapon, armor or trinket (Data/Items/items.csv). A weapon's Attack is the holder's basic attack.
     public sealed class ItemDef
     {
+        // Forged levels (Docs/Map.md 대장간): +1 to +3, each a copy of the sheet's item made stronger.
+        public int Plus { get; internal set; }
+
+        internal ItemDef Clone()
+        {
+            var copy = (ItemDef)MemberwiseClone();
+            copy.Attack = Attack?.Clone();
+            copy.StatBonus = (int[])StatBonus.Clone();
+            return copy;
+        }
+
         public string Id { get; internal set; }
         public string Name { get; internal set; }
         public ItemSlot Slot { get; internal set; }
@@ -386,6 +397,12 @@ namespace Game.Core
 
         // The tune the client plays on this chapter's map (a Tune name: forest, harbor, snow).
         public string Music { get; internal set; }
+
+        // The chapter's maps: one is drawn for each run by the seed (Map is the first).
+        public IReadOnlyList<MapDef> Maps { get; internal set; } = new List<MapDef>();
+
+        // The kind ending also needs this much renown (0: no need), for the last chapter's ending.
+        public int KindRenown { get; internal set; }
     }
 
     // A talk by the campfire (Data/Story/talks.csv, Docs/Narrative.md 동료 대화): two classes in the party, a few lines
@@ -398,6 +415,17 @@ namespace Game.Core
         public string B { get; internal set; }
         public string Requires { get; internal set; }
         public IReadOnlyList<(string speaker, string text)> Lines { get; internal set; } = new List<(string, string)>();
+    }
+
+    // An achievement kept in the journal (Data/Journal/achievements.csv, Docs/Journal.md 업적): a rule checked when a
+    // run ends, like "win", "chapters 3", "renown 30", "classes 6".
+    public sealed class AchievementDef
+    {
+        public string Id { get; internal set; }
+        public string Name { get; internal set; }
+        public string Rule { get; internal set; }
+        public int Amount { get; internal set; }
+        public string Text { get; internal set; }
     }
 
     // A step of the party's renown (Data/Story/renown.csv, Docs/Narrative.md 명성): the title the party goes by once it

@@ -87,7 +87,8 @@ namespace Game.Core
         public static int ChanceOf(EventChoice choice, Hero hero) =>
             choice.FixedChance > 0 ? choice.FixedChance : Dice.ClampChance(choice.Stat.HasValue ? hero.Stat(choice.Stat.Value) : 50);
 
-        public static int FreeOf(EventChoice choice, Hero hero) => Math.Min(choice.Dice, hero.Blessing + hero.Luck);
+        // Sure successes a hero brings to an event check: blessing and luck, and the mnemonist's memory (one more).
+        public static int FreeOf(EventChoice choice, Hero hero) => Math.Min(choice.Dice, hero.Blessing + hero.Luck + (hero.Class.Id == "mnemonist" ? 1 : 0));
 
         public static int ResolveRoom(EventChoice choice, Hero hero) => Math.Min(hero.Resolve, choice.Dice - FreeOf(choice, hero));
 
@@ -243,10 +244,13 @@ namespace Game.Core
             }
         }
 
-        // A random piece of gear of the tier, not a starting one.
+        // A random piece of gear of the tier (or the best tier there is, past it), not a starting one.
         ItemDef Loot(int tier)
         {
-            var items = Data.ItemList.Where(i => i.Tier == tier && i.Price > 0 && !i.Consumable).ToList();
+            var gear = Data.ItemList.Where(i => i.Price > 0 && !i.Consumable).ToList();
+            if (gear.Count == 0) return null;
+            tier = Math.Min(tier, gear.Max(i => i.Tier));
+            var items = gear.Where(i => i.Tier == tier).ToList();
             return items.Count == 0 ? null : items[_lootRandom.Next(items.Count)];
         }
 

@@ -11,7 +11,7 @@ namespace Game.Core.Tests
         {
             var data = TestData.Data;
             Assert.That(data.ClassList.Count, Is.GreaterThanOrEqualTo(12), "직업 12종이 목록에 있다 (Docs/Classes.md)");
-            Assert.That(data.PlayableClasses.Count(), Is.EqualTo(12), "직업 12종 모두 고를 수 있다 (Docs/Classes.md)");
+            Assert.That(data.PlayableClasses.Count(), Is.EqualTo(15), "직업 15종 모두 고를 수 있다 (Docs/Classes.md)");
             Assert.That(data.Map, Is.Not.Null);
             Assert.That(data.Events.Count, Is.GreaterThanOrEqualTo(25));
         }

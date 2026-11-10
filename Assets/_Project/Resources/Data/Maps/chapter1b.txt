@@ -1,0 +1,10 @@
+# 챕터 1 잿빛 숲, 두 번째 지도 (Docs/Map.md). 시드로 chapter1.txt와 이것 가운데 하나를 고른다.
+^^^fff^^^ff^^^^
+^ff..ffS.ff.uR^
+^f.H.f.r..fuuf^
+f..f..rr.ff.f.^
+fT.rrrr..f.ff.^
+.f..fr..ss.fCu^
+ff.f.r.sMs.ff.^
+^fDf.rrrr.ffBf^
+^^^ff^^^^ff^^^^
