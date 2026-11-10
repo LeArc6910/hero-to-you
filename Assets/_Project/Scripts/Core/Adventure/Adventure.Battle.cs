@@ -88,7 +88,7 @@ namespace Game.Core
         {
             string blocked = Blocked();
             if (blocked != null) return blocked;
-            if (scare ? !CanScare : !CanAvoid) return scare ? "광전사가 들판의 무리를 만났을 때 한 번만 겁줄 수 있습니다." : "들판의 무리를 만났을 때 한 번만 피할 수 있습니다.";
+            if (scare ? !CanScare : !CanAvoid) return scare ? Data.Line("adventure.error.cannot_scare") : Data.Line("adventure.error.cannot_avoid");
             var hero = Current;
             var odds = AvoidOdds(scare);
             hero.Blessing = 0;
@@ -100,21 +100,21 @@ namespace Game.Core
             Report.Clear();
             if (JoinCheck.Successes < AvoidNeed)
             {
-                Report.Add(scare ? "무리가 겁먹지 않았다. 싸울 수밖에 없다." : "피하지 못했다. 싸울 수밖에 없다.");
+                Report.Add(scare ? Data.Line("adventure.scare.failed") : Data.Line("adventure.avoid.failed"));
                 return null;
             }
             if (scare)
             {
                 int xp = Encounter.Monsters.Sum(m => m.Xp) / 2;
                 JoinTile.Content = Content.None;
-                Report.Add($"{Korean.Subject(hero.Name)} 포효하자 무리가 흩어졌다 (경험치 +{xp})");
+                Report.Add(Data.Line("adventure.scare.done", hero.Name, xp));
                 GroupCleared(JoinTile);
                 GainXp(hero, xp);
             }
             else
             {
                 Positions[MapHero] = _cameFrom;
-                Report.Add($"{Korean.Subject(hero.Name)} 무리를 피해 물러났다");
+                Report.Add(Data.Line("adventure.avoid.done", hero.Name));
             }
             EndTurn();
             return null;
@@ -125,9 +125,9 @@ namespace Game.Core
         {
             string blocked = Blocked();
             if (blocked != null) return blocked;
-            if (Screen != AdventureScreen.Join) return "합류할 전투가 없습니다.";
-            if (heroes == null || !heroes.Contains(MapHero)) return $"{Korean.Topic(Current.Name)} 빠질 수 없습니다.";
-            if (heroes.Any(h => !JoinCandidates.Contains(h))) return "멀리 있는 영웅은 합류할 수 없습니다.";
+            if (Screen != AdventureScreen.Join) return Data.Line("adventure.error.no_battle_to_join");
+            if (heroes == null || !heroes.Contains(MapHero)) return Data.Line("adventure.error.mover_must_fight", Current.Name);
+            if (heroes.Any(h => !JoinCandidates.Contains(h))) return Data.Line("adventure.error.too_far_to_join");
             var chosen = JoinCandidates.Where(heroes.Contains).ToList();
             Record("join " + string.Join(",", chosen));
             _fighters = chosen.Select(i => Heroes[i]).ToList();
@@ -154,17 +154,17 @@ namespace Game.Core
             {
                 copy.Hp = copy.Hp * (100 - WeakenPercent) / 100;
                 copy.Armor = Math.Max(0, copy.Armor - WeakenArmor);
-                Report.Add(Chapter.WeakenText + $" (생명력 −{WeakenPercent}%, 방어도 −{WeakenArmor})");
+                Report.Add(Data.Line("adventure.boss.weakened", Chapter.WeakenText, WeakenPercent, WeakenArmor));
             }
             if (HasFlag(Chapter.NoSummonFlag) && copy.Phase2Summon.Count > 0)
             {
                 copy.Phase2Summon = new List<MonsterDef>();
-                Report.Add(Chapter.NoSummonText + " (부하를 부르지 못한다)");
+                Report.Add(Data.Line("adventure.boss.no_summon", Chapter.NoSummonText));
             }
             if (Doom >= GrownRift)
             {
                 copy.Hp = copy.Hp * (100 + GrownRiftPercent) / 100;
-                Report.Add($"자란 균열(균열 {Doom})이 {copy.Name}에게 힘을 준다. 생명력 +{GrownRiftPercent}%");
+                Report.Add(Data.Line("adventure.boss.grown_rift", Doom, copy.Name, GrownRiftPercent));
             }
             return copy;
         }
@@ -180,8 +180,8 @@ namespace Game.Core
         // the battle stays readable for the screen to finish showing it.
         public string Fight(BattleCommand command)
         {
-            if (Screen != AdventureScreen.Battle || Battle == null || Battle.Over) return "전투 중이 아닙니다.";
-            if (command == null) return "명령이 없습니다.";
+            if (Screen != AdventureScreen.Battle || Battle == null || Battle.Over) return Data.Line("adventure.error.not_in_battle");
+            if (command == null) return Data.Line("adventure.error.no_command");
             string error = Battle.Do(command);
             if (error != null) return error;
             Record($"fight {command.Actor} {command.Skill} {command.Target} {command.Resolve}");
@@ -196,7 +196,7 @@ namespace Game.Core
             if (Battle.State == BattleState.Fled)
             {
                 Positions[MapHero] = _cameFrom;
-                Report.Add("도망쳤다. 적 무리는 그 자리에 남아 있다.");
+                Report.Add(Data.Line("adventure.battle.fled"));
                 Screen = AdventureScreen.BattleResult;
                 return;
             }
@@ -208,21 +208,21 @@ namespace Game.Core
                 if (Hardcore && Hope <= 0)
                 {
                     hero.Dead = true;
-                    Report.Add($"{Korean.Topic(hero.Name)} 희망 없이 쓰러져 영영 떠났다. 마을에서 새 동료가 일지를 이어받을 수 있다.");
+                    Report.Add(Data.Line("adventure.battle.gone", hero.Name));
                     continue;
                 }
                 hero.AddWound();
-                Report.Add($"{hero.Name}: 상처 {hero.Wounds}/{Hero.MaxWounds} (최대 생명력 −{Hero.WoundPercent * hero.Wounds}%, 여관에서 낫는다)");
+                Report.Add(Data.Line("adventure.battle.wound", hero.Name, hero.Wounds, Hero.MaxWounds, Hero.WoundPercent * hero.Wounds));
             }
             if (Battle.State == BattleState.Lost)
             {
-                Report.Add($"{string.Join(", ", _fighters.Select(h => h.Name))}: 모두 쓰러졌다.");
+                Report.Add(Data.Line("adventure.battle.all_down", string.Join(", ", _fighters.Select(h => h.Name))));
                 if (Heroes.All(h => h.Down))
                 {
                     Screen = AdventureScreen.Defeat;
                     return;
                 }
-                Report.Add(Hope > 0 ? "쓰러진 영웅은 다음 아침에 희망으로 일어나거나, 동료가 그 칸에 가서 부축하면 일어난다." : "희망이 없다. 동료가 그 칸에 가서 부축해야 일어난다.");
+                Report.Add(Hope > 0 ? Data.Line("adventure.battle.down_hope") : Data.Line("adventure.battle.down_no_hope"));
                 Screen = AdventureScreen.BattleResult;
                 return;
             }
@@ -230,17 +230,17 @@ namespace Game.Core
             int xp = Battle.XpReward;
             int gold = Battle.GoldReward;
             Gold += gold;
-            Report.Add($"경험치 {xp}(싸운 영웅만), 금화 {gold}");
+            Report.Add(Data.Line("adventure.battle.reward", xp, gold));
             foreach (var hero in _fighters.Where(h => h.Down && !h.Dead))
             {
                 if (Hope <= 0)
                 {
-                    Report.Add($"{Korean.Topic(hero.Name)} 쓰러진 채다. 희망이 없다 (동료가 부축하면 일어난다)");
+                    Report.Add(Data.Line("adventure.battle.stays_down", hero.Name));
                     continue;
                 }
                 Hope--;
                 hero.Hp = Math.Max(1, hero.MaxHp * HopeRevivePercent / 100);
-                Report.Add($"{Korean.Subject(hero.Name)} 희망으로 일어났다 (생명력 {hero.Hp}, 남은 희망 {Hope})");
+                Report.Add(Data.Line("adventure.battle.hope_revive", hero.Name, hero.Hp, Hope));
             }
             foreach (var hero in _fighters)
             {
@@ -248,7 +248,7 @@ namespace Game.Core
                 if (hero.Class.Id == "alchemist")
                 {
                     hero.GainReagents(1 + hero.Special("reagent_gain"));
-                    Report.Add($"{hero.Name}: 재료 {hero.Reagents}/{hero.ReagentMax}");
+                    Report.Add(Data.Line("adventure.reagents", hero.Name, hero.Reagents, hero.ReagentMax));
                 }
                 GainXp(hero, xp);
             }
@@ -268,7 +268,7 @@ namespace Game.Core
                     Doom = Math.Max(0, Doom - 1);
                     var loot = Loot(Chapter.Index + 2);
                     if (loot != null) AddToBag(loot);
-                    Report.Add($"{Korean.Object(Chapter.MidbossName)} 쳤다. 희망 +1, 균열 −1" + (loot != null ? $", {Korean.Object(loot.Name)} 얻었다 (가방)" : ""));
+                    Report.Add(loot != null ? Data.Line("adventure.camp_won.loot", Chapter.MidbossName, loot.Name) : Data.Line("adventure.camp_won", Chapter.MidbossName));
                     GainRenown(MidbossRenown, Report);
                     break;
                 case JoinKind.Boss:
@@ -285,7 +285,7 @@ namespace Game.Core
             var levels = hero.GainXp(xp);
             if (levels.Count == 0) return;
             var main = hero.Class.MainStats;
-            Report.Add($"{hero.Name} 레벨 {levels[levels.Count - 1]}! 최대 생명력 +{Hero.LevelHp * levels.Count}, {Stats.Name(main[0])}·{Stats.Name(main[1])} +{Hero.LevelStat * levels.Count}");
+            Report.Add(Data.Line("adventure.level_up", hero.Name, levels[levels.Count - 1], Hero.LevelHp * levels.Count, Stats.Name(main[0], Data), Stats.Name(main[1], Data), Hero.LevelStat * levels.Count));
             foreach (int level in levels) _levels.Enqueue((Heroes.IndexOf(hero), level));
             NextLevelUp();
         }
@@ -312,8 +312,8 @@ namespace Game.Core
         // Takes one of the level-up's upgrades.
         public string ChooseUpgrade(int option)
         {
-            if (LevelUp == null) return "고를 레벨업이 없습니다.";
-            if (option < 0 || option >= LevelUp.Options.Count) return "그런 강화는 없습니다.";
+            if (LevelUp == null) return Data.Line("adventure.error.no_level_up");
+            if (option < 0 || option >= LevelUp.Options.Count) return Data.Line("adventure.error.no_such_upgrade");
             var hero = Heroes[LevelUp.Hero];
             var upgrade = LevelUp.Options[option];
             hero.ApplyUpgrade(upgrade);

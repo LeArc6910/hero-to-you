@@ -77,7 +77,7 @@ namespace Game.Core
             var tile = candidates[_mapRandom.Next(candidates.Count)];
             tile.Content = Content.Enemy;
             tile.Encounter = PickEncounter(tile, Doom >= 4 ? 2 : 1);
-            Report.Add(Doom >= 4 ? "어딘가에 균열에서 더 센 무리가 나타났다." : "어딘가에 새 적 무리가 나타났다.");
+            Report.Add(Doom >= 4 ? Data.Line("adventure.spawn.strong") : Data.Line("adventure.spawn.new"));
         }
 
         // ---- Fog and sight ----
@@ -150,8 +150,8 @@ namespace Game.Core
         {
             string blocked = Blocked();
             if (blocked != null) return blocked;
-            if (Screen != AdventureScreen.Map) return "지도 차례가 아닙니다.";
-            if (Current.Down) return $"{Korean.Topic(Current.Name)} 쓰러져 있습니다.";
+            if (Screen != AdventureScreen.Map) return Data.Line("adventure.error.not_map_turn");
+            if (Current.Down) return Data.Line("adventure.error.hero_down", Current.Name);
             return null;
         }
 
@@ -161,7 +161,7 @@ namespace Game.Core
         {
             string error = MapTurn();
             if (error != null) return error;
-            if (MovePoints >= 0) return "이미 굴렸습니다.";
+            if (MovePoints >= 0) return Data.Line("adventure.error.already_rolled");
             DoRoll();
             Record("roll");
             return null;
@@ -186,7 +186,7 @@ namespace Game.Core
         {
             string error = MapTurn();
             if (error != null) return error;
-            if (!CanReroll) return "다시 굴릴 수 없습니다(도박사, 하루 한 번, 움직이기 전).";
+            if (!CanReroll) return Data.Line("adventure.error.cannot_reroll");
             _rerollDay = Day;
             DoRoll();
             Record("reroll");
@@ -207,8 +207,8 @@ namespace Game.Core
         {
             string error = MapTurn();
             if (error != null) return error;
-            if (MovePoints < 0) return "먼저 이동을 굴리세요.";
-            if (!Reachable().ContainsKey(to)) return "그 칸에는 갈 수 없습니다.";
+            if (MovePoints < 0) return Data.Line("adventure.error.roll_first");
+            if (!Reachable().ContainsKey(to)) return Data.Line("adventure.error.unreachable");
             var hero = Current;
             var path = Map.Path(Positions[MapHero], to, MovePoints, StopsFor, t => TerrainCost(hero, t));
             Record($"move {to.Col} {to.Row}");
@@ -224,7 +224,7 @@ namespace Game.Core
                 if (i < path.Count - 1 && Map.Stops(Map.Tile(path[i])))
                 {
                     stop = path[i];
-                    Report.Add("가던 길에 무언가와 마주쳤다!");
+                    Report.Add(Data.Line("adventure.move.interrupted"));
                     break;
                 }
             }
@@ -239,27 +239,27 @@ namespace Game.Core
         {
             string error = MapTurn();
             if (error != null) return error;
-            if (MovePoints >= 0) return "이동을 굴린 뒤에는 야영할 수 없습니다.";
+            if (MovePoints >= 0) return Data.Line("adventure.error.camp_after_roll");
             var hero = Current;
             Record("camp");
             Report.Clear();
             int percent = hero.Class.Id == "cleric" ? CampPercent * 2 : CampPercent;
-            Report.Add(HealLine(hero, Math.Max(1, hero.MaxHp * percent / 100)) + " (야영)");
+            Report.Add(Data.Line("adventure.camp.rest", HealLine(hero, Math.Max(1, hero.MaxHp * percent / 100))));
             hero.GainResolve(1);
             var here = Positions[MapHero];
             foreach (var other in Heroes.Where((h, i) => i != MapHero && !h.Down && Positions[i] == here))
             {
-                if (hero.Class.Id == "cleric") Report.Add(HealLine(other, Math.Max(1, other.MaxHp * CampPercent / 100)) + " (성직자의 돌봄)");
+                if (hero.Class.Id == "cleric") Report.Add(Data.Line("adventure.camp.cleric", HealLine(other, Math.Max(1, other.MaxHp * CampPercent / 100))));
                 if (hero.Class.Id == "knight")
                 {
                     other.GainResolve(1);
-                    Report.Add(HealLine(other, Math.Max(1, other.MaxHp / 10)) + ", 결의 +1 (기사의 보초)");
+                    Report.Add(Data.Line("adventure.camp.knight", HealLine(other, Math.Max(1, other.MaxHp / 10))));
                 }
             }
             if (hero.Class.Id == "alchemist")
             {
                 hero.GainReagents(1);
-                Report.Add($"{hero.Name}: 재료 {hero.Reagents}/{hero.ReagentMax} (채집)");
+                Report.Add(Data.Line("adventure.camp.gather", hero.Name, hero.Reagents, hero.ReagentMax));
             }
             EndTurn();
             return null;
@@ -281,7 +281,7 @@ namespace Game.Core
             foreach (var other in Heroes.Where((h, i) => i != MapHero && h.Down && !h.Dead && Positions[i] == hex))
             {
                 other.Hp = 1;
-                Report.Add($"{Korean.Subject(Current.Name)} {Korean.Object(other.Name)} 부축해 일으켰다");
+                Report.Add(Data.Line("adventure.help_up", Current.Name, other.Name));
             }
             var tile = Map.Tile(hex);
             switch (tile.Content)
@@ -351,13 +351,13 @@ namespace Game.Core
             TimeOfDay = 0;
             Day++;
             Doom++;
-            Report.Add($"{Day}일째 아침. 균열 {Doom}/{DoomMax}");
+            Report.Add(Data.Line("adventure.dawn", Day, Doom, DoomMax));
             foreach (var hero in Heroes.Where(h => h.Down && !h.Dead))
             {
                 if (Hope <= 0) continue;
                 Hope--;
                 hero.Hp = 1;
-                Report.Add($"{Korean.Subject(hero.Name)} 희망으로 일어났다 (남은 희망 {Hope})");
+                Report.Add(Data.Line("adventure.dawn.hope_revive", hero.Name, Hope));
             }
             if (Doom >= DoomMax)
             {

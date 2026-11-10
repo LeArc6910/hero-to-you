@@ -33,7 +33,7 @@ namespace Game.Core
             DungeonRoom++;
             if (DungeonRoom < DungeonRooms)
             {
-                Report.Add($"{Chapter.DungeonName}: 방 {DungeonRoom}/{DungeonRooms}을 지났다. 더 들어가거나 나갈 수 있다.");
+                Report.Add(Data.Line("adventure.dungeon.room", Chapter.DungeonName, DungeonRoom, DungeonRooms));
                 Screen = AdventureScreen.DungeonRest;
                 return;
             }
@@ -43,7 +43,7 @@ namespace Game.Core
             Gold += gold;
             var loot = Loot(Chapter.Index + 2);
             if (loot != null) AddToBag(loot);
-            Report.Add($"{Chapter.DungeonName}의 가장 깊은 방: 금화 +{gold}" + (loot != null ? $", {Korean.Object(loot.Name)} 얻었다 (가방)" : ""));
+            Report.Add(loot != null ? Data.Line("adventure.dungeon.cleared.loot", Chapter.DungeonName, gold, loot.Name) : Data.Line("adventure.dungeon.cleared", Chapter.DungeonName, gold));
             GainRenown(1, Report);
             Screen = AdventureScreen.BattleResult;
         }
@@ -53,10 +53,10 @@ namespace Game.Core
         {
             string blocked = Blocked();
             if (blocked != null) return blocked;
-            if (Screen != AdventureScreen.DungeonRest) return "던전 안이 아닙니다.";
+            if (Screen != AdventureScreen.DungeonRest) return Data.Line("adventure.error.not_in_dungeon");
             Record("delve");
             Report.Clear();
-            foreach (var hero in _fighters.Where(h => !h.Down)) Report.Add(HealLine(hero, Math.Max(1, hero.MaxHp * DelveHealPercent / 100)) + " (숨 고르기)");
+            foreach (var hero in _fighters.Where(h => !h.Down)) Report.Add(Data.Line("adventure.dungeon.breather", HealLine(hero, Math.Max(1, hero.MaxHp * DelveHealPercent / 100))));
             PrepareJoin(JoinTile, Chapter.Dungeon[DungeonRoom], JoinKind.Dungeon);
             return null;
         }
@@ -65,10 +65,10 @@ namespace Game.Core
         {
             string blocked = Blocked();
             if (blocked != null) return blocked;
-            if (Screen != AdventureScreen.DungeonRest) return "던전 안이 아닙니다.";
+            if (Screen != AdventureScreen.DungeonRest) return Data.Line("adventure.error.not_in_dungeon");
             Record("leavedungeon");
             Report.Clear();
-            Report.Add($"{Chapter.DungeonName}에서 나왔다. 지난 방은 다시 싸우지 않아도 된다.");
+            Report.Add(Data.Line("adventure.dungeon.left", Chapter.DungeonName));
             EndTurn();
             return null;
         }
@@ -105,7 +105,7 @@ namespace Game.Core
         {
             string error = InTown();
             if (error != null) return error;
-            if (!CanTakeContract) return Contract != null ? "이미 맡은 의뢰가 있습니다." : "맡을 의뢰가 없습니다.";
+            if (!CanTakeContract) return Contract != null ? Data.Line("adventure.error.contract_taken") : Data.Line("adventure.error.no_contract");
             var targets = ContractTargets().Take(3).ToList();
             var tile = targets[_shopRandom.Next(targets.Count)];
             Contract = new ContractDef(tile, tile.Encounter, ContractGold * (Chapter.Index + 2));
@@ -113,7 +113,7 @@ namespace Game.Core
             Record("contract");
             Report.Clear();
             var monsters = Data.Encounters[tile.Encounter].Monsters;
-            Report.Add($"의뢰를 맡았다: {tile.Hex} 칸의 {monsters[0].Name} 무리를 쫓아낸다 (보상 금화 {Contract.Gold}, 명성 +1)");
+            Report.Add(Data.Line("adventure.contract.taken", tile.Hex, monsters[0].Name, Contract.Gold));
             return null;
         }
 
@@ -122,7 +122,7 @@ namespace Game.Core
         {
             if (Contract == null || Contract.Done || Contract.Tile != tile) return;
             Contract.Done = true;
-            Report.Add("의뢰한 무리를 쫓아냈다. 마을에 가면 보상을 받는다.");
+            Report.Add(Data.Line("adventure.contract.done"));
         }
 
         void PayContract()
@@ -130,7 +130,7 @@ namespace Game.Core
             if (Contract == null || !Contract.Done) return;
             ContractsDone++;
             Gold += Contract.Gold;
-            Report.Add($"의뢰 보상: 금화 +{Contract.Gold}");
+            Report.Add(Data.Line("adventure.contract.paid", Contract.Gold));
             GainRenown(1, Report);
             Contract = null;
         }
@@ -156,7 +156,7 @@ namespace Game.Core
             _heardTalks.Add(pick.Id);
             _talks.Add((Day, pick));
             foreach (string cls in new[] { pick.A, pick.B }) Heroes.First(h => h.Class.Id == cls).GainResolve(1);
-            Report.Add($"모닥불 곁에서 {Data.Classes[pick.A].Name}와 {Data.Classes[pick.B].Name}가 이야기를 나눴다 (둘 다 결의 +1)");
+            Report.Add(Data.Line("adventure.talk", Data.Classes[pick.A].Name, Data.Classes[pick.B].Name));
         }
 
         bool Up(string classId) => Heroes.Any(h => !h.Down && h.Class.Id == classId);
@@ -166,10 +166,10 @@ namespace Game.Core
         // Puts a hero in the front or the back row (Docs/Combat.md 줄); outside battle only.
         public string SetRow(int heroIndex, bool back)
         {
-            if (!CanChangeGear) return "지금은 줄을 바꿀 수 없습니다.";
-            if (heroIndex < 0 || heroIndex >= Heroes.Count) return "영웅을 고르세요.";
+            if (!CanChangeGear) return Data.Line("adventure.error.cannot_change_row");
+            if (heroIndex < 0 || heroIndex >= Heroes.Count) return Data.Line("adventure.error.pick_hero");
             var hero = Heroes[heroIndex];
-            if (hero.Back == back) return back ? "이미 뒷줄입니다." : "이미 앞줄입니다.";
+            if (hero.Back == back) return back ? Data.Line("adventure.error.already_back") : Data.Line("adventure.error.already_front");
             hero.Back = back;
             Record($"row {heroIndex} {(back ? "back" : "front")}");
             return null;

@@ -61,12 +61,16 @@ namespace Game.Core
 
         public bool CanUnlock(PerkDef perk) => perk != null && !Has(perk.Id) && Pages >= perk.Pages && (perk.Requires.Length == 0 || _achieved.Contains(perk.Requires));
 
-        public string Unlock(PerkDef perk)
+        // Opens a perk with pages. Returns null when done, or why not in the language the sheets were loaded in (in
+        // Korean when no sheets are given).
+        public string Unlock(PerkDef perk) => Unlock(perk, null);
+
+        public string Unlock(PerkDef perk, GameData data)
         {
-            if (perk == null) return "그런 장은 없습니다.";
-            if (Has(perk.Id)) return "이미 펼친 장입니다.";
-            if (Pages < perk.Pages) return $"페이지가 모자랍니다 (필요 {perk.Pages}).";
-            if (perk.Requires.Length > 0 && !_achieved.Contains(perk.Requires)) return "이 장은 업적을 먼저 이뤄야 펼칠 수 있습니다.";
+            if (perk == null) return data?.Line("adventure.journal.no_such_perk") ?? "그런 장은 없습니다.";
+            if (Has(perk.Id)) return data?.Line("adventure.journal.already_open") ?? "이미 펼친 장입니다.";
+            if (Pages < perk.Pages) return data?.Line("adventure.journal.not_enough_pages", perk.Pages) ?? $"페이지가 모자랍니다 (필요 {perk.Pages}).";
+            if (perk.Requires.Length > 0 && !_achieved.Contains(perk.Requires)) return data?.Line("adventure.journal.needs_achievement") ?? "이 장은 업적을 먼저 이뤄야 펼칠 수 있습니다.";
             Pages -= perk.Pages;
             _unlocked.Add(perk.Id);
             return null;

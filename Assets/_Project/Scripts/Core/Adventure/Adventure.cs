@@ -82,8 +82,6 @@ namespace Game.Core
         public const int HopeRevivePercent = 30;
         public const int TimesOfDay = 4;
 
-        static readonly string[] TimeNames = { "아침", "낮", "저녁", "밤" };
-
         // Separate streams for separate things (Docs/Saving.md): when a sheet changes (one more event, a new
         // item), only the draws of that kind come out differently, and a save's commands still fit the rest.
         readonly GameRandom _eventRandom;
@@ -204,7 +202,13 @@ namespace Game.Core
         public int Doom { get; internal set; }
         public int Day { get; private set; }
         public int TimeOfDay { get; private set; }
-        public string TimeName => TimeNames[TimeOfDay];
+        public string TimeName => TimeOfDay switch
+        {
+            0 => Data.Line("adventure.time.morning"),
+            1 => Data.Line("adventure.time.afternoon"),
+            2 => Data.Line("adventure.time.evening"),
+            _ => Data.Line("adventure.time.night"),
+        };
         public bool Night => TimeOfDay == TimesOfDay - 1;
 
         public AdventureScreen Screen { get; private set; }
@@ -222,8 +226,8 @@ namespace Game.Core
 
         string Blocked()
         {
-            if (LevelUp != null) return "레벨업 강화를 먼저 고르세요.";
-            if (Over) return "모험이 끝났습니다.";
+            if (LevelUp != null) return Data.Line("adventure.error.level_up_first");
+            if (Over) return Data.Line("adventure.error.over");
             return null;
         }
 
@@ -453,7 +457,7 @@ namespace Game.Core
                     EndTurn();
                     return null;
                 default:
-                    return $"{Screen}에서는 계속할 것이 없습니다.";
+                    return Data.Line("adventure.error.nothing_to_continue", Screen);
             }
         }
 
@@ -480,9 +484,9 @@ namespace Game.Core
         // The chapter's goals for the map screen, in the chapter's words: done or not, in order (Docs/Map.md 본 줄거리).
         public IReadOnlyList<(string text, bool done)> Objectives => new List<(string, bool)>
         {
-            (Chapter.GoalQuest + $" (보스 생명력 −{WeakenPercent}%·방어도 −{WeakenArmor})", HasFlag(Chapter.WeakenFlag)),
-            (Chapter.GoalClue + " (보스가 부하를 부르지 못한다)", HasFlag(Chapter.NoSummonFlag)),
-            (Chapter.GoalCamp + $" (희망 +1·균열 −1·좋은 장비·명성 +{MidbossRenown})", Map.Tile(Site.Camp).Used),
+            (Data.Line("adventure.goal.quest", Chapter.GoalQuest, WeakenPercent, WeakenArmor), HasFlag(Chapter.WeakenFlag)),
+            (Data.Line("adventure.goal.clue", Chapter.GoalClue), HasFlag(Chapter.NoSummonFlag)),
+            (Data.Line("adventure.goal.camp", Chapter.GoalCamp, MidbossRenown), Map.Tile(Site.Camp).Used),
             (Chapter.GoalBoss, Map.Tile(Site.Boss).Used),
         };
 

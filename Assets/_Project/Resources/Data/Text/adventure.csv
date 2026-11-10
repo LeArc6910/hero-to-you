@@ -1,1 +1,108 @@
 id,ko,en
+adventure.time.morning,아침,Morning
+adventure.time.afternoon,낮,Afternoon
+adventure.time.evening,저녁,Evening
+adventure.time.night,밤,Night
+adventure.error.level_up_first,레벨업 강화를 먼저 고르세요.,Choose the level-up upgrade first.
+adventure.error.over,모험이 끝났습니다.,The adventure is over.
+adventure.error.nothing_to_continue,{0}에서는 계속할 것이 없습니다.,Nothing to continue on the {0} screen.
+adventure.goal.quest,{0} (보스 생명력 −{1}%·방어도 −{2}),"{0} (boss life −{1}%, armor −{2})"
+adventure.goal.clue,{0} (보스가 부하를 부르지 못한다),{0} (the boss cannot call for help)
+adventure.goal.camp,{0} (희망 +1·균열 −1·좋은 장비·명성 +{1}),"{0} (hope +1, Rift −1, good gear, renown +{1})"
+adventure.error.cannot_scare,광전사가 들판의 무리를 만났을 때 한 번만 겁줄 수 있습니다.,"Only a berserker can scare off a group, once, when it is met in the open."
+adventure.error.cannot_avoid,들판의 무리를 만났을 때 한 번만 피할 수 있습니다.,"A group can be avoided only once, when it is met in the open."
+adventure.scare.failed,무리가 겁먹지 않았다. 싸울 수밖에 없다.,The group stands its ground. There is no way but to fight.
+adventure.avoid.failed,피하지 못했다. 싸울 수밖에 없다.,Could not slip away. There is no way but to fight.
+adventure.scare.done,{0:이} 포효하자 무리가 흩어졌다 (경험치 +{1}),{0} roared and the group scattered (XP +{1})
+adventure.avoid.done,{0:이} 무리를 피해 물러났다,{0} backed away from the group
+adventure.error.no_battle_to_join,합류할 전투가 없습니다.,There is no battle to join.
+adventure.error.mover_must_fight,{0:은} 빠질 수 없습니다.,{0} cannot stay out of this fight.
+adventure.error.too_far_to_join,멀리 있는 영웅은 합류할 수 없습니다.,Heroes too far away cannot join.
+adventure.boss.weakened,"{0} (생명력 −{1}%, 방어도 −{2})","{0} (life −{1}%, armor −{2})"
+adventure.boss.no_summon,{0} (부하를 부르지 못한다),{0} (cannot call for help)
+adventure.boss.grown_rift,자란 균열(균열 {0})이 {1}에게 힘을 준다. 생명력 +{2}%,The grown Rift (Rift {0}) strengthens {1}. Life +{2}%
+adventure.error.not_in_battle,전투 중이 아닙니다.,Not in a battle.
+adventure.error.no_command,명령이 없습니다.,No command given.
+adventure.battle.fled,도망쳤다. 적 무리는 그 자리에 남아 있다.,Fled. The enemies are still there.
+adventure.battle.gone,{0:은} 희망 없이 쓰러져 영영 떠났다. 마을에서 새 동료가 일지를 이어받을 수 있다.,{0} fell with no hope left and is gone for good. A new companion in town can carry on the journal.
+adventure.battle.wound,"{0}: 상처 {1}/{2} (최대 생명력 −{3}%, 여관에서 낫는다)","{0}: wounds {1}/{2} (max life −{3}%, healed at an inn)"
+adventure.battle.all_down,{0}: 모두 쓰러졌다.,{0}: all have fallen.
+adventure.battle.down_hope,"쓰러진 영웅은 다음 아침에 희망으로 일어나거나, 동료가 그 칸에 가서 부축하면 일어난다.","The fallen rise with hope next morning, or when a companion comes to their hex to help them up."
+adventure.battle.down_no_hope,희망이 없다. 동료가 그 칸에 가서 부축해야 일어난다.,No hope left. A companion must come to their hex to help them up.
+adventure.battle.reward,"경험치 {0}(싸운 영웅만), 금화 {1}","XP {0} (fighters only), gold {1}"
+adventure.battle.stays_down,{0:은} 쓰러진 채다. 희망이 없다 (동료가 부축하면 일어난다),{0} stays down. No hope left (a companion can help them up)
+adventure.battle.hope_revive,"{0:이} 희망으로 일어났다 (생명력 {1}, 남은 희망 {2})","{0} rose again with hope (life {1}, hope left {2})"
+adventure.reagents,{0}: 재료 {1}/{2},{0}: reagents {1}/{2}
+adventure.camp_won,"{0:을} 쳤다. 희망 +1, 균열 −1","Defeated {0}. Hope +1, Rift −1"
+adventure.camp_won.loot,"{0:을} 쳤다. 희망 +1, 균열 −1, {1:을} 얻었다 (가방)","Defeated {0}. Hope +1, Rift −1, found {1} (bag)"
+adventure.level_up,"{0} 레벨 {1}! 최대 생명력 +{2}, {3}·{4} +{5}","{0} reached level {1}! Max life +{2}, {3}·{4} +{5}"
+adventure.error.no_level_up,고를 레벨업이 없습니다.,There is no level-up to choose.
+adventure.error.no_such_upgrade,그런 강화는 없습니다.,No such upgrade.
+adventure.spawn.strong,어딘가에 균열에서 더 센 무리가 나타났다.,"Somewhere, a stronger group came out of the Rift."
+adventure.spawn.new,어딘가에 새 적 무리가 나타났다.,"Somewhere, a new group of enemies appeared."
+adventure.error.not_map_turn,지도 차례가 아닙니다.,It is not a map turn.
+adventure.error.hero_down,{0:은} 쓰러져 있습니다.,{0} is down.
+adventure.error.already_rolled,이미 굴렸습니다.,Already rolled.
+adventure.error.cannot_reroll,"다시 굴릴 수 없습니다(도박사, 하루 한 번, 움직이기 전).","Cannot roll again (gambler only, once a day, before moving)."
+adventure.error.roll_first,먼저 이동을 굴리세요.,Roll for movement first.
+adventure.error.unreachable,그 칸에는 갈 수 없습니다.,That hex is out of reach.
+adventure.move.interrupted,가던 길에 무언가와 마주쳤다!,Ran into something on the way!
+adventure.error.camp_after_roll,이동을 굴린 뒤에는 야영할 수 없습니다.,Cannot camp after rolling for movement.
+adventure.camp.rest,{0} (야영),{0} (camp)
+adventure.camp.cleric,{0} (성직자의 돌봄),{0} (the cleric's care)
+adventure.camp.knight,"{0}, 결의 +1 (기사의 보초)","{0}, resolve +1 (the knight's watch)"
+adventure.camp.gather,{0}: 재료 {1}/{2} (채집),{0}: reagents {1}/{2} (gathered)
+adventure.help_up,{0:이} {1:을} 부축해 일으켰다,{0} helped {1} back up
+adventure.dawn,{0}일째 아침. 균열 {1}/{2},Morning of day {0}. Rift {1}/{2}
+adventure.dawn.hope_revive,{0:이} 희망으로 일어났다 (남은 희망 {1}),{0} rose again with hope (hope left {1})
+adventure.renown,명성 {0} ({1}),Renown {0} ({1})
+adventure.renown.rank,사람들이 너희를 「{0}」라 부르기 시작했다.,People have begun to call you “{0}”.
+adventure.error.not_in_event,사건 중이 아닙니다.,Not in an event.
+adventure.error.choice_unavailable,고를 수 없는 선택지입니다.,That choice is not available.
+adventure.error.not_enough_gold,금화가 모자랍니다 (필요 {0}).,Not enough gold (need {0}).
+adventure.error.pick_hero,영웅을 고르세요.,Choose a hero.
+adventure.error.hero_cannot_choose,{0:은} 이 선택지를 할 수 없습니다.,{0} cannot take this choice.
+adventure.error.resolve_too_much,결의를 그만큼 쓸 수 없습니다.,Cannot spend that much resolve.
+adventure.event.grit,{0}: 끈기가 차서 결의 +{1},"{0}: grit is full, resolve +{1}"
+adventure.event.gold,금화 {0},Gold {0}
+adventure.event.resolve,{0}: 결의 {1} ({2}/{3}),{0}: resolve {1} ({2}/{3})
+adventure.event.resolve_all,모두 결의 {0},Everyone: resolve {0}
+adventure.event.bless_all,모두 축복: 다음 판정 확정 +1,Everyone blessed: +1 sure success on the next check
+adventure.event.potion,{0}: 회복 물약 {1} ({2}개),{0}: healing potions {1} ({2})
+adventure.event.hope,희망 {0} ({1}),Hope {0} ({1})
+adventure.event.xp,모두 경험치 +{0},Everyone: XP +{0}
+adventure.event.weak_next,다음 전투를 약화된 채 시작한다,The next battle starts weakened
+adventure.event.battle,전투가 벌어진다!,A battle breaks out!
+adventure.event.consumable,{0}: {1} +1 ({2}개),{0}: {1} +1 ({2})
+adventure.event.to_bag,{0:을} 가방에 넣었다,Put {0} in the bag
+adventure.loot,{0:을} 얻었다 (가방),Found {0} (bag)
+adventure.event.doom,균열 {0} ({1}/{2}),Rift {0} ({1}/{2})
+adventure.heal,{0}: 생명력 +{1} ({2}/{3}),{0}: life +{1} ({2}/{3})
+adventure.hurt,{0}: 생명력 −{1} ({2}/{3}),{0}: life −{1} ({2}/{3})
+adventure.dungeon.room,{0}: 방 {1}/{2}을 지났다. 더 들어가거나 나갈 수 있다.,{0}: room {1}/{2} cleared. Go deeper or leave.
+adventure.dungeon.cleared,{0}의 가장 깊은 방: 금화 +{1},"{0}, deepest room: gold +{1}"
+adventure.dungeon.cleared.loot,"{0}의 가장 깊은 방: 금화 +{1}, {2:을} 얻었다 (가방)","{0}, deepest room: gold +{1}, found {2} (bag)"
+adventure.error.not_in_dungeon,던전 안이 아닙니다.,Not inside a dungeon.
+adventure.dungeon.breather,{0} (숨 고르기),{0} (catching breath)
+adventure.dungeon.left,{0}에서 나왔다. 지난 방은 다시 싸우지 않아도 된다.,Left {0}. The rooms already cleared stay cleared.
+adventure.error.contract_taken,이미 맡은 의뢰가 있습니다.,A contract is already taken.
+adventure.error.no_contract,맡을 의뢰가 없습니다.,There is no contract to take.
+adventure.contract.taken,"의뢰를 맡았다: {0} 칸의 {1} 무리를 쫓아낸다 (보상 금화 {2}, 명성 +1)","Contract taken: drive off the {1} group at hex {0} (reward: gold {2}, renown +1)"
+adventure.contract.done,의뢰한 무리를 쫓아냈다. 마을에 가면 보상을 받는다.,The contract's group is driven off. Collect the reward in town.
+adventure.contract.paid,의뢰 보상: 금화 +{0},Contract reward: gold +{0}
+adventure.talk,모닥불 곁에서 {0}와 {1}가 이야기를 나눴다 (둘 다 결의 +1),"By the campfire, {0} and {1} talked (both resolve +1)"
+adventure.error.cannot_change_row,지금은 줄을 바꿀 수 없습니다.,Rows cannot be changed now.
+adventure.error.already_back,이미 뒷줄입니다.,Already in the back row.
+adventure.error.already_front,이미 앞줄입니다.,Already in the front row.
+adventure.save.not_a_save,저장본이 아닙니다.,This is not a save.
+adventure.save.old_version,저장 형식이 바뀌어 이어할 수 없습니다.,"The save format has changed, so this save cannot be continued."
+adventure.save.broken_header,저장본의 머리말이 깨졌습니다.,The save's header is broken.
+adventure.save.bad_party,저장본의 파티를 만들 수 없습니다: {0},Cannot make the save's party: {0}
+adventure.save.sheets_changed,저장한 뒤 게임 데이터가 바뀌어 결과가 조금 다를 수 있습니다.,"The game data changed since this was saved, so things may turn out a little differently."
+adventure.save.first_failed,저장본의 첫 명령({0})부터 어긋났습니다: {1},The save went wrong from its first command ({0}): {1}
+adventure.save.partial,게임 데이터가 바뀌어 저장본의 명령 {0}개 가운데 {1}개까지만 이어졌습니다. 그 뒤부터 다시 하면 된다.,"The game data changed, so only {1} of the save's {0} commands could be replayed. Carry on from there."
+adventure.save.unknown_command,모르는 명령 '{0}',Unknown command '{0}'
+adventure.journal.no_such_perk,그런 장은 없습니다.,No such perk.
+adventure.journal.already_open,이미 펼친 장입니다.,That perk is already open.
+adventure.journal.not_enough_pages,페이지가 모자랍니다 (필요 {0}).,Not enough pages (need {0}).
+adventure.journal.needs_achievement,이 장은 업적을 먼저 이뤄야 펼칠 수 있습니다.,This perk opens only once its achievement is earned.

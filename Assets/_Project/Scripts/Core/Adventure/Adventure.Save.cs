@@ -38,17 +38,17 @@ namespace Game.Core
             var lines = (save ?? "").Replace("\r", "").Split('\n').Where(l => l.Length > 0).ToList();
             if (lines.Count < 3 || !lines[0].StartsWith(SaveHeader))
             {
-                error = "저장본이 아닙니다.";
+                error = data.Line("adventure.save.not_a_save");
                 return null;
             }
             if (!int.TryParse(lines[0].Substring(SaveHeader.Length).Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int version) || version != SaveVersion)
             {
-                error = "저장 형식이 바뀌어 이어할 수 없습니다.";
+                error = data.Line("adventure.save.old_version");
                 return null;
             }
             if (!lines[1].StartsWith("seed ") || !ulong.TryParse(lines[1].Substring(5), NumberStyles.Integer, CultureInfo.InvariantCulture, out ulong seed) || !lines[2].StartsWith("party "))
             {
-                error = "저장본의 머리말이 깨졌습니다.";
+                error = data.Line("adventure.save.broken_header");
                 return null;
             }
             // The rest of the header, in any order: the journal perks, the difficulty, the sheets' fingerprint.
@@ -80,10 +80,10 @@ namespace Game.Core
             }
             catch (ArgumentException e)
             {
-                error = "저장본의 파티를 만들 수 없습니다: " + e.Message;
+                error = data.Line("adventure.save.bad_party", e.Message);
                 return null;
             }
-            if (sheets != null && sheets != data.Fingerprint) note = "저장한 뒤 게임 데이터가 바뀌어 결과가 조금 다를 수 있습니다.";
+            if (sheets != null && sheets != data.Fingerprint) note = data.Line("adventure.save.sheets_changed");
             for (int i = first; i < lines.Count; i++)
             {
                 string failed;
@@ -101,10 +101,10 @@ namespace Game.Core
                 int kept = i - first;
                 if (kept == 0)
                 {
-                    error = $"저장본의 첫 명령({lines[i]})부터 어긋났습니다: {failed}";
+                    error = data.Line("adventure.save.first_failed", lines[i], failed);
                     return null;
                 }
-                note = $"게임 데이터가 바뀌어 저장본의 명령 {lines.Count - first}개 가운데 {kept}개까지만 이어졌습니다. 그 뒤부터 다시 하면 된다.";
+                note = data.Line("adventure.save.partial", lines.Count - first, kept);
                 return adventure;
             }
             return adventure;
@@ -145,7 +145,7 @@ namespace Game.Core
                 case "equip": return Equip(N(1), N(2));
                 case "unequip": return Unequip(N(1), (ItemSlot)Enum.Parse(typeof(ItemSlot), w[2], true));
                 case "upgrade": return ChooseUpgrade(N(1));
-                default: return $"모르는 명령 '{w[0]}'";
+                default: return Data.Line("adventure.save.unknown_command", w[0]);
             }
         }
     }

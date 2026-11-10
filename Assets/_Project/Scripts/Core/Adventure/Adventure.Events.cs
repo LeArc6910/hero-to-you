@@ -31,8 +31,8 @@ namespace Game.Core
             if (amount == 0) return;
             var before = Rank;
             Renown = Math.Max(0, Renown + amount);
-            lines.Add($"명성 {Signed(amount)} ({Renown})");
-            if (Rank != before && Rank.Need > before.Need) lines.Add($"사람들이 너희를 「{Rank.Title}」라 부르기 시작했다.");
+            lines.Add(Data.Line("adventure.renown", Signed(amount), Renown));
+            if (Rank != before && Rank.Need > before.Need) lines.Add(Data.Line("adventure.renown.rank", Rank.Title));
         }
 
         EventCard PickEvent(string pool)
@@ -109,15 +109,15 @@ namespace Game.Core
         {
             string blocked = Blocked();
             if (blocked != null) return blocked;
-            if (Screen != AdventureScreen.Event) return "사건 중이 아닙니다.";
+            if (Screen != AdventureScreen.Event) return Data.Line("adventure.error.not_in_event");
             var choice = Choices().FirstOrDefault(c => c.Index == choiceIndex);
-            if (choice == null) return "고를 수 없는 선택지입니다.";
-            if (!Affordable(choice)) return $"금화가 모자랍니다 (필요 {Cost(choice)}).";
-            if (heroIndex < 0 || heroIndex >= Heroes.Count) return "영웅을 고르세요.";
+            if (choice == null) return Data.Line("adventure.error.choice_unavailable");
+            if (!Affordable(choice)) return Data.Line("adventure.error.not_enough_gold", Cost(choice));
+            if (heroIndex < 0 || heroIndex >= Heroes.Count) return Data.Line("adventure.error.pick_hero");
             var hero = Heroes[heroIndex];
-            if (!CanAttempt(choice).Contains(hero)) return $"{Korean.Topic(hero.Name)} 이 선택지를 할 수 없습니다.";
+            if (!CanAttempt(choice).Contains(hero)) return Data.Line("adventure.error.hero_cannot_choose", hero.Name);
             if (resolve < 0 || (choice.HasCheck && resolve > ResolveRoom(choice, hero)) || (!choice.HasCheck && resolve > 0))
-                return "결의를 그만큼 쓸 수 없습니다.";
+                return Data.Line("adventure.error.resolve_too_much");
 
             var result = new EventResult { Choice = choice, Hero = hero, Success = true };
             if (choice.HasCheck)
@@ -129,7 +129,7 @@ namespace Game.Core
                 result.Check = _eventFate.Roll(choice.Dice, ChanceOf(choice, hero), guaranteed);
                 result.Success = result.Check.Successes >= choice.Need;
                 int gained = hero.AddGrit(result.Check.RolledFailures);
-                if (gained > 0) result.Changes.Add($"{hero.Name}: 끈기가 차서 결의 +{gained}");
+                if (gained > 0) result.Changes.Add(Data.Line("adventure.event.grit", hero.Name, gained));
             }
             Record($"choose {choiceIndex} {heroIndex} {resolve}");
             result.Text = result.Success ? choice.SuccessText : choice.FailText;
@@ -164,7 +164,7 @@ namespace Game.Core
                     case "gold":
                         int change = Math.Max(-Gold, o.Amount);
                         Gold += change;
-                        lines.Add(change >= 0 ? $"금화 +{change}" : $"금화 {change}");
+                        lines.Add(Data.Line("adventure.event.gold", Signed(change)));
                         break;
                     case "heal":
                         lines.Add(HealLine(hero, o.Amount));
@@ -180,50 +180,50 @@ namespace Game.Core
                         break;
                     case "resolve":
                         hero.GainResolve(o.Amount);
-                        lines.Add($"{hero.Name}: 결의 {Signed(o.Amount)} ({hero.Resolve}/{hero.MaxResolve})");
+                        lines.Add(Data.Line("adventure.event.resolve", hero.Name, Signed(o.Amount), hero.Resolve, hero.MaxResolve));
                         break;
                     case "resolve_all":
                         foreach (var h in living) h.GainResolve(o.Amount);
-                        lines.Add($"모두 결의 {Signed(o.Amount)}");
+                        lines.Add(Data.Line("adventure.event.resolve_all", Signed(o.Amount)));
                         break;
                     case "bless_all":
                         foreach (var h in living) h.Blessing++;
-                        lines.Add("모두 축복: 다음 판정 확정 +1");
+                        lines.Add(Data.Line("adventure.event.bless_all"));
                         break;
                     case "potion":
                         hero.Potions = Math.Max(0, hero.Potions + o.Amount);
-                        lines.Add($"{hero.Name}: 회복 물약 {Signed(o.Amount)} ({hero.Potions}개)");
+                        lines.Add(Data.Line("adventure.event.potion", hero.Name, Signed(o.Amount), hero.Potions));
                         break;
                     case "hope":
                         Hope = Math.Max(0, Hope + o.Amount);
-                        lines.Add($"희망 {Signed(o.Amount)} ({Hope})");
+                        lines.Add(Data.Line("adventure.event.hope", Signed(o.Amount), Hope));
                         break;
                     case "xp":
-                        lines.Add($"모두 경험치 +{o.Amount}");
+                        lines.Add(Data.Line("adventure.event.xp", o.Amount));
                         foreach (var h in Heroes) GainXp(h, o.Amount);
                         break;
                     case "weak_next":
                         _weakNext = true;
-                        lines.Add("다음 전투를 약화된 채 시작한다");
+                        lines.Add(Data.Line("adventure.event.weak_next"));
                         break;
                     case "flag":
                         _flags.Add(o.Arg);
                         break;
                     case "battle":
                         _pendingBattle = o.Arg;
-                        lines.Add("전투가 벌어진다!");
+                        lines.Add(Data.Line("adventure.event.battle"));
                         break;
                     case "item":
                         var item = Data.Items[o.Arg];
                         if (item.Consumable)
                         {
                             hero.AddConsumable(item.Id, 1);
-                            lines.Add($"{hero.Name}: {item.Name} +1 ({hero.Count(item.Id)}개)");
+                            lines.Add(Data.Line("adventure.event.consumable", hero.Name, item.Name, hero.Count(item.Id)));
                         }
                         else
                         {
                             AddToBag(item);
-                            lines.Add($"{Korean.Object(item.Name)} 가방에 넣었다");
+                            lines.Add(Data.Line("adventure.event.to_bag", item.Name));
                         }
                         break;
                     case "loot":
@@ -231,7 +231,7 @@ namespace Game.Core
                         if (loot != null)
                         {
                             AddToBag(loot);
-                            lines.Add($"{Korean.Object(loot.Name)} 얻었다 (가방)");
+                            lines.Add(Data.Line("adventure.loot", loot.Name));
                         }
                         break;
                     case "reagent":
@@ -239,12 +239,12 @@ namespace Game.Core
                         if (alchemist != null)
                         {
                             alchemist.GainReagents(o.Amount);
-                            lines.Add($"{alchemist.Name}: 재료 {alchemist.Reagents}/{alchemist.ReagentMax}");
+                            lines.Add(Data.Line("adventure.reagents", alchemist.Name, alchemist.Reagents, alchemist.ReagentMax));
                         }
                         break;
                     case "doom":
                         Doom = Math.Max(0, Doom + o.Amount);
-                        lines.Add($"균열 {Signed(o.Amount)} ({Doom}/{DoomMax})");
+                        lines.Add(Data.Line("adventure.event.doom", Signed(o.Amount), Doom, DoomMax));
                         break;
                     case "renown":
                         GainRenown(o.Amount, lines);
@@ -265,19 +265,19 @@ namespace Game.Core
 
         static string Signed(int value) => value >= 0 ? $"+{value}" : value.ToString();
 
-        static string HealLine(Hero hero, int amount)
+        string HealLine(Hero hero, int amount)
         {
             int before = hero.Hp;
             hero.Heal(amount);
-            return $"{hero.Name}: 생명력 +{hero.Hp - before} ({hero.Hp}/{hero.MaxHp})";
+            return Data.Line("adventure.heal", hero.Name, hero.Hp - before, hero.Hp, hero.MaxHp);
         }
 
         // Events hurt but never knock a hero down.
-        static string HurtLine(Hero hero, int amount)
+        string HurtLine(Hero hero, int amount)
         {
             int before = hero.Hp;
             hero.Hp = Math.Max(1, hero.Hp - amount);
-            return $"{hero.Name}: 생명력 −{before - hero.Hp} ({hero.Hp}/{hero.MaxHp})";
+            return Data.Line("adventure.hurt", hero.Name, before - hero.Hp, hero.Hp, hero.MaxHp);
         }
 
         internal void OpenEventForTest(EventCard card) => OpenEvent(card, Map.Tile(Positions[MapHero]));
