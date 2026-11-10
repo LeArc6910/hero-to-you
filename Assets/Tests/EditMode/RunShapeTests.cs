@@ -51,6 +51,61 @@ namespace Game.Core.Tests
             Assert.That(classColors.Distinct().Count(), Is.EqualTo(classColors.Count), "직업마다 다른 색");
         }
 
+        // The pictures (Data/Art/*.txt, drawn by the client's PixelArt): '!name' then rows, as PixelArt.Read reads them.
+        static Dictionary<string, string[]> ArtFile(string file)
+        {
+            var found = new Dictionary<string, string[]>();
+            string name = null;
+            var rows = new List<string>();
+            foreach (var raw in System.IO.File.ReadAllText(System.IO.Path.Combine(TestData.DataFolder, "Art/" + file + ".txt")).Split('\n'))
+            {
+                string line = raw.TrimEnd('\r');
+                if (line.Length == 0 || line[0] == '#') continue;
+                if (line[0] == '!')
+                {
+                    if (name != null) found[name] = rows.ToArray();
+                    name = line.Substring(1).Trim();
+                    rows.Clear();
+                    continue;
+                }
+                rows.Add(line);
+            }
+            if (name != null) found[name] = rows.ToArray();
+            return found;
+        }
+
+        [Test]
+        public void EveryPictureIsEvenAndDrawnInPaletteLetters()
+        {
+            var palette = CsvTable.Read(System.IO.File.ReadAllText(System.IO.Path.Combine(TestData.DataFolder, "Ui/palette.csv"))).Rows;
+            var letters = new HashSet<char>(palette.Select(r => r["char"][0])) { '.', 'c', 'd', 'C' };
+            var art = new Dictionary<string, Dictionary<string, string[]>>();
+            foreach (var file in new[] { "heroes", "monsters", "icons", "ui", "scenes", "effects" })
+            {
+                art[file] = ArtFile(file);
+                foreach (var picture in art[file])
+                {
+                    Assert.That(picture.Value.Length, Is.GreaterThan(0), picture.Key);
+                    Assert.That(picture.Value.Select(r => r.Length).Distinct().Count(), Is.EqualTo(1), $"{file}/{picture.Key}의 줄 길이가 다르다");
+                    var stray = picture.Value.SelectMany(r => r).Where(c => !letters.Contains(c)).Distinct().ToList();
+                    Assert.That(stray, Is.Empty, $"{file}/{picture.Key}에 팔레트에 없는 글자");
+                }
+            }
+            // Every class and monster has its picture; every place a story or event names has one; each effect three frames.
+            foreach (var cls in TestData.Data.ClassList)
+                Assert.That(art["heroes"].ContainsKey(cls.Id), Is.True, $"{cls.Id}의 그림이 없다");
+            foreach (var monster in TestData.Data.Monsters.Keys)
+                Assert.That(art["monsters"].ContainsKey(monster), Is.True, $"{monster}의 그림이 없다");
+            var places = TestData.Data.Stories.Values.Select(s => s.Art).Concat(TestData.Data.Events.Select(e => e.Art))
+                .Where(a => !string.IsNullOrEmpty(a)).Select(a => a.Contains("+") ? a.Substring(a.IndexOf('+') + 1) : a).Where(a => a != "journal");
+            foreach (var place in places.Distinct())
+                Assert.That(art["scenes"].ContainsKey(place), Is.True, $"장면 '{place}'의 그림이 없다");
+            Assert.That(art["scenes"]["title"].Length, Is.EqualTo(144));
+            foreach (var effect in new[] { "slash", "pierce", "impact", "spell", "fire", "frost", "heal" })
+                for (int frame = 1; frame <= 3; frame++)
+                    Assert.That(art["effects"].ContainsKey(effect + "_" + frame), Is.True, $"효과 {effect}_{frame}이 없다");
+        }
+
         [Test]
         public void APartyWithNeitherFrontNorHealerIsMarkedAsAChallenge()
         {

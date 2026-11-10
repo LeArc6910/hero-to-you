@@ -195,12 +195,45 @@ namespace Game.Client
 
         // Each file holds pictures as '!name' followed by its rows of letters ('#' lines are notes). Read once, the first
         // time a picture of the file is wanted; adding a picture needs no code.
-        static Dictionary<string, string[]> _heroes, _monsters, _icons, _ui;
+        static Dictionary<string, string[]> _heroes, _monsters, _icons, _ui, _scenes, _effects;
 
         public static Dictionary<string, string[]> Heroes => _heroes ??= Read("heroes");
         public static Dictionary<string, string[]> Monsters => _monsters ??= Read("monsters");
         public static Dictionary<string, string[]> MapIcons => _icons ??= Read("icons");
         static Dictionary<string, string[]> UiIcons => _ui ??= Read("ui");
+        static Dictionary<string, string[]> Scenes => _scenes ??= Read("scenes");
+        static Dictionary<string, string[]> Effects => _effects ??= Read("effects");
+
+        // A wide picture (scenes.txt: 256×96 places for story pages, events and battles; the 256×144 title), or null.
+        public static Texture2D Picture(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return null;
+            if (Known('p', name, null, out var known)) return known;
+            return Scenes.TryGetValue(name, out var rows) ? Keep('p', name, null, Make("scene:" + name, rows, null)) : null;
+        }
+
+        // The colour most of a picture's top (or bottom) row is, to carry the sky up or the ground down past its edge.
+        public static Color32 PictureEdge(string name, bool top)
+        {
+            if (!Scenes.TryGetValue(name, out var rows) || rows.Length == 0) return GamePalette.Ink;
+            string row = top ? rows[0] : rows[rows.Length - 1];
+            var counts = new Dictionary<char, int>();
+            foreach (char c in row) counts[c] = counts.TryGetValue(c, out int n) ? n + 1 : 1;
+            char most = '.';
+            foreach (var pair in counts)
+                if (most == '.' || pair.Value > counts[most]) most = pair.Key;
+            return GamePalette.Letter(most, out var color) ? color : GamePalette.Ink;
+        }
+
+        static readonly string[] Frames = { "_1", "_2", "_3" };
+
+        // One frame (0-2) of a hit effect (effects.txt: slash, pierce, impact, spell, fire, frost, heal), or null.
+        public static Texture2D Effect(string name, int frame)
+        {
+            frame = Mathf.Clamp(frame, 0, Frames.Length - 1);
+            if (Known('f', name, Frames[frame], out var known)) return known;
+            return Effects.TryGetValue(name + Frames[frame], out var rows) ? Keep('f', name, Frames[frame], Make("effect:" + name + Frames[frame], rows, null)) : null;
+        }
 
         static string[] Wanderer => Heroes.TryGetValue("wanderer", out var rows) ? rows : new[] { "." };
 

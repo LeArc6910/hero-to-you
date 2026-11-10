@@ -15,6 +15,14 @@ namespace Game.Client
 
         void DrawTitle()
         {
+            // The title picture (Art/scenes.txt "title") over the whole screen, cropped to fit, a little dimmed under the menu.
+            var picture = PixelArt.Picture("title");
+            if (picture != null)
+            {
+                var screen = new Rect(0, 0, Ui.Width, Ui.Height);
+                SceneArt.DrawWide(screen, picture, 0.7f, picture.height);
+                Ui.Fill(screen, new Color(0.05f, 0.04f, 0.07f, 0.3f));
+            }
             float w = Mathf.Min(420, Ui.Width - 32);
             float x = (Ui.Width - w) / 2;
             bool any = SaveStore.Any;

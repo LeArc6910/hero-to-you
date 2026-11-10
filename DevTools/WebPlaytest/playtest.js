@@ -69,6 +69,7 @@ async function playSlice(game, wholeRun) {
   run.check(state.touch === game.touch, `터치 화면 인식 (${state.touch})`);
   await game.shot('title', '타이틀');
   await game.perf('타이틀');
+  run.check((await game.ask('art')).title === true, '타이틀 뒤에 표지 그림(scenes.txt title)이 깔린다');
   run.check((await game.find('연습 판')).length === 1 && (await game.find('저장 슬롯')).length === 1, '타이틀에 [연습 판]과 [저장 슬롯]이 있다');
   run.check(noOverlap(await game.buttons()), '타이틀 단추가 서로 겹치지 않는다');
 
@@ -201,6 +202,19 @@ async function playSlice(game, wholeRun) {
     await game.shot('battle-dice', '주사위가 굴러가는 중');
     state = await game.until(s => s.battle && s.battle.events > events, 8000);
     run.check(!!state, '명령이 전투를 진행시킨다');
+    // The place behind the battle and the hit effects (Art/scenes.txt, Art/effects.txt): a miss shows none, so the
+    // battle plays on by itself for a few seconds until a blow lands.
+    let art = await game.ask('art');
+    run.check(!!art.backdrop, `전투 뒤에 장의 장소 그림이 깔린다 (${art.backdrop})`);
+    if (!(art.flashes > 0)) {
+      await game.send('autobattle');
+      for (let i = 0; i < 20 && !(art.flashes > 0); i++) {
+        await game.wait(400);
+        art = await game.ask('art');
+      }
+    }
+    if (art.flashes > 0) await game.shot('battle-hit', '맞을 때의 효과');
+    run.check(art.flashes > 0, `맞으면 타격 효과가 뜬다 (${art.flashes}번)`);
   }
   await game.send('speed 0');
   await game.send('autobattle; skip');

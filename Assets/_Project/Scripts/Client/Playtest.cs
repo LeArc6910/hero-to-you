@@ -225,6 +225,9 @@ namespace Game.Client
                     Settings.Language = Arg(1, "ko");
                     ReloadData();
                     return "ok";
+                case "art":
+                    // What the drawn pictures did: the title picture, the battle's backdrop, how many hit effects showed.
+                    return ArtReport();
                 case "perf":
                     // Frame times and memory since the last "perf reset" (GameRoot.Perf.cs).
                     if (Arg(1) == "reset")

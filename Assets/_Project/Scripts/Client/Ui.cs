@@ -147,6 +147,9 @@ namespace Game.Client
 
         static Rect Px(Rect r) => new Rect(r.x * Scale, r.y * Scale, r.width * Scale, r.height * Scale);
 
+        // A rect in points as screen pixels, for drawing with GUI directly.
+        public static Rect ToPixels(Rect r) => Px(r);
+
         // The pointer in points, within the current area.
         public static Vector2 Pointer => Event.current.mousePosition / Scale;
 
@@ -169,11 +172,62 @@ namespace Game.Client
             Fill(new Rect(r.xMax - thickness, r.y, thickness, r.height), color);
         }
 
-        // A panel: dark fill with a light edge.
+        // A panel: dark fill inside a pixel frame whose lit edge is `edge`.
         public static void Panel(Rect r, Color? fill = null, Color? edge = null)
         {
-            Fill(r, fill ?? Palette.Panel);
-            Frame(r, edge ?? Palette.Edge, 1.5f);
+            var inside = fill ?? Palette.Panel;
+            PixelFrame(r, inside, Palette.Back, edge ?? Palette.Edge, Color.Lerp(inside, Color.black, 0.35f));
+        }
+
+        // ---- Pixel frames (user decision 2026-11-10: the game is pixel art, the screen's frames too) ----
+
+        // A small pixel picture stretched in nine parts: an outline with its corners cut, a one-point bevel lit along the
+        // top and left and shaded along the bottom and right, the fill inside. A frame point is two screen points, as big
+        // as a picture's point. One style per colours and screen scale, made the first time it is drawn.
+        static readonly Dictionary<(int, int, int, int, int), GUIStyle> Frames = new Dictionary<(int, int, int, int, int), GUIStyle>();
+
+        static int Pack(Color c) => ((int)(c.r * 255) << 24) | ((int)(c.g * 255) << 16) | ((int)(c.b * 255) << 8) | (int)(c.a * 255);
+
+        public static void PixelFrame(Rect r, Color fill, Color outline, Color lit, Color shaded)
+        {
+            if (Event.current.type != EventType.Repaint) return;
+            int n = Mathf.Max(1, Mathf.RoundToInt(Scale * 2));
+            var key = (Pack(fill), Pack(outline), Pack(lit), Pack(shaded), n);
+            if (!Frames.TryGetValue(key, out var style) || style.normal.background == null)
+            {
+                const int size = 7;
+                var texture = new Texture2D(size * n, size * n, TextureFormat.RGBA32, false)
+                {
+                    filterMode = FilterMode.Point,
+                    wrapMode = TextureWrapMode.Clamp,
+                    hideFlags = HideFlags.HideAndDontSave,
+                };
+                var pixels = new Color32[size * n * size * n];
+                for (int ay = 0; ay < size; ay++)
+                    for (int ax = 0; ax < size; ax++)
+                    {
+                        bool corner = (ax == 0 || ax == size - 1) && (ay == 0 || ay == size - 1);
+                        Color c = corner ? Color.clear
+                            : ax == 0 || ay == 0 || ax == size - 1 || ay == size - 1 ? outline
+                            : (ay == 1 && ax < size - 2) || (ax == 1 && ay < size - 2) ? lit
+                            : ay == size - 2 || ax == size - 2 ? shaded
+                            : fill;
+                        Color32 c32 = c;
+                        // Rows run bottom-up in a texture; ay counts from the top.
+                        for (int py = 0; py < n; py++)
+                            for (int px = 0; px < n; px++)
+                                pixels[((size - 1 - ay) * n + py) * size * n + ax * n + px] = c32;
+                    }
+                texture.SetPixels32(pixels);
+                texture.Apply(false, true);
+                style = new GUIStyle { border = new RectOffset(2 * n, 2 * n, 2 * n, 2 * n) };
+                style.normal.background = texture;
+                Frames[key] = style;
+            }
+            var old = GUI.color;
+            GUI.color = Color.white;
+            style.Draw(Px(r), GUIContent.none, false, false, false, false);
+            GUI.color = old;
         }
 
         public static void Image(Rect r, Texture texture, Color? tint = null, bool flip = false)
@@ -305,8 +359,9 @@ namespace Game.Client
             };
             if (!enabled) fill = Color.Lerp(fill, Palette.Panel, 0.6f);
             else if (hover) fill = Color.Lerp(fill, Color.white, 0.12f);
-            Fill(r, fill);
-            Frame(r, look == Look.Selected ? Palette.Gold : Palette.Edge, look == Look.Selected ? 2 : 1);
+            fill.a = 1;
+            var outline = look == Look.Selected ? Palette.Gold : Palette.Back;
+            PixelFrame(r, fill, outline, Color.Lerp(fill, Color.white, enabled ? 0.22f : 0.1f), Color.Lerp(fill, Color.black, 0.32f));
         }
 
         // An invisible button over something already drawn (a unit to target, a card).

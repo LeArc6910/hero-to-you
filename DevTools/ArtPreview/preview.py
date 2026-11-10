@@ -22,13 +22,15 @@ CLASSES = ROOT / "Assets/_Project/Resources/Data/Classes/classes.csv"
 MONSTERS = ROOT / "Assets/_Project/Resources/Data/Monsters/monsters.csv"
 PALETTE = ROOT / "Assets/_Project/Resources/Data/Ui/palette.csv"
 ART = ROOT / "Assets/_Project/Resources/Data/Art"
-ART_FILES = ("heroes", "monsters", "icons", "ui")
+ART_FILES = ("heroes", "monsters", "icons", "ui", "effects", "scenes")
 
 
 def load_art():
     """Every picture of the art files, as PixelArt.Read reads them: '!name', then rows; '#' lines are notes."""
     found = {}
     for file in ART_FILES:
+        if not (ART / f"{file}.txt").exists():
+            continue
         name, rows = None, []
         for line in (ART / f"{file}.txt").read_text(encoding="utf-8").split("\n"):
             line = line.rstrip("\r")
@@ -123,9 +125,13 @@ def main(target):
         sys.exit("uneven rows in: " + ", ".join(bad))
     scale = 6
     cell = 24 * scale + 12
-    names = list(found)
-    sheet = Image.new("RGBA", (cell * 6, cell * ((len(names) + 5) // 6)), (20, 18, 26, 255))
-    for i, name in enumerate(names):
+    # Sprites (up to 48 points) in a grid of six; the wide pictures (scenes, the title) below, one to a row.
+    names = [n for n, rows in found.items() if len(rows[0]) <= 48]
+    wide = [n for n, rows in found.items() if len(rows[0]) > 48]
+    grid = cell * ((len(names) + 5) // 6)
+    wide_h = [len(found[n]) * 3 + 12 for n in wide]
+    sheet = Image.new("RGBA", (max(cell * 6, 256 * 3 + 12), grid + sum(wide_h)), (20, 18, 26, 255))
+    for i, name in enumerate(names + wide):
         rows = found[name]
         base = re.sub(r"_(attack|hit|walk1|walk2|down)$", "", name)
         main_color = snap(hex_color(tints.get(base, "#8888AA")), ramps, where)
@@ -139,9 +145,13 @@ def main(target):
                 image.putpixel((x, y), color)
         # Pictures are 24 to 48 points; drawn at half the old scale so a 48×48 boss fits its cell.
         image = image.resize((image.width * scale // 2, image.height * scale // 2), Image.NEAREST)
-        sheet.alpha_composite(image, (i % 6 * cell + 6, i // 6 * cell + 6))
+        if i < len(names):
+            sheet.alpha_composite(image, (i % 6 * cell + 6, i // 6 * cell + 6))
+        else:
+            k = i - len(names)
+            sheet.alpha_composite(image, (6, grid + sum(wide_h[:k]) + 6))
     sheet.save(target)
-    print(f"{target}: {len(names)} pictures")
+    print(f"{target}: {len(names) + len(wide)} pictures")
 
 
 if __name__ == "__main__":

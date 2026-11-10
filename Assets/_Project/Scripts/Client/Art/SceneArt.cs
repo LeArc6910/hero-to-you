@@ -11,8 +11,60 @@ namespace Game.Client
     // the party on a dusk sky, so new stories never break.
     static class SceneArt
     {
+        // A wide picture (256×96, horizon on row 64) drawn with square points: as wide as the rect allows, cropped at the
+        // sides when the rect is tall, and placed so the horizon sits at `horizon` (0 top .. 1 bottom) of the rect where
+        // the picture reaches. `rows` limits the picture to its top rows (a battle shows only what is above its ground).
+        public static void DrawWide(Rect r, Texture2D picture, float horizon, int rows = 96, Color? tint = null)
+        {
+            if (picture == null || Event.current.type != EventType.Repaint) return;
+            float w = picture.width, h = picture.height, horizonRow = h * 2 / 3;
+            float s = Mathf.Max(r.width / w, r.height / Mathf.Min(rows, h));
+            float cols = r.width / s, shown = r.height / s;
+            float left = (w - cols) / 2;
+            float top = Mathf.Clamp(horizonRow - horizon * shown, 0, Mathf.Max(0, Mathf.Min(rows, h) - shown));
+            var uv = new Rect(left / w, (h - top - shown) / h, cols / w, shown / h);
+            var old = GUI.color;
+            GUI.color = tint ?? Color.white;
+            GUI.DrawTextureWithTexCoords(Ui.ToPixels(r), picture, uv);
+            GUI.color = old;
+        }
+
+        // The place behind a battle: the picture as wide as the rect, its horizon (row 64) on `horizonY`, the sky carried
+        // up past its top in a darker band and its ground carried down past its bottom. False when there is no picture.
+        public static bool DrawBackdrop(Rect r, string scene, float horizonY, Color tint)
+        {
+            var picture = PixelArt.Picture(scene);
+            if (picture == null) return false;
+            float w = picture.width, h = picture.height, horizonRow = h * 2 / 3;
+            float s = r.width / w;
+            float top = horizonY - horizonRow * s, bottom = top + h * s;
+            var old = GUI.color;
+            GUI.color = tint;
+            if (top > r.y)
+            {
+                var sky = PixelArt.PictureEdge(scene, true);
+                float above = top - r.y;
+                Ui.Image(new Rect(r.x, r.y, r.width, above + 1), PixelArt.Sky(GamePalette.Darker(sky), sky, r.width / Mathf.Max(1, above)), tint);
+            }
+            if (bottom < r.yMax) Ui.Fill(new Rect(r.x, bottom - 1, r.width, r.yMax - bottom + 1), tint * (Color)PixelArt.PictureEdge(scene, false));
+            float y0 = Mathf.Max(r.y, top), y1 = Mathf.Min(r.yMax, bottom);
+            if (y1 > y0 && Event.current.type == EventType.Repaint)
+            {
+                float from = (y0 - top) / s, to = (y1 - top) / s;
+                GUI.DrawTextureWithTexCoords(Ui.ToPixels(new Rect(r.x, y0, r.width, y1 - y0)), picture, new Rect(0, (h - to) / h, 1, (to - from) / h));
+            }
+            GUI.color = old;
+            return true;
+        }
+
         public static void Draw(Rect r, string scene, IReadOnlyList<(string id, string color)> party, float time)
         {
+            var picture = PixelArt.Picture(scene);
+            if (picture != null)
+            {
+                DrawPicture(r, scene, picture, party, time);
+                return;
+            }
             var (top, bottom, ground, mark, extra) = scene switch
             {
                 "forest" => (Palette.Hex("#3B3243"), Palette.Hex("#9C8A5E"), Palette.Hex("#3E5430"), "tree", "stones"),
@@ -135,6 +187,50 @@ namespace Game.Client
                 float x = r.x + r.width * 0.12f + walk + i * hero * 0.95f;
                 float bob = Mathf.Abs(Mathf.Sin(time * 5 + i)) * hero * 0.05f;
                 Ui.Image(new Rect(x, r.yMax - hero - 4 - bob, hero, hero), PixelArt.Hero(party[i].id, party[i].color));
+            }
+        }
+
+        // The drawn picture of the place, then what moves on it: falling snow or ash, the shrine's pulse, the camp's
+        // firelight, and the party walking (or, at the camp, sitting by the fire in the middle).
+        static void DrawPicture(Rect r, string scene, Texture2D picture, IReadOnlyList<(string id, string color)> party, float time)
+        {
+            DrawWide(r, picture, 0.7f);
+            if (Settings.LessMotion) time = 0;
+            var random = new System.Random(scene.GetHashCode());
+            if (scene == "snow" || scene == "dusk")
+            {
+                var flake = scene == "dusk" ? new Color(0.7f, 0.68f, 0.72f, 0.55f) : new Color(1, 1, 1, 0.75f);
+                for (int i = 0; i < 24 && !Settings.LessMotion; i++)
+                {
+                    float x = r.x + (float)random.NextDouble() * r.width;
+                    float y = r.y + ((float)random.NextDouble() * r.height + time * (10 + i % 5 * 4)) % r.height;
+                    Ui.Fill(new Rect(x, y, 2, 2), flake);
+                }
+            }
+            if (scene == "shrine" && !Settings.LessMotion)
+                Ui.Fill(r, new Color(0.7f, 0.82f, 1f, 0.05f + Mathf.Abs(Mathf.Sin(time * 2)) * 0.05f));
+            if ((scene == "camp" || scene == "reunion") && !Settings.LessMotion)
+                Ui.Fill(r, new Color(1f, 0.6f, 0.3f, 0.04f + Mathf.Abs(Mathf.Sin(time * 9)) * 0.025f));
+            if (party == null) return;
+            float hero = Mathf.Min(r.height * 0.36f, 56);
+            if (scene == "camp")
+            {
+                // Seated on both sides of the fire in the middle of the picture.
+                for (int i = 0; i < party.Count; i++)
+                {
+                    bool left = i % 2 == 0;
+                    float x = r.center.x + (left ? -hero * (1.4f + i / 2 * 0.9f) : hero * (0.4f + i / 2 * 0.9f));
+                    float breathe = Mathf.Abs(Mathf.Sin(time * 1.2f + i)) * hero * 0.02f;
+                    Ui.Image(new Rect(x, r.yMax - hero - 4 - breathe, hero, hero), PixelArt.Hero(party[i].id, party[i].color), null, !left);
+                }
+                return;
+            }
+            float walk = (time * 18) % (r.width * 0.25f);
+            for (int i = 0; i < party.Count; i++)
+            {
+                float x = r.x + r.width * 0.12f + walk + i * hero * 0.95f;
+                var pose = (int)(time * 6 + i) % 2 == 0 ? PixelArt.Pose.Walk1 : PixelArt.Pose.Walk2;
+                Ui.Image(new Rect(x, r.yMax - hero - 4, hero, hero), PixelArt.Hero(party[i].id, party[i].color, Settings.LessMotion ? PixelArt.Pose.Stand : pose));
             }
         }
     }

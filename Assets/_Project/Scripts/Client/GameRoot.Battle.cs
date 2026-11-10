@@ -20,6 +20,17 @@ namespace Game.Client
             public float Age;
         }
 
+        // A hit effect over a unit (Art/effects.txt): three frames, flipped for blows from the right.
+        sealed class HitFlash
+        {
+            public int Unit;
+            public string Name;
+            public bool Flip;
+            public float Age;
+        }
+
+        const float FlashFrame = 0.08f;
+
         Battle _battleShown;
         int _played;
         float _eventTimer;
@@ -30,6 +41,7 @@ namespace Game.Client
         // When each unit last attacked (it lunges toward the other side) and which way.
         readonly Dictionary<int, float> _lungeAt = new Dictionary<int, float>();
         readonly List<Floater> _floaters = new List<Floater>();
+        readonly List<HitFlash> _flashes = new List<HitFlash>();
         readonly List<string> _log = new List<string>();
         BattleEvent _diceEvent;
         float _diceAge;
@@ -74,6 +86,8 @@ namespace Game.Client
             float step = _speed <= 0 ? float.MaxValue : dt * _speed;
             foreach (var floater in _floaters) floater.Age += step;
             _floaters.RemoveAll(f => f.Age > 1.2f);
+            foreach (var flash in _flashes) flash.Age += step;
+            _flashes.RemoveAll(f => f.Age >= FlashFrame * 3);
             _diceAge += step;
             _bannerAge += step;
             _eventTimer -= step;
@@ -95,6 +109,7 @@ namespace Game.Client
             _eventTimer = 0;
             _turnActor = -1;
             _floaters.Clear();
+            _flashes.Clear();
             _log.Clear();
             _diceEvent = null;
             _banner = _adventure.Encounter?.Text;
@@ -184,12 +199,15 @@ namespace Game.Client
                     if (e.Actor >= 0 && e.Target != e.Actor) _lungeAt[e.Actor] = _clock;
                     if (_speed > 0) Sounds.Play(e.Perfect ? Sound.Perfect : Sound.Dice);
                     _blowSound = BlowSound(e);
+                    _blowEffect = BlowEffect(e);
+                    _blowFromRight = _battleShown.Unit(e.Actor) is Unit striker && !striker.IsHero && striker.Side != Side.Party;
                     break;
                 case BattleEventKind.Damage:
                     _shownHp[e.Target] = Mathf.Max(0, _shownHp[e.Target] - e.Amount);
                     _hitAt[e.Target] = _clock;
                     if (_speed > 0 && _battleShown.Unit(e.Target).IsHero) WebBridge.Buzz(40);
                     Float(e.Target, "-" + e.Amount + (e.Perfect ? "!" : ""), Palette.Damage);
+                    Flash(e.Target, _blowEffect, _blowFromRight);
                     if (_speed > 0) Sounds.Play(_blowSound);
                     break;
                 case BattleEventKind.Miss:
@@ -200,6 +218,7 @@ namespace Game.Client
                 case BattleEventKind.Potion:
                     _shownHp[e.Target] += e.Amount;
                     Float(e.Target, "+" + e.Amount, Palette.Heal);
+                    Flash(e.Target, "heal", false);
                     if (_speed > 0) Sounds.Play(Sound.Heal);
                     break;
                 case BattleEventKind.Revive:
@@ -212,6 +231,9 @@ namespace Game.Client
                     break;
                 case BattleEventKind.StatusOn:
                     Float(e.Target, StatusFloat(e), Palette.Gold);
+                    // Set on someone else by a blow (an event that only names its actor, like the souls, has no status).
+                    if (string.IsNullOrEmpty(e.Note) && e.Actor != e.Target && (e.Status == StatusKind.Burn || e.Status == StatusKind.Chill))
+                        Flash(e.Target, e.Status == StatusKind.Burn ? "fire" : "frost", _blowFromRight);
                     break;
                 case BattleEventKind.ResolveGained:
                     Float(e.Actor, Strings.Format("battle.float_resolve", e.Amount), Palette.Resolve);
@@ -268,6 +290,65 @@ namespace Game.Client
             };
         }
 
+        // The picture of the blows from the last roll (Art/effects.txt), chosen like their sound.
+        string _blowEffect = "impact";
+        bool _blowFromRight;
+
+        string BlowEffect(BattleEvent e)
+        {
+            var unit = _battleShown?.Unit(e.Actor);
+            if (unit == null || string.IsNullOrEmpty(e.Skill)) return "impact";
+            if (unit.IsHero)
+            {
+                var skill = unit.Hero.Skill(e.Skill);
+                if (skill == null) return "impact";
+                if (skill.Element == "fire" || skill.Effect == "burn") return "fire";
+                if (skill.Element == "frost" || skill.Effect == "chill") return "frost";
+                if (skill.Kind == SkillKind.Magic) return "spell";
+                if (skill.Kind != SkillKind.Physical) return "impact";
+                return unit.Hero.Weapon?.Kind switch
+                {
+                    "bow" or "crossbow" or "sling" or "cards" or "spear" => "pierce",
+                    "fist" or "staff" or "mace" or "lute" or "orb" or "tome" => "impact",
+                    _ => "slash",
+                };
+            }
+            if (!_data.MonsterSkills.TryGetValue(e.Skill, out var blow)) return "impact";
+            return blow.Effect switch
+            {
+                "freeze" => "frost",
+                "scorch" => "fire",
+                _ => blow.Kind == "magic" ? "spell" : unit.Monster.Size > 1 ? "impact" : "slash",
+            };
+        }
+
+        // For the playtest (Playtest "art"): the effects shown so far and the last battle's backdrop picture.
+        int _flashesShown;
+        string _backdropShown;
+
+        internal string ArtReport() =>
+            $"{{\"title\":{(PixelArt.Picture("title") != null ? "true" : "false")},\"backdrop\":\"{_backdropShown ?? ""}\",\"flashes\":{_flashesShown}}}";
+
+        void Flash(int unit, string name, bool fromRight)
+        {
+            if (unit < 0 || _speed <= 0 || PixelArt.Effect(name, 0) == null) return;
+            _flashesShown++;
+            _flashes.Add(new HitFlash { Unit = unit, Name = name, Flip = fromRight });
+        }
+
+        // Each effect over where its unit stands, a little bigger than the unit; with less motion only its strongest frame.
+        void DrawFlashes()
+        {
+            foreach (var flash in _flashes)
+            {
+                if (!_unitRects.TryGetValue(flash.Unit, out var at)) continue;
+                int frame = Settings.LessMotion ? 1 : Mathf.Min(2, (int)(flash.Age / FlashFrame));
+                float size = Mathf.Max(at.width, at.height) * 1.15f;
+                var r = new Rect(at.center.x - size / 2, at.center.y - size / 2, size, size);
+                Ui.Image(r, PixelArt.Effect(flash.Name, frame), null, flash.Flip);
+            }
+        }
+
         static string StatusFloat(BattleEvent e) => e.Note switch
         {
             "bless" => Strings.Get("battle.float_bless"),
@@ -310,6 +391,7 @@ namespace Game.Client
             DrawTimeline(top, battle);
             DrawBackdrop(field);
             DrawUnits(field, battle);
+            DrawFlashes();
             DrawFloaters();
             DrawDice(field, battle);
             DrawBanner(field);
@@ -324,8 +406,17 @@ namespace Game.Client
             var tile = a.JoinTile;
             var terrain = tile?.Terrain ?? Terrain.Plains;
             bool boss = a.BossBattle;
-            var sky = BackdropSky(a.Chapter.Index, a.Night, boss);
             float skyH = field.height * 0.62f;
+            // The chapter's place (its prologue's picture), darker and bluer at night, redder against the boss.
+            var tint = boss ? new Color(1f, 0.78f, 0.74f) : a.Night ? new Color(0.55f, 0.58f, 0.8f) : Color.white;
+            string scene = ChapterScene();
+            if (SceneArt.DrawBackdrop(field, scene, field.y + skyH, tint))
+            {
+                _backdropShown = scene;
+                return;
+            }
+            _backdropShown = "";
+            var sky = BackdropSky(a.Chapter.Index, a.Night, boss);
             Ui.Image(new Rect(field.x, field.y, field.width, skyH + 1), PixelArt.Sky(sky.top, sky.bottom, field.width / Mathf.Max(1, skyH)));
             var ground = TerrainColors.TryGetValue(terrain, out var g) ? g : Palette.Ground;
             Ui.Fill(new Rect(field.x, field.y + skyH, field.width, field.height - skyH), GamePalette.Darker(ground));
@@ -343,6 +434,14 @@ namespace Game.Client
                 float y = field.y + skyH - s * (0.75f + (float)random.NextDouble() * 0.2f);
                 Ui.Image(new Rect(x, y, s, s), icon, new Color(1, 1, 1, 0.22f));
             }
+        }
+
+        // The picture of the chapter's place: its prologue's scene ("journal+dawn" is the page's picture after the '+').
+        string ChapterScene()
+        {
+            if (!_data.Stories.TryGetValue(_adventure.Chapter.Prologue ?? "", out var story) || string.IsNullOrEmpty(story.Art)) return null;
+            string art = story.Art;
+            return art.Contains("+") ? art.Substring(art.IndexOf('+') + 1) : art.StartsWith("journal") ? null : art;
         }
 
         static (Color top, Color bottom) BackdropSky(int chapter, bool night, bool boss)
