@@ -24,14 +24,14 @@ namespace Game.Client
             y += bh + 6;
             int rumor = a.Discount ? Adventure.RumorCost * (100 - Adventure.BardDiscount) / 100 : Adventure.RumorCost;
             string rumorLabel = a.CanHearRumors ? Strings.Format("town.rumor", rumor) : Strings.Get("town.rumor_done");
-            if (Ui.IconButton(new Rect(0, y, half, bh), rumorLabel, a.CanHearRumors ? Strings.Get("town.rumor_short") : rumorLabel, "event", a.CanHearRumors ? rumor : -1, 14, a.CanHearRumors && a.Gold >= rumor)) Act(a.Rumor);
+            if (Ui.IconButton(new Rect(0, y, half, bh), rumorLabel, a.CanHearRumors ? Strings.Get("town.rumor_short") : rumorLabel, "rumor", a.CanHearRumors ? rumor : -1, 14, a.CanHearRumors && a.Gold >= rumor)) Act(a.Rumor);
             string donateLabel = a.CanDonate ? Strings.Format("town.donate", a.DonationCost) : Strings.Get("town.donate_done");
-            if (Ui.IconButton(new Rect(half + 8, y, half, bh), donateLabel, a.CanDonate ? Strings.Get("town.donate_short") : donateLabel, "bell", a.CanDonate ? a.DonationCost : -1, 14, a.CanDonate && a.Gold >= a.DonationCost)) Act(a.Donate);
+            if (Ui.IconButton(new Rect(half + 8, y, half, bh), donateLabel, a.CanDonate ? Strings.Get("town.donate_short") : donateLabel, "donate", a.CanDonate ? a.DonationCost : -1, 14, a.CanDonate && a.Gold >= a.DonationCost)) Act(a.Donate);
             y += bh + 6;
             // The contract board: one job at a time, paid when you come back.
             string contract = a.Contract == null ? Strings.Get(a.CanTakeContract ? "town.contract_take" : "town.contract_none")
                 : a.Contract.Done ? Strings.Get("town.contract_done") : Strings.Format("town.contract_on", a.Contract.Tile.Hex, a.Contract.Gold);
-            if (Ui.IconButton(new Rect(0, y, column.width, bh), contract, contract, "flag", -1, 14, a.CanTakeContract)) Act(a.TakeContract);
+            if (Ui.IconButton(new Rect(0, y, column.width, bh), contract, contract, "contract", -1, 14, a.CanTakeContract)) Act(a.TakeContract);
             y += bh + 4;
             y = Paragraph(column, y, Strings.Format("town.help", Adventure.InnPercent, Adventure.RumorHexes), 11, Palette.Dim);
             foreach (string line in a.Report) y = Paragraph(column, y, "· " + line, 12, Palette.Journal);
@@ -140,7 +140,7 @@ namespace Game.Client
             EndColumn(y);
             var footer = Footer(48);
             float fh = (footer.width - 8) / 2;
-            if (Ui.IconButton(new Rect(footer.x, footer.y, fh, footer.height), Strings.Get("map.gear"), Strings.Get("map.gear"), "item_light", -1, 15, true, Look.Quiet, null, KeyCode.G)) _gearOpen = true;
+            if (Ui.IconButton(new Rect(footer.x, footer.y, fh, footer.height), Strings.Get("map.gear"), Strings.Get("map.gear"), "bag", -1, 15, true, Look.Quiet, null, KeyCode.G)) _gearOpen = true;
             if (Ui.Button(new Rect(footer.x + fh + 8, footer.y, fh, footer.height), Strings.Get("town.leave"), 16, true, Look.Primary, null, KeyCode.Space)) Act(a.LeaveTown);
         }
 
@@ -186,7 +186,8 @@ namespace Game.Client
         {
             if (item == null) return null;
             string key = item.Consumable ? (item.Id == "charm" ? "luckycharm" : item.Id) : item.Kind;
-            return PixelArt.Icon("item_" + key);
+            // A piece with a picture of its own (a trinket) shows it; the rest show their kind's.
+            return (item.Consumable ? null : PixelArt.Icon("item_" + item.Id)) ?? PixelArt.Icon("item_" + key);
         }
 
         // Draws the item's picture at r and gives back where the words beside it start (at r when there is none).

@@ -22,9 +22,10 @@ Useful options (see --help for all):
   --size N | WxH        target size: heroes and monsters 32, bosses 48, map/item icons 24, party icons 14,
                         effects 32, projectiles 16, scenes 256x96 (title 256x144)
   --crop X,Y,W,H        cut a part of the source first (e.g. one sprite of a sheet)
-  --bg auto|none|#hex   remove a plain background: 'auto' takes the commonest corner colour; --bg-tol sets how close
+  --bg auto|none|#hex   remove a plain background: 'auto' takes the median colour of the border; --bg-tol sets how close
                         a colour must be (RGB distance, default 48); --bg-all removes that colour everywhere, not
-                        only where it touches the border
+                        only where it touches the border; --bg-step S also floods across neighbours within S of each
+                        other (for the vignetted backgrounds of generated pictures)
   --resample mode       each target pixel takes the commonest palette colour of its source block (default; keeps
                         flat pixel-art colours, good for big "fake pixel" pictures); 'box' averages (keeps thin dark
                         lines as darker pixels, good for photos and scenes); 'nearest' samples (for clean upscaled
@@ -96,22 +97,41 @@ def parse_color(text):
     return tuple(int(text[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def remove_background(img, how, tol, everywhere):
+def remove_background(img, how, tol, everywhere, step=0):
     """Makes the plain background transparent: the pixels within `tol` of the background colour that connect to the
-    border (or all of them with `everywhere`)."""
+    border (or all of them with `everywhere`). With `step`, the fill also walks across neighbours that differ by at
+    most `step` from each other (a magic wand for vignetted or gradient backgrounds)."""
     a = np.array(img, dtype=np.int64)
     rgb, alpha = a[..., :3], a[..., 3]
-    if how == "auto":
-        h, w = alpha.shape
-        corners = [tuple(rgb[y, x]) for y, x in ((0, 0), (0, w - 1), (h - 1, 0), (h - 1, w - 1)) if alpha[y, x] > 0]
-        if not corners:
+    if how == "auto":  # the median colour of the opaque border pixels (robust to a figure touching one edge)
+        border = np.concatenate([rgb[0, :], rgb[-1, :], rgb[:, 0], rgb[:, -1]])
+        seen = np.concatenate([alpha[0, :], alpha[-1, :], alpha[:, 0], alpha[:, -1]]) > 0
+        if not seen.any():
             return img
-        bg = max(sorted(set(corners)), key=corners.count)
+        bg = tuple(int(v) for v in np.median(border[seen], axis=0))
     else:
         bg = parse_color(how)
     near = (np.sqrt(((rgb - np.array(bg)) ** 2).sum(axis=2)) <= tol) & (alpha > 0)
     if everywhere:
         gone = near
+    elif step > 0:
+        def close(a, b):
+            return np.sqrt(((a - b) ** 2).sum(axis=-1)) <= step
+        down, right = close(rgb[1:, :], rgb[:-1, :]), close(rgb[:, 1:], rgb[:, :-1])
+        solid = alpha > 0
+        gone = np.zeros_like(near)
+        gone[0, :], gone[-1, :], gone[:, 0], gone[:, -1] = near[0, :], near[-1, :], near[:, 0], near[:, -1]
+        while True:
+            grown = gone.copy()
+            grown[1:, :] |= gone[:-1, :] & down
+            grown[:-1, :] |= gone[1:, :] & down
+            grown[:, 1:] |= gone[:, :-1] & right
+            grown[:, :-1] |= gone[:, 1:] & right
+            grown |= gone  # keep
+            grown &= solid
+            if (grown == gone).all():
+                break
+            gone = grown
     else:
         gone = np.zeros_like(near)
         gone[0, :], gone[-1, :], gone[:, 0], gone[:, -1] = near[0, :], near[-1, :], near[:, 0], near[:, -1]
@@ -295,7 +315,7 @@ def convert(args, pal):
         img = img.crop((x, y, x + w, y + h))
     source = img
     if args.bg != "none":
-        img = remove_background(img, args.bg, args.bg_tol, args.bg_all)
+        img = remove_background(img, args.bg, args.bg_tol, args.bg_all, args.bg_step)
     a = np.array(img)
     a[..., 3] = np.where(a[..., 3] >= args.alpha, 255, 0)
     img = Image.fromarray(a, "RGBA")
@@ -342,6 +362,8 @@ def main(argv=None):
     p.add_argument("--bg", default="none", help="'none' (default), 'auto' or a #hex colour to remove")
     p.add_argument("--bg-tol", type=float, default=48, help="RGB distance counted as background (default 48)")
     p.add_argument("--bg-all", action="store_true", help="remove the background colour everywhere")
+    p.add_argument("--bg-step", type=float, default=0,
+                   help="also flood across neighbours this close to each other (gradient backgrounds; try 4-8)")
     p.add_argument("--alpha", type=int, default=128, help="alpha below this is transparent (default 128)")
     p.add_argument("--no-trim", action="store_true", help="keep the empty border of the source")
     p.add_argument("--fit", choices=("contain", "cover", "stretch"), default="contain")
