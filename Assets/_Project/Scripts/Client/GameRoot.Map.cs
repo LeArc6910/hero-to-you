@@ -111,7 +111,7 @@ namespace Game.Client
                 if (Ui.Hit(new Rect(ox, r.y, rankW, r.height), "명성", true, "도움말")) ShowTip("renown");
                 ox += rankW + 6;
             }
-            if (r.xMax - ox > 120) Ui.Text(new Rect(ox, r.y, r.xMax - ox, r.height), Strings.Format("map.objective", a.Objective), 11, Palette.Journal);
+            if (r.xMax - ox > 120) Ui.TextFit(new Rect(ox, r.y, r.xMax - ox, r.height), Strings.Format("map.objective", a.Objective), 11, Palette.Journal);
         }
 
         // Hexes as big as fit, but not smaller than a finger can pick (then the map is dragged).
@@ -120,7 +120,9 @@ namespace Game.Client
             float fitW = area.width / (1.7320508f * (map.Width + 0.5f));
             float fitH = area.height / (1.5f * (map.Height - 1) + 2f);
             float fit = Mathf.Min(fitW, fitH);
-            float least = Ui.Touch ? 19 : 15;
+            // On a touch screen a hex is at least about 44 points across, a finger's width (the map pans to the hero
+            // whose turn it is, and drags); a mouse can point at smaller ones.
+            float least = Ui.Touch ? 25 : 15;
             return Mathf.Clamp(fit, least, 40);
         }
 

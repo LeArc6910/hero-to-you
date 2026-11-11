@@ -261,7 +261,14 @@ async function playSlice(game, wholeRun) {
   }
 
   // Save and continue: reload the page, then [이어하기].
-  const commands = (await game.state()).commands;
+  // The last tap (an upgrade) may still be on its way: wait until the count of commands stops changing.
+  let commands = (await game.state()).commands;
+  for (let i = 0; i < 10; i++) {
+    await game.wait(250);
+    const now = (await game.state()).commands;
+    if (now === commands) break;
+    commands = now;
+  }
   await game.page.reload({ waitUntil: 'load' });
   await game.page.waitForFunction(() => !!window.unityInstance, null, { timeout: 240000 });
   await game.wait(1500);

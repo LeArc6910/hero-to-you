@@ -491,11 +491,11 @@ namespace Game.Client
                 Ui.Image(new Rect(cell.x + 4, cell.y + (cell.height - icon) / 2, icon, icon), PixelArt.Hero(hero.Class.Id, hero.Class.Color), hero.Down ? new Color(1, 1, 1, 0.35f) : (Color?)null);
                 float x = cell.x + icon + 8;
                 float w = cell.xMax - x - 4;
-                Ui.Text(new Rect(x, cell.y + 2, w, 16), $"{hero.Name} Lv{hero.Level}", 12, Palette.Ink, TextAnchor.MiddleLeft, true);
+                Ui.TextFit(new Rect(x, cell.y + 2, w, 16), $"{hero.Name} Lv{hero.Level}", 12, Palette.Ink, TextAnchor.MiddleLeft, true);
                 Ui.Bar(new Rect(x, cell.y + 20, w, 6), hero.MaxHp > 0 ? (float)hero.Hp / hero.MaxHp : 0, Palette.HpHero);
                 string line = hero.Down ? Strings.Get("hero.down") : w >= 150 ? Strings.Format("strip.hero", hero.Hp, hero.MaxHp, hero.Resolve, hero.MaxResolve, hero.Potions) : $"{hero.Hp}/{hero.MaxHp} · {Strings.Format("hero.resolve", hero.Resolve)}";
                 if (hero.Wounds > 0) line += " · " + Strings.Format("hero.wounds", hero.Wounds);
-                Ui.Text(new Rect(x, cell.y + 26, w, 14), line, 10, hero.Down ? Palette.Damage : hero.Wounds > 0 ? Palette.Intent : Palette.Dim);
+                Ui.TextFit(new Rect(x, cell.y + 26, w, 14), line, 10, hero.Down ? Palette.Damage : hero.Wounds > 0 ? Palette.Intent : Palette.Dim);
                 if (w >= 120) Ui.Text(new Rect(x, cell.y + 2, w, 16), Strings.Get(hero.Back ? "row.back" : "row.front"), 9.5f, Palette.Dim, TextAnchor.MiddleRight);
                 Ui.Tip(cell, HeroTip(hero));
             }

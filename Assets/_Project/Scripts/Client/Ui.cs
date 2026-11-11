@@ -276,6 +276,34 @@ namespace Game.Client
             style.Draw(px, Content, false, false, false, false);
         }
 
+        static readonly Dictionary<(string, int, int, bool), (string text, float size)> Fitted = new Dictionary<(string, int, int, bool), (string, float)>();
+
+        // One line that has to stay in its place (a button, a label, a crowded strip): smaller, down to `min`, then
+        // cut short with an ellipsis. English and the biggest text size are where this matters.
+        public static void TextFit(Rect r, string text, float size, Color color, TextAnchor anchor = TextAnchor.MiddleLeft, bool bold = false, float min = 8.5f)
+        {
+            if (string.IsNullOrEmpty(text) || Event.current.type != EventType.Repaint) return;
+            var key = (text, Mathf.RoundToInt(size * 10), Mathf.RoundToInt(r.width * Scale), bold);
+            if (!Fitted.TryGetValue(key, out var fit))
+            {
+                fit = (text, size);
+                float wide = TextWidth(text, size, bold);
+                if (wide > r.width)
+                {
+                    fit.size = Mathf.Max(min, Mathf.Floor(size * r.width / wide * 2) / 2);
+                    if (TextWidth(text, fit.size, bold) > r.width)
+                    {
+                        int n = text.Length - 1;
+                        while (n > 1 && TextWidth(text.Substring(0, n).TrimEnd() + "…", fit.size, bold) > r.width) n--;
+                        fit.text = text.Substring(0, n).TrimEnd() + "…";
+                    }
+                }
+                if (Fitted.Count > 2000) Fitted.Clear();
+                Fitted[key] = fit;
+            }
+            Text(r, fit.text, fit.size, color, anchor, bold);
+        }
+
         public static float TextWidth(string text, float size, bool bold = false)
         {
             var style = Style(size, TextAnchor.UpperLeft, bold, false);
@@ -341,7 +369,7 @@ namespace Game.Client
         {
             Probe(label, row, r, enabled);
             Face(r, look, enabled);
-            Text(new Rect(r.x + 4, r.y, r.width - 8, r.height), label, size, enabled ? Palette.Ink : Palette.Dim, TextAnchor.MiddleCenter, look == Look.Primary);
+            TextFit(new Rect(r.x + 4, r.y, r.width - 8, r.height), label, size, enabled ? Palette.Ink : Palette.Dim, TextAnchor.MiddleCenter, look == Look.Primary);
             if (enabled) KeyHint(r, key);
             if (enabled) Glow(r, label, row);
             return Clicked(r, enabled) || (enabled && Key(key));

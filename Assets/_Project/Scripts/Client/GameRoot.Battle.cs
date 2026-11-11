@@ -860,12 +860,12 @@ namespace Game.Client
                     string shorter = $"{unit.Name} Lv{unit.Hero.Level}";
                     name = Ui.TextWidth(full, 11, true) <= inner ? full : Ui.TextWidth(shorter, 11, true) <= inner ? shorter : unit.Name;
                 }
-                Ui.Text(new Rect(r.x + 3, r.y + 1, inner, 15), name, FitSize(name, inner, 11, true), down ? Palette.Dim : Palette.Ink, TextAnchor.MiddleCenter, true);
+                Ui.TextFit(new Rect(r.x + 3, r.y + 1, inner, 15), name, 11, down ? Palette.Dim : Palette.Ink, TextAnchor.MiddleCenter, true);
                 string line = down ? Strings.Get("hero.down") : $"{hp}/{unit.MaxHp}";
                 if (unit.IsHero && !down) line += " · " + Strings.Format("hero.resolve", unit.Hero.Resolve) + (unit.Hero.Blessing + unit.Hero.Luck > 0 ? " · " + Strings.Format("battle.sure_plus", unit.Hero.Blessing + unit.Hero.Luck) : "");
                 string statuses = StatusLine(unit, battle);
                 if (statuses.Length > 0) line += " · " + statuses;
-                Ui.Text(new Rect(r.x + 3, r.y + 24, inner, 14), line, FitSize(line, inner, 10), down ? Palette.Damage : Palette.Dim, TextAnchor.MiddleCenter);
+                Ui.TextFit(new Rect(r.x + 3, r.y + 24, inner, 14), line, 10, down ? Palette.Damage : Palette.Dim, TextAnchor.MiddleCenter);
             }
             Ui.Bar(new Rect(r.x + 4, r.y + 17, r.width - 8, 6), unit.MaxHp > 0 ? (float)hp / unit.MaxHp : 0, unit.IsHero ? Palette.HpHero : Palette.Hp);
 
@@ -878,12 +878,6 @@ namespace Game.Client
             }
         }
 
-        // The size that fits the words into the width (half points down to 8), for narrow labels in a crowded row.
-        static float FitSize(string text, float width, float size, bool bold = false)
-        {
-            float wide = Ui.TextWidth(text, size, bold);
-            return wide <= width ? size : Mathf.Max(8, Mathf.Floor(size * width / wide * 2) / 2);
-        }
 
         static string StatusLine(Unit unit, Battle battle)
         {
@@ -911,8 +905,8 @@ namespace Game.Client
             float inner = r.width - 6 - (rule != null ? 14 : 0);
             if (Event.current.type == EventType.Repaint)
             {
-                Ui.Text(new Rect(r.x + 3, r.y, inner, r.height * 0.55f), what, FitSize(what, inner, 10.5f, true), Palette.Intent, TextAnchor.MiddleCenter, true);
-                Ui.Text(new Rect(r.x + 3, r.y + r.height * 0.5f, inner, r.height * 0.5f), dice, FitSize(dice, inner, 9.5f), Palette.Ink, TextAnchor.MiddleCenter);
+                Ui.TextFit(new Rect(r.x + 3, r.y, inner, r.height * 0.55f), what, 10.5f, Palette.Intent, TextAnchor.MiddleCenter, true, 8);
+                Ui.TextFit(new Rect(r.x + 3, r.y + r.height * 0.5f, inner, r.height * 0.5f), dice, 9.5f, Palette.Ink, TextAnchor.MiddleCenter, false, 8);
             }
             if (rule != null)
             {
@@ -954,7 +948,7 @@ namespace Game.Client
             var r = new Rect(field.x + (field.width - w) / 2, field.y + field.height * 0.36f, w, die + 52);
             Ui.Panel(r, new Color(0.08f, 0.07f, 0.1f, 0.94f), Palette.Gold);
             var actor = battle.Unit(e.Actor);
-            Ui.Text(new Rect(r.x, r.y + 2, r.width, 18), $"{actor?.Name}: {e.SkillName} · {Strings.Format("dice.under", check.Chance)}", 12, Palette.Ink, TextAnchor.MiddleCenter, true);
+            Ui.TextFit(new Rect(r.x + 4, r.y + 2, r.width - 8, 18), $"{actor?.Name}: {e.SkillName} · {Strings.Format("dice.under", check.Chance)}", 12, Palette.Ink, TextAnchor.MiddleCenter, true);
             bool rolling = _diceAge < 0.45f;
             float x = r.x + (r.width - (die * check.Dice + 8 * (check.Dice - 1))) / 2;
             if (PixelArt.Still("die_face") != null)
