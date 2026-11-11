@@ -216,6 +216,9 @@ function helpers(game) {
         if (ax + 1 < bx + bw && bx + 1 < ax + aw && ay + 1 < by + bh && by + 1 < ay + ah) clash.push(`${buttons[i].label} / ${buttons[j].label}`);
       }
     run.check(clash.length === 0, `${name}: 단추가 겹치지 않는다${clash.length ? ' (' + clash.slice(0, 3).join(', ') + ')' : ''}`);
+    // No line of text wider than its place (English and the biggest text size included).
+    const spills = (await h.ask('spills')).spills || [];
+    run.check(spills.length === 0, `${name}: 글자가 칸을 넘치지 않는다${spills.length ? ' (' + spills.slice(0, 3).map(t => t.slice(0, 40)).join(' | ') + ')' : ''}`);
   };
 
   // Frame times and memory over a few seconds on the screen now (GameRoot.Perf.cs), noted in the report.

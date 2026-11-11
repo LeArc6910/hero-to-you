@@ -266,6 +266,8 @@ namespace Game.Client
             if (wrap) text = Wrap(text, size, r.width, bold);
             style.normal.textColor = color;
             Content.text = text;
+            // For the playtests: a line wider than its place spills over its neighbours (Docs/Playtest.md 글자 넘침).
+            if (Probing && !wrap && style.CalcSize(Content).x / Scale > r.width + 2) Spilling.Add(text);
             var px = Px(r);
             // A one-pixel shadow keeps text readable over pictures.
             style.normal.textColor = new Color(0, 0, 0, color.a * 0.6f);
@@ -520,6 +522,8 @@ namespace Game.Client
         internal static bool Probing { get; set; }
         internal static IReadOnlyList<Drawn> LastDrawn { get; private set; } = new List<Drawn>();
         internal static IReadOnlyList<string> LastWritten { get; private set; } = new List<string>();
+        internal static IReadOnlyList<string> LastSpilled { get; private set; } = new List<string>();
+        static readonly List<string> Spilling = new List<string>();
         static readonly List<Drawn> Drawing = new List<Drawn>();
         static readonly List<string> Writing = new List<string>();
 
@@ -528,8 +532,10 @@ namespace Game.Client
             if (!Probing || Event.current.type != EventType.Repaint) return;
             LastDrawn = Drawing.ToArray();
             LastWritten = Writing.ToArray();
+            LastSpilled = Spilling.ToArray();
             Drawing.Clear();
             Writing.Clear();
+            Spilling.Clear();
         }
 
         static void Probe(string label, string row, Rect r, bool enabled)

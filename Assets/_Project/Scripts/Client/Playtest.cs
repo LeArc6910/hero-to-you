@@ -65,6 +65,13 @@ namespace Game.Client
                     return Buttons();
                 case "texts":
                     return Texts();
+                case "spills":
+                    // Lines drawn wider than their place on the last frame (Ui.Text).
+                    {
+                        var json = new Json().Open().List("spills");
+                        foreach (string text in Ui.LastSpilled.Distinct()) json.Add(null, text);
+                        return json.End().Close().ToString();
+                    }
                 case "report":
                     return Report();
                 case "speed":

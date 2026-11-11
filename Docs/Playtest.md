@@ -74,6 +74,7 @@ node DevTools/WebPlaytest/playtest.js --url http://localhost:8000/
 | `reached <n>`, `range <n> [one]` | 일지가 다다른 장, 파티 화면의 시작 장(1부터)과 한 장짜리 판 |
 | `share` | 끝 화면의 [기록 복사]가 복사하는 글(줄을 ` \| `로 이어서) |
 | `perf reset`, `perf` | 프레임 시간·GC·할당을 새로 재기 시작, 지금까지 잰 것(JSON: frames, avgMs, p95Ms, maxMs, gc, allocKbPerFrame, heapMb) |
+| `spills` | 마지막 프레임에 칸보다 넓게 그려진 글 줄(JSON: spills). 사진을 찍을 때마다 이것이 비었는지 본다(글자 넘침, 2026-11-11) |
 | `art` | 그림이 실제로 그려졌는지(JSON: title 표지 그림이 있는지, backdrop 마지막 전투 배경의 장소 그림 이름, flashes 지금까지 뜬 타격 효과 수, units 마지막 전투에서 유닛마다 아군인지·발 위치·크기) |
 
 `report`에는 `slot`, `reached`, `startChapter`, `oneChapter`와, 모험 중이면 `firstChapter`, `lastChapter`, `combos`(그 파티의 조합 id), `tutorial`(연습 판 안내의 지금 단계: story, roll, pick, move, join, skill, target, roll_battle, event, event_hero, event_roll, result, town, levelup)도 있다. 키보드는 시험 도구가 `page.keyboard.press`로 누른다.
