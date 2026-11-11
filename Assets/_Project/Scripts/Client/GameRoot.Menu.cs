@@ -519,7 +519,11 @@ namespace Game.Client
             if (Ui.TextWidth(stats, 11) > card.xMax - tx - 4) stats = Strings.Format("party.class_hp", cls.Hp);
             if (cls.Playable) Ui.Text(new Rect(tx, card.y + 42, card.xMax - tx - 4, 16), stats, 11, Palette.Dim);
             else Ui.Text(new Rect(tx, card.y + 42, tw, 16), Strings.Get("party.class_soon"), 11, Palette.Dim);
-            Ui.Text(new Rect(card.x + 6, card.y + icon + 10, card.width - 12, card.height - icon - 14), cls.Mechanic, 11, cls.Playable ? Palette.Ink : Palette.Dim, TextAnchor.UpperLeft, false, true);
+            // The gimmick in as many lines as the card holds: a smaller size before it runs off the card.
+            var body = new Rect(card.x + 6, card.y + icon + 10, card.width - 12, card.height - icon - 14);
+            float bodySize = 11;
+            while (bodySize > 9 && Ui.TextHeight(cls.Mechanic, bodySize, body.width) > body.height) bodySize -= 0.5f;
+            Ui.Text(body, cls.Mechanic, bodySize, cls.Playable ? Palette.Ink : Palette.Dim, TextAnchor.UpperLeft, false, true);
             if (chosen)
             {
                 var badge = new Rect(card.xMax - 26, card.y + 4, 22, 22);

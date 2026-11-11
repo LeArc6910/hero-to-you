@@ -54,22 +54,24 @@ namespace Game.Client.Editor
             EditorApplication.Exit(0);
         }
 
-        // Files gzipped with the decompression fallback on, because GitHub Pages does not send the Content-Encoding
+        // Files compressed with Brotli (2026-11-11; about a fifth smaller than gzip) with the decompression fallback on,
+        // because GitHub Pages does not send the Content-Encoding
         // header Unity's loader would otherwise need; cached in the browser after the first visit. No splash, and
         // IL2CPP code made for size (the game is turn-based and light).
         public static void UseWebSettings()
         {
-            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
+            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
             PlayerSettings.WebGL.decompressionFallback = true;
             PlayerSettings.WebGL.dataCaching = true;
             PlayerSettings.WebGL.template = WebTemplate;
             PlayerSettings.SplashScreen.show = false;
             PlayerSettings.SplashScreen.showUnityLogo = false;
             PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.WebGL, Il2CppCodeGeneration.OptimizeSize);
-            // A smaller download (2026-11-11, about 7 MB before): unused engine modules and unused library code left
-            // out. The game's own assemblies are kept whole by Assets/link.xml (the playtest calls methods by name).
+            // A smaller download (2026-11-11, about 7 MB before; Medium saved little): unused engine modules and unused
+            // library code left out. The game's own assemblies are kept whole by Assets/link.xml (the playtest calls
+            // methods by name).
             PlayerSettings.stripEngineCode = true;
-            PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.WebGL, ManagedStrippingLevel.Medium);
+            PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.WebGL, ManagedStrippingLevel.High);
         }
 
         // Project Settings > Player > Active Input Handling has no public API; this is the serialized property the

@@ -490,8 +490,9 @@ namespace Game.Client
             if (Ui.Portrait) return;
             // The chapter's goals, done ones struck through with a check.
             var goals = a.Objectives;
-            float gy = inner.yMax - goals.Count * 30 - 18;
-            if (gy < y + 4) return;
+            // Right under the turn's buttons and help, not at the panel's foot with a gap above (2026-11-11).
+            float gy = y + 12;
+            if (gy + goals.Count * 30 + 18 > inner.yMax) return;
             Ui.Text(new Rect(inner.x, gy, inner.width, 16), Strings.Format("map.goals", a.Chapter.Title), 11, Palette.Gold, TextAnchor.MiddleLeft, true);
             gy += 18;
             foreach (var (text, done) in goals)
