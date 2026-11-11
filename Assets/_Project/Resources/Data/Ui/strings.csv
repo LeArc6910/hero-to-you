@@ -354,6 +354,12 @@ town.forge_armor,갑옷: 방어도 +1,Armor: armor +1
 town.forge_trinket,장신구: 생명력 +4,Trinket: HP +4
 town.bag,가방 (팔기),Bag (sell)
 town.sell,팔기 {0},Sell {0}
+town.inn_short,여관에서 쉬기,Rest at the inn
+town.rumor_short,소문을 듣는다,Hear rumors
+town.donate_short,마을을 돕는다,Help the town
+town.buy_short,사기,Buy
+town.sell_short,팔기,Sell
+town.forge_short,{0} → +{1},{0} → +{1}
 item.attack,{0} · {1}: {2} {3}개 · 위력 {4},{0} · {1}: {2} {3} dice · power {4}
 item.delay,지연 {0}%,delay {0}%
 item.kind.sword,검,Sword

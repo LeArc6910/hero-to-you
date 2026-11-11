@@ -3,8 +3,39 @@ using UnityEngine;
 
 namespace Game.Client
 {
-    // Plays the synthesized sound effects (Art/SoundArt.cs). The title's switch turns them off; the choice is kept on
-    // the device.
+    // Sound files the game ships (Resources/Audio, free sounds and music: Docs/Sound.md): a clip by folder and name,
+    // or null when there is none (the game then makes the sound in code, Art/SoundArt.cs and Art/MusicArt.cs). A
+    // name may come in a few takes (Hit_1, Hit_2, …) so a sound heard often does not repeat itself exactly.
+    static class AudioFiles
+    {
+        static readonly Dictionary<string, AudioClip[]> Found = new Dictionary<string, AudioClip[]>();
+        static int _turn;
+
+        public static AudioClip Get(string folder, string name)
+        {
+            string key = folder + "/" + name;
+            if (!Found.TryGetValue(key, out var takes))
+            {
+                var list = new List<AudioClip>();
+                var one = Resources.Load<AudioClip>("Audio/" + key);
+                if (one != null) list.Add(one);
+                for (int i = 1; i <= 4; i++)
+                {
+                    var take = Resources.Load<AudioClip>($"Audio/{key}_{i}");
+                    if (take == null) break;
+                    list.Add(take);
+                }
+                takes = list.ToArray();
+                Found[key] = takes;
+            }
+            if (takes.Length == 0) return null;
+            _turn++;
+            return takes[_turn % takes.Length];
+        }
+    }
+
+    // Plays the sound effects: the sound file when the game has one (AudioFiles), else the synthesized sound
+    // (Art/SoundArt.cs). The title's switch turns them off; the choice is kept on the device.
     static class Sounds
     {
         const string MuteKey = "sound_off";
@@ -30,6 +61,12 @@ namespace Game.Client
                 Object.DontDestroyOnLoad(go);
                 _source = go.AddComponent<AudioSource>();
                 _source.playOnAwake = false;
+            }
+            var file = AudioFiles.Get("Sfx", sound.ToString());
+            if (file != null)
+            {
+                _source.PlayOneShot(file, 0.8f);
+                return;
             }
             if (!Clips.TryGetValue(sound, out var clip) || clip == null)
             {

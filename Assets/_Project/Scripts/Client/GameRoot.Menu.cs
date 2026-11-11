@@ -278,8 +278,8 @@ namespace Game.Client
             _startChapter = Mathf.Clamp(_startChapter, 0, reached - 1);
             bool chapters = reached > 1;
             float top = 8;
-            Ui.Text(new Rect(12, top, Ui.Width - 24, 26), Strings.Get("party.heading"), 20, Palette.Ink, TextAnchor.MiddleLeft, true);
-            Ui.Text(new Rect(12, top + 24, Ui.Width - 24, 18), Strings.Format("party.hint", classes.Count), 12, Palette.Dim);
+            Ui.Title(new Rect(12, top, Mathf.Min(Ui.Width - 24, 440), 28), Strings.Get("party.heading"), 17);
+            Ui.TextFit(new Rect(14, top + 30, Ui.Width - 28, 16), Strings.Format("party.hint", classes.Count), 12, Palette.Dim);
 
             // The footer, bottom up: [뒤로] [무작위] … [모험 시작]; the run's options in one row (two on narrow
             // screens); then the pages taken along and the pairings the chosen classes make.

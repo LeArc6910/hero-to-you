@@ -371,6 +371,41 @@ namespace Game.Client
             return Clicked(r, enabled) || (enabled && Key(key));
         }
 
+        // A button with a small picture at its left (icons.txt, ui.txt) and, when it costs gold, a coin and the price
+        // at its right. `label` is what the playtests and the guide know it by (the whole line, price and all);
+        // `shown` is the words on it. Either part may be left out (icon null, cost below 0).
+        public static bool IconButton(Rect r, string label, string shown, string icon, int cost, float size = 14, bool enabled = true, Look look = Look.Normal, string row = null, KeyCode key = KeyCode.None)
+        {
+            Probe(label, row, r, enabled);
+            Face(r, look, enabled);
+            float down = enabled && Pressed(r) ? 2 : 0;
+            float left = r.x + (look == Look.Selected ? 10 : 6), right = r.xMax - 6;
+            var picture = icon != null ? PixelArt.Icon(icon) : null;
+            if (picture != null)
+            {
+                float side = Mathf.Min(24, r.height - 14);
+                Image(new Rect(left + 2, Mathf.Round(r.center.y - side / 2 + down - 1), side, side), picture, enabled ? (Color?)null : new Color(0.55f, 0.55f, 0.6f, 0.7f));
+                left += side + 6;
+            }
+            if (cost >= 0)
+            {
+                string price = cost.ToString();
+                float pw = TextWidth(price, size, true);
+                var color = enabled ? Palette.Gold : Palette.Dim;
+                Text(new Rect(right - pw - 2, r.y + down - 1, pw + 2, r.height), price, size, color, TextAnchor.MiddleRight, true);
+                Mark(new Vector2(right - pw - 11, r.center.y + down - 1), "coin_s", 2, enabled ? (Color?)null : new Color(0.6f, 0.6f, 0.6f, 0.8f));
+                right -= pw + 22;
+            }
+            // Centred on the button when there is room, else in the space between the picture and the price.
+            float textW = TextWidth(shown, size, look == Look.Primary);
+            float cx = Mathf.Clamp(r.center.x, left + textW / 2, right - textW / 2);
+            var place = textW <= right - left ? new Rect(cx - textW / 2 - 2, r.y + down - 1, textW + 4, r.height) : new Rect(left, r.y + down - 1, right - left, r.height);
+            TextFit(place, shown, size, LabelColor(look, enabled), TextAnchor.MiddleCenter, look != Look.Normal && look != Look.Quiet);
+            if (enabled) KeyHint(r, key);
+            if (enabled) Glow(r, label, row);
+            return Clicked(r, enabled) || (enabled && Key(key));
+        }
+
         // A button's background and edge, for buttons that draw their own label (Hit makes them pressable).
         public static void Face(Rect r, Look look = Look.Normal, bool enabled = true)
         {

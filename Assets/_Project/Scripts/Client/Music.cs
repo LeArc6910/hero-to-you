@@ -138,7 +138,8 @@ namespace Game.Client
                 if (_ambient == Ambience.None) _ambientSource.Stop();
                 else
                 {
-                    if (!Ambiences.TryGetValue(_ambient, out var clip) || clip == null)
+                    if (!Ambiences.TryGetValue(_ambient, out var clip) || clip == null) clip = Ambiences[_ambient] = AudioFiles.Get("Ambience", _ambient.ToString());
+                    if (clip == null)
                     {
                         float[] samples = MusicArt.MakeAmbience(_ambient);
                         clip = AudioClip.Create("ambience_" + _ambient, samples.Length, 1, MusicArt.Rate, false);
@@ -152,7 +153,15 @@ namespace Game.Client
             _ambientSource.volume = Volume / 100f * 0.35f;
         }
 
-        static bool Ready(Tune tune) => Clips.TryGetValue(tune, out var clip) && clip != null;
+        // A tune is ready when it is made, or when the game has it as a file (AudioFiles: then nothing is made).
+        static bool Ready(Tune tune)
+        {
+            if (Clips.TryGetValue(tune, out var clip) && clip != null) return true;
+            var file = AudioFiles.Get("Music", tune.ToString());
+            if (file == null) return false;
+            Clips[tune] = file;
+            return true;
+        }
 
         static IEnumerator<float[]> _making;
         static Tune _makingTune = Tune.None;
@@ -201,7 +210,8 @@ namespace Game.Client
 
         static AudioClip Clip(Tune tune)
         {
-            if (Clips.TryGetValue(tune, out var clip) && clip != null) return clip;
+            if (Ready(tune)) return Clips[tune];
+            AudioClip clip;
             float[] samples = MusicArt.Make(tune);
             clip = AudioClip.Create("music_" + tune, samples.Length, 1, MusicArt.Rate, false);
             clip.SetData(samples, 0);

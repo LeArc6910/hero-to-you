@@ -18,17 +18,20 @@ namespace Game.Client
             y = Paragraph(column, y, Strings.Format("town.heroes", string.Join(", ", here.Select(h => h.Down ? Strings.Format("hero.name_down", h.Name) : h.Name)), a.Gold) + (a.Discount ? " · " + Strings.Get("town.discount") : ""), 13, Palette.Journal);
             float bh = 46;
             float half = (column.width - 8) / 2;
-            if (Ui.Button(new Rect(0, y, half, bh), Strings.Format("town.inn", a.InnPrice), 14, a.Gold >= a.InnPrice, Look.Normal)) Act(a.Rest);
-            if (Ui.Button(new Rect(half + 8, y, half, bh), Strings.Get(a.CanMeetElder ? "town.elder" : "town.elder_done"), 14, a.CanMeetElder)) Act(a.Elder);
+            if (Ui.IconButton(new Rect(0, y, half, bh), Strings.Format("town.inn", a.InnPrice), Strings.Get("town.inn_short"), "town", a.InnPrice, 14, a.Gold >= a.InnPrice)) Act(a.Rest);
+            string elder = Strings.Get(a.CanMeetElder ? "town.elder" : "town.elder_done");
+            if (Ui.IconButton(new Rect(half + 8, y, half, bh), elder, elder, "crown", -1, 14, a.CanMeetElder)) Act(a.Elder);
             y += bh + 6;
             int rumor = a.Discount ? Adventure.RumorCost * (100 - Adventure.BardDiscount) / 100 : Adventure.RumorCost;
-            if (Ui.Button(new Rect(0, y, half, bh), a.CanHearRumors ? Strings.Format("town.rumor", rumor) : Strings.Get("town.rumor_done"), 14, a.CanHearRumors && a.Gold >= rumor)) Act(a.Rumor);
-            if (Ui.Button(new Rect(half + 8, y, half, bh), a.CanDonate ? Strings.Format("town.donate", a.DonationCost) : Strings.Get("town.donate_done"), 14, a.CanDonate && a.Gold >= a.DonationCost)) Act(a.Donate);
+            string rumorLabel = a.CanHearRumors ? Strings.Format("town.rumor", rumor) : Strings.Get("town.rumor_done");
+            if (Ui.IconButton(new Rect(0, y, half, bh), rumorLabel, a.CanHearRumors ? Strings.Get("town.rumor_short") : rumorLabel, "event", a.CanHearRumors ? rumor : -1, 14, a.CanHearRumors && a.Gold >= rumor)) Act(a.Rumor);
+            string donateLabel = a.CanDonate ? Strings.Format("town.donate", a.DonationCost) : Strings.Get("town.donate_done");
+            if (Ui.IconButton(new Rect(half + 8, y, half, bh), donateLabel, a.CanDonate ? Strings.Get("town.donate_short") : donateLabel, "bell", a.CanDonate ? a.DonationCost : -1, 14, a.CanDonate && a.Gold >= a.DonationCost)) Act(a.Donate);
             y += bh + 6;
             // The contract board: one job at a time, paid when you come back.
             string contract = a.Contract == null ? Strings.Get(a.CanTakeContract ? "town.contract_take" : "town.contract_none")
                 : a.Contract.Done ? Strings.Get("town.contract_done") : Strings.Format("town.contract_on", a.Contract.Tile.Hex, a.Contract.Gold);
-            if (Ui.Button(new Rect(0, y, column.width, bh), contract, 14, a.CanTakeContract)) Act(a.TakeContract);
+            if (Ui.IconButton(new Rect(0, y, column.width, bh), contract, contract, "flag", -1, 14, a.CanTakeContract)) Act(a.TakeContract);
             y += bh + 4;
             y = Paragraph(column, y, Strings.Format("town.help", Adventure.InnPercent, Adventure.RumorHexes), 11, Palette.Dim);
             foreach (string line in a.Report) y = Paragraph(column, y, "· " + line, 12, Palette.Journal);
@@ -51,7 +54,7 @@ namespace Game.Client
                     Ui.Text(new Rect(tx, y + 2, column.width - 120 - tx, 20), item.Name + (item.Sold ? " " + Strings.Get("town.sold") : ""), 13, item.Sold ? Palette.Dim : Palette.Ink, TextAnchor.MiddleLeft, true);
                     ItemMark(new Rect(column.width - 128, y + 4, 18, 18), item.Item);
                     Ui.Text(new Rect(tx, y + 22, column.width - 120 - tx, 18), detail, 10.5f, Palette.Dim);
-                    if (Ui.Button(new Rect(column.width - 104, y + 4, 100, 36), Strings.Format("town.buy", item.Price), 13, !item.Sold && a.Gold >= item.Price, Look.Normal, item.Name) && Act(() => a.Buy(index)) == null) Sounds.Play(Sound.Coin);
+                    if (Ui.IconButton(new Rect(column.width - 104, y + 4, 100, 36), Strings.Format("town.buy", item.Price), Strings.Get("town.buy_short"), null, item.Price, 13, !item.Sold && a.Gold >= item.Price, Look.Normal, item.Name) && Act(() => a.Buy(index)) == null) Sounds.Play(Sound.Coin);
                     y += 50;
                     continue;
                 }
@@ -92,8 +95,9 @@ namespace Game.Client
                     bool can = Adventure.CanForge(item);
                     int price = can ? a.ForgePrice(item) : 0;
                     string label = can ? Strings.Format("town.forge", item.Name, item.Plus + 1, price) : Strings.Format("town.forge_max", item.Name);
+                    string shown = can ? Strings.Format("town.forge_short", item.Name, item.Plus + 1) : label;
                     var cell = new Rect(8 + i % 2 * (sw + 6), y + 28 + i / 2 * 46, sw, 44);
-                    if (Ui.Button(cell, label, 11.5f, can && a.Gold >= price, Look.Normal, "대장간"))
+                    if (Ui.IconButton(cell, label, shown, null, can ? price : -1, 11.5f, can && a.Gold >= price, Look.Normal, "대장간"))
                     {
                         var s2 = slot;
                         if (Act(() => a.Forge(who, s2)) == null) Sounds.Play(Sound.Forge);
@@ -129,14 +133,14 @@ namespace Game.Client
                     Ui.Plaque(row);
                     float sx = ItemIcon(new Rect(4, y + 4, 32, 32), item);
                     Ui.Text(new Rect(sx, y, column.width - 112 - sx, 40), $"{item.Name} · {ItemLine(item)}", 12, Palette.Ink);
-                    if (Ui.Button(new Rect(column.width - 104, y + 2, 100, 36), Strings.Format("town.sell", Adventure.SellPrice(item)), 13, true, Look.Quiet, item.Name)) Act(() => a.Sell(i));
+                    if (Ui.IconButton(new Rect(column.width - 104, y + 2, 100, 36), Strings.Format("town.sell", Adventure.SellPrice(item)), Strings.Get("town.sell_short"), null, Adventure.SellPrice(item), 13, true, Look.Quiet, item.Name)) Act(() => a.Sell(i));
                     y += 46;
                 }
             }
             EndColumn(y);
             var footer = Footer(48);
             float fh = (footer.width - 8) / 2;
-            if (Ui.Button(new Rect(footer.x, footer.y, fh, footer.height), Strings.Get("map.gear"), 15, true, Look.Quiet, null, KeyCode.G)) _gearOpen = true;
+            if (Ui.IconButton(new Rect(footer.x, footer.y, fh, footer.height), Strings.Get("map.gear"), Strings.Get("map.gear"), "item_light", -1, 15, true, Look.Quiet, null, KeyCode.G)) _gearOpen = true;
             if (Ui.Button(new Rect(footer.x + fh + 8, footer.y, fh, footer.height), Strings.Get("town.leave"), 16, true, Look.Primary, null, KeyCode.Space)) Act(a.LeaveTown);
         }
 

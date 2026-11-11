@@ -429,10 +429,10 @@ namespace Game.Client
                     if (Act(a.RollMove) == null) Sounds.Play(Sound.Dice);
                 }
                 y += bh + 6;
-                if (Ui.Button(new Rect(inner.x, y, half, bh), Strings.Get("map.camp"), 14, true, Look.Quiet, null, KeyCode.C)) Act(a.Camp);
-                if (Ui.Button(new Rect(inner.x + half + 6, y, half, bh), Strings.Get("map.gear"), 14, true, Look.Quiet, null, KeyCode.G)) _gearOpen = true;
+                if (Ui.IconButton(new Rect(inner.x, y, half, bh), Strings.Get("map.camp"), Strings.Get("map.camp"), "camp", -1, 14, true, Look.Quiet, null, KeyCode.C)) Act(a.Camp);
+                if (Ui.IconButton(new Rect(inner.x + half + 6, y, half, bh), Strings.Get("map.gear"), Strings.Get("map.gear"), "item_light", -1, 14, true, Look.Quiet, null, KeyCode.G)) _gearOpen = true;
                 y += bh + 4;
-                if (Ui.Button(new Rect(inner.x, y, inner.width, bh - 4), Strings.Get("history.button"), 13, true, Look.Quiet, "기록", KeyCode.H)) _historyOpen = true;
+                if (Ui.IconButton(new Rect(inner.x, y, inner.width, bh - 4), Strings.Get("history.button"), Strings.Get("history.button"), "item_tome", -1, 13, true, Look.Quiet, "기록", KeyCode.H)) _historyOpen = true;
                 y += bh;
                 Ui.Text(new Rect(inner.x, y, inner.width, 30), Strings.Get("map.roll_hint") + PerkLine(hero), 10.5f, Palette.Dim, TextAnchor.UpperLeft, false, true);
                 y += 32;
@@ -473,7 +473,7 @@ namespace Game.Client
                     _picked = null;
                     Act(a.Stay);
                 }
-                if (Ui.Button(new Rect(inner.x + half + 6, y, half, bh), Strings.Get("map.gear"), 14, true, Look.Quiet, null, KeyCode.G)) _gearOpen = true;
+                if (Ui.IconButton(new Rect(inner.x + half + 6, y, half, bh), Strings.Get("map.gear"), Strings.Get("map.gear"), "item_light", -1, 14, true, Look.Quiet, null, KeyCode.G)) _gearOpen = true;
                 y += bh + 4;
             }
             if (_actError != null)
