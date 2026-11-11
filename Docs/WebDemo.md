@@ -136,7 +136,7 @@
 
 ## 웹 빌드 설정 (`Editor/ProjectSetup.cs`)
 
-- Brotli 압축(2026-11-11부터, gzip보다 5분의 1쯤 작다) + decompression fallback(GitHub Pages가 `Content-Encoding`을 붙이지 않으므로 Unity 로더가 JS로 푼다), 데이터 캐싱, 시작 화면 끔, IL2CPP 크기 우선, 쓰지 않는 엔진 모듈 빼기, 관리 코드 줄이기 High(게임 어셈블리는 `Assets/link.xml`로 통째로 지킨다)
+- Brotli 압축(2026-11-11부터, gzip보다 5분의 1쯤 작다) + decompression fallback(GitHub Pages가 `Content-Encoding`을 붙이지 않으므로 Unity 로더가 JS로 푼다), 데이터 캐싱, 시작 화면 끔, IL2CPP 크기 우선, 쓰지 않는 엔진 모듈 빼기, 관리 코드 줄이기 High(게임 어셈블리는 `Assets/link.xml`로 통째로 지킨다). 내려받기: 2026-11-11에 약 7.0MB(코드 5.20MB, 데이터 1.62MB, gzip)에서 약 5.3MB(코드 3.90MB, 데이터 1.29MB)로 줄었다
 - 페이지는 `Assets/WebGLTemplates/Fit`: PC에서도 창을 꽉 채운다. 마지막 입력이 손가락인지(`window.heroLastPointer`) 적어 둬 게임이 터치 배치를 고른다(`Client/WebBridge.cs`)
 - 화면 밀도: 브라우저는 기기의 실제 픽셀로 그린다(휴대폰은 점 하나에 3픽셀쯤). `Ui`가 `devicePixelRatio`를 읽어 점 단위로 배치하고, 글자는 실제 픽셀 크기로 그려 흐리지 않다. 큰 모니터에서는 최대 2배까지 키운다
 - 글꼴: 웹은 시스템 글꼴을 못 쓰므로 Noto Sans KR(SIL OFL 1.1, `Docs/Licenses/NotoSansKR-OFL.txt`) Medium의 부분집합(약 520 KB, KS X 1001 한글 2,350자 + 코드와 시트에 쓰인 모든 글자)을 넣었다. 새 글자를 쓰면 `DevTools/Fonts/make-korean-font.py`로 다시 만든다(원본은 스크립트 머리말의 주소)

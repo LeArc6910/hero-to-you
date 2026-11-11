@@ -92,7 +92,8 @@ async function playSlice(game, wholeRun) {
   state = await game.until(s => s.screen === 'Settings', 4000);
   run.check(!!state, '설정 화면');
   await game.press(/^글자 크기/, '설정');
-  state = await game.state();
+  // The new size takes hold on the next frame.
+  state = (await game.until(s => s.textSize !== 100, 2000)) || await game.state();
   run.check(state.textSize !== 100, `글자 크기가 바뀐다 (${state.textSize}%)`);
   await game.shot('settings', '설정(글자 크기를 바꾼 뒤)');
   await game.press(/^언어/, '설정');
