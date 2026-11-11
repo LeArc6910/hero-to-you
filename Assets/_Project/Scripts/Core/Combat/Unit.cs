@@ -160,6 +160,9 @@ namespace Game.Core
         // The monk's ki (Docs/Classes.md 수도승): one for each blow that lands, spent by its skills.
         public int Ki { get; internal set; }
 
+        // The gambler's stake (Docs/Classes.md 도박사): each die of its own rolls that failed, cashed in by All In.
+        public int Stake { get; internal set; }
+
         // Skill id → the turn (TurnsTaken) it can be used again.
         internal Dictionary<string, int> AvailableAt { get; } = new Dictionary<string, int>();
 

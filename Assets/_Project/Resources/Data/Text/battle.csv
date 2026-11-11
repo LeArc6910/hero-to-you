@@ -42,9 +42,11 @@ battle.song.rest.heal,{0}: 안식의 노래 +{1},{0}: Song of Rest +{1}
 battle.song.end,노래가 그쳤다,The song ends
 battle.encore,{0}: 앙코르! 바로 다음 차례,{0}: Encore! Acts next
 battle.souls,{0}: 영혼 +{1} ({2}),{0}: souls +{1} ({2})
+battle.stake,{0}: 판돈 +{1} ({2}),{0}: stake +{1} ({2})
 battle.raise,{0}: 해골이 일어났다 (생명력 {1}),{0}: a skeleton rises ({1} life)
 battle.bone_wall,{0}: 뼈의 벽! 모든 적이 해골을 노린다 (방어도 +{1}),{0}: Bone Wall! Every enemy aims at the skeleton (armor +{1})
 battle.foretell,{0}: 예언! 모든 적의 다음 공격 확률 −{1},{0}: Prophecy! Every enemy's next attack −{1} chance
+battle.star_warning,{0}: 별이 이 싸움을 미리 알렸다. 모든 적의 첫 공격 확률 −{1},{0}: The stars foretold this fight. Every enemy's first attack −{1} chance
 battle.twist,"{0}: 운명 바꾸기, 다음 수 하나({1})를 버렸다","{0}: Twist Fate, discards the next die ({1})"
 battle.meditate,"{0}: 명상, 기 {1}, 생명력 +{2}","{0}: Meditate, ki {1}, life +{2}"
 battle.turret,{0}: 포탑을 세웠다 (생명력 {1}),{0}: builds a turret ({1} life)
@@ -62,6 +64,7 @@ battle.reason.mark,표식 {0},Mark {0}
 battle.reason.follow_up,협공 {0},Pack attack {0}
 battle.reason.ambush,기습 {0},Ambush {0}
 battle.reason.resonance,공명 {0},Resonance {0}
+battle.reason.stake,판돈 {0},Stake {0}
 battle.error.not_your_turn,지금은 이 영웅의 차례가 아닙니다.,It is not this hero's turn.
 battle.error.not_a_skill,{0}의 기술이 아닙니다: {1},Not a skill of {0}: {1}
 battle.error.cooldown,{0}: 차례 {1}번 뒤에 쓸 수 있습니다.,"{0}: on cooldown, turns left: {1}."

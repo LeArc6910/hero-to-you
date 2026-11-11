@@ -110,19 +110,27 @@ namespace Game.Core
             }
             var raise = Find("raise");
             if (raise != null) return raise;
+            // The engineer's turret stands in front and shoots: build it, or build it again once it is broken.
+            if (!battle.Summons.Any(u => u.Owner == actor.Id && !u.Down))
+            {
+                var turret = Find("turret");
+                if (turret != null) return turret;
+            }
             // The skeleton draws the blows when big ones are coming at the living.
             if (threatened.Count >= 2 || enemies.Any(m => m.Monster.Boss && m.Intent != null && m.Intent.Skill.Power >= 14))
             {
                 var wall = Find("bonewall");
                 if (wall != null) return wall;
             }
-            if (enemies.Count >= 2 && !enemies.Any(e => e.Has(StatusKind.Foretold)))
+            // Foretell a crowd, or a boss (its wind-ups and storms are what a careful player answers, Docs/Combat.md 보스).
+            if ((enemies.Count >= 2 || enemies.Any(e => e.Monster.Boss)) && !enemies.Any(e => e.Has(StatusKind.Foretold)))
             {
                 var foretell = Find("foretell");
                 if (foretell != null) return foretell;
             }
             var foresight = battle.Foresee();
-            if (foresight.Count > 0 && foresight[0] >= 80)
+            // A bad number is thrown away only when the party's side would roll it; a foe's bad number is a miss.
+            if (foresight.Count > 0 && foresight[0] >= 80 && battle.PartyActsNext(actor, 40))
             {
                 var twist = Find("twist");
                 if (twist != null) return twist;
@@ -131,8 +139,8 @@ namespace Game.Core
             if (!living.Any(h => h.Hero.Blessing > 0))
             {
                 var striker = living.Where(h => h.Id != actor.Id).OrderByDescending(h => h.Hero.Level * 10 + h.Hp).FirstOrDefault();
-                var guide = striker == null ? null : Find("bless", striker.Id);
-                if (guide != null && SkillOf(guide).Id == "seer_guide") return guide;
+                var guide = striker == null ? null : options.FirstOrDefault(o => SkillOf(o)?.Id == "seer_guide");
+                if (guide != null) return guide;
             }
             var wolf = battle.Summons.FirstOrDefault(s => s.Owner == actor.Id);
             if (wolf != null && (wolf.Down || wolf.Hp * 2 < wolf.MaxHp))
@@ -178,6 +186,8 @@ namespace Game.Core
                 if (preview.Skill.Effect == "backfire" && actor.Hp <= Battle.BackfireDamage + 2) score *= 0.3;
                 // A finisher waits for a few combos.
                 if (preview.Skill.Effect == "finisher" && actor.Combo < 3 && !(target != null && preview.Expected >= target.Hp)) score *= 0.5;
+                // All In waits for a stake (Docs/Classes.md 도박사).
+                if (preview.Skill.Effect == "backfire" && actor.Stake < 2 && !(target != null && preview.Expected >= target.Hp)) score *= 0.5;
                 if (preview.Skill.CostKind == "reagent" && hero.Reagents <= 1) score *= 0.8;
                 if (score > bestScore)
                 {

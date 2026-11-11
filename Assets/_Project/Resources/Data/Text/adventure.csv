@@ -33,6 +33,7 @@ adventure.battle.reward,"경험치 {0}(싸운 영웅만), 금화 {1}","XP {0} (f
 adventure.battle.stays_down,{0:은} 쓰러진 채다. 희망이 없다 (동료가 부축하면 일어난다),{0} stays down. No hope left (a companion can help them up)
 adventure.battle.hope_revive,"{0:이} 희망으로 일어났다 (생명력 {1}, 남은 희망 {2})","{0} rose again with hope (life {1}, hope left {2})"
 adventure.reagents,{0}: 재료 {1}/{2},{0}: reagents {1}/{2}
+adventure.battle.bard_song,{0} (음유시인의 끝맺는 노래),{0} (the bard's closing song)
 adventure.camp_won,"{0:을} 쳤다. 희망 +1, 균열 −1","Defeated {0}. Hope +1, Rift −1"
 adventure.camp_won.loot,"{0:을} 쳤다. 희망 +1, 균열 −1, {1:을} 얻었다 (가방)","Defeated {0}. Hope +1, Rift −1, found {1} (bag)"
 adventure.level_up,"{0} 레벨 {1}! 최대 생명력 +{2}, {3}·{4} +{5}","{0} reached level {1}! Max life +{2}, {3}·{4} +{5}"

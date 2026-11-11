@@ -1243,7 +1243,7 @@ namespace Game.Client
             }
         }
 
-        // The class's own state for the panel: combo, souls, reagents, the song, and the seer's next dice.
+        // The class's own state for the panel: combo, souls, reagents, ki, the stake, the song, and the seer's next dice.
         static string ClassLine(Battle battle, Unit actor)
         {
             var parts = new System.Collections.Generic.List<string>();
@@ -1260,6 +1260,9 @@ namespace Game.Client
                     break;
                 case "monk":
                     parts.Add(Strings.Format("battle.class_ki", actor.Ki));
+                    break;
+                case "gambler":
+                    parts.Add(Strings.Format("battle.class_stake", actor.Stake, battle.StakeMax(actor)));
                     break;
                 case "engineer":
                     var turret = battle.Summons.FirstOrDefault(u => u.Owner == actor.Id);

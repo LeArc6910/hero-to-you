@@ -185,5 +185,60 @@ namespace Game.Core.Tests
             var preview = battle.Preview(new BattleCommand(battle.Current.Id, "necro_raise", battle.Current.Id));
             Assert.That(preview.Error, Does.Contain("영혼"));
         }
+            // 2026-11-11 밸런스: 도박사의 판돈, 동전 던지기 같은 결투, 점성술사의 별의 경고와 별의 인도, 원소술사의 얼리는 공명.
+        [Test]
+        public void TheGamblersFailedDiceBecomeTheStakeAllInCashes()
+        {
+            var battle = Solo("gambler");
+            var gambler = battle.Current;
+            for (int i = 0; i < 10 && gambler.Stake == 0; i++) Act(battle, Hero.AttackId);
+            Assert.That(gambler.Stake, Is.GreaterThan(0), "실패한 주사위가 판돈이 된다");
+            Assert.That(gambler.Stake, Is.LessThanOrEqualTo(battle.StakeMax(gambler)));
+            int stake = gambler.Stake;
+            var preview = battle.Preview(new BattleCommand(gambler.Id, "gamb_allin", battle.Monsters.First().Id));
+            Assert.That(preview.Reasons, Has.Member($"판돈 {stake}"));
+            Assert.That(preview.Free, Is.EqualTo(stake));
+            Act(battle, "gamb_allin");
+            var roll = battle.Events.Last(e => e.Kind == BattleEventKind.Roll && e.Actor == gambler.Id);
+            Assert.That(gambler.Stake, Is.EqualTo(System.Math.Min(battle.StakeMax(gambler), roll.Check.RolledFailures)), "올인이 판돈을 모두 쓰고, 그 실패만 다시 쌓인다");
+        }
+
+        [Test]
+        public void ABlowAtTheGamblerAloneIsACoinToss()
+        {
+            var sure = TestData.Dummy(500, 30);
+            sure.Accuracy = 95;
+            sure.Pattern = new List<MonsterSkillDef> { TestData.Data.MonsterSkills["gob_stab"] };
+            var battle = new Battle(TestData.Party("gambler"), new List<MonsterDef> { sure }, 5, false, TestData.Data);
+            var monster = battle.Monsters.First();
+            for (int i = 0; i < 10 && !battle.Events.Any(e => e.Kind == BattleEventKind.Roll && e.Actor == monster.Id); i++) Act(battle, Hero.AttackId);
+            var blow = battle.Events.First(e => e.Kind == BattleEventKind.Roll && e.Actor == monster.Id);
+            Assert.That(blow.Check.Chance, Is.EqualTo(Battle.GamblerChance));
+        }
+
+        [Test]
+        public void TheSeerWarnsOfEveryFightAndGuidesEveryone()
+        {
+            var battle = Solo("seer", null, "knight", "hunter");
+            foreach (var monster in battle.Monsters) Assert.That(monster.Status[StatusKind.Foretold], Is.EqualTo(Battle.ForetellCut), "첫 공격이 예언된 채 시작한다");
+            while (battle.Current.Hero.Class.Id != "seer") Act(battle, Hero.AttackId);
+            var seer = battle.Current;
+            Act(battle, "seer_guide", seer.Id);
+            foreach (var hero in battle.Heroes) Assert.That(hero.Hero.Blessing, Is.EqualTo(1), hero.Name);
+        }
+
+        [Test]
+        public void AResonantFrostLanceFreezes()
+        {
+            var battle = Solo("elementalist", TestData.Dummy(500, 30));
+            var elementalist = battle.Current;
+            var monster = battle.Monsters.First();
+            Act(battle, "elem_fire");
+            while (battle.Current != elementalist) Act(battle, Hero.AttackId);
+            Assert.That(Battle.Resonates(elementalist, elementalist.Hero.Skill("elem_frost")), Is.True);
+            int skips = battle.Events.Count(e => e.Kind == BattleEventKind.Skip && e.Actor == monster.Id);
+            Act(battle, "elem_frost");
+            Assert.That(battle.Events.Count(e => e.Kind == BattleEventKind.Skip && e.Actor == monster.Id), Is.EqualTo(skips + 1), "얼어서 차례를 쉰다");
+        }
     }
 }

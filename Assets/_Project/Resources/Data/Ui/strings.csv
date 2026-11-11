@@ -256,6 +256,7 @@ battle.class_hidden,숨음(기습 +1),Hidden (ambush +1)
 battle.class_souls,영혼 {0},Souls {0}
 battle.class_reagents,재료 {0}/{1},Reagents {0}/{1}
 battle.class_ki,기 {0},Ki {0}
+battle.class_stake,판돈 {0}/{1},Stake {0}/{1}
 battle.turret_none,포탑 없음,No turret
 battle.turret_broken,포탑 부서짐,Turret broken
 battle.turret_hp,포탑 {0}/{1},Turret {0}/{1}

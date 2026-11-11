@@ -17,6 +17,7 @@ namespace Game.Core
         public const int GrownRift = 6;
         public const int GrownRiftPercent = 20;
         public const int BossRenown = 3;
+        public const int BardSongPercent = 15;
 
         // Where the battle about to start came from.
         public enum JoinKind
@@ -249,12 +250,18 @@ namespace Game.Core
                 hero.Hp = Math.Max(1, hero.MaxHp * HopeRevivePercent / 100);
                 Report.Add(Data.Line("adventure.battle.hope_revive", hero.Name, hero.Hp, Hope));
             }
+            // The bard's closing song (Docs/Classes.md 음유시인): a bard who fought and still stands eases every fighter.
+            if (_fighters.Any(h => h.Class.Id == "bard" && !h.Down))
+                foreach (var hero in _fighters.Where(h => !h.Down && h.Hp < h.MaxHp))
+                    Report.Add(Data.Line("adventure.battle.bard_song", HealLine(hero, Math.Max(1, hero.MaxHp * BardSongPercent / 100))));
+            // The alchemist gathers from what fell: a reagent for every two foes, at least one (Docs/Classes.md 연금술사).
+            int foes = Battle.Monsters.Count();
             foreach (var hero in _fighters)
             {
                 if (!hero.Down && hero.Resolve < hero.MaxResolve) hero.GainResolve(1);
                 if (hero.Class.Id == "alchemist")
                 {
-                    hero.GainReagents(1 + hero.Special("reagent_gain"));
+                    hero.GainReagents(Math.Max(1, (foes + 1) / 2) + hero.Special("reagent_gain"));
                     Report.Add(Data.Line("adventure.reagents", hero.Name, hero.Reagents, hero.ReagentMax));
                 }
                 GainXp(hero, xp);

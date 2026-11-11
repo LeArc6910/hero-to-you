@@ -55,6 +55,7 @@ namespace Game.Core
                 unit.Ready = Ambusher(unit) ? ready / 2 : ready;
             }
             foreach (var unit in _units.Where(u => !u.IsHero && !u.Down)) ChooseIntent(unit);
+            StarWarning();
             Advance();
         }
 
@@ -127,6 +128,15 @@ namespace Game.Core
                 clocks[next.Key] = next.Value + Wait(_units[next.Key].Speed, 100);
             }
             return order;
+        }
+
+        // Whether the party's side (a hero or a summon) takes the turn after `actor` acts now with `delay`: whose roll
+        // the next die of fate goes to, for the seer's choice (Docs/Classes.md 별의 눈).
+        public bool PartyActsNext(Unit actor, int delay)
+        {
+            long mine = actor.Ready + Wait(actor.Speed, delay);
+            var next = _units.Where(u => !u.Down && u.Id != actor.Id).OrderBy(u => u.Ready).ThenBy(Order).ThenBy(u => u.Id).FirstOrDefault();
+            return next == null || mine <= next.Ready || next.Side == Side.Party;
         }
 
         // Ties go to heroes, then summons, then monsters.
@@ -507,6 +517,8 @@ namespace Game.Core
         void Strike(Unit actor, MonsterSkillDef skill, List<Unit> targets, int sure)
         {
             int chance = skill.Target == MonsterTarget.All ? actor.Accuracy : actor.Accuracy - targets[0].Evasion;
+            // The gambler makes a duel a coin toss both ways: a blow at it alone hits at 50% at best (Docs/Classes.md 도박사).
+            if (skill.Target != MonsterTarget.All && Is(targets[0], "gambler")) chance = Math.Min(chance, GamblerChance);
             if (actor.Statuses.TryGetValue(StatusKind.Foretold, out int foretold))
             {
                 chance -= foretold;
@@ -623,6 +635,7 @@ namespace Game.Core
             }
             if (skill.Damages && actor.Has(StatusKind.Hidden)) Add(1, Words.Line("battle.reason.ambush", 1));
             if (Resonates(actor, skill)) Add(1, Words.Line("battle.reason.resonance", 1));
+            if (CashesStake(actor, skill)) Add(actor.Stake, Words.Line("battle.reason.stake", actor.Stake));
             preview.Free = Math.Min(free, dice);
             preview.ResolveRoom = Math.Min(hero.Resolve, dice - preview.Free);
             if (command.Resolve < 0 || command.Resolve > preview.ResolveRoom)
@@ -719,6 +732,7 @@ namespace Game.Core
                 Emit(new BattleEvent { Kind = BattleEventKind.Roll, Actor = actor.Id, Target = target.Id, Skill = skill.Id, SkillName = skill.Name, Check = check, Perfect = check.Perfect, Text = RollLine(actor.Name, skill.Name, preview.Chance, check.Dice, check.Guaranteed, check.Successes, check.Perfect) });
                 int gained = hero.AddGrit(check.RolledFailures);
                 if (gained > 0) Emit(new BattleEvent { Kind = BattleEventKind.ResolveGained, Actor = actor.Id, Amount = gained, Text = Words.Line("battle.grit", actor.Name, gained) });
+                TakeStake(actor, skill, check);
             }
             int successes = check?.Successes ?? 0;
             bool perfect = check != null && check.Perfect;
@@ -755,7 +769,10 @@ namespace Game.Core
                     Emit(new BattleEvent { Kind = BattleEventKind.Revive, Actor = actor.Id, Target = target.Id, Amount = target.Hp, Text = Words.Line("battle.revive", target.Name, target.Hp) });
                     break;
                 case SkillKind.Support:
-                    Support(actor, skill, target, check);
+                    // A support on everyone (the seer's guiding star) touches every hero standing.
+                    if (skill.Target == SkillTarget.AllAllies)
+                        foreach (var each in Heroes.Where(h => !h.Down).ToList()) Support(actor, skill, each, check);
+                    else Support(actor, skill, target, check);
                     break;
             }
             if (skill.Element.Length > 0) actor.LastElement = skill.Element;
@@ -772,6 +789,8 @@ namespace Game.Core
         void Attack(Unit actor, SkillDef skill, Unit target, CheckResult check)
         {
             int value = RawValue(actor, skill, check.Successes, check.Dice);
+            // A resonant frost freezes: the foe loses its next turn instead of only waiting longer (Docs/Classes.md 원소술사).
+            var cold = skill.Element == "frost" && Resonates(actor, skill) ? StatusKind.Stun : StatusKind.Chill;
             var targets = skill.Target == SkillTarget.AllEnemies ? Monsters.Where(m => !m.Down).ToList() : new List<Unit> { target };
             int total = 0;
             foreach (var t in targets)
@@ -789,7 +808,7 @@ namespace Game.Core
                 if (check.Successes > 0)
                 {
                     if (skill.Effect == "burn") AddStatus(t, StatusKind.Burn, BurnTurns);
-                    if (skill.Effect == "chill") AddStatus(t, StatusKind.Chill, 1);
+                    if (skill.Effect == "chill") AddStatus(t, cold, 1);
                     if (skill.Effect == "weaken") AddStatus(t, StatusKind.Weak, WeakTurns);
                     if (skill.Effect == "corrode") AddStatus(t, StatusKind.Corrode, CorrodeTurns);
                     if (skill.Effect == "snare" && check.Successes >= 2) AddStatus(t, StatusKind.Stun, 1);

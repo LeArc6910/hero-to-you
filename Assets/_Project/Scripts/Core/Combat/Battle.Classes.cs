@@ -29,6 +29,8 @@ namespace Game.Core
         public const int WolfCallHeal = 8;
         public const int SkeletonHp = 20;
         public const int BoneWallArmor = 3;
+        public const int StakeCap = 4;
+        public const int GamblerChance = 50;
 
         // The skeleton grows with its master: +2 life a level, like the engineer's turret.
         static int SkeletonLife(Unit owner) => SkeletonHp + owner.Hero.Special("skeleton_hp") + 2 * (owner.Hero.Level - 1);
@@ -86,6 +88,16 @@ namespace Game.Core
             }
             if (Is(unit, "monk")) unit.Ki = 1 + unit.Hero.Special("ki_start");
             if (Is(unit, "beastmaster")) Summon(unit, GameData.CompanionWolfId, WolfHp + 2 * (unit.Hero.Level - 1) + unit.Hero.Special("wolf_hp"), unit.Hero.Special("wolf_power"));
+        }
+
+        // Seer (Docs/Classes.md 별의 눈): the stars warned of this fight, so every foe's first blow is foretold.
+        void StarWarning()
+        {
+            var seer = Heroes.FirstOrDefault(h => !h.Down && Is(h, "seer"));
+            if (seer == null) return;
+            int cut = ForetellCut + seer.Hero.Special("foretell");
+            foreach (var monster in Monsters.Where(m => !m.Down)) monster.Statuses[StatusKind.Foretold] = cut;
+            Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = seer.Id, Status = StatusKind.Foretold, Text = Words.Line("battle.star_warning", seer.Name, cut) });
         }
 
         MonsterDef SummonDef(string id)
@@ -164,6 +176,22 @@ namespace Game.Core
             skill != null && Cooldown(unit, skill) > 0 && unit.Blocked.TryGetValue(skill.Id, out string why) ? why : null;
 
         public int PowerOf(Unit actor, SkillDef skill) => skill.Effect == "finisher" ? skill.Power + ComboPower * actor.Combo : skill.Power;
+
+        // Gambler (Docs/Classes.md 도박사): every die of its own fixed-chance rolls that fails goes into the stake, and
+        // All In (the skill that backfires) turns the whole stake into sure successes. Losing raises the stakes.
+        public int StakeMax(Unit actor) => StakeCap + (actor.IsHero ? actor.Hero.Special("stake_cap") : 0);
+
+        static bool CashesStake(Unit actor, SkillDef skill) => Is(actor, "gambler") && skill.Effect == "backfire";
+
+        void TakeStake(Unit actor, SkillDef skill, CheckResult check)
+        {
+            if (!Is(actor, "gambler") || skill.FixedChance <= 0) return;
+            if (CashesStake(actor, skill)) actor.Stake = 0;
+            int gain = Math.Min(StakeMax(actor) - actor.Stake, check.RolledFailures);
+            if (gain <= 0) return;
+            actor.Stake += gain;
+            Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Amount = gain, Text = Words.Line("battle.stake", actor.Name, gain, actor.Stake) });
+        }
 
         public int ComboMax(Unit actor) => ComboCap + (actor.IsHero ? actor.Hero.Special("combo_cap") : 0);
 
