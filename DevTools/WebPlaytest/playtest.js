@@ -349,6 +349,14 @@ async function playSlice(game, wholeRun) {
       await game.send('speed 0');
     }
     // Between two chapters, the party camps on the road before the next prologue (Docs/Narrative.md 막간).
+    // A road event whose choices have checks shows what a failure costs beside the odds (실패하면 …).
+    if (state.adventure === 'Event' && !shots.failCost && (await game.allText()).includes('% ')) {
+      const text = await game.allText();
+      if (/판정|성공/.test(text) && /\d+%/.test(text) && !/^camp_/.test(state.event || '')) {
+        shots.failCost = true;
+        run.check(text.includes('실패하면'), `판정이 있는 사건 선택지에 실패의 대가가 보인다 (${state.event})`);
+      }
+    }
     if (state.adventure === 'Event' && /^camp_/.test(state.event || '') && !shots.interlude) {
       shots.interlude = true;
       run.check(['chapter2', 'chapter3', 'chapter4', 'chapter5'].includes(state.chapter), `장 사이 막간은 다음 장이 시작될 때 나온다 (${state.chapter}, ${state.event})`);

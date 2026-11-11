@@ -196,7 +196,7 @@ namespace Game.Client
                     var r = new Rect(0, y, column.width, h);
                     Ui.Face(r, choice.ClassId != null ? Look.Selected : Look.Normal, affordable);
                     Ui.Text(new Rect(10, y + 2, column.width - 20, h * 0.55f), label, 14, affordable ? Palette.Ink : Palette.Dim, TextAnchor.MiddleLeft, true);
-                    Ui.Text(new Rect(10, y + h * 0.52f, column.width - 20, h * 0.45f), Requirement(choice), 11, affordable ? Palette.Journal : Palette.Dim);
+                    Ui.TextFit(new Rect(10, y + h * 0.52f, column.width - 20, h * 0.45f), Requirement(choice), 11, affordable ? Palette.Journal : Palette.Dim);
                     if (Ui.Hit(r, choice.Label, affordable, "선택지", Ui.Number(ci))) PickChoice(choice);
                     y += h + 6;
                 }
@@ -254,7 +254,78 @@ namespace Game.Client
             if (!choice.HasCheck) return costText.Length > 0 ? costText : Strings.Get(choice.ClassId != null ? "event.no_check_class" : "event.no_check");
             string stat = choice.FixedChance > 0 ? $"{choice.FixedChance}%" : Stats.Name(choice.Stat.Value, Sheets);
             var best = _adventure.CanAttempt(choice).Select(h => Adventure.Odds(choice, h, 0).AtLeast(choice.Need)).DefaultIfEmpty(0).Max();
-            return Strings.Format("event.check", stat, choice.Dice, choice.Need, Percent(best));
+            return Strings.Format("event.check", stat, choice.Dice, choice.Need, Percent(best)) + " · " + FailCost(choice);
+        }
+
+        // What a check's failure takes (2026-11-11), next to its odds: "실패하면: 피해 4, 다음 전투 약화".
+        static string FailCost(EventChoice choice)
+        {
+            var parts = new List<string>();
+            foreach (var o in choice.Fail)
+            {
+                string part = o.Verb switch
+                {
+                    "hurt" => Strings.Format("event.lose.hurt", o.Amount),
+                    "hurt_all" => Strings.Format("event.lose.hurt_all", o.Amount),
+                    "gold" when o.Amount < 0 => Strings.Format("event.lose.gold", o.Amount),
+                    "hope" when o.Amount < 0 => Strings.Format("event.lose.hope", o.Amount),
+                    "renown" when o.Amount < 0 => Strings.Format("event.lose.renown", o.Amount),
+                    "resolve" or "resolve_all" when o.Amount < 0 => Strings.Format("event.lose.resolve", o.Amount),
+                    "weak_next" => Strings.Get("event.lose.weak_next"),
+                    "battle" => Strings.Get("event.lose.battle"),
+                    "doom" when o.Amount > 0 => Strings.Format("event.lose.doom", o.Amount),
+                    _ => null,
+                };
+                if (part != null) parts.Add(part);
+            }
+            return Strings.Format("event.if_fail", parts.Count > 0 ? string.Join(", ", parts) : Strings.Get("event.lose.nothing"));
+        }
+
+        // Why a run was lost (2026-11-11): the blows that hurt the most in the last battle, the enemies' perfect rolls,
+        // a boss rule that landed, potions never drunk; or the rift clock running out.
+        List<string> DefeatCauses(Adventure a)
+        {
+            var lines = new List<string>();
+            if (a.Story?.Id == a.Chapter.Rift)
+            {
+                lines.Add(Strings.Get("end.cause_rift"));
+                return lines;
+            }
+            var battle = a.Battle;
+            if (battle != null)
+            {
+                var hurt = new Dictionary<(string who, string what), int>();
+                (string who, string what) blow = (null, null);
+                string ruleHit = null, rule = null;
+                int perfect = 0;
+                foreach (var e in battle.Events)
+                {
+                    var actor = e.Actor >= 0 ? battle.Unit(e.Actor) : null;
+                    if (e.Kind == BattleEventKind.Roll)
+                    {
+                        bool foe = actor != null && !actor.IsHero && actor.Side != Side.Party;
+                        blow = foe ? (actor.Name, e.SkillName) : (null, null);
+                        rule = foe && !string.IsNullOrEmpty(e.Skill) && _data.MonsterSkills.TryGetValue(e.Skill, out var skill) && RuleIcon(skill.Effect) != null ? skill.Effect : null;
+                        if (foe && e.Perfect) perfect++;
+                    }
+                    else if (e.Kind == BattleEventKind.Damage && blow.who != null && battle.Unit(e.Target) is Unit target && target.IsHero)
+                    {
+                        hurt.TryGetValue(blow, out int had);
+                        hurt[blow] = had + e.Amount;
+                        if (rule != null) ruleHit = rule;
+                    }
+                }
+                if (hurt.Count > 0)
+                {
+                    var worst = hurt.OrderByDescending(p => p.Value).First();
+                    lines.Add(Strings.Format("end.cause_blow", worst.Key.who, worst.Key.what, worst.Value));
+                }
+                if (perfect > 0) lines.Add(Strings.Format("end.cause_perfect", perfect));
+                if (ruleHit != null) lines.Add(Strings.Format("end.cause_rule", Strings.Get("rule." + ruleHit)));
+            }
+            int potions = a.Heroes.Sum(h => h.Count("potion"));
+            if (potions > 0) lines.Add(Strings.Format("end.cause_potions", potions));
+            return lines;
         }
 
         void PickChoice(EventChoice choice)
@@ -373,6 +444,15 @@ namespace Game.Client
                     ? Strings.Format("end.won_text", a.ChaptersCleared, a.Rank.Title)
                     : Strings.Format("end.won_short_text", a.FirstChapter + 1, a.LastChapter + 1))
                 : Strings.Format("end.lost_text", a.Chapter.Index + 1, a.Chapter.Title), 14, Palette.Journal);
+            if (!won)
+            {
+                var causes = DefeatCauses(a);
+                if (causes.Count > 0)
+                {
+                    y = Paragraph(column, y, Strings.Get("end.cause_heading"), 14, Palette.Gold);
+                    foreach (string cause in causes) y = Paragraph(column, y, "· " + cause, 13, Palette.Journal);
+                }
+            }
             y = Paragraph(column, y, Strings.Format("end.stats", a.ChaptersCleared, a.MidbossesBeaten, a.BattlesWon, a.Renown, a.Rank.Title, a.Gold, a.Hope));
             if (_recorded) y = Paragraph(column, y, Strings.Format("end.pages", _lastPages, JournalNow.Pages) + (a.Hard && won ? " " + Strings.Get("end.pages_double") : ""), 14, Palette.Gold);
             if (a.Footsteps.Count > 0) y = Paragraph(column, y, Strings.Format("end.notes", a.Footsteps.Count), 13, Palette.Journal);

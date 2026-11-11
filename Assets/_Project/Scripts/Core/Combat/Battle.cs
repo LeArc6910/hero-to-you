@@ -732,7 +732,7 @@ namespace Game.Core
                 check = Fate.Roll(preview.Dice, preview.Chance, preview.Guaranteed);
                 Emit(new BattleEvent { Kind = BattleEventKind.Roll, Actor = actor.Id, Target = target.Id, Skill = skill.Id, SkillName = skill.Name, Check = check, Perfect = check.Perfect, Text = RollLine(actor.Name, skill.Name, preview.Chance, check.Dice, check.Guaranteed, check.Successes, check.Perfect) });
                 int gained = hero.AddGrit(check.RolledFailures);
-                if (gained > 0) Emit(new BattleEvent { Kind = BattleEventKind.ResolveGained, Actor = actor.Id, Amount = gained, Text = Words.Line("battle.grit", actor.Name, gained) });
+                if (gained > 0) Emit(new BattleEvent { Kind = BattleEventKind.ResolveGained, Actor = actor.Id, Amount = gained, Note = "grit", Text = Words.Line("battle.grit", actor.Name, gained) });
                 TakeStake(actor, skill, check);
             }
             int successes = check?.Successes ?? 0;

@@ -425,3 +425,22 @@ party.class_stats,생명력 {0} · 결의 {1},HP {0} · Resolve {1}
 party.class_soon,준비 중 (M5),Coming soon (M5)
 title.dev_build,개발판,dev build
 party.class_hp,생명력 {0},Life {0}
+event.if_fail,실패하면: {0},If it fails: {0}
+event.lose.hurt,피해 {0},{0} damage
+event.lose.hurt_all,모두 피해 {0},{0} damage to all
+event.lose.gold,금화 {0},{0} gold
+event.lose.hope,희망 {0},{0} hope
+event.lose.weak_next,다음 전투 약화,weakened next battle
+event.lose.battle,싸움,a fight
+event.lose.doom,균열 +{0},rift +{0}
+event.lose.renown,명성 {0},renown {0}
+event.lose.resolve,결의 {0},resolve {0}
+event.lose.nothing,잃는 것 없음,nothing lost
+end.cause_heading,패배의 원인,Why the party fell
+end.cause_blow,가장 아팠던 공격: {0}의 {1} (모두 {2} 피해),The worst blows: {0}'s {1} ({2} damage in all)
+end.cause_perfect,적의 완벽한 공격을 {0}번 맞았다,Hit by {0} perfect enemy blows
+end.cause_rule,보스 규칙 「{0}」에 당했다,Undone by the boss rule "{0}"
+end.cause_potions,쓰지 못한 물약 {0}개,{0} potions left unused
+end.cause_rift,균열 시계가 다 찼다. 하루가 너무 많이 지났다,The rift clock filled up: too many days went by
+battle.moment_perfect,{0}의 완벽!,{0}: perfect!
+battle.float_grit,끈기!,Grit!

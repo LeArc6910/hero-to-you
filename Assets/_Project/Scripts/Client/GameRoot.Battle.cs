@@ -74,6 +74,14 @@ namespace Game.Client
         readonly Dictionary<int, float> _fallAt = new Dictionary<int, float>();
         readonly Dictionary<int, BattleLayout.Place> _placeOf = new Dictionary<int, BattleLayout.Place>();
         int _blowActor = -1;
+
+        // A hero's moment (2026-11-11): a perfect roll lights the field gold, leans in on the hero and holds the playback
+        // a beat; grit filling up rings the hero's feet in gold.
+        float _momentAt = -10, _pendingPause;
+        int _momentActor = -1;
+        string _momentText;
+        readonly Dictionary<int, float> _gritAt = new Dictionary<int, float>();
+        const float MomentTime = 1.1f;
         float _shakeAt = -10, _shakePower;
 
         Battle _battleShown;
@@ -151,6 +159,8 @@ namespace Game.Client
                 Play(e);
                 _eventTimer += _speed <= 0 ? 0 : Duration(e, battle);
                 if (_pendingMotion != null && _speed > 0) StartMotion(_pendingMotion, _playClock + Mathf.Max(0, _eventTimer));
+                _eventTimer += _pendingPause;
+                _pendingPause = 0;
             }
             if (_played >= battle.Events.Count && _eventTimer < 0) _eventTimer = 0;
             if (!BattlePlaying) SyncShown(battle);
@@ -259,6 +269,13 @@ namespace Game.Client
                     _diceAge = 0;
                     if (e.Actor >= 0) _pendingMotion = MotionFor(e);
                     _blowActor = e.Actor;
+                    if (_speed > 0 && e.Perfect && e.Check != null && _battleShown.Unit(e.Actor) is Unit star && star.IsHero)
+                    {
+                        _momentAt = _playClock + LandAt(e.Check.Dice - 1);
+                        _momentActor = e.Actor;
+                        _momentText = Strings.Format("battle.moment_perfect", star.Name);
+                        _pendingPause = 0.45f;
+                    }
                     if (_speed > 0 && e.Check != null)
                     {
                         // The dice rattle, then settle as the last one lands: a chime when one was sure, a fanfare
@@ -312,6 +329,12 @@ namespace Game.Client
                     break;
                 case BattleEventKind.ResolveGained:
                     Float(e.Actor, Strings.Format("battle.float_resolve", e.Amount), Palette.Resolve);
+                    if (e.Note == "grit" && _speed > 0)
+                    {
+                        _gritAt[e.Actor] = _playClock;
+                        Float(e.Actor, Strings.Get("battle.float_grit"), Palette.Gold);
+                        Sounds.Play(Sound.Sure);
+                    }
                     break;
                 case BattleEventKind.Guard:
                     Float(e.Target, Strings.Get("battle.float_guard"), Palette.Gold);
@@ -567,6 +590,19 @@ namespace Game.Client
             }
         }
 
+        // The gold light and words of a hero's perfect roll over the field.
+        void DrawMoment(Rect field)
+        {
+            float t = _playClock - _momentAt;
+            if (t < 0 || t > MomentTime || string.IsNullOrEmpty(_momentText)) return;
+            float flash = Mathf.Clamp01(1 - t / 0.45f);
+            if (flash > 0) Ui.Fill(field, new Color(1f, 0.85f, 0.35f, 0.22f * flash));
+            float alpha = Mathf.Clamp01((MomentTime - t) / 0.3f);
+            float rise = Settings.LessMotion ? 0 : Mathf.Min(t, 0.25f) * 24;
+            var r = new Rect(field.x, field.y + field.height * 0.18f - rise, field.width, 40);
+            Ui.TextFit(r, _momentText, 26, Palette.WithAlpha(Palette.Gold, alpha), TextAnchor.MiddleCenter, true);
+        }
+
         // A short shake of the whole field after a heavy blow (not with less motion).
         Vector2 Shake()
         {
@@ -640,12 +676,16 @@ namespace Game.Client
             var shake = Shake();
             var unshaken = GUI.matrix;
             if (shake != Vector2.zero) GUI.matrix = Matrix4x4.Translate(new Vector3(shake.x * Ui.Scale, shake.y * Ui.Scale, 0)) * unshaken;
+            float moment = _playClock - _momentAt;
+            if (!Settings.LessMotion && moment >= 0 && moment < 0.7f && _unitRects.TryGetValue(_momentActor, out var star))
+                GUIUtility.ScaleAroundPivot(Vector2.one * (1 + 0.06f * Mathf.Sin(moment / 0.7f * Mathf.PI)), Ui.ToPixels(star).center);
             DrawBackdrop(field);
             DrawUnits(field, battle);
             DrawShots();
             DrawFlashes();
             DrawFloaters();
             GUI.matrix = unshaken;
+            DrawMoment(field);
             DrawDice(field, battle);
             DrawBanner(field);
             DrawPanel(panel, battle);
@@ -807,6 +847,14 @@ namespace Game.Client
             Ui.Image(oval, PixelArt.Oval(false), new Color(0, 0, 0, 0.38f));
             if (targeted || acting || targetable)
                 Ui.Image(new Rect(oval.x - 3, oval.y - 1, oval.width + 6, oval.height + 2), PixelArt.Oval(true), targeted ? Palette.Accent : acting ? Palette.Gold : Palette.WithAlpha(Palette.Accent, 0.55f));
+            // Grit filling up: a gold ring spreading from the hero's feet.
+            if (_gritAt.TryGetValue(unit.Id, out float grit) && _playClock - grit < 0.7f)
+            {
+                float k = (_playClock - grit) / 0.7f;
+                float grow = Settings.LessMotion ? 1.2f : 1 + k * 1.2f;
+                var ring = new Rect(place.Foot.x - oval.width * grow / 2, place.Foot.y - oval.height * grow / 2, oval.width * grow, oval.height * grow);
+                Ui.Image(ring, PixelArt.Oval(true), Palette.WithAlpha(Palette.Gold, 1 - k));
+            }
             // Motion (Docs/Design.md 그림): a slow breath while standing, a lunge toward the other side when attacking,
             // a shake and a red flash when hit, lying low when down.
             float at = -10;
