@@ -65,7 +65,7 @@ dotnet build DevTools/UnityCompileCheck/Assemblies/Game.Client -p:DefineConstant
 node DevTools/WebPlaytest/playtest.js --wait
 ```
 
-GitHub Actions(`.github/workflows/core-tests.yml`)가 푸시마다 테스트, 샌드박스 빌드, Unity 쪽 컴파일 확인을 돌린다.
+GitHub Actions(`.github/workflows/core-tests.yml`)가 푸시마다 규칙 검사(`DevTools/Checks/rules.py`: 글꼴에 없는 글자, CLOUD_LOG 항목, 커밋 메시지의 도구 표시 줄), 테스트, 샌드박스 빌드, Unity 쪽 컴파일 확인을 돌린다. 샌드박스의 `--skills`는 기술 쓴 횟수, `--events`는 사건 선택지 통계를 보인다.
 
 ## 규칙
 

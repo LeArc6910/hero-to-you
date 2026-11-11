@@ -132,6 +132,7 @@ namespace Game.Core
                 if (gained > 0) result.Changes.Add(Data.Line("adventure.event.grit", hero.Name, gained));
             }
             Record($"choose {choiceIndex} {heroIndex} {resolve}");
+            _eventHistory.Add((Event.Id, choice.Index, choice.HasCheck, result.Success));
             result.Text = result.Success ? choice.SuccessText : choice.FailText;
             Report.Clear();
             Apply(result.Success ? choice.Success : choice.Fail, hero, result.Changes);

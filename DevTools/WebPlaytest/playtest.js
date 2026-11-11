@@ -276,6 +276,7 @@ async function playSlice(game, wholeRun) {
     if (now === commands) break;
     commands = now;
   }
+  const hashBefore = (await game.state()).hash;
   await game.page.reload({ waitUntil: 'load' });
   await game.page.waitForFunction(() => !!window.unityInstance, null, { timeout: 240000 });
   await game.wait(1500);
@@ -284,6 +285,7 @@ async function playSlice(game, wholeRun) {
   run.check(await game.press('이어하기'), '다시 열면 [이어하기]가 있다');
   state = await game.until(s => s.adventure, 8000);
   run.check(state && state.commands === commands, `이어하면 같은 곳에서 계속된다 (명령 ${state && state.commands}/${commands})`);
+  run.check(state && state.hash === hashBefore, `이어한 판의 상태가 저장 전과 똑같다 (상태 값 ${state && state.hash})`);
   await game.shot('continued', '이어하기 뒤');
 
   if (!wholeRun) return;

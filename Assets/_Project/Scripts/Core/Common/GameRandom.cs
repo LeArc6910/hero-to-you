@@ -14,6 +14,9 @@ namespace Game.Core
         readonly ulong _increment;
         ulong _state;
 
+        // Where the stream is now (Adventure.StateHash).
+        internal ulong State => _state;
+
         public GameRandom(ulong seed, ulong stream = 0)
         {
             _increment = (stream << 1) | 1UL;

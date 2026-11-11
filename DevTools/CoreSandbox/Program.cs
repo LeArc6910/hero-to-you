@@ -12,6 +12,7 @@ using Game.Core;
 //   --adventure N --party a,b,c [--random | --human] [--easy] [--retries R]  whole campaigns (R: chapter retries) (--human: the smart bot with a
 //                                                              quarter of its choices random, like a person)
 //                                                              [--skills]: how often the bot used each skill
+//                                                              [--events]: each event choice's pick and success rates
 static class Program
 {
     static GameData _data;
@@ -39,7 +40,7 @@ static class Program
         else if (args.Contains("--battle")) Battles(Count("--battle", 1000), party, Option("--encounter", "goblins"), level, smart, true);
         else if (args.Contains("--classes")) Classes(Count("--classes", 500), Option("--encounter", ""), level, smart);
         else if (args.Contains("--replay")) Replay(Option("--replay", "report.txt"));
-        else if (args.Contains("--adventure")) Adventures(Count("--adventure", 500), party, smart, args.Contains("--human") ? AdventureBot.HumanMistakes : 0, args.Contains("--easy") ? Difficulty.Easy : Difficulty.Normal, Count("--retries", 0), Option("--chapters", ""), args.Contains("--skills"));
+        else if (args.Contains("--adventure")) Adventures(Count("--adventure", 500), party, smart, args.Contains("--human") ? AdventureBot.HumanMistakes : 0, args.Contains("--easy") ? Difficulty.Easy : Difficulty.Normal, Count("--retries", 0), Option("--chapters", ""), args.Contains("--skills"), args.Contains("--events"));
         else
         {
             Console.WriteLine("--dice | --battle N --party a,b,c --encounter id [--level L] | --classes N | --adventure N --party a,b,c  ([--random])");
@@ -157,8 +158,11 @@ static class Program
             Console.WriteLine($"  {string.Join("+", p.party.Select(id => _data.Classes[id].Name)),-24} {p.win:P0} {p.hp:P0}");
     }
 
-    static void Adventures(int runs, string[] party, bool smart, int mistakes, Difficulty difficulty, int retries, string chapters, bool skills)
+    static void Adventures(int runs, string[] party, bool smart, int mistakes, Difficulty difficulty, int retries, string chapters, bool skills, bool eventStats = false)
     {
+        // Event choices over every run (--events): how often each card came up, each choice was taken, and went well.
+        var cards = new Dictionary<string, int>();
+        var choices = new Dictionary<(string, int), (int taken, int checks, int wins)>();
         // Skill use over every battle (--skills): the commands the bot gave, by skill id; an echo also by what it echoed.
         var used = new Dictionary<string, int>();
         void Use(string id)
@@ -222,6 +226,13 @@ static class Program
                     }
                 }
             }
+            foreach (var (eventId, choice, checkd, success) in adventure.EventHistory)
+            {
+                cards.TryGetValue(eventId, out int seen);
+                cards[eventId] = seen + 1;
+                choices.TryGetValue((eventId, choice), out var had);
+                choices[(eventId, choice)] = (had.taken + 1, had.checks + (checkd ? 1 : 0), had.wins + (checkd && success ? 1 : 0));
+            }
             string chapter = $"{adventure.Chapter.Index + 1}장 ";
             string end;
             if (adventure.Screen == AdventureScreen.Victory)
@@ -248,6 +259,7 @@ static class Program
         if (retries > 0) Console.WriteLine($"  장 다시 하기: 판마다 {retries}번까지, 모두 {usedRetries}번 썼다");
         Console.WriteLine($"  1장 비석 {(double)quest / runs:P0}, 1장 단서 {(double)clue / runs:P0}, 중간 보스 {midboss / (double)runs:0.0} · 1장을 넘긴 판: {firstDay / past:0.0}일, 레벨 {firstLevel / past:0.0}, 이긴 전투 {firstBattles / past:0.0}");
         foreach (var pair in endings.OrderByDescending(p => p.Value)) Console.WriteLine($"  {pair.Key}: {pair.Value}");
+        if (eventStats) EventStats(runs, cards, choices);
         if (!skills) return;
         Console.WriteLine("  기술을 쓴 횟수(판마다 평균, 모든 영웅의 기본 공격·물약·소모품은 따로):");
         foreach (string id in party.Distinct())
@@ -260,6 +272,32 @@ static class Program
             }
         foreach (var pair in used.Where(p => !p.Key.Contains(':') && !party.Any(id => _data.Classes[id].Skills.Any(s => s.Id == p.Key))).OrderBy(p => p.Key))
             Console.WriteLine($"    {"",-6} {pair.Key,-16} {(double)pair.Value / runs,7:0.00}");
+    }
+
+    // Per event card (in the sheet's order): how often it came up per run, then each choice's share of the picks and,
+    // for a choice with a check, how often it went well. Cards that never came up and choices never taken are marked,
+    // so a choice nobody takes (or everybody takes) stands out.
+    static void EventStats(int runs, Dictionary<string, int> cards, Dictionary<(string, int), (int taken, int checks, int wins)> choices)
+    {
+        Console.WriteLine("  사건 선택지(판마다 나온 횟수, 고른 비율, 판정이면 성공률):");
+        var never = new List<string>();
+        foreach (var card in _data.Events)
+        {
+            if (!cards.TryGetValue(card.Id, out int seen))
+            {
+                never.Add(card.Id);
+                continue;
+            }
+            Console.WriteLine($"    {card.Id,-22} {(double)seen / runs,5:0.00}  {card.Title}");
+            foreach (var choice in card.Choices)
+            {
+                choices.TryGetValue((card.Id, choice.Index), out var c);
+                string rate = c.checks > 0 ? $" 성공 {(double)c.wins / c.checks,4:P0}" : "";
+                string mark = c.taken == 0 ? " (아무도 안 고름)" : "";
+                Console.WriteLine($"      {choice.Index} {(double)c.taken / seen,4:P0}{rate}{mark}  {choice.Label}");
+            }
+        }
+        if (never.Count > 0) Console.WriteLine($"  한 번도 나오지 않은 사건 {never.Count}개: {string.Join(", ", never)}");
     }
 
     // A bug report (the settings' 버그 제보, Docs/Playtest.md): the save is replayed and the state it reaches is

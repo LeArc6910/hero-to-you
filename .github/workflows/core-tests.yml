@@ -11,6 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # CLAUDE.md's no-exception rules: every character in the game font, a CLOUD_LOG.md entry with cloud changes,
+      # no tool attribution lines in commit messages (DevTools/Checks/rules.py).
+      - name: Project rules
+        run: |
+          pip install --quiet fonttools
+          python3 DevTools/Checks/rules.py "${{ github.event.before }}" "${{ github.sha }}"
 
       - uses: actions/setup-dotnet@v4
         with:
