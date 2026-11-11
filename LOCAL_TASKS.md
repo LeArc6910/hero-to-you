@@ -150,12 +150,12 @@
 
 ### 2026-11-11 로컬 세션 (Windows, Unity 6000.6.3f1, 535918d까지)
 
-- **CI가 깨져 있다 (클라우드가 고칠 것)**: b65cce8 뒤로 Core tests가 10~15초 만에 "Project rules" 단계에서 실패한다(실행 42984283829 등). 게임 글꼴 `NotoSansKR-Game.ttf`가 Git LFS에 있는데 `core-tests.yml`의 checkout에 `lfs: true`가 없어, `rules.py`가 글꼴 대신 LFS 안내 파일을 읽는다
+- **CI가 깨져 있었다 (사용자 결정으로 로컬이 고쳤다)**: b65cce8 뒤로 Core tests가 10~15초 만에 "Project rules" 단계에서 실패한다(실행 42984283829 등). 게임 글꼴 `NotoSansKR-Game.ttf`가 Git LFS에 있는데 `core-tests.yml`의 checkout에 `lfs: true`가 없어, `rules.py`가 글꼴 대신 LFS 안내 파일을 읽는다
   ```
   fontTools.ttLib.TTLibError: Not a TrueType or OpenType font (bad sfntVersion)
   ```
   - 이 단계가 두 번째라 그 뒤의 단위 테스트, 샌드박스, 효과음 검사, Unity 쪽 컴파일 확인이 모두 건너뛰어진다. Web demo는 `lfs: true`로 받고 그 안에서 Unity EditMode 테스트를 돌려 계속 통과했다
-  - 고치는 법: `core-tests.yml`의 `actions/checkout@v4`에 `lfs: true`를 더한다(`fetch-depth: 0`은 그대로). 로컬에서 진짜 글꼴로 `rules.py 5d6564f HEAD`를 돌리면 "규칙 검사: 통과"다
+  - 고친 것: `core-tests.yml`의 `actions/checkout@v4`에 `lfs: true`를 더했다(`fetch-depth: 0`은 그대로). 사용자가 "고쳐서 같이 푸시"로 정했다(로컬은 클라우드 몫을 고치지 않는다는 규칙의 예외). `CLOUD_LOG.md`에도 항목을 넣었다. 로컬에서 진짜 글꼴로 `rules.py 5d6564f HEAD`를 돌리면 "규칙 검사: 통과"다
 - **에디터에서 열기**: 배치 모드로 `Game > Set Up Project`를 돌렸다. 컴파일 에러·경고 없이 "Project setup done."
   - 새 파일 17개의 `.meta`를 커밋했다(`link.xml`, `WebGLTemplates/Fit/loading.png`, `Resources/Data/Art` 폴더와 그림 파일 여섯, `palette.csv`, `GamePalette.cs`, `BattleLayout.cs`, `GameRoot.Perf.cs`, `Adventure.Hash.cs`, `Adventure.Stats.cs`, `PartyShape.cs`, `StateHashTests.cs`)
   - `ProjectSettings/ProjectSettings.asset`에 웹 빌드 설정이 반영됐다: `webGLCompressionFormat` 1→0(Brotli), `managedStrippingLevel`에 `WebGL: 3`(High). 커밋했다

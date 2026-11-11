@@ -13,6 +13,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # The game font is in Git LFS; the Project rules step reads its glyphs.
+          lfs: true
 
       # CLAUDE.md's no-exception rules: every character in the game font, a CLOUD_LOG.md entry with cloud changes,
       # no tool attribution lines in commit messages (DevTools/Checks/rules.py).
