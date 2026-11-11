@@ -758,7 +758,7 @@ namespace Game.Client
         void DrawTimeline(Rect r, Battle battle)
         {
             Ui.Strip(r);
-            Ui.Text(new Rect(r.x + 8, r.y, 34, r.height), Strings.Get("battle.order"), 12, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.TextFit(new Rect(r.x + 6, r.y, 37, r.height), Strings.Get("battle.order"), 12, Palette.Gold, TextAnchor.MiddleLeft, true);
             float infoW = Ui.Width < 500 ? 96 : 150;
             var order = BattlePlaying ? new List<Unit>() : battle.Timeline(8);
             float size = Mathf.Floor((r.height - 10) / 2) * 2;
@@ -914,7 +914,7 @@ namespace Game.Client
                     string shorter = $"{unit.Name} Lv{unit.Hero.Level}";
                     name = Ui.TextWidth(full, 11, true) <= inner ? full : Ui.TextWidth(shorter, 11, true) <= inner ? shorter : unit.Name;
                 }
-                Ui.TextFit(new Rect(r.x + 4, r.y + 2, inner, 14), name, 11, acting ? Palette.GoldLight : label, TextAnchor.MiddleCenter, true);
+                Ui.TextFit(new Rect(r.x + 4, r.y + 2, inner, 13), name, 11, acting ? Palette.GoldLight : label, TextAnchor.MiddleCenter, true);
                 // A hero's resolve as diamonds at the right of the numbers when there is room for them.
                 int pips = unit.IsHero && !down && unit.Hero.MaxResolve <= 6 && inner >= 96 ? unit.Hero.MaxResolve : 0;
                 float pipsW = pips * 9;
@@ -923,11 +923,11 @@ namespace Game.Client
                 if (unit.IsHero && !down && unit.Hero.Blessing + unit.Hero.Luck > 0) line += " · " + Strings.Format("battle.sure_plus", unit.Hero.Blessing + unit.Hero.Luck);
                 string statuses = StatusLine(unit, battle);
                 if (statuses.Length > 0) line += " · " + statuses;
-                var lineRect = new Rect(r.x + 5, r.y + 25, inner - 2 - (pips > 0 ? pipsW + 4 : 0), 13);
+                var lineRect = new Rect(r.x + 6, r.y + 23, inner - 4 - (pips > 0 ? pipsW + 4 : 0), 12);
                 Ui.TextFit(lineRect, line, 10, down ? Palette.Damage : Palette.Dim, pips > 0 ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter);
-                if (pips > 0) Ui.Pips(new Vector2(r.xMax - 5 - pipsW, r.y + 31.5f), unit.Hero.Resolve, pips, true);
+                if (pips > 0) Ui.Pips(new Vector2(r.xMax - 6 - pipsW, r.y + 29), unit.Hero.Resolve, pips, true);
             }
-            Ui.HpBar(new Rect(r.x + 6, r.y + 17, r.width - 12, 7), hp, unit.MaxHp, unit.IsHero);
+            Ui.HpBar(new Rect(r.x + 6, r.y + 15, r.width - 12, 7), hp, unit.MaxHp, unit.IsHero);
 
             if (targetable && Ui.Hit(place.Column, unit.Name, true, "대상")) _target = unit.Id;
             if (!unit.IsHero)
@@ -1419,9 +1419,30 @@ namespace Game.Client
             // One row for each number of successes: the count, a bar as long as its chance, the chance, and what it
             // gives (user choice 2026-11-11: bars across, they read on a narrow phone).
             int n = odds.Dice;
-            var well = new Rect(r.x, r.y + 34, r.width, r.height - 34);
+            var well = new Rect(r.x, r.y + 33, r.width, r.height - 33);
             float row = Mathf.Min(26, (well.height - 8) / (n + 1));
-            if (row < 12) return;
+            if (row < 11)
+            {
+                // No room for a row each: one bar split by the chances, and the chances in a line under it.
+                if (well.height < 30) return;
+                well.height = 32;
+                Ui.Well(well);
+                var bar = new Rect(well.x + 6, well.y + 5, well.width - 12, 9);
+                Ui.Fill(bar, Ui.Ink);
+                float bx = bar.x + 1;
+                var parts = new List<string>();
+                for (int k = 0; k <= n; k++)
+                {
+                    double p = odds.BySuccesses[k];
+                    float pw = (bar.width - 2) * (float)p;
+                    Ui.Fill(new Rect(bx, bar.y + 1, Mathf.Max(0, pw - (k < n ? 1 : 0)), bar.height - 2), k == n ? Palette.Gold : k == 0 ? Settings.Fail : Settings.Success);
+                    bx += pw;
+                    if (p >= 0.005) parts.Add($"{Strings.Format("battle.successes_n", k)} {Percent(p)}");
+                }
+                Ui.TextFit(new Rect(well.x + 6, well.y + 16, well.width - 12, 14), string.Join(" · ", parts), 10, Palette.Ink, TextAnchor.MiddleCenter);
+                return;
+            }
+            well.height = (n + 1) * row + 8;
             Ui.Well(well);
             float countW = 34, percentW = 42, valueW = 40;
             float barX = well.x + 8 + countW, barW = well.width - 16 - countW - percentW - valueW - 8;

@@ -40,8 +40,9 @@ namespace Game.Client
             DrawPartyStrip(new Rect(4, 4, Ui.Width - 8, StripHeight - 6));
             float w = Mathf.Min(680, Ui.Width - 24);
             var area = new Rect((Ui.Width - w) / 2, StripHeight + 10, w, Ui.Height - StripHeight - 24 - footer);
-            // The page lies on a stone panel (UiKit); its words start inside the frame.
-            Ui.Panel(new Rect(area.x - 8, area.y - 6, w + 16, area.height + 12));
+            // The page lies on a stone panel (UiKit) as tall as its words (last frame's), its words inside the frame.
+            float shown = _columnHeight > 0 ? Mathf.Min(area.height, _columnHeight + 6) : area.height;
+            Ui.Panel(new Rect(area.x - 8, area.y - 6, w + 16, Mathf.Max(80, shown) + 12));
             _columnScroll = Ui.Scroll(area, _columnScroll, _columnHeight - area.height, ref _columnDragging, ref _columnLastY);
             Ui.BeginArea(area, _columnScroll);
             return new Rect(0, 0, w, area.height);

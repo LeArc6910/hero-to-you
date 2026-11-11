@@ -12,6 +12,9 @@ namespace Game.Client
     // (a pip, the warning sign, ornaments) are letter rows in Resources/Data/Art/ui.txt.
     static partial class Ui
     {
+        // The outline colour of every part (the palette's darkest).
+        public static Color Ink => C('k');
+
         static Color32 C(char letter) => GamePalette.Letter(letter, out var color) ? color : new Color32(255, 0, 255, 255);
 
         // A picture at art size, rows from the top, scaled up to whole screen pixels when it becomes a texture.

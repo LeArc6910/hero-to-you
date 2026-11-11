@@ -130,7 +130,7 @@ namespace Game.Client
             if (Touch || key == KeyCode.None || r.width < 40) return;
             string name = KeyName(key);
             if (name.Length == 0) return;
-            Text(new Rect(r.xMax - 40, r.y + 1, 37, 12), name, 8.5f, new Color(1, 1, 1, 0.42f), TextAnchor.UpperRight);
+            Text(new Rect(r.xMax - 44, r.y + 3, 38, 12), name, 8.5f, new Color(1, 1, 1, 0.42f), TextAnchor.UpperRight);
         }
 
         public static Texture2D White
