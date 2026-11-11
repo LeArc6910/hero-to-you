@@ -311,7 +311,7 @@ map.perk.elementalist,이동 판정에 지능을 쓸 수 있다.,Can roll Intell
 map.perk.gambler,하루 한 번 이동을 다시 굴린다.,Rerolls the move once a day.
 map.perk.necromancer,밤에도 느려지지 않는다.,Is not slowed at night.
 map.perk.seer,안개 속 사건과 보물을 느낀다.,Senses events and treasure in the fog.
-map.perk.knight,야영하면 같은 칸 동료도 결의 +1.,Camping gives allies on the same hex +1 resolve too.
+map.perk.knight,"야영하면 같은 칸 동료도 결의 +1. 동료의 싸움에 세 칸 밖에서도 달려온다.","Camping gives allies on the same hex +1 resolve too. Runs to a friend's fight from 3 hexes away."
 map.perk.cleric,"야영 회복이 두 배, 같은 칸 동료도 돌본다.",Camping heals twice as much and tends allies on the same hex.
 map.perk.alchemist,야영하면 재료를 모은다.,Gathers reagents when camping.
 map.perk.bard,마을 값이 20% 싸다.,Town prices are 20% lower.

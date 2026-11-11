@@ -126,6 +126,103 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void AGuardingKnightStrikesBackAtWhoeverHitsIt()
+        {
+            var goblinDef = TestData.Data.Monsters["goblin"];
+            var sturdy = new MonsterDef { Id = "goblin", Name = "고블린", Hp = 300, Speed = goblinDef.Speed, Accuracy = 200, Pattern = goblinDef.Pattern, Color = "#FFFFFF", Size = 1 };
+            var battle = Duel(new[] { "knight", "elementalist" }, sturdy);
+            var knight = HeroUnit(battle, "knight");
+            var mage = HeroUnit(battle, "elementalist");
+            var goblin = battle.Monsters.First();
+            Assert.That(Battle.Riposte(mage), Is.Zero, "기사만 받아친다");
+            Assert.That(Battle.Riposte(knight), Is.EqualTo(Battle.RiposteBase + knight.Hero.Level));
+            MakeNext(battle, knight);
+            if (battle.Current != knight) Attack(battle);
+            Assert.That(battle.Current, Is.SameAs(knight));
+            goblin.Intent.Target = mage.Id;
+            MakeNext(battle, mage);
+            Assert.That(battle.Do(new BattleCommand(knight.Id, "knight_guard", mage.Id)), Is.Null);
+            Assert.That(Battle.Standing(knight), Is.True);
+
+            // The goblin's blow at the mage lands on the guarding knight, and the shield answers it.
+            goblin.Ready = battle.Units.Where(u => !u.Down).Min(u => u.Ready) - 1;
+            int goblinHp = goblin.Hp;
+            Attack(battle);
+            Assert.That(battle.Events.Any(e => e.Kind == BattleEventKind.Damage && e.Actor == goblin.Id && e.Target == knight.Id), Is.True, "기사가 대신 맞는다");
+            var riposte = battle.Events.LastOrDefault(e => e.Kind == BattleEventKind.Damage && e.Actor == knight.Id && e.Target == goblin.Id && e.Text.Contains("방패 반격"));
+            Assert.That(riposte, Is.Not.Null, "방패 반격");
+            Assert.That(riposte.Amount, Is.EqualTo(Battle.Riposte(knight)), "방어도 0인 적에게 그대로");
+        }
+
+        [Test]
+        public void AKnightThatIsNotStandingGuardDoesNotStrikeBack()
+        {
+            var goblinDef = TestData.Data.Monsters["goblin"];
+            var sturdy = new MonsterDef { Id = "goblin", Name = "고블린", Hp = 300, Speed = goblinDef.Speed, Accuracy = 200, Pattern = goblinDef.Pattern, Color = "#FFFFFF", Size = 1 };
+            var battle = Duel(new[] { "knight" }, sturdy);
+            var knight = battle.Current;
+            var goblin = battle.Monsters.First();
+            for (int i = 0; i < 6 && !battle.Over; i++) Attack(battle);
+            Assert.That(battle.Events.Any(e => e.Kind == BattleEventKind.Damage && e.Actor == goblin.Id && e.Target == knight.Id), Is.True);
+            Assert.That(battle.Events.Any(e => e.Kind == BattleEventKind.Damage && e.Text.Contains("방패 반격")), Is.False);
+        }
+
+        // The smart bot gives every class's own skills a turn when they are worth one (Docs/Classes.md 2026-11-11 2차):
+        // the support skills that only lift others or the party's tempo included.
+        [Test]
+        public void TheSmartBotUsesEveryClassesSupportSkills()
+        {
+            var used = new HashSet<string>();
+            var parties = new[]
+            {
+                new[] { "knight", "hunter", "cleric" }, new[] { "monk", "gambler", "bard" }, new[] { "engineer", "mnemonist", "berserker" },
+                new[] { "rogue", "beastmaster", "seer" }, new[] { "alchemist", "necromancer", "elementalist" }, new[] { "hunter", "bard", "mnemonist" }, new[] { "gambler", "cleric", "mnemonist" },
+            };
+            var encounters = new[] { new[] { "bandit", "goblin", "goblin_archer" }, new[] { "wolf", "wolf", "cutthroat" }, new[] { "bandit_chief", "bandit" }, new[] { "cultist", "ash_moth", "ash_moth" } };
+            ulong seed = 1;
+            foreach (var party in parties)
+                foreach (var foes in encounters)
+                    for (int run = 0; run < 12; run++)
+                    {
+                        var heroes = TestData.Party(party);
+                        foreach (var hero in heroes) hero.GainXp(Hero.LevelXp[2]);
+                        var battle = new Battle(heroes, TestData.Monsters(foes), seed++, false, TestData.Data);
+                        var random = new GameRandom(seed);
+                        for (int i = 0; i < 300 && !battle.Over; i++)
+                        {
+                            var command = BattleBot.Choose(battle, random);
+                            string echoed = command.Skill == Battle.EchoId ? battle.SkillOf(battle.Current, command.Skill).Effect : null;
+                            Assert.That(battle.Do(command), Is.Null);
+                            used.Add(command.Skill);
+                            if (echoed != null) used.Add("echo:" + echoed);
+                        }
+                    }
+            var missing = new[] { "knight_guard", "knight_taunt", "knight_bash", "cler_bless", "monk_meditate", "gamb_coin", "bard_encore", "engi_snare", "mnem_forget", "beast_command" }
+                .Where(s => !used.Contains(s)).ToList();
+            Assert.That(missing, Is.Empty, string.Join(", ", used));
+            var supports = new[] { "encore", "mark", "song_courage", "song_rest", "lucky", "bless", "guard", "foretell" };
+            Assert.That(used.Any(s => s.StartsWith("echo:") && supports.Contains(s.Substring(5))), Is.True, "기억술사가 지원 기술도 되새긴다: " + string.Join(", ", used.Where(s => s.StartsWith("echo:"))));
+        }
+
+        [Test]
+        public void TheBotsBardTurnsToTheSongOfRestOnceThePartyIsWornDown()
+        {
+            var battle = Duel(new[] { "bard", "knight", "hunter" }, TestData.Dummy());
+            var bard = HeroUnit(battle, "bard");
+            MakeNext(battle, bard);
+            if (battle.Current != bard) Attack(battle);
+            Assert.That(battle.Current, Is.SameAs(bard));
+            var random = new GameRandom(1);
+            Assert.That(BattleBot.Choose(battle, random).Skill, Is.EqualTo("bard_courage"), "다치지 않은 파티에는 용기");
+            Assert.That(battle.Do(new BattleCommand(bard.Id, "bard_courage", bard.Id)), Is.Null);
+            for (int i = 0; i < 20 && battle.Current != bard; i++) Attack(battle);
+            Assert.That(battle.Current, Is.SameAs(bard));
+            Assert.That(battle.Song, Is.EqualTo(Song.Courage));
+            foreach (var other in battle.Heroes.Where(h => h != bard)) other.Hp = other.MaxHp / 3;
+            Assert.That(BattleBot.Choose(battle, random).Skill, Is.EqualTo("bard_rest"), "둘이 반 아래면 안식");
+        }
+
+        [Test]
         public void ATauntTurnsEveryIntentToTheKnight()
         {
             var battle = new Battle(TestData.Party("knight", "hunter", "cleric"), TestData.Monsters("goblin", "goblin", "goblin_archer"), 8, false, TestData.Data);

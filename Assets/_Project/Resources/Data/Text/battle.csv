@@ -12,6 +12,7 @@ battle.grit,{0}: 끈기가 차서 결의 +{1},"{0}: grit fills up, resolve +{1}"
 battle.damage,{0}: {1} {2} 피해,{0}: {2} damage ({1})
 battle.damage.perfect,{0}: {1} {2} 피해 (완벽!),"{0}: {2} damage ({1}, perfect!)"
 battle.cause.thorns,가시,Thorns
+battle.cause.riposte,방패 반격,Shield Riposte
 battle.cause.backfire,판돈을 잃어,Lost wager
 battle.miss,{0}: 빗나감,{0}: miss
 battle.down,{0} 쓰러짐,{0} falls

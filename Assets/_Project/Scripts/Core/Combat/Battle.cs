@@ -548,6 +548,7 @@ namespace Game.Core
                 Hurt(target, damage, actor.Id, false, skill.Name);
                 if (check.Successes > 0 && target.IsHero && !target.Down) BossRule(actor, skill, target);
                 Thorns(target, actor);
+                Answer(target, actor);
                 if (skill.Effect == "burn" && check.Successes > 0) AddStatus(target, StatusKind.Burn, BurnTurns);
                 if (skill.Effect == "chill" && check.Successes > 0) AddStatus(target, StatusKind.Chill, 1);
                 if (skill.Effect == "weaken" && check.Successes > 0) AddStatus(target, StatusKind.Weak, WeakTurns);

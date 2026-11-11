@@ -31,6 +31,7 @@ namespace Game.Core
         public const int BoneWallArmor = 3;
         public const int StakeCap = 4;
         public const int GamblerChance = 50;
+        public const int RiposteBase = 3;
 
         // The skeleton grows with its master: +2 life a level, like the engineer's turret.
         static int SkeletonLife(Unit owner) => SkeletonHp + owner.Hero.Special("skeleton_hp") + 2 * (owner.Hero.Level - 1);
@@ -253,6 +254,20 @@ namespace Game.Core
             Song = Song.None;
             SongBy = -1;
             Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Text = Words.Line("battle.song.end") });
+        }
+
+        // Knight (Docs/Classes.md 기사): the shield answers. While the knight guards someone or taunts, every foe's
+        // blow that lands on it is struck back for RiposteBase + its level, through the attacker's armor. 0 for
+        // anyone but a standing knight.
+        public static int Riposte(Unit unit) => Is(unit, "knight") && !unit.Down ? RiposteBase + unit.Hero.Level : 0;
+
+        public static bool Standing(Unit unit) => unit.GuardTarget >= 0 || unit.Has(StatusKind.Taunt);
+
+        void Answer(Unit target, Unit attacker)
+        {
+            if (!attacker.IsFoe || attacker.Down || target.Down || !Standing(target)) return;
+            int power = Riposte(target);
+            if (power > 0) Hurt(attacker, Mitigate(power, attacker, true), target.Id, false, Words.Line("battle.cause.riposte"));
         }
 
         void Guard(Unit guard, Unit target, Unit until)

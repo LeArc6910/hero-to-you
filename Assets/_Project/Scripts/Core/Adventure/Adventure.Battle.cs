@@ -66,9 +66,15 @@ namespace Game.Core
             JoinCandidates.Clear();
             JoinCandidates.Add(MapHero);
             for (int i = 0; i < Heroes.Count; i++)
-                if (i != MapHero && !Heroes[i].Down && Positions[i].Distance(tile.Hex) <= JoinRange) JoinCandidates.Add(i);
+                if (i != MapHero && !Heroes[i].Down && Positions[i].Distance(tile.Hex) <= JoinReach(Heroes[i])) JoinCandidates.Add(i);
             Screen = AdventureScreen.Join;
         }
+
+        // How far a hero comes from to fight beside the others: the knight runs to a friend's fight from one hex
+        // farther (Docs/Classes.md 기사 지도 특기).
+        public const int KnightReach = 1;
+
+        public static int JoinReach(Hero hero) => JoinRange + (hero.Class.Id == "knight" ? KnightReach : 0);
 
         // A group in the open can be slipped past once (agility, the rogue with a sure die) or, by the berserker,
         // scared off (strength). Not an ambush, a camp or the boss.
@@ -146,7 +152,7 @@ namespace Game.Core
             return null;
         }
 
-        public const int NormalHpPercent = 105;
+        public const int NormalHpPercent = 122;
 
         // A monster as the run made it (Docs/Map.md): the boss weaker for the quest site's words and without helpers
         // for the clue, stronger for a grown rift; every monster stronger on the hard road.

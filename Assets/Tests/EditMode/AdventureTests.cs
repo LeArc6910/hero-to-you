@@ -102,6 +102,22 @@ namespace Game.Core.Tests
         }
 
         [Test]
+        public void TheKnightRunsToAFriendsFightFromOneHexFarther()
+        {
+            var adventure = OnMap(1, "hunter", "knight", "cleric");
+            var enemy = adventure.Map.Tiles.First(t => t.Content == Content.Enemy);
+            var far = adventure.Map.Tiles.First(t => adventure.Map.Def.Passable(t.Hex) && t.Hex.Distance(enemy.Hex) == Adventure.JoinRange + Adventure.KnightReach);
+            adventure.Teleport(1, far.Hex);
+            adventure.Teleport(2, far.Hex);
+            adventure.RollMove();
+            adventure.Teleport(0, enemy.Hex);
+            typeof(Adventure).GetMethod("Arrive", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(adventure, new object[] { enemy.Hex });
+            Assert.That(adventure.Screen, Is.EqualTo(AdventureScreen.Join));
+            Assert.That(adventure.JoinCandidates, Has.Member(1), "기사는 세 칸 밖에서도 달려온다");
+            Assert.That(adventure.JoinCandidates, Has.No.Member(2), "다른 영웅은 두 칸까지");
+        }
+
+        [Test]
         public void WinningOnlyRewardsTheFightersAndClearsTheHex()
         {
             var adventure = OnMap();

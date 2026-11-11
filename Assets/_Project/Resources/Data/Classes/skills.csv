@@ -1,7 +1,7 @@
 id,class,name,stat,dice,power,floor,kind,target,delay,cooldown,element,effect,perfect,cost,text,name_en,text_en
 knight_bash,knight,방패 치기,str,2,5,0,physical,enemy,90,2,,,stun,,방패로 친다. 완벽하면 기절시킨다.,Shield Bash,Strike with your shield. A perfect roll stuns.
-knight_guard,knight,수호,,0,0,0,support,other_ally,60,2,,guard,,,다음 차례까지 아군 하나를 대신 맞아 준다. 지키는 동안 방어도 +2.,Guard,Take the blows meant for one ally until your next turn. +2 armor while guarding.
-knight_taunt,knight,도발,wil,2,0,0,support,self,80,3,,taunt,armor1,,모든 적이 기사를 노린다. 성공 수만큼 방어도 +.,Taunt,Every enemy goes for the knight. +1 armor for each success.
+knight_guard,knight,수호,,0,0,0,support,other_ally,60,2,,guard,,,다음 차례까지 아군 하나를 대신 맞아 준다. 지키는 동안 방어도 +2. 맞으면 방패로 받아친다.,Guard,Take the blows meant for one ally until your next turn. +2 armor while guarding; every blow taken is struck back.
+knight_taunt,knight,도발,wil,2,0,0,support,self,80,3,,taunt,armor1,,모든 적이 기사를 노린다. 성공 수만큼 방어도 +. 맞으면 방패로 받아친다.,Taunt,Every enemy goes for the knight. +1 armor for each success; every blow taken is struck back.
 bers_frenzy,berserker,난도질,str,5,15,0,physical,enemy,130,2,,,crit150,,정신없이 휘두른다. 다음 차례가 늦다.,Frenzy,Swing wildly. Your next turn comes later.
 bers_thirst,berserker,피의 갈증,str,3,8,0,physical,enemy,100,2,,lifesteal,crit150,,준 피해의 절반만큼 회복한다.,Bloodthirst,Heal half the damage dealt.
 hunt_mark,hunter,표식,,0,0,0,support,enemy,50,2,,mark,,,적에게 표식을 남긴다. 그 적을 치는 모두에게 확정 성공 +1(그 적의 차례 3번).,Mark,Mark an enemy. Anyone who strikes it gets +1 sure success (for 3 of its turns).

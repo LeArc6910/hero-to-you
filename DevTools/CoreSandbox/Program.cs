@@ -11,6 +11,7 @@ using Game.Core;
 //   --replay report.txt                         a bug report from the game's settings, replayed
 //   --adventure N --party a,b,c [--random | --human] [--easy] [--retries R]  whole campaigns (R: chapter retries) (--human: the smart bot with a
 //                                                              quarter of its choices random, like a person)
+//                                                              [--skills]: how often the bot used each skill
 static class Program
 {
     static GameData _data;
@@ -38,7 +39,7 @@ static class Program
         else if (args.Contains("--battle")) Battles(Count("--battle", 1000), party, Option("--encounter", "goblins"), level, smart, true);
         else if (args.Contains("--classes")) Classes(Count("--classes", 500), Option("--encounter", ""), level, smart);
         else if (args.Contains("--replay")) Replay(Option("--replay", "report.txt"));
-        else if (args.Contains("--adventure")) Adventures(Count("--adventure", 500), party, smart, args.Contains("--human") ? AdventureBot.HumanMistakes : 0, args.Contains("--easy") ? Difficulty.Easy : Difficulty.Normal, Count("--retries", 0), Option("--chapters", ""));
+        else if (args.Contains("--adventure")) Adventures(Count("--adventure", 500), party, smart, args.Contains("--human") ? AdventureBot.HumanMistakes : 0, args.Contains("--easy") ? Difficulty.Easy : Difficulty.Normal, Count("--retries", 0), Option("--chapters", ""), args.Contains("--skills"));
         else
         {
             Console.WriteLine("--dice | --battle N --party a,b,c --encounter id [--level L] | --classes N | --adventure N --party a,b,c  ([--random])");
@@ -156,8 +157,15 @@ static class Program
             Console.WriteLine($"  {string.Join("+", p.party.Select(id => _data.Classes[id].Name)),-24} {p.win:P0} {p.hp:P0}");
     }
 
-    static void Adventures(int runs, string[] party, bool smart, int mistakes, Difficulty difficulty, int retries, string chapters)
+    static void Adventures(int runs, string[] party, bool smart, int mistakes, Difficulty difficulty, int retries, string chapters, bool skills)
     {
+        // Skill use over every battle (--skills): the commands the bot gave, by skill id; an echo also by what it echoed.
+        var used = new Dictionary<string, int>();
+        void Use(string id)
+        {
+            used.TryGetValue(id, out int had);
+            used[id] = had + 1;
+        }
         // A short run (Docs/Map.md 짧은 판): "--chapters 3-4" plays chapters 3 to 4, 1-based.
         int first = 0, last = -1;
         if (chapters.Length > 0)
@@ -181,7 +189,20 @@ static class Program
             int tries = retries;
             for (int step = 0; step < 60000 && !adventure.Over; step++)
             {
+                string echoed = null;
+                if (skills && adventure.Screen == AdventureScreen.Battle && adventure.Battle?.Current is Unit actor && actor.Hero.Skill(Battle.EchoId) != null)
+                {
+                    var echo = adventure.Battle.SkillOf(actor, Battle.EchoId);
+                    echoed = echo.Effect.Length > 0 ? echo.Effect : echo.Kind.ToString().ToLowerInvariant();
+                }
+                int logged = adventure.Log.Count;
                 string error = AdventureBot.Step(adventure, bot, smart, mistakes);
+                if (skills && error == null && adventure.Log.Count > logged && adventure.Log[adventure.Log.Count - 1].StartsWith("fight "))
+                {
+                    string skill = adventure.Log[adventure.Log.Count - 1].Split(' ')[2];
+                    Use(skill);
+                    if (skill == Battle.EchoId && echoed != null) Use($"{skill}:{echoed}");
+                }
                 if (error != null) throw new InvalidOperationException($"bot step {step} on {adventure.Screen}: {error}");
                 // A lost chapter tried again from its start, as a player would (the end screen's 이 장 처음부터).
                 if (adventure.Screen == AdventureScreen.Defeat && tries > 0 && adventure.ChapterStartSave() is string again)
@@ -227,6 +248,18 @@ static class Program
         if (retries > 0) Console.WriteLine($"  장 다시 하기: 판마다 {retries}번까지, 모두 {usedRetries}번 썼다");
         Console.WriteLine($"  1장 비석 {(double)quest / runs:P0}, 1장 단서 {(double)clue / runs:P0}, 중간 보스 {midboss / (double)runs:0.0} · 1장을 넘긴 판: {firstDay / past:0.0}일, 레벨 {firstLevel / past:0.0}, 이긴 전투 {firstBattles / past:0.0}");
         foreach (var pair in endings.OrderByDescending(p => p.Value)) Console.WriteLine($"  {pair.Key}: {pair.Value}");
+        if (!skills) return;
+        Console.WriteLine("  기술을 쓴 횟수(판마다 평균, 모든 영웅의 기본 공격·물약·소모품은 따로):");
+        foreach (string id in party.Distinct())
+            foreach (var skill in _data.Classes[id].Skills)
+            {
+                used.TryGetValue(skill.Id, out int times);
+                Console.WriteLine($"    {_data.Classes[id].Name,-6} {skill.Id,-16} {(double)times / runs,7:0.00}");
+                foreach (var pair in used.Where(p => p.Key.StartsWith(skill.Id + ":")).OrderByDescending(p => p.Value))
+                    Console.WriteLine($"    {"",-6}   {pair.Key.Substring(skill.Id.Length + 1),-14} {(double)pair.Value / runs,7:0.00}");
+            }
+        foreach (var pair in used.Where(p => !p.Key.Contains(':') && !party.Any(id => _data.Classes[id].Skills.Any(s => s.Id == p.Key))).OrderBy(p => p.Key))
+            Console.WriteLine($"    {"",-6} {pair.Key,-16} {(double)pair.Value / runs,7:0.00}");
     }
 
     // A bug report (the settings' 버그 제보, Docs/Playtest.md): the save is replayed and the state it reaches is
