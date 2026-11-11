@@ -301,6 +301,7 @@ namespace Game.Client
                 {
                     var cell = new Rect(i * (die + 6), y, die, die);
                     bool sure = result.Check.Faces[i] < 0;
+                    if (DieFace(cell, result.Check, i)) continue;
                     Ui.Fill(cell, sure ? Palette.Sure : result.Check.Hits[i] ? Settings.Success : Settings.Fail);
                     Ui.Text(cell, sure ? "★" : Settings.Face(result.Check.Faces[i], result.Check.Hits[i]), 14, sure || result.Check.Hits[i] ? Palette.Back : Palette.Ink, TextAnchor.MiddleCenter, true);
                 }
@@ -313,13 +314,25 @@ namespace Game.Client
         }
 
         // After a battle: rewards, levels, hope; or who fell.
+        // A place picture across the column's top (the party on it), when the picture exists; gives back the y below it.
+        float Picture(Rect column, float y, string scene, float share)
+        {
+            if (PixelArt.Picture(scene) == null) return y;
+            float h = Mathf.Clamp(column.height * share, 80, 170);
+            SceneArt.Draw(new Rect(0, y, column.width, h), scene, PartyArt(), Time.unscaledTime);
+            return y + h + 8;
+        }
+
         void DrawReport()
         {
             var a = _adventure;
             bool won = a.Battle == null || a.Battle.State == BattleState.Won;
             bool fled = a.Battle != null && a.Battle.State == BattleState.Fled;
             var column = BeginColumn($"report:{a.Log.Count}", 56);
-            float y = Heading(column, 4, Strings.Get(won ? "battle.result_won" : fled ? "battle.fled" : "battle.lost"), won ? Palette.Gold : fled ? Palette.Journal : Palette.Damage);
+            float y = 4;
+            // A boss or a chapter's lieutenant beaten: the place it fell (Art/scenes.txt boss_down).
+            if (won && a.Battle != null && a.Battle.Monsters.Any(m => m.Monster.Boss)) y = Picture(column, y, "boss_down", 0.26f);
+            y = Heading(column, y, Strings.Get(won ? "battle.result_won" : fled ? "battle.fled" : "battle.lost"), won ? Palette.Gold : fled ? Palette.Journal : Palette.Damage);
             foreach (string line in a.Report) y = Paragraph(column, y, "· " + line, 14);
             EndColumn(y);
             if (Ui.Button(Footer(48), Strings.Get("common.continue"), 17, true, Look.Primary, null, KeyCode.Space)) Act(a.Continue);
@@ -352,7 +365,9 @@ namespace Game.Client
             bool won = a.Screen == AdventureScreen.Victory;
             var column = BeginColumn("end:" + a.Screen, 56);
             string title = Strings.Get(won ? (a.FullRun ? "end.won" : "end.won_short") : a.Story?.Id == a.Chapter.Rift ? "end.rift" : "end.fallen");
-            float y = Heading(column, 4, title, won ? Palette.Gold : Palette.Damage);
+            // The rift closed at dawn, or the banner left in the ash (Art/scenes.txt victory, defeat).
+            float y = Picture(column, 4, won ? "victory" : "defeat", 0.3f);
+            y = Heading(column, y, title, won ? Palette.Gold : Palette.Damage);
             y = Paragraph(column, y, won
                 ? (a.FullRun
                     ? Strings.Format("end.won_text", a.ChaptersCleared, a.Rank.Title)

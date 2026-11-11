@@ -1,0 +1,8 @@
+<!--
+  Kept whole when the web build strips unused code (Client/Editor/ProjectSetup.cs UseWebSettings): the game's own
+  assemblies. The playtest reaches GameRoot by name (SendMessage "Playtest") and the code is small.
+-->
+<linker>
+  <assembly fullname="Game.Client" preserve="all" />
+  <assembly fullname="Game.Core" preserve="all" />
+</linker>

@@ -154,5 +154,25 @@ def main(target):
     print(f"{target}: {len(names) + len(wide)} pictures")
 
 
+def picture(name, target):
+    """One picture at its own size, for the web page (the loading backdrop: Assets/WebGLTemplates/Fit/loading.png)."""
+    found = load_art()
+    if name not in found:
+        sys.exit(f"no picture '{name}'")
+    letters, _, _ = load_palette()
+    rows = found[name]
+    image = Image.new("RGBA", (len(rows[0]), len(rows)), (0, 0, 0, 0))
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                image.putpixel((x, y), letters.get(ch, (255, 0, 255, 255)))
+    image.save(target, optimize=True)
+    print(f"{target}: {name} {image.width}x{image.height}")
+
+
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "art-preview.png")
+    # preview.py out.png — every picture on one sheet; preview.py --picture loading out.png — one picture as it is.
+    if len(sys.argv) > 3 and sys.argv[1] == "--picture":
+        picture(sys.argv[2], sys.argv[3])
+    else:
+        main(sys.argv[1] if len(sys.argv) > 1 else "art-preview.png")

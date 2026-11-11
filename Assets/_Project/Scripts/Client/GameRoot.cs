@@ -234,6 +234,10 @@ namespace Game.Client
                 AdventureScreen.Victory => Tune.Title,
                 AdventureScreen.Defeat => Tune.Title,
                 AdventureScreen.Story => Tune.Story,
+                // Resting: between dungeon rooms, by the campfire with a talk, at a chapter's interlude.
+                AdventureScreen.DungeonRest => Tune.Camp,
+                AdventureScreen.Event when a.Event != null && a.Event.Pool == a.Chapter.InterludePool => Tune.Camp,
+                _ when TalkWaiting => Tune.Camp,
                 _ => System.Enum.TryParse(a.Chapter.Music, true, out Tune tune) ? tune : Tune.Forest,
             };
         }

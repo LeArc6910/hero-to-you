@@ -536,8 +536,10 @@ namespace Game.Core
                     Delay = Number(file, row, "delay"),
                     Effect = row["effect"],
                     Text = row["text"],
+                    Motion = row["motion"],
                 };
                 Choice(file, row, "kind", new[] { "physical", "magic", "buff" });
+                Choice(file, row, "motion", new[] { "", "shot", "throw" });
                 Choice(file, row, "effect", new[] { "", "burn", "chill", "weaken", "howl", "charge", "seal", "erase", "freeze", "scorch", "daze" });
                 if (skill.Damages && skill.Dice == 0) Error(file, row, "공격에는 주사위가 있어야 합니다.");
                 if (skill.Delay < 20 || skill.Delay > 300) Error(file, row, "delay는 20~300(%)입니다.");

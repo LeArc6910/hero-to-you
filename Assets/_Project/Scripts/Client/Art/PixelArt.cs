@@ -286,6 +286,14 @@ namespace Game.Client
             return texture;
         }
 
+        // A single picture of effects.txt (a projectile, a die), or null.
+        public static Texture2D Still(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return null;
+            if (Known('f', name, "", out var known)) return known;
+            return Effects.TryGetValue(name, out var rows) ? Keep('f', name, "", Make("effect:" + name, rows, null)) : null;
+        }
+
         static readonly string[] Frames = { "_1", "_2", "_3" };
 
         // One frame (0-2) of a hit effect (effects.txt: slash, pierce, impact, spell, fire, frost, heal), or null.

@@ -47,25 +47,27 @@ namespace Game.Client
                 {
                     var row = new Rect(0, y, column.width, 44);
                     Ui.Panel(row);
-                    Ui.Text(new Rect(8, y + 2, column.width - 120, 20), item.Name + (item.Sold ? " " + Strings.Get("town.sold") : ""), 13, item.Sold ? Palette.Dim : Palette.Ink, TextAnchor.MiddleLeft, true);
+                    float tx = ItemIcon(new Rect(4, y + 4, 36, 36), item.Item);
+                    Ui.Text(new Rect(tx, y + 2, column.width - 120 - tx, 20), item.Name + (item.Sold ? " " + Strings.Get("town.sold") : ""), 13, item.Sold ? Palette.Dim : Palette.Ink, TextAnchor.MiddleLeft, true);
                     ItemMark(new Rect(column.width - 128, y + 4, 18, 18), item.Item);
-                    Ui.Text(new Rect(8, y + 22, column.width - 120, 18), detail, 10.5f, Palette.Dim);
-                    if (Ui.Button(new Rect(column.width - 104, y + 4, 100, 36), Strings.Format("town.buy", item.Price), 13, !item.Sold && a.Gold >= item.Price, Look.Normal, item.Name)) Act(() => a.Buy(index));
+                    Ui.Text(new Rect(tx, y + 22, column.width - 120 - tx, 18), detail, 10.5f, Palette.Dim);
+                    if (Ui.Button(new Rect(column.width - 104, y + 4, 100, 36), Strings.Format("town.buy", item.Price), 13, !item.Sold && a.Gold >= item.Price, Look.Normal, item.Name) && Act(() => a.Buy(index)) == null) Sounds.Play(Sound.Coin);
                     y += 50;
                     continue;
                 }
                 // A consumable goes to one of the heroes in town: a button each.
                 var box = new Rect(0, y, column.width, 72);
                 Ui.Panel(box);
-                Ui.Text(new Rect(8, y + 2, column.width - 16, 20), Strings.Format("town.price", item.Name, item.Price), 13, Palette.Ink, TextAnchor.MiddleLeft, true);
-                Ui.Text(new Rect(8, y + 20, column.width - 16, 16), detail, 10.5f, Palette.Dim);
+                float ix = ItemIcon(new Rect(4, y + 3, 32, 32), item.Item);
+                Ui.Text(new Rect(ix, y + 2, column.width - 8 - ix, 20), Strings.Format("town.price", item.Name, item.Price), 13, Palette.Ink, TextAnchor.MiddleLeft, true);
+                Ui.Text(new Rect(ix, y + 20, column.width - 8 - ix, 16), detail, 10.5f, Palette.Dim);
                 float bx = 8;
                 float bw = Mathf.Min(150, (column.width - 16 - 6 * (townHeroes.Length - 1)) / Mathf.Max(1, townHeroes.Length));
                 foreach (int h in townHeroes)
                 {
                     var hero = a.Heroes[h];
                     int who = h;
-                    if (Ui.Button(new Rect(bx, y + 38, bw, 30), Strings.Format("town.buy_for", hero.Name, hero.Count(item.Item.Id)), 11.5f, a.Gold >= item.Price, Look.Normal, item.Name)) Act(() => a.Buy(index, who));
+                    if (Ui.Button(new Rect(bx, y + 38, bw, 30), Strings.Format("town.buy_for", hero.Name, hero.Count(item.Item.Id)), 11.5f, a.Gold >= item.Price, Look.Normal, item.Name) && Act(() => a.Buy(index, who)) == null) Sounds.Play(Sound.Coin);
                     bx += bw + 6;
                 }
                 y += 78;
@@ -125,7 +127,8 @@ namespace Game.Client
                     var item = a.Bag[i];
                     var row = new Rect(0, y, column.width, 40);
                     Ui.Panel(row);
-                    Ui.Text(new Rect(8, y, column.width - 120, 40), $"{item.Name} · {ItemLine(item)}", 12, Palette.Ink);
+                    float sx = ItemIcon(new Rect(4, y + 4, 32, 32), item);
+                    Ui.Text(new Rect(sx, y, column.width - 112 - sx, 40), $"{item.Name} · {ItemLine(item)}", 12, Palette.Ink);
                     if (Ui.Button(new Rect(column.width - 104, y + 2, 100, 36), Strings.Format("town.sell", Adventure.SellPrice(item)), 13, true, Look.Quiet, item.Name)) Act(() => a.Sell(i));
                     y += 46;
                 }
@@ -174,6 +177,23 @@ namespace Game.Client
             return EffectIcon(effect) == null ? "" : Strings.Format("item.effect." + effect, item.EffectAmount);
         }
 
+        // The item's picture (Art/icons.txt item_*): gear by its kind (sword, light armour, ring…), a consumable by its id.
+        static Texture2D ItemPicture(ItemDef item)
+        {
+            if (item == null) return null;
+            string key = item.Consumable ? (item.Id == "charm" ? "luckycharm" : item.Id) : item.Kind;
+            return PixelArt.Icon("item_" + key);
+        }
+
+        // Draws the item's picture at r and gives back where the words beside it start (at r when there is none).
+        static float ItemIcon(Rect r, ItemDef item)
+        {
+            var picture = ItemPicture(item);
+            if (picture == null) return r.x + 4;
+            Ui.Image(r, picture);
+            return r.xMax + 6;
+        }
+
         // The effect's mark at r (nothing for gear without one), with its word as the tip.
         static void ItemMark(Rect r, ItemDef item)
         {
@@ -217,13 +237,16 @@ namespace Game.Client
                 Ui.Tip(new Rect(w - 106, y + 4, 100, 44), Strings.Get("gear.row_tip"));
                 string stats = string.Join(" ", Enumerable.Range(0, Stats.Count).Select(i => $"{Stats.Name((Stat)i, Sheets)} {hero.Stat((Stat)i)}"));
                 Ui.Text(new Rect(48, y + 22, w - 160, 16), stats, 10.5f, Palette.Dim);
-                Ui.Text(new Rect(48, y + 38, w - 52, 16), Strings.Format("gear.weapon", hero.Weapon.Name, ItemLine(hero.Weapon)), 11, Palette.Journal);
+                Ui.Image(new Rect(48, y + 38, 16, 16), ItemPicture(hero.Weapon));
+                Ui.Text(new Rect(66, y + 38, w - 70, 16), Strings.Format("gear.weapon", hero.Weapon.Name, ItemLine(hero.Weapon)), 11, Palette.Journal);
                 float sy = y + 56;
                 string armor = Strings.Format("gear.armor", hero.Armor != null ? hero.Armor.Name : Strings.Get("common.none"));
                 string trinket = Strings.Format("gear.trinket", hero.Trinket != null ? hero.Trinket.Name : Strings.Get("common.none"));
-                Ui.Text(new Rect(48, sy, (w - 52) / 2 - 60, 30), armor, 11, Palette.Journal);
+                if (hero.Armor != null) Ui.Image(new Rect(48, sy + 7, 16, 16), ItemPicture(hero.Armor));
+                Ui.Text(new Rect(hero.Armor != null ? 66 : 48, sy, (w - 52) / 2 - 78, 30), armor, 11, Palette.Journal);
                 if (hero.Armor != null && Ui.Button(new Rect(48 + (w - 52) / 2 - 58, sy, 54, 30), Strings.Get("gear.unequip"), 11, true, Look.Quiet, hero.Name + " 갑옷")) Act(() => a.Unequip(h, ItemSlot.Armor));
-                Ui.Text(new Rect(48 + (w - 52) / 2, sy, (w - 52) / 2 - 60, 30), trinket, 11, Palette.Journal);
+                if (hero.Trinket != null) Ui.Image(new Rect(48 + (w - 52) / 2, sy + 7, 16, 16), ItemPicture(hero.Trinket));
+                Ui.Text(new Rect(48 + (w - 52) / 2 + (hero.Trinket != null ? 18 : 0), sy, (w - 52) / 2 - 78, 30), trinket, 11, Palette.Journal);
                 if (hero.Trinket != null && Ui.Button(new Rect(w - 60, sy, 54, 30), Strings.Get("gear.unequip"), 11, true, Look.Quiet, hero.Name + " 장신구")) Act(() => a.Unequip(h, ItemSlot.Trinket));
                 // Consumables: the ones that work outside battle can be used here.
                 float cw = (w - 52 - 12) / 3;
@@ -247,15 +270,16 @@ namespace Game.Client
                 var item = a.Bag[i];
                 var box = new Rect(0, y, w, 64);
                 Ui.Panel(box);
-                Ui.Text(new Rect(8, y + 2, w - 16, 20), item.Name, 13, Palette.Ink, TextAnchor.MiddleLeft, true);
+                float gx = ItemIcon(new Rect(4, y + 3, 32, 32), item);
+                Ui.Text(new Rect(gx, y + 2, w - 8 - gx, 20), item.Name, 13, Palette.Ink, TextAnchor.MiddleLeft, true);
                 ItemMark(new Rect(w - 26, y + 4, 18, 18), item);
-                Ui.Text(new Rect(8, y + 20, w - 16, 16), ItemLine(item), 10.5f, Palette.Dim);
+                Ui.Text(new Rect(gx, y + 20, w - 8 - gx, 16), ItemLine(item), 10.5f, Palette.Dim);
                 float bx = 8;
                 for (int h = 0; h < a.Heroes.Count; h++)
                 {
                     var hero = a.Heroes[h];
                     if (!hero.CanEquip(item)) continue;
-                    if (Ui.Button(new Rect(bx, y + 38, 110, 24), Strings.Format("gear.give", hero.Name), 11, true, Look.Normal, item.Name)) Act(() => a.Equip(i, h));
+                    if (Ui.Button(new Rect(bx, y + 38, 110, 24), Strings.Format("gear.give", hero.Name), 11, true, Look.Normal, item.Name) && Act(() => a.Equip(i, h)) == null) Sounds.Play(Sound.Equip);
                     bx += 116;
                 }
                 if (bx == 8) Ui.Text(new Rect(8, y + 38, w - 16, 24), Strings.Get("gear.nobody"), 10.5f, Palette.Dim);

@@ -15,19 +15,31 @@
     <style>
       html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #14121A; touch-action: none; }
       #unity-canvas { position: fixed; left: 0; top: 0; width: 100%; height: 100%; display: block; outline: none; background: #14121A; }
-      #loading { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 280px; max-width: 70%;
-                 color: #F1E9DA; font: 16px sans-serif; text-align: center; }
-      #loading .bar { margin-top: 10px; height: 12px; border: 2px solid #5E5468; background: #0D0B10; }
-      #loading .fill { width: 0; height: 100%; background: #B5562F; }
+      /* The loading backdrop: the game's own night road (Art/scenes.txt "loading", made into loading.png by
+         DevTools/ArtPreview/preview.py --picture loading), big and pixel-sharp, with a pixel-framed bar. */
+      #backdrop { position: fixed; inset: 0; background: #14121A url("loading.png") center bottom / cover no-repeat;
+                  image-rendering: pixelated; image-rendering: crisp-edges; }
+      /* A phone held upright: about two thirds of the picture across, at the bottom, its night sky above. */
+      @media (orientation: portrait) { #backdrop { background-size: 150% auto; background-color: #28222F; } }
+      #loading { position: fixed; left: 50%; top: 38%; transform: translate(-50%, -50%); width: 300px; max-width: 78%;
+                 color: #F1E9DA; font: 15px sans-serif; text-align: center; text-shadow: 0 2px 0 #0D0B10; }
+      #loading .name { font-size: 30px; font-weight: bold; color: #E8C15A; letter-spacing: 2px; }
+      #loading .what { margin-top: 6px; opacity: 0.85; }
+      #loading .bar { margin-top: 14px; height: 14px; border: 3px solid #0D0B10; background: #2B2433;
+                      box-shadow: inset 0 0 0 2px #5E5468, 0 0 0 2px #5E5468; }
+      #loading .fill { width: 0; height: 100%; background: #B5562F; box-shadow: inset 0 3px 0 #D9824A; }
+      #loading .pct { margin-top: 6px; font-size: 13px; opacity: 0.8; }
     </style>
   </head>
   <body>
     <canvas id="unity-canvas" tabindex="-1"></canvas>
-    <div id="loading">히어로 투 유 · 불러오는 중…<div class="bar"><div class="fill"></div></div></div>
+    <div id="backdrop"></div>
+    <div id="loading"><div class="name">히어로 투 유</div><div class="what">길을 떠날 준비를 하는 중…</div><div class="bar"><div class="fill"></div></div><div class="pct">0%</div></div>
     <script src="Build/{{{ LOADER_FILENAME }}}"></script>
     <script>
       var canvas = document.querySelector("#unity-canvas");
       var loading = document.querySelector("#loading");
+      var backdrop = document.querySelector("#backdrop");
       window.heroLastPointer = "";
       window.addEventListener("pointerdown", function (e) { window.heroLastPointer = e.pointerType || "mouse"; }, true);
       window.addEventListener("touchstart", function () { window.heroLastPointer = "touch"; }, { capture: true, passive: true });
@@ -55,9 +67,11 @@
         autoSyncPersistentDataPath: true,
       }, function (progress) {
         loading.querySelector(".fill").style.width = Math.round(progress * 100) + "%";
+        loading.querySelector(".pct").textContent = Math.round(progress * 100) + "%";
       }).then(function (instance) {
         window.unityInstance = instance;
         loading.remove();
+        backdrop.remove();
         canvas.focus();
       }).catch(function (message) {
         loading.textContent = "불러오지 못했습니다: " + message;

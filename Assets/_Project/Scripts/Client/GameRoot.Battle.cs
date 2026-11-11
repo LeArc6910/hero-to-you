@@ -31,6 +31,51 @@ namespace Game.Client
 
         const float FlashFrame = 0.08f;
 
+        // ---- Motion across the field (user request 2026-11-11: the diagonal battle comes alive) ----
+
+        // A blow on its way: a run to the target and back (in close), a shot flying (arrows, bolts, stones, spells),
+        // or a swing where it stands (blows on everyone, help). HitAt is when its first number shows.
+        enum Move { Run, Shoot, InPlace }
+
+        sealed class Motion
+        {
+            public int Actor;
+            public int Target;
+            public Move Move;
+            public string Projectile;
+            public readonly List<int> Targets = new List<int>();
+            public float HitAt;
+        }
+
+        sealed class Shot
+        {
+            public int From, To;
+            public string Name;
+            public float Launch, Arrive;
+            public bool Arc;
+        }
+
+        const float RunIn = 0.36f, StrikeHold = 0.22f, RunBack = 0.3f, Flight = 0.24f, FallTime = 0.4f;
+
+        float _playClock;
+        Motion _pendingMotion;
+
+        // Sounds due later in the playback (a run's footsteps, a shot's launch, the dice settling).
+        readonly List<(float at, Sound sound)> _cues = new List<(float, Sound)>();
+
+        void Cue(float at, Sound sound)
+        {
+            if (_speed > 0) _cues.Add((at, sound));
+        }
+        readonly List<Motion> _motions = new List<Motion>();
+        readonly List<Shot> _shots = new List<Shot>();
+        readonly Dictionary<int, float> _knockAt = new Dictionary<int, float>();
+        readonly Dictionary<int, Vector2> _knockWay = new Dictionary<int, Vector2>();
+        readonly Dictionary<int, float> _fallAt = new Dictionary<int, float>();
+        readonly Dictionary<int, BattleLayout.Place> _placeOf = new Dictionary<int, BattleLayout.Place>();
+        int _blowActor = -1;
+        float _shakeAt = -10, _shakePower;
+
         Battle _battleShown;
         int _played;
         float _eventTimer;
@@ -38,8 +83,6 @@ namespace Game.Client
         readonly Dictionary<int, int> _shownHp = new Dictionary<int, int>();
         readonly Dictionary<int, float> _hitAt = new Dictionary<int, float>();
 
-        // When each unit last attacked (it lunges toward the other side) and which way.
-        readonly Dictionary<int, float> _lungeAt = new Dictionary<int, float>();
         readonly List<Floater> _floaters = new List<Floater>();
         readonly List<HitFlash> _flashes = new List<HitFlash>();
         readonly List<string> _log = new List<string>();
@@ -84,6 +127,15 @@ namespace Game.Client
             if (battle != _battleShown) BeginPlayback(battle);
             FirstTip("battle");
             float step = _speed <= 0 ? float.MaxValue : dt * _speed;
+            _playClock += _speed <= 0 ? 100 : step;
+            _motions.RemoveAll(m => _playClock > m.HitAt + StrikeHold + RunBack + 0.1f);
+            _shots.RemoveAll(shot => _playClock > shot.Arrive);
+            for (int i = _cues.Count - 1; i >= 0; i--)
+            {
+                if (_cues[i].at > _playClock) continue;
+                if (_speed > 0 && _playClock - _cues[i].at < 0.5f) Sounds.Play(_cues[i].sound);
+                _cues.RemoveAt(i);
+            }
             foreach (var floater in _floaters) floater.Age += step;
             _floaters.RemoveAll(f => f.Age > 1.2f);
             foreach (var flash in _flashes) flash.Age += step;
@@ -95,8 +147,10 @@ namespace Game.Client
             while (_eventTimer <= 0 && _played < battle.Events.Count && guard++ < 1000)
             {
                 var e = battle.Events[_played++];
+                _pendingMotion = null;
                 Play(e);
                 _eventTimer += _speed <= 0 ? 0 : Duration(e, battle);
+                if (_pendingMotion != null && _speed > 0) StartMotion(_pendingMotion, _playClock + Mathf.Max(0, _eventTimer));
             }
             if (_played >= battle.Events.Count && _eventTimer < 0) _eventTimer = 0;
             if (!BattlePlaying) SyncShown(battle);
@@ -110,6 +164,11 @@ namespace Game.Client
             _turnActor = -1;
             _floaters.Clear();
             _flashes.Clear();
+            _motions.Clear();
+            _shots.Clear();
+            _cues.Clear();
+            _knockAt.Clear();
+            _fallAt.Clear();
             _log.Clear();
             _diceEvent = null;
             _banner = _adventure.Encounter?.Text;
@@ -144,6 +203,8 @@ namespace Game.Client
             _played = _battleShown.Events.Count;
             _eventTimer = 0;
             _diceEvent = null;
+            _motions.Clear();
+            _shots.Clear();
             _banner = null;
             SyncShown(_battleShown);
             for (int i = _battleShown.Events.Count - 1; i >= 0; i--)
@@ -196,8 +257,18 @@ namespace Game.Client
                 case BattleEventKind.Roll:
                     _diceEvent = e;
                     _diceAge = 0;
-                    if (e.Actor >= 0 && e.Target != e.Actor) _lungeAt[e.Actor] = _clock;
-                    if (_speed > 0) Sounds.Play(e.Perfect ? Sound.Perfect : Sound.Dice);
+                    if (e.Actor >= 0) _pendingMotion = MotionFor(e);
+                    _blowActor = e.Actor;
+                    if (_speed > 0 && e.Check != null)
+                    {
+                        // The dice rattle, then settle as the last one lands: a chime when one was sure, a fanfare
+                        // when all succeeded.
+                        Sounds.Play(Sound.DiceTumble);
+                        bool anySure = false;
+                        for (int i = 0; i < e.Check.Dice; i++) anySure |= e.Check.Faces[i] < 0;
+                        Cue(_playClock + LandAt(e.Check.Dice - 1), e.Perfect ? Sound.Perfect : anySure ? Sound.Sure : Sound.DiceLand);
+                    }
+                    else if (_speed > 0) Sounds.Play(e.Perfect ? Sound.Perfect : Sound.Dice);
                     _blowSound = BlowSound(e);
                     _blowEffect = BlowEffect(e);
                     _blowFromRight = _battleShown.Unit(e.Actor) is Unit striker && !striker.IsHero && striker.Side != Side.Party;
@@ -207,6 +278,7 @@ namespace Game.Client
                     _hitAt[e.Target] = _clock;
                     if (_speed > 0 && _battleShown.Unit(e.Target).IsHero) WebBridge.Buzz(40);
                     Float(e.Target, "-" + e.Amount + (e.Perfect ? "!" : ""), Palette.Damage);
+                    Knock(e.Target, e.Perfect || e.Amount * 4 >= _battleShown.Unit(e.Target).MaxHp, e.Perfect);
                     Flash(e.Target, _blowEffect, _blowFromRight);
                     if (_speed > 0) Sounds.Play(_blowSound);
                     break;
@@ -219,6 +291,8 @@ namespace Game.Client
                     _shownHp[e.Target] += e.Amount;
                     Float(e.Target, "+" + e.Amount, Palette.Heal);
                     Flash(e.Target, "heal", false);
+                    // Help from someone else flies over as a small light.
+                    if (_speed > 0 && e.Actor >= 0 && e.Actor != e.Target) _shots.Add(new Shot { From = e.Actor, To = e.Target, Name = "proj_holy", Launch = _playClock - 0.05f, Arrive = _playClock + 0.2f });
                     if (_speed > 0) Sounds.Play(Sound.Heal);
                     break;
                 case BattleEventKind.Revive:
@@ -227,7 +301,8 @@ namespace Game.Client
                     break;
                 case BattleEventKind.Down:
                     _shownHp[e.Target] = 0;
-                    if (_speed > 0) Sounds.Play(Sound.Down);
+                    _fallAt[e.Target] = _playClock;
+                    if (_speed > 0) Sounds.Play(_battleShown.Unit(e.Target).IsHero ? Sound.Down : Sound.Fall);
                     break;
                 case BattleEventKind.StatusOn:
                     Float(e.Target, StatusFloat(e), Palette.Gold);
@@ -247,7 +322,20 @@ namespace Game.Client
                 case BattleEventKind.Fled:
                     _banner = e.Text;
                     _bannerAge = 0;
-                    if (_speed > 0) Sounds.Play(e.Kind == BattleEventKind.Victory ? Sound.Victory : e.Kind == BattleEventKind.Defeat ? Sound.Defeat : Sound.Battle);
+                    // A boss going down shakes the whole field.
+                    if (e.Kind == BattleEventKind.Victory && _speed > 0 && _battleShown.Monsters.Any(m => m.Monster.Boss))
+                    {
+                        _shakeAt = _playClock;
+                        _shakePower = 7;
+                    }
+                    if (_speed > 0)
+                    {
+                        // Winning and losing get their short tunes over the music; a boss falling, a crash first.
+                        if (e.Kind == BattleEventKind.Victory && _battleShown.Monsters.Any(m => m.Monster.Boss)) Sounds.Play(Sound.BossDown);
+                        if (e.Kind == BattleEventKind.Victory) Music.Sting(Tune.Victory);
+                        else if (e.Kind == BattleEventKind.Defeat) Music.Sting(Tune.Defeat);
+                        else Sounds.Play(Sound.Battle);
+                    }
                     break;
             }
             if (e.Kind != BattleEventKind.Turn && e.Kind != BattleEventKind.Intent && !string.IsNullOrEmpty(e.Text))
@@ -268,15 +356,8 @@ namespace Game.Client
             {
                 var skill = unit.Hero.Skill(e.Skill);
                 if (skill == null) return Sound.Hit;
-                if (skill.Kind == SkillKind.Magic) return Sound.Spell;
-                if (skill.Kind != SkillKind.Physical) return Sound.Hit;
-                if (e.Skill != Hero.AttackId) return Sound.Slash;
-                return unit.Hero.Weapon?.Kind switch
-                {
-                    "bow" or "crossbow" or "sling" or "cards" => Sound.Arrow,
-                    "fist" => Sound.Punch,
-                    _ => Sound.Slash,
-                };
+                if (unit.Hero.Weapon?.Kind == "fist" && skill.Kind == SkillKind.Physical) return Sound.Punch;
+                return SoundOf(BlowEffect(e));
             }
             if (!_data.MonsterSkills.TryGetValue(e.Skill, out var blow)) return Sound.Hit;
             return blow.Effect switch
@@ -286,9 +367,20 @@ namespace Game.Client
                 "freeze" => Sound.Freeze,
                 "scorch" => Sound.Brand,
                 "daze" => Sound.Bell,
-                _ => blow.Kind == "magic" ? Sound.Spell : Sound.Slash,
+                _ => SoundOf(BlowEffect(e)),
             };
         }
+
+        // The landing sound of a blow, by its picture (BlowEffect).
+        static Sound SoundOf(string effect) => effect switch
+        {
+            "pierce" => Sound.Pierce,
+            "impact" => Sound.Impact,
+            "fire" => Sound.Fire,
+            "frost" => Sound.Frost,
+            "spell" => Sound.Spell,
+            _ => Sound.Slash,
+        };
 
         // The picture of the blows from the last roll (Art/effects.txt), chosen like their sound.
         string _blowEffect = "impact";
@@ -333,6 +425,155 @@ namespace Game.Client
             foreach (var place in _places)
                 units.Append(units.Length > 0 ? "," : "").Append($"{{\"party\":{(place.Party ? "true" : "false")},\"x\":{Mathf.RoundToInt(place.Foot.x)},\"y\":{Mathf.RoundToInt(place.Foot.y)},\"size\":{Mathf.RoundToInt(place.Size)}}}");
             return $"{{\"title\":{(PixelArt.Picture("title") != null ? "true" : "false")},\"backdrop\":\"{_backdropShown ?? ""}\",\"flashes\":{_flashesShown},\"units\":[{units}]}}";
+        }
+
+        // What the next roll's blow looks like on the field: who it reaches (the damage and misses that follow it) and
+        // whether the striker runs in, shoots, or swings where it stands.
+        Motion MotionFor(BattleEvent e)
+        {
+            var actor = _battleShown?.Unit(e.Actor);
+            if (actor == null) return null;
+            var motion = new Motion { Actor = e.Actor, Target = e.Target, Projectile = ProjectileFor(e, actor) };
+            var events = _battleShown.Events;
+            for (int i = _played; i < events.Count; i++)
+            {
+                var next = events[i];
+                if (next.Kind == BattleEventKind.Roll || next.Kind == BattleEventKind.Turn) break;
+                if ((next.Kind == BattleEventKind.Damage || next.Kind == BattleEventKind.Miss) && next.Target >= 0 && !motion.Targets.Contains(next.Target)) motion.Targets.Add(next.Target);
+            }
+            bool otherSide = motion.Targets.Count == 1 && IsPartySide(_battleShown.Unit(motion.Targets[0])) != IsPartySide(actor);
+            motion.Move = motion.Projectile != null && motion.Targets.Count > 0 ? Move.Shoot : otherSide ? Move.Run : Move.InPlace;
+            if (motion.Move == Move.Run) motion.Target = motion.Targets[0];
+            return motion;
+        }
+
+        static bool IsPartySide(Unit unit) => unit != null && (unit.IsHero || unit.Side == Side.Party);
+
+        void StartMotion(Motion motion, float hitAt)
+        {
+            motion.HitAt = hitAt;
+            _motions.Add(motion);
+            if (motion.Move == Move.Run) Cue(hitAt - RunIn, Sound.Run);
+            else if (motion.Move == Move.Shoot) Cue(hitAt - Flight, motion.Projectile is "proj_arrow" or "proj_bolt" ? Sound.Arrow : Sound.Whoosh);
+            else if (motion.Targets.Count > 0) Cue(hitAt - 0.16f, Sound.Whoosh);
+            if (motion.Move != Move.Shoot) return;
+            bool arc = motion.Projectile == "proj_stone" || motion.Projectile == "proj_card";
+            foreach (int target in motion.Targets)
+                _shots.Add(new Shot { From = motion.Actor, To = target, Name = motion.Projectile, Launch = hitAt - Flight, Arrive = hitAt, Arc = arc });
+        }
+
+        // The picture that flies for a blow (Art/effects.txt proj_*), or null for a blow in close.
+        string ProjectileFor(BattleEvent e, Unit unit)
+        {
+            if (string.IsNullOrEmpty(e.Skill)) return null;
+            if (unit.IsHero)
+            {
+                var skill = unit.Hero.Skill(e.Skill);
+                if (skill == null || !skill.Damages) return null;
+                if (skill.Element == "fire" || skill.Effect == "burn") return "proj_fire";
+                if (skill.Element == "frost" || skill.Effect == "chill") return "proj_frost";
+                if (skill.Kind == SkillKind.Magic) return "proj_spell";
+                return unit.Hero.Weapon?.Kind switch
+                {
+                    "bow" => "proj_arrow",
+                    "crossbow" => "proj_bolt",
+                    "sling" => "proj_stone",
+                    "cards" => "proj_card",
+                    _ => null,
+                };
+            }
+            if (!_data.MonsterSkills.TryGetValue(e.Skill, out var blow) || !blow.Damages) return null;
+            if (blow.Motion == "shot") return "proj_arrow";
+            if (blow.Motion == "throw") return "proj_stone";
+            if (blow.Kind != "magic") return null;
+            return blow.Effect is "scorch" or "burn" ? "proj_fire" : blow.Effect is "freeze" or "chill" ? "proj_frost" : "proj_dark";
+        }
+
+        // A blow pushes its target away from the striker; a heavy one (a perfect roll, a quarter of its life, a boss's
+        // blow) shakes the field.
+        void Knock(int target, bool heavy, bool perfect)
+        {
+            if (_speed <= 0 || target < 0) return;
+            var striker = _battleShown.Unit(_blowActor);
+            _knockAt[target] = _playClock;
+            _knockWay[target] = striker != null ? Toward(striker) : Vector2.zero;
+            if (heavy || (striker != null && !striker.IsHero && striker.Monster.Boss))
+            {
+                _shakeAt = _playClock;
+                _shakePower = perfect ? 5 : 3;
+            }
+        }
+
+        // How far a unit has left its place this moment and in what pose: running in to strike and back, rocking back
+        // from a shot it fired, pushed by a blow.
+        Vector2 MotionOffset(Unit unit, float size, out PixelArt.Pose? pose)
+        {
+            pose = null;
+            var offset = Vector2.zero;
+            if (Settings.LessMotion) return offset;
+            foreach (var motion in _motions)
+            {
+                if (motion.Actor != unit.Id) continue;
+                float t = _playClock;
+                if (motion.Move == Move.Run && _placeOf.TryGetValue(motion.Actor, out var from) && _placeOf.TryGetValue(motion.Target, out var to))
+                {
+                    var way = from.Foot - to.Foot;
+                    var strike = to.Foot + way.normalized * (to.Size * 0.42f + from.Size * 0.3f);
+                    float go = motion.HitAt - RunIn, at = motion.HitAt - 0.05f, leave = motion.HitAt + StrikeHold, home = leave + RunBack;
+                    float p = t < go ? 0 : t < at ? Ease((t - go) / (at - go)) : t < leave ? 1 : t < home ? 1 - Ease((t - leave) / (home - leave)) : 0;
+                    offset += (strike - from.Foot) * p;
+                    bool moving = (t >= go && t < at) || (t >= leave && t < home);
+                    if (moving) pose = ((int)(t * 12)) % 2 == 0 ? PixelArt.Pose.Walk1 : PixelArt.Pose.Walk2;
+                    else if (t >= at && t < leave) pose = PixelArt.Pose.Attack;
+                }
+                else if (t >= motion.HitAt - (motion.Move == Move.Shoot ? Flight + 0.08f : 0.16f) && t < motion.HitAt + 0.12f)
+                {
+                    // Firing or swinging where it stands: a short lean toward the other side.
+                    float k = Mathf.InverseLerp(motion.HitAt - Flight - 0.08f, motion.HitAt + 0.12f, t);
+                    offset += Toward(unit) * Mathf.Sin(k * Mathf.PI) * size * 0.12f;
+                    pose = PixelArt.Pose.Attack;
+                }
+            }
+            if (_knockAt.TryGetValue(unit.Id, out float knocked) && _playClock - knocked < 0.3f)
+                offset += _knockWay[unit.Id] * Mathf.Sin((_playClock - knocked) / 0.3f * Mathf.PI) * size * 0.1f;
+            return offset;
+        }
+
+        static float Ease(float t) => t * t * (3 - 2 * t);
+
+        // The shots in flight, from the striker's hands to the target's middle, a thrown stone or card in an arc.
+        void DrawShots()
+        {
+            foreach (var shot in _shots)
+            {
+                if (_playClock < shot.Launch || !_unitRects.TryGetValue(shot.From, out var from) || !_unitRects.TryGetValue(shot.To, out var to)) continue;
+                var picture = PixelArt.Still(shot.Name);
+                if (picture == null) continue;
+                float k = Mathf.Clamp01((_playClock - shot.Launch) / Mathf.Max(0.01f, shot.Arrive - shot.Launch));
+                Vector2 a = new Vector2(from.center.x, from.y + from.height * 0.45f), b = to.center;
+                var at = Vector2.Lerp(a, b, k);
+                float lift = shot.Arc ? Mathf.Sin(k * Mathf.PI) * Vector2.Distance(a, b) * 0.18f : 0;
+                at.y -= lift;
+                // Point it along its path (the slope of the arc included).
+                var way = b - a;
+                if (shot.Arc) way.y -= Mathf.Cos(k * Mathf.PI) * Vector2.Distance(a, b) * 0.18f * Mathf.PI;
+                float angle = Mathf.Atan2(way.y, way.x) * Mathf.Rad2Deg;
+                float size = Mathf.Max(16, Mathf.Min(from.width, to.width) * 0.5f);
+                var rect = new Rect(at.x - size / 2, at.y - size / 2, size, size);
+                var old = GUI.matrix;
+                GUIUtility.RotateAroundPivot(angle, Ui.ToPixels(rect).center);
+                Ui.Image(rect, picture);
+                GUI.matrix = old;
+            }
+        }
+
+        // A short shake of the whole field after a heavy blow (not with less motion).
+        Vector2 Shake()
+        {
+            float t = _playClock - _shakeAt;
+            if (Settings.LessMotion || t < 0 || t > 0.28f) return Vector2.zero;
+            float fade = 1 - t / 0.28f;
+            return new Vector2(Mathf.Sin(t * 95) * _shakePower, Mathf.Cos(t * 77) * _shakePower * 0.6f) * fade;
         }
 
         void Flash(int unit, string name, bool fromRight)
@@ -395,10 +636,16 @@ namespace Game.Client
 
             PrepareSelection(battle);
             DrawTimeline(top, battle);
+            // A heavy blow shakes the field (not the panel).
+            var shake = Shake();
+            var unshaken = GUI.matrix;
+            if (shake != Vector2.zero) GUI.matrix = Matrix4x4.Translate(new Vector3(shake.x * Ui.Scale, shake.y * Ui.Scale, 0)) * unshaken;
             DrawBackdrop(field);
             DrawUnits(field, battle);
+            DrawShots();
             DrawFlashes();
             DrawFloaters();
+            GUI.matrix = unshaken;
             DrawDice(field, battle);
             DrawBanner(field);
             DrawPanel(panel, battle);
@@ -523,6 +770,8 @@ namespace Game.Client
             foreach (var unit in battle.Monsters)
                 _foeSpots.Add(new BattleLayout.Spot { Id = unit.Id, Big = unit.Monster.Size > 1, LabelW = FoeLabelW, LabelH = LabelH + IntentH });
             _places = BattleLayout.Lay(field, Ui.Portrait, _partySpots, _foeSpots);
+            _placeOf.Clear();
+            foreach (var place in _places) _placeOf[place.Id] = place;
         }
 
         void DrawUnits(Rect field, Battle battle)
@@ -562,18 +811,21 @@ namespace Game.Client
             // a shake and a red flash when hit, lying low when down.
             float at = -10;
             bool hit = !Settings.LessMotion && _hitAt.TryGetValue(unit.Id, out at) && _clock - at < 0.25f;
-            float shake = hit ? Mathf.Sin((_clock - at) * 80) * 3 : 0;
-            float lunge = 0;
-            if (!Settings.LessMotion && _lungeAt.TryGetValue(unit.Id, out float swung) && _clock - swung < 0.3f) lunge = Mathf.Sin((_clock - swung) / 0.3f * Mathf.PI) * size * 0.22f;
-            var toward = Toward(unit);
+            float shake = hit ? Mathf.Sin((_clock - at) * 80) * 2 : 0;
+            PixelArt.Pose? movePose = null;
+            var moved = down ? Vector2.zero : MotionOffset(unit, size, out movePose);
             float breath = down || Settings.LessMotion ? 0 : Mathf.Sin(_clock * 2.2f + unit.Id * 1.3f) * size * 0.015f;
-            // A fallen hero with its own lying picture is drawn whole; anything else fallen lies low and squashed.
+            // Falling over a moment, then lying: a hero with its own lying picture is drawn whole; anything else lies
+            // low, squashed and faded.
             bool lying = down && unit.IsHero && PixelArt.HasPose(unit.Hero.Class.Id, PixelArt.Pose.Down);
-            float sink = down && !lying ? size * 0.18f : 0;
-            var spriteRect = new Rect(place.Sprite.x + shake + toward.x * lunge, place.Sprite.y + toward.y * lunge + breath + sink, size, size - sink);
+            float fall = down && _fallAt.TryGetValue(unit.Id, out float fell) && !Settings.LessMotion ? Mathf.Clamp01((_playClock - fell) / FallTime) : 1;
+            float sink = down && !lying ? size * 0.18f * fall : 0;
+            var spriteRect = new Rect(place.Sprite.x + shake + moved.x, place.Sprite.y + moved.y + breath + sink, size, size - sink);
             _unitRects[unit.Id] = spriteRect;
-            var tint = lying ? new Color(0.72f, 0.7f, 0.78f, 0.9f) : down ? new Color(0.4f, 0.4f, 0.45f, 0.45f) : hit ? new Color(1f, 0.55f, 0.5f, 1f) : (Color?)null;
-            var pose = lying ? PixelArt.Pose.Down : down ? PixelArt.Pose.Stand : hit ? PixelArt.Pose.Hit : lunge > 0 ? PixelArt.Pose.Attack : PixelArt.Pose.Stand;
+            var tint = down && fall < 1 ? Color.Lerp(new Color(1f, 0.55f, 0.5f, 1f), lying ? new Color(0.72f, 0.7f, 0.78f, 0.9f) : new Color(0.4f, 0.4f, 0.45f, 0.45f), fall)
+                : lying ? new Color(0.72f, 0.7f, 0.78f, 0.9f) : down ? new Color(0.4f, 0.4f, 0.45f, 0.45f) : hit ? new Color(1f, 0.55f, 0.5f, 1f) : (Color?)null;
+            var pose = down ? (fall < 0.5f ? PixelArt.Pose.Hit : lying ? PixelArt.Pose.Down : PixelArt.Pose.Stand)
+                : hit ? PixelArt.Pose.Hit : movePose ?? PixelArt.Pose.Stand;
             Ui.Image(spriteRect, Sprite(unit, pose), tint);
         }
 
@@ -705,7 +957,12 @@ namespace Game.Client
             Ui.Text(new Rect(r.x, r.y + 2, r.width, 18), $"{actor?.Name}: {e.SkillName} · {Strings.Format("dice.under", check.Chance)}", 12, Palette.Ink, TextAnchor.MiddleCenter, true);
             bool rolling = _diceAge < 0.45f;
             float x = r.x + (r.width - (die * check.Dice + 8 * (check.Dice - 1))) / 2;
-            for (int i = 0; i < check.Dice; i++)
+            if (PixelArt.Still("die_face") != null)
+            {
+                DrawPixelDice(check, x, r.y + 22, die);
+                rolling = _diceAge < LandAt(check.Dice - 1);
+            }
+            else for (int i = 0; i < check.Dice; i++)
             {
                 var cell = new Rect(x + i * (die + 8), r.y + 22, die, die);
                 bool sure = check.Faces[i] < 0;
@@ -720,6 +977,47 @@ namespace Game.Client
                 string result = Strings.Format(check.Perfect ? "battle.dice_perfect" : "dice.successes_of", check.Successes, check.Dice);
                 Ui.Text(new Rect(r.x, r.yMax - 22, r.width, 20), result, 13, check.Perfect ? Palette.Gold : Palette.Ink, TextAnchor.MiddleCenter, true);
             }
+        }
+
+        // Each die lands a beat after the one before it.
+        static float LandAt(int die) => 0.32f + die * 0.08f;
+
+        // The dice as pixel dice (Art/effects.txt die_*): tumbling and hopping until each lands, then its face: green
+        // under the chance, grey-red over it, gold with a star when sure, all gold and sparkling for a perfect roll; a
+        // little pop as it lands. The number sits on the face.
+        void DrawPixelDice(CheckResult check, float x, float y, float die)
+        {
+            for (int i = 0; i < check.Dice; i++)
+            {
+                var cell = new Rect(x + i * (die + 8), y, die, die);
+                bool sure = check.Faces[i] < 0;
+                float landAt = LandAt(i);
+                bool landed = sure || _diceAge >= landAt || Settings.LessMotion;
+                if (!landed)
+                {
+                    int frame = 1 + ((int)(_diceAge * 14) + i) % 3;
+                    float hop = Mathf.Abs(Mathf.Sin((_diceAge + i * 0.13f) * 18)) * die * 0.18f;
+                    Ui.Image(new Rect(cell.x, cell.y - hop, die, die), PixelArt.Still("die_tumble_" + frame) ?? PixelArt.Still("die_face"));
+                    continue;
+                }
+                float pop = Settings.LessMotion || sure ? 1 : 1 + 0.18f * (1 - Mathf.Clamp01((_diceAge - landAt) / 0.12f));
+                DieFace(new Rect(cell.center.x - die * pop / 2, cell.center.y - die * pop / 2, die * pop, die * pop), check, i);
+            }
+        }
+
+        // One landed die as a pixel die with its number (battle, event and map rolls); false without the pictures.
+        static bool DieFace(Rect drawn, CheckResult check, int i)
+        {
+            var blank = PixelArt.Still("die_face");
+            if (blank == null) return false;
+            bool sure = check.Faces[i] < 0;
+            string name = sure ? "die_sure" : check.Perfect ? "die_perfect" : check.Hits[i] ? "die_hit" : "die_miss";
+            Ui.Image(drawn, PixelArt.Still(name) ?? blank);
+            string face = sure ? "★" : Settings.Face(check.Faces[i], check.Hits[i]);
+            // The front face sits a little low and left of the picture's middle.
+            var faceRect = new Rect(drawn.x + drawn.width * 0.08f, drawn.y + drawn.height * 0.24f, drawn.width * 0.72f, drawn.height * 0.66f);
+            Ui.Text(faceRect, face, drawn.height * 0.36f, new Color(0.1f, 0.08f, 0.12f, 1f), TextAnchor.MiddleCenter, true);
+            return true;
         }
 
         void DrawBanner(Rect field)

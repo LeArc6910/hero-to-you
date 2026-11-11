@@ -66,6 +66,10 @@ namespace Game.Client.Editor
             PlayerSettings.SplashScreen.show = false;
             PlayerSettings.SplashScreen.showUnityLogo = false;
             PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.WebGL, Il2CppCodeGeneration.OptimizeSize);
+            // A smaller download (2026-11-11, about 7 MB before): unused engine modules and unused library code left
+            // out. The game's own assemblies are kept whole by Assets/link.xml (the playtest calls methods by name).
+            PlayerSettings.stripEngineCode = true;
+            PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.WebGL, ManagedStrippingLevel.Medium);
         }
 
         // Project Settings > Player > Active Input Handling has no public API; this is the serialized property the

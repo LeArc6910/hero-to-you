@@ -511,6 +511,7 @@ namespace Game.Client
             {
                 var cell = new Rect(r.x + i * (die + 4), r.y, die, die);
                 bool sure = roll.Faces[i] < 0;
+                if (DieFace(cell, roll, i)) continue;
                 Ui.Fill(cell, sure ? Palette.Sure : roll.Hits[i] ? Settings.Success : Settings.Fail);
                 Ui.Text(cell, sure ? "★" : Settings.Face(roll.Faces[i], roll.Hits[i]), 12, sure || roll.Hits[i] ? Palette.Back : Palette.Ink, TextAnchor.MiddleCenter, true);
             }

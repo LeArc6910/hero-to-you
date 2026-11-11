@@ -164,6 +164,10 @@ namespace Game.Core
         public string Text { get; internal set; }
 
         public bool Damages => Kind == "physical" || Kind == "magic";
+
+        // How the screen shows the blow (Docs/Combat.md 몬스터 기술): empty is in close (or cast, for magic),
+        // "shot" an arrow or bolt, "throw" something thrown. No effect on the rules.
+        public string Motion { get; internal set; } = "";
     }
 
     public sealed class MonsterDef

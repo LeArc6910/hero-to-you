@@ -5,6 +5,8 @@ namespace Game.Client
 {
     // Plays the background music (Art/MusicArt.cs): one tune at a time, looping, fading over when the screen calls
     // for another. Tunes are made the first time they are needed. The title sets the volume (kept on the device).
+    // A stinger (Tune.Victory, Tune.Defeat) asked for with Play plays once and then stays quiet; with Sting it plays
+    // once over the music, which dips under it and comes back.
     static class Music
     {
         const string VolumeKey = "music_volume";
@@ -18,6 +20,9 @@ namespace Game.Client
         static Tune _playing = Tune.None;
         static Tune _next = Tune.None;
         static float _fade = 1;
+        static AudioSource _stingSource;
+        static Tune _sting = Tune.None;
+        static float _duck = 1;
 
         // 0 to 100, in the title's steps.
         public static int Volume
@@ -33,6 +38,10 @@ namespace Game.Client
         // Asks for a tune; the change happens over the next frames.
         public static void Play(Tune tune) => _next = tune;
 
+        // Plays a short tune once over the music (the music dips under it): Tune.Victory when a battle is won,
+        // Tune.Defeat when it is lost. Call it once, on the moment, not every frame.
+        public static void Sting(Tune tune) => _sting = tune;
+
         // Asks for the place's sound under the music (None for none).
         public static void Ambient(Ambience ambience) => _nextAmbient = ambience;
 
@@ -42,8 +51,10 @@ namespace Game.Client
             {
                 if (_source != null && _source.isPlaying) _source.Stop();
                 if (_ambientSource != null && _ambientSource.isPlaying) _ambientSource.Stop();
+                if (_stingSource != null && _stingSource.isPlaying) _stingSource.Stop();
                 _playing = Tune.None;
                 _ambient = Ambience.None;
+                _sting = Tune.None;
                 return;
             }
             TickAmbient();
@@ -55,11 +66,16 @@ namespace Game.Client
                 _source.playOnAwake = false;
                 _source.loop = true;
             }
+            float duck = TickSting(dt);
             // A tune not made yet is made a few parts a frame while the old one keeps playing (no hitch on the web).
             if (_next != _playing && _next != Tune.None && !Ready(_next))
             {
                 Make(_next);
-                if (!Ready(_next)) return;
+                if (!Ready(_next))
+                {
+                    _source.volume = Volume / 100f * 0.6f * _fade * duck;
+                    return;
+                }
             }
             else if (_next == _playing) Prepare();
             if (_next != _playing)
@@ -74,12 +90,36 @@ namespace Game.Client
                     else
                     {
                         _source.clip = Clip(_playing);
+                        _source.loop = MusicArt.Loops(_playing);
                         _source.Play();
                     }
                 }
             }
             else if (_fade < 1) _fade = Mathf.Min(1, _fade + dt / FadeSeconds);
-            _source.volume = Volume / 100f * 0.6f * _fade;
+            _source.volume = Volume / 100f * 0.6f * _fade * duck;
+        }
+
+        // Starts an asked-for stinger and gives how loud the music under it should be (it dips while one plays).
+        static float TickSting(float dt)
+        {
+            if (_stingSource == null)
+            {
+                var go = new GameObject("Sting");
+                Object.DontDestroyOnLoad(go);
+                _stingSource = go.AddComponent<AudioSource>();
+                _stingSource.playOnAwake = false;
+                _stingSource.loop = false;
+            }
+            if (_sting != Tune.None)
+            {
+                // Stingers are short and made ahead (Ahead), so making one now if it is not is quick.
+                _stingSource.clip = Clip(_sting);
+                _stingSource.volume = Volume / 100f * 0.7f;
+                _stingSource.Play();
+                _sting = Tune.None;
+            }
+            _duck = Mathf.MoveTowards(_duck, _stingSource.isPlaying ? 0.25f : 1f, dt * 3f);
+            return _duck;
         }
 
         static void TickAmbient()
@@ -147,7 +187,7 @@ namespace Game.Client
         }
 
         // While nothing new is asked for, the tunes the game will want next are made ahead, a little a frame.
-        static readonly Tune[] Ahead = { Tune.Story, Tune.Forest, Tune.Battle, Tune.Town, Tune.Boss, Tune.Harbor, Tune.Snow, Tune.Tomb, Tune.Rift, Tune.BossFinal };
+        static readonly Tune[] Ahead = { Tune.Story, Tune.Forest, Tune.Battle, Tune.Victory, Tune.Defeat, Tune.Town, Tune.Boss, Tune.Camp, Tune.Harbor, Tune.Snow, Tune.Tomb, Tune.Rift, Tune.BossFinal };
 
         static void Prepare()
         {
