@@ -43,6 +43,12 @@ namespace Game.Client
             if (oneRow) rows--;
             float y = Mathf.Max(10, (Ui.Height - Need()) * 0.4f);
             Ui.Text(new Rect(0, y, Ui.Width, title + 10), Strings.Get("title.name"), title, Palette.Gold, TextAnchor.MiddleCenter, true);
+            float nameW = Ui.TextWidth(Strings.Get("title.name"), title, true);
+            if (nameW + 120 < Ui.Width)
+            {
+                Ui.Mark(new Vector2(Ui.Width / 2 - nameW / 2 - 30, y + (title + 10) / 2), "orn_left", 3);
+                Ui.Mark(new Vector2(Ui.Width / 2 + nameW / 2 + 30, y + (title + 10) / 2), "orn_right", 3);
+            }
             y += title + 12;
             Ui.Text(new Rect(16, y, Ui.Width - 32, 20), Strings.Get("title.subtitle"), 14, Palette.Journal, TextAnchor.MiddleCenter);
             y += 20 + sub;
@@ -114,7 +120,7 @@ namespace Game.Client
             float w = Mathf.Min(560, Ui.Width - 24);
             float x = (Ui.Width - w) / 2;
             float y = 8;
-            Ui.Text(new Rect(x, y, w, 30), Strings.Get("slots.heading"), 21, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.Title(new Rect(x, y, Ui.Short ? 146 : w, 32), Strings.Get("slots.heading"), Ui.Short ? 16 : 19);
             y += 32;
             string hint = _slotsNote ?? Strings.Get("slots.hint");
             float hw = Ui.Short ? w - 116 : w;
@@ -134,7 +140,7 @@ namespace Game.Client
             {
                 var box = new Rect(x, y, w, rowH);
                 bool saved = SaveStore.ExistsIn(slot);
-                Ui.Panel(box, slot == SaveStore.Slot && saved ? Palette.Selected : (Color?)null, slot == SaveStore.Slot && saved ? Palette.Gold : (Color?)null);
+                Ui.Plaque(box, slot == SaveStore.Slot && saved ? Ui.Ring.Gold : Ui.Ring.Stone);
                 float bw = narrow ? 92 : 112;
                 float textW = w - 20 - (saved ? bw * 2 + 8 : bw);
                 Ui.Text(new Rect(x + 10, y + 4, textW, 20), SlotName(slot), 14, Palette.Ink, TextAnchor.MiddleLeft, true);
@@ -207,7 +213,7 @@ namespace Game.Client
             float w = Mathf.Min(460, Ui.Width - 32);
             float x = (Ui.Width - w) / 2;
             float top = Mathf.Max(8, Ui.Height * 0.04f);
-            Ui.Text(new Rect(x, top, w, 30), Strings.Get("settings.heading"), 22, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.Title(new Rect(x, top, w, 32), Strings.Get("settings.heading"), 19);
             // The rows scroll when they do not fit (a phone held sideways, big text).
             var area = new Rect(x, top + 36, w, Ui.Height - top - 36 - 62);
             _settingsScroll = Ui.Scroll(area, _settingsScroll, _settingsHeight - area.height, ref _settingsDragging, ref _settingsLastY);
@@ -414,7 +420,7 @@ namespace Game.Client
                 bool open = journal.Has(perk.Id);
                 bool taking = chosen.Contains(perk.Id);
                 var box = new Rect(0, y, w, 58);
-                Ui.Panel(box, taking ? Palette.Selected : (Color?)null, taking ? Palette.Gold : (Color?)null);
+                Ui.Plaque(box, taking ? Ui.Ring.Gold : Ui.Ring.Stone);
                 Ui.Text(new Rect(10, y + 4, w - 150, 20), Strings.Format("journal.perk", perk.Name, perk.Pages), 14, open ? Palette.Ink : Palette.Dim, TextAnchor.MiddleLeft, true);
                 Ui.Text(new Rect(10, y + 26, w - 150, 28), perk.Text, 11, Palette.Journal, TextAnchor.UpperLeft, false, true);
                 var button = new Rect(w - 134, y + 8, 126, 42);
@@ -504,15 +510,17 @@ namespace Game.Client
         {
             int order = _party.IndexOf(cls.Id);
             bool chosen = order >= 0;
-            Ui.Panel(card, chosen ? Palette.Selected : (Color?)null, chosen ? Palette.Gold : (Color?)null);
+            Ui.Plaque(card, chosen ? Ui.Ring.Gold : Ui.Ring.Stone);
+            if (Ui.Hovered(card) && cls.Playable && !chosen) Ui.Frame(card, Palette.GoldDark, 1);
             float icon = Mathf.Min(card.width * 0.42f, 64);
+            Ui.Well(new Rect(card.x + 5, card.y + 5, icon + 2, icon + 2), chosen ? Palette.Selected : Palette.BackLight);
             Ui.Image(new Rect(card.x + 6, card.y + 6, icon, icon), PixelArt.Hero(cls.Id, cls.Color), cls.Playable ? (Color?)null : new Color(0.35f, 0.35f, 0.4f, 1));
             float tx = card.x + icon + 10;
             // Room for the order badge in the corner; long names get a smaller size instead of running off the card.
             float tw = card.xMax - tx - 4 - (chosen ? 24 : 0);
             float nameSize = 16;
             while (nameSize > 11 && Ui.TextWidth(cls.Name, nameSize, true) > tw) nameSize -= 1;
-            Ui.Text(new Rect(tx, card.y + 6, tw, 20), cls.Name, nameSize, cls.Playable ? Palette.Ink : Palette.Dim, TextAnchor.MiddleLeft, true);
+            Ui.Text(new Rect(tx, card.y + 6, tw, 20), cls.Name, nameSize, !cls.Playable ? Palette.Dim : chosen ? Palette.GoldLight : Palette.Ink, TextAnchor.MiddleLeft, true);
             Ui.Text(new Rect(tx, card.y + 26, tw, 16), cls.Role, 12, Palette.Journal);
             // Life and resolve, or only life when the card is too narrow for both.
             string stats = Strings.Format("party.class_stats", cls.Hp, cls.Resolve);
@@ -526,9 +534,9 @@ namespace Game.Client
             Ui.Text(body, cls.Mechanic, bodySize, cls.Playable ? Palette.Ink : Palette.Dim, TextAnchor.UpperLeft, false, true);
             if (chosen)
             {
-                var badge = new Rect(card.xMax - 26, card.y + 4, 22, 22);
-                Ui.Fill(badge, Palette.Gold);
-                Ui.Text(badge, (order + 1).ToString(), 13, Palette.Back, TextAnchor.MiddleCenter, true);
+                var badge = new Rect(card.xMax - 27, card.y + 4, 23, 23);
+                Ui.Plaque(badge, Ui.Ring.Gold);
+                Ui.Text(badge, (order + 1).ToString(), 13, Palette.GoldLight, TextAnchor.MiddleCenter, true);
             }
             if (Ui.Hit(card, cls.Name, cls.Playable, "직업")) ToggleClass(cls.Id);
         }

@@ -39,7 +39,9 @@ namespace Game.Client
             }
             DrawPartyStrip(new Rect(4, 4, Ui.Width - 8, StripHeight - 6));
             float w = Mathf.Min(680, Ui.Width - 24);
-            var area = new Rect((Ui.Width - w) / 2, StripHeight + 6, w, Ui.Height - StripHeight - 12 - footer);
+            var area = new Rect((Ui.Width - w) / 2, StripHeight + 10, w, Ui.Height - StripHeight - 24 - footer);
+            // The page lies on a stone panel (UiKit); its words start inside the frame.
+            Ui.Panel(new Rect(area.x - 8, area.y - 6, w + 16, area.height + 12));
             _columnScroll = Ui.Scroll(area, _columnScroll, _columnHeight - area.height, ref _columnDragging, ref _columnLastY);
             Ui.BeginArea(area, _columnScroll);
             return new Rect(0, 0, w, area.height);
@@ -55,8 +57,8 @@ namespace Game.Client
 
         float Heading(Rect column, float y, string title, Color? color = null)
         {
-            Ui.Text(new Rect(0, y, column.width, 30), title, 22, color ?? Palette.Gold, TextAnchor.MiddleLeft, true);
-            return y + 34;
+            Ui.Title(new Rect(0, y, column.width, 36), title, 20, color);
+            return y + 42;
         }
 
         float Paragraph(Rect column, float y, string text, float size = 14.5f, Color? color = null)
@@ -194,9 +196,11 @@ namespace Game.Client
                     string label = Label(choice);
                     float h = Ui.Short ? 44 : 50;
                     var r = new Rect(0, y, column.width, h);
-                    Ui.Face(r, choice.ClassId != null ? Look.Selected : Look.Normal, affordable);
-                    Ui.Text(new Rect(10, y + 2, column.width - 20, h * 0.55f), label, 14, affordable ? Palette.Ink : Palette.Dim, TextAnchor.MiddleLeft, true);
-                    Ui.TextFit(new Rect(10, y + h * 0.52f, column.width - 20, h * 0.45f), Requirement(choice), 11, affordable ? Palette.Journal : Palette.Dim);
+                    var look = choice.ClassId != null ? Look.Selected : Look.Normal;
+                    Ui.Face(r, look, affordable);
+                    float down = affordable && Ui.Pressed(r) ? 2 : 0;
+                    Ui.Text(new Rect(14, y + 2 + down, column.width - 24, h * 0.55f), label, 14, Ui.LabelColor(look, affordable), TextAnchor.MiddleLeft, true);
+                    Ui.TextFit(new Rect(14, y + h * 0.52f + down - 1, column.width - 24, h * 0.45f), Requirement(choice), 11, affordable ? Palette.Journal : Palette.Dim);
                     if (Ui.Hit(r, choice.Label, affordable, "선택지", Ui.Number(ci))) PickChoice(choice);
                     y += h + 6;
                 }

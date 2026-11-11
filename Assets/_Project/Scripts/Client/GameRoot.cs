@@ -155,7 +155,7 @@ namespace Game.Client
             float w = Mathf.Min(640, Ui.Width - 24);
             var r = new Rect((Ui.Width - w) / 2, 12, w, Ui.Height - 24);
             Ui.Panel(r, Palette.Panel, Palette.Gold);
-            Ui.Text(new Rect(r.x + 14, r.y + 8, w - 28, 26), Strings.Get("history.heading"), 19, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.Title(new Rect(r.x + 12, r.y + 8, w - 24, 30), Strings.Get("history.heading"), 18);
             var area = new Rect(r.x + 14, r.y + 40, w - 28, r.height - 104);
             float total = _history.Sum(l => Ui.TextHeight(l, 12, area.width) + 4);
             _historyScroll = Ui.Scroll(area, _historyScroll, total - area.height, ref _historyDragging, ref _historyLastY);
@@ -184,7 +184,7 @@ namespace Game.Client
             float w = Mathf.Min(560, Ui.Width - 24);
             var r = new Rect((Ui.Width - w) / 2, 12, w, Ui.Height - 24);
             Ui.Panel(r, Palette.Panel, Palette.Gold);
-            Ui.Text(new Rect(r.x + 14, r.y + 8, w - 28, 26), Strings.Get("report.heading"), 19, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.Title(new Rect(r.x + 12, r.y + 8, w - 24, 30), Strings.Get("report.heading"), 18);
             float y = r.y + 40;
             string about = save == null ? Strings.Get("report.none") : Strings.Format("report.about", save.Split('\n').Length, BuildInfo.Version);
             float ah = Ui.TextHeight(about, 13, w - 28);
@@ -194,7 +194,7 @@ namespace Game.Client
             {
                 string preview = string.Join("\n", save.Split('\n').Take(8)) + "\n…";
                 var box = new Rect(r.x + 14, y, w - 28, Mathf.Min(150, r.yMax - y - 170));
-                Ui.Fill(box, new Color(0, 0, 0, 0.35f));
+                Ui.Well(box);
                 Ui.Text(new Rect(box.x + 6, box.y + 4, box.width - 12, box.height - 8), preview, 11, Palette.Dim, TextAnchor.UpperLeft);
                 y = box.yMax + 10;
                 float half = (w - 36) / 2;
@@ -314,19 +314,23 @@ namespace Game.Client
             float h = Mathf.Min(Ui.Height - 24, textH + 120);
             var r = new Rect((Ui.Width - w) / 2, (Ui.Height - h) / 2, w, h);
             Ui.Panel(r, Palette.Panel, Palette.Gold);
-            Ui.Text(new Rect(r.x + 16, r.y + 10, w - 32, 28), title, 19, Palette.Gold, TextAnchor.MiddleLeft, true);
-            Ui.Text(new Rect(r.x + 16, r.y + 44, w - 32, h - 110), text, 14, Palette.Ink, TextAnchor.UpperLeft, false, true);
+            Ui.Title(new Rect(r.x + 12, r.y + 10, w - 24, 32), title, 18);
+            Ui.Text(new Rect(r.x + 16, r.y + 50, w - 32, h - 110), text, 14, Palette.Ink, TextAnchor.UpperLeft, false, true);
             if (Ui.Button(new Rect(r.x + (w - 180) / 2, r.yMax - 56, 180, 46), Strings.Get("common.ok"), 16, true, Look.Primary, "도움말", KeyCode.Space) || Ui.Key(KeyCode.Escape)) _tipOpen = null;
         }
 
         static void DrawBackground()
         {
-            Ui.Fill(new Rect(0, 0, Ui.Width, Ui.Height), Palette.Back);
-            // A soft vignette of bands, darker at the edges.
-            for (int i = 0; i < 6; i++)
+            // Dark stone blocks (UiKit), darker toward the edges.
+            Ui.Wall(new Rect(0, 0, Ui.Width, Ui.Height));
+            for (int i = 0; i < 4; i++)
             {
-                float inset = i * Mathf.Min(Ui.Width, Ui.Height) * 0.06f;
-                Ui.Fill(new Rect(inset, inset, Ui.Width - inset * 2, Ui.Height - inset * 2), new Color(1, 1, 1, 0.012f));
+                float band = Mathf.Min(Ui.Width, Ui.Height) * 0.05f * (i + 1);
+                var shade = new Color(0, 0, 0, 0.09f);
+                Ui.Fill(new Rect(0, 0, band, Ui.Height), shade);
+                Ui.Fill(new Rect(Ui.Width - band, 0, band, Ui.Height), shade);
+                Ui.Fill(new Rect(band, 0, Ui.Width - 2 * band, band * 0.6f), shade);
+                Ui.Fill(new Rect(band, Ui.Height - band * 0.6f, Ui.Width - 2 * band, band * 0.6f), shade);
             }
         }
 
@@ -486,13 +490,15 @@ namespace Game.Client
                 var hero = heroes[i];
                 var cell = new Rect(r.x + i * each, r.y, each - 6, r.height);
                 bool turn = _adventure.Screen == AdventureScreen.Map && _adventure.MapHero == i;
-                Ui.Panel(cell, turn ? Palette.Selected : (Color?)null, turn ? Palette.Gold : (Color?)null);
+                Ui.Plaque(cell, turn ? Ui.Ring.Gold : hero.Down || hero.Hp * 4 <= hero.MaxHp ? Ui.Ring.Enemy : Ui.Ring.Hero);
                 float icon = Mathf.Min(cell.height - 8, 40);
-                Ui.Image(new Rect(cell.x + 4, cell.y + (cell.height - icon) / 2, icon, icon), PixelArt.Hero(hero.Class.Id, hero.Class.Color), hero.Down ? new Color(1, 1, 1, 0.35f) : (Color?)null);
-                float x = cell.x + icon + 8;
-                float w = cell.xMax - x - 4;
-                Ui.TextFit(new Rect(x, cell.y + 2, w, 16), $"{hero.Name} Lv{hero.Level}", 12, Palette.Ink, TextAnchor.MiddleLeft, true);
-                Ui.Bar(new Rect(x, cell.y + 20, w, 6), hero.MaxHp > 0 ? (float)hero.Hp / hero.MaxHp : 0, Palette.HpHero);
+                var face = new Rect(cell.x + 4, cell.y + (cell.height - icon) / 2, icon, icon);
+                Ui.Well(face, Palette.BackLight);
+                Ui.Image(face, PixelArt.Hero(hero.Class.Id, hero.Class.Color), hero.Down ? new Color(1, 1, 1, 0.35f) : (Color?)null);
+                float x = cell.x + icon + 9;
+                float w = cell.xMax - x - 6;
+                Ui.TextFit(new Rect(x, cell.y + 2, w, 16), $"{hero.Name} Lv{hero.Level}", 12, turn ? Palette.GoldLight : Palette.Ink, TextAnchor.MiddleLeft, true);
+                Ui.HpBar(new Rect(x + 1, cell.y + 19, w - 2, 7), hero.Hp, hero.MaxHp, true);
                 string line = hero.Down ? Strings.Get("hero.down") : w >= 150 ? Strings.Format("strip.hero", hero.Hp, hero.MaxHp, hero.Resolve, hero.MaxResolve, hero.Potions) : $"{hero.Hp}/{hero.MaxHp} · {Strings.Format("hero.resolve", hero.Resolve)}";
                 if (hero.Wounds > 0) line += " · " + Strings.Format("hero.wounds", hero.Wounds);
                 Ui.TextFit(new Rect(x, cell.y + 26, w, 14), line, 10, hero.Down ? Palette.Damage : hero.Wounds > 0 ? Palette.Intent : Palette.Dim);
@@ -500,11 +506,11 @@ namespace Game.Client
                 Ui.Tip(cell, HeroTip(hero));
             }
             var info = new Rect(r.xMax - infoWidth, r.y, infoWidth, r.height);
-            Ui.Panel(info);
+            Ui.Plaque(info);
             Ui.Image(new Rect(info.x + 6, info.y + 6, 14, 14), PixelArt.Icon("heart"));
             Ui.Text(new Rect(info.x + 24, info.y + 4, info.width - 28, 18), Strings.Format("strip.hope", _adventure.Hope), 12, Palette.Ink);
             Ui.Image(new Rect(info.x + 6, info.y + 24, 14, 14), PixelArt.Icon("coin"));
-            Ui.Text(new Rect(info.x + 24, info.y + 22, info.width - 28, 18), Strings.Format("strip.gold", _adventure.Gold), 12, Palette.Ink);
+            Ui.Text(new Rect(info.x + 24, info.y + 22, info.width - 28, 18), Strings.Format("strip.gold", _adventure.Gold), 12, Palette.Gold);
             string combos = _adventure.Combos.Count > 0 ? "\n" + Strings.Format("party.combos", string.Join(", ", _adventure.Combos.Select(c => c.Name))) : "";
             Ui.Tip(info, Strings.Format("strip.tip", _adventure.Renown, _adventure.Rank.Title) + combos);
         }
@@ -553,7 +559,7 @@ namespace Game.Client
             h = Mathf.Min(h, Ui.Height - 24);
             var r = new Rect((Ui.Width - w) / 2, (Ui.Height - h) / 2, w, h);
             Ui.Panel(r, new Color(0.13f, 0.09f, 0.07f, 0.98f), Palette.Gold);
-            Ui.Text(new Rect(r.x + 16, r.y + 10, w - 32, 26), Strings.Format("talk.dawn", Strings.Get("talk.heading"), day), 17, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.Title(new Rect(r.x + 12, r.y + 8, w - 24, 30), Strings.Format("talk.dawn", Strings.Get("talk.heading"), day), 17);
             float y = r.y + 44;
             foreach (var (speaker, text) in talk.Lines)
             {

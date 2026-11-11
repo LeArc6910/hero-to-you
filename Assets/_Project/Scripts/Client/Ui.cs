@@ -20,7 +20,7 @@ namespace Game.Client
     // Screens lay out with explicit rects (no GUILayout). Every button goes through Button so the cloud's playtests
     // can find and press it with a real click or tap (Docs/Playtest.md): while Probing, the last repaint's buttons and
     // texts are kept in LastDrawn and LastWritten.
-    static class Ui
+    static partial class Ui
     {
         const string FontPath = "Fonts/NotoSansKR-Game";
 
@@ -172,11 +172,11 @@ namespace Game.Client
             Fill(new Rect(r.xMax - thickness, r.y, thickness, r.height), color);
         }
 
-        // A panel: dark fill inside a pixel frame whose lit edge is `edge`.
+        // A panel: a stone frame with a gold hairline (UiKit); a gold `edge` brightens the hairline (the one that is
+        // chosen, a card asking for an answer).
         public static void Panel(Rect r, Color? fill = null, Color? edge = null)
         {
-            var inside = fill ?? Palette.Panel;
-            PixelFrame(r, inside, Palette.Back, edge ?? Palette.Edge, Color.Lerp(inside, Color.black, 0.35f));
+            StonePanel(r, fill ?? Palette.Panel, edge.HasValue && edge.Value == Palette.Gold);
         }
 
         // ---- Pixel frames (user decision 2026-11-10: the game is pixel art, the screen's frames too) ----
@@ -239,12 +239,6 @@ namespace Game.Client
             if (flip) GUI.DrawTextureWithTexCoords(px, texture, new Rect(1, 0, -1, 1));
             else GUI.DrawTexture(px, texture, ScaleMode.StretchToFill);
             GUI.color = old;
-        }
-
-        public static void Bar(Rect r, float fraction, Color color, Color? back = null)
-        {
-            Fill(r, back ?? Palette.BarBack);
-            Fill(new Rect(r.x, r.y, r.width * Mathf.Clamp01(fraction), r.height), color);
         }
 
         static GUIStyle Style(float size, TextAnchor anchor, bool bold, bool wrap)
@@ -369,7 +363,9 @@ namespace Game.Client
         {
             Probe(label, row, r, enabled);
             Face(r, look, enabled);
-            TextFit(new Rect(r.x + 4, r.y, r.width - 8, r.height), label, size, enabled ? Palette.Ink : Palette.Dim, TextAnchor.MiddleCenter, look == Look.Primary);
+            float down = enabled && Pressed(r) ? 2 : 0;
+            float inset = look == Look.Selected && r.height >= 24 ? 10 : 4;
+            TextFit(new Rect(r.x + inset, r.y + down - 1, r.width - inset - 4, r.height), label, size, LabelColor(look, enabled), TextAnchor.MiddleCenter, look != Look.Normal && look != Look.Quiet);
             if (enabled) KeyHint(r, key);
             if (enabled) Glow(r, label, row);
             return Clicked(r, enabled) || (enabled && Key(key));
@@ -379,20 +375,31 @@ namespace Game.Client
         public static void Face(Rect r, Look look = Look.Normal, bool enabled = true)
         {
             bool hover = enabled && Hovered(r);
-            Color fill = look switch
-            {
-                Look.Primary => Palette.Accent,
-                Look.Selected => Palette.Selected,
-                Look.Danger => Palette.Danger,
-                Look.Quiet => Palette.Quiet,
-                _ => Palette.Button,
-            };
-            if (!enabled) fill = Color.Lerp(fill, Palette.Panel, 0.6f);
-            else if (hover) fill = Color.Lerp(fill, Color.white, 0.12f);
-            fill.a = 1;
-            var outline = look == Look.Selected ? Palette.Gold : Palette.Back;
-            PixelFrame(r, fill, outline, Color.Lerp(fill, Color.white, enabled ? 0.22f : 0.1f), Color.Lerp(fill, Color.black, 0.32f));
+            Skin skin = !enabled ? Skin.Disabled
+                : Pressed(r) && look != Look.Primary ? Skin.Pressed
+                : look switch
+                {
+                    Look.Primary => hover || Pressed(r) ? Skin.PrimaryHover : Skin.Primary,
+                    Look.Danger => hover ? Skin.DangerHover : Skin.Danger,
+                    Look.Selected => Skin.Selected,
+                    Look.Quiet => hover ? Skin.Hover : Skin.Quiet,
+                    _ => hover ? Skin.Hover : Skin.Normal,
+                };
+            ButtonFace(r, skin);
+            if (look == Look.Selected && enabled && r.height >= 24) Mark(new Vector2(r.x + 5, r.center.y), "chevron");
         }
+
+        // The words on a button of this look.
+        public static Color LabelColor(Look look, bool enabled = true) => !enabled ? Palette.Dim : look switch
+        {
+            Look.Primary => Palette.GoldLight,
+            Look.Selected => Palette.GoldLight,
+            Look.Danger => Palette.DangerInk,
+            _ => Palette.Ink,
+        };
+
+        // A finger or the mouse button is down on r (the button shows pressed in).
+        public static bool Pressed(Rect r) => GUI.enabled && _pressAt >= 0 && r.Contains(Pointer);
 
         // An invisible button over something already drawn (a unit to target, a card).
         public static bool Hit(Rect r, string label, bool enabled = true, string row = null, KeyCode key = KeyCode.None)
@@ -459,14 +466,13 @@ namespace Game.Client
             ShownTip = _tip;
             if (_tip == null || Event.current.type != EventType.Repaint) return;
             float w = Mathf.Min(300, Width - 16);
-            float h = TextHeight(_tip, 12, w - 16) + 12;
+            float h = TextHeight(_tip, 12, w - 20) + 16;
             float x = Mathf.Clamp(_tipAt.center.x - w / 2, 8, Width - w - 8);
             float y = _tipAt.y - h - 6;
             if (y < 6) y = Mathf.Min(_tipAt.yMax + 6, Height - h - 6);
             var box = new Rect(x, y, w, h);
-            Fill(box, new Color(0.06f, 0.05f, 0.08f, 0.96f));
-            Frame(box, Palette.Gold, 1);
-            Text(new Rect(x + 8, y + 6, w - 16, h - 12), _tip, 12, Palette.Ink, TextAnchor.UpperLeft, false, true);
+            TipBox(box);
+            Text(new Rect(x + 10, y + 8, w - 20, h - 16), _tip, 12, Palette.Ink, TextAnchor.UpperLeft, false, true);
         }
 
         // ---- Areas: a clipped part of the screen with its own origin, scrolled by dragging or the wheel ----

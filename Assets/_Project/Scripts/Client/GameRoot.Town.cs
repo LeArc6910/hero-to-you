@@ -35,7 +35,7 @@ namespace Game.Client
             if (_actError != null) y = Paragraph(column, y, _actError, 12, Palette.Damage);
 
             y += 4;
-            Ui.Text(new Rect(0, y, column.width, 22), Strings.Format("town.shop", a.Day), 16, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.Section(new Rect(0, y, column.width, 22), Strings.Format("town.shop", a.Day));
             y += 26;
             for (int i = 0; i < a.Shop.Count; i++)
             {
@@ -46,7 +46,7 @@ namespace Game.Client
                 if (!consumable)
                 {
                     var row = new Rect(0, y, column.width, 44);
-                    Ui.Panel(row);
+                    Ui.Plaque(row);
                     float tx = ItemIcon(new Rect(4, y + 4, 36, 36), item.Item);
                     Ui.Text(new Rect(tx, y + 2, column.width - 120 - tx, 20), item.Name + (item.Sold ? " " + Strings.Get("town.sold") : ""), 13, item.Sold ? Palette.Dim : Palette.Ink, TextAnchor.MiddleLeft, true);
                     ItemMark(new Rect(column.width - 128, y + 4, 18, 18), item.Item);
@@ -57,7 +57,7 @@ namespace Game.Client
                 }
                 // A consumable goes to one of the heroes in town: a button each.
                 var box = new Rect(0, y, column.width, 72);
-                Ui.Panel(box);
+                Ui.Plaque(box);
                 float ix = ItemIcon(new Rect(4, y + 3, 32, 32), item.Item);
                 Ui.Text(new Rect(ix, y + 2, column.width - 8 - ix, 20), Strings.Format("town.price", item.Name, item.Price), 13, Palette.Ink, TextAnchor.MiddleLeft, true);
                 Ui.Text(new Rect(ix, y + 20, column.width - 8 - ix, 16), detail, 10.5f, Palette.Dim);
@@ -74,7 +74,7 @@ namespace Game.Client
             }
             // The smithy (Docs/Map.md 대장간): each hero's worn gear, one level better for gold.
             y += 4;
-            Ui.Text(new Rect(0, y, column.width, 22), Strings.Get("town.smithy"), 16, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.Section(new Rect(0, y, column.width, 22), Strings.Get("town.smithy"));
             y += 26;
             for (int h = 0; h < a.Heroes.Count; h++)
             {
@@ -83,7 +83,7 @@ namespace Game.Client
                 int who = h;
                 var slots = new[] { (ItemSlot.Weapon, hero.Weapon), (ItemSlot.Armor, hero.Armor), (ItemSlot.Trinket, hero.Trinket) }.Where(x => x.Item2 != null).ToList();
                 var box = new Rect(0, y, column.width, 30 + 46 * ((slots.Count + 1) / 2));
-                Ui.Panel(box);
+                Ui.Plaque(box);
                 Ui.Text(new Rect(8, y + 2, column.width - 16, 24), hero.Name, 13, Palette.Ink, TextAnchor.MiddleLeft, true);
                 float sw = (column.width - 22) / 2;
                 for (int i = 0; i < slots.Count; i++)
@@ -120,13 +120,13 @@ namespace Game.Client
             if (a.Bag.Count > 0)
             {
                 y += 4;
-                Ui.Text(new Rect(0, y, column.width, 22), Strings.Get("town.bag"), 16, Palette.Gold, TextAnchor.MiddleLeft, true);
+                Ui.Section(new Rect(0, y, column.width, 22), Strings.Get("town.bag"));
                 y += 26;
                 for (int i = 0; i < a.Bag.Count; i++)
                 {
                     var item = a.Bag[i];
                     var row = new Rect(0, y, column.width, 40);
-                    Ui.Panel(row);
+                    Ui.Plaque(row);
                     float sx = ItemIcon(new Rect(4, y + 4, 32, 32), item);
                     Ui.Text(new Rect(sx, y, column.width - 112 - sx, 40), $"{item.Name} · {ItemLine(item)}", 12, Palette.Ink);
                     if (Ui.Button(new Rect(column.width - 104, y + 2, 100, 36), Strings.Format("town.sell", Adventure.SellPrice(item)), 13, true, Look.Quiet, item.Name)) Act(() => a.Sell(i));
@@ -219,8 +219,8 @@ namespace Game.Client
             _gearScroll = Ui.Scroll(area, _gearScroll, _gearHeight - area.height, ref _gearDragging, ref _gearLastY);
             Ui.BeginArea(area, _gearScroll);
             float y = 0;
-            Ui.Text(new Rect(0, y, w, 26), Strings.Get("gear.heading"), 20, Palette.Gold, TextAnchor.MiddleLeft, true);
-            y += 30;
+            Ui.Title(new Rect(0, y, w, 34), Strings.Get("gear.heading"), 19);
+            y += 40;
             for (int h = 0; h < a.Heroes.Count; h++)
             {
                 var hero = a.Heroes[h];
@@ -228,7 +228,8 @@ namespace Game.Client
                 var carried = hero.Consumables.Where(c => c.Value > 0).ToList();
                 float extra = carried.Count == 0 ? 0 : 36 * ((carried.Count + 2) / 3);
                 var box = new Rect(0, y, w, 92 + extra);
-                Ui.Panel(box);
+                Ui.Plaque(box);
+                Ui.Well(new Rect(5, y + 5, 38, 38), Palette.BackLight);
                 Ui.Image(new Rect(6, y + 6, 36, 36), PixelArt.Hero(hero.Class.Id, hero.Class.Color));
                 Ui.TextFit(new Rect(48, y + 4, w - 172, 18), Strings.Format("gear.hero", hero.Name, hero.Level, hero.Hp, hero.MaxHp, hero.ArmorValue, hero.MaxResolve) + (hero.Wounds > 0 ? " · " + Strings.Format("hero.wounds", hero.Wounds) : ""), 12.5f, Palette.Ink, TextAnchor.MiddleLeft, true);
                 // Front or back row, a tap to switch (Docs/Combat.md 줄).
@@ -263,13 +264,13 @@ namespace Game.Client
                 }
                 y += 98 + extra;
             }
-            Ui.Text(new Rect(0, y, w, 22), Strings.Get(a.Bag.Count == 0 ? "gear.bag_empty" : "gear.bag"), 13, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.Section(new Rect(0, y, w, 22), Strings.Get(a.Bag.Count == 0 ? "gear.bag_empty" : "gear.bag"), 13);
             y += 26;
             for (int i = 0; i < a.Bag.Count; i++)
             {
                 var item = a.Bag[i];
                 var box = new Rect(0, y, w, 64);
-                Ui.Panel(box);
+                Ui.Plaque(box);
                 float gx = ItemIcon(new Rect(4, y + 3, 32, 32), item);
                 Ui.Text(new Rect(gx, y + 2, w - 8 - gx, 20), item.Name, 13, Palette.Ink, TextAnchor.MiddleLeft, true);
                 ItemMark(new Rect(w - 26, y + 4, 18, 18), item);
@@ -312,9 +313,10 @@ namespace Game.Client
             float h = Mathf.Min(360, Ui.Height - 24);
             var r = new Rect((Ui.Width - w) / 2, (Ui.Height - h) / 2, w, h);
             Ui.Panel(r, Palette.Panel, Palette.Gold);
-            Ui.Image(new Rect(r.x + 12, r.y + 10, 40, 40), PixelArt.Hero(hero.Class.Id, hero.Class.Color));
-            Ui.Text(new Rect(r.x + 58, r.y + 10, w - 70, 24), Strings.Format("levelup.heading", hero.Name, choice.Level), 20, Palette.Gold, TextAnchor.MiddleLeft, true);
-            Ui.Text(new Rect(r.x + 58, r.y + 34, w - 70, 18), Strings.Get("levelup.hint"), 12, Palette.Journal);
+            Ui.Plaque(new Rect(r.x + 12, r.y + 10, 44, 44), Ui.Ring.Gold);
+            Ui.Image(new Rect(r.x + 14, r.y + 12, 40, 40), PixelArt.Hero(hero.Class.Id, hero.Class.Color));
+            Ui.Text(new Rect(r.x + 64, r.y + 10, w - 76, 24), Strings.Format("levelup.heading", hero.Name, choice.Level), 20, Palette.Gold, TextAnchor.MiddleLeft, true);
+            Ui.Text(new Rect(r.x + 64, r.y + 34, w - 76, 18), Strings.Get("levelup.hint"), 12, Palette.Journal);
             float cy = r.y + 62;
             // Many waiting (a later start): one button takes the first card of each of the rest.
             int waiting = a.LevelUpsWaiting;
@@ -325,7 +327,7 @@ namespace Game.Client
                 var upgrade = choice.Options[i];
                 var card = new Rect(r.x + 12, cy, w - 24, Mathf.Min(ch, 120));
                 Ui.Face(card, Look.Normal);
-                Ui.Text(new Rect(card.x + 12, card.y + 6, card.width - 24, 24), upgrade.Name, 17, Palette.Ink, TextAnchor.MiddleLeft, true);
+                Ui.Text(new Rect(card.x + 12, card.y + 6, card.width - 24, 24), upgrade.Name, 17, Palette.GoldLight, TextAnchor.MiddleLeft, true);
                 Ui.Text(new Rect(card.x + 12, card.y + 32, card.width - 24, card.height - 36), upgrade.Text, 13, Palette.Journal, TextAnchor.UpperLeft, false, true);
                 if (Ui.Hit(card, upgrade.Name, true, "강화", Ui.Number(i)))
                 {

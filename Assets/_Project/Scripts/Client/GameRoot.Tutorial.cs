@@ -120,7 +120,7 @@ namespace Game.Client
             // (upright, the field is the top 47% under the turn bar; GameRoot.Battle.cs).
             if (battle && Ui.Portrait) r.y = 46 + (Ui.Height - 46) * 0.47f - h - 4;
             else if (!battle && Ui.Portrait && _adventure.Screen == AdventureScreen.Map) r.y = 96;
-            Ui.Panel(r, new Color(0.10f, 0.08f, 0.16f, 0.94f), Palette.Gold);
+            Ui.Panel(r, Palette.Panel, Palette.Gold);
             Ui.Text(new Rect(r.x + 10, r.y + 6, textW, h - 12), text, 12.5f, Palette.Ink, TextAnchor.MiddleLeft, false, true);
             if (Ui.Button(new Rect(r.xMax - 92, r.y + (h - 44) / 2, 86, 44), Strings.Get("tutorial.off"), 12, true, Look.Quiet, "안내"))
             {

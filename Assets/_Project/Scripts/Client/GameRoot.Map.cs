@@ -99,7 +99,7 @@ namespace Game.Client
             float barX = r.x + timeW;
             float barW = Mathf.Min(140, r.width * 0.2f);
             Ui.Text(new Rect(barX, r.y, 36, r.height), Strings.Get("map.rift"), 11, Palette.Damage, TextAnchor.MiddleLeft, true);
-            Ui.Bar(new Rect(barX + 34, r.y + 5, barW, 8), (float)a.Doom / Adventure.DoomMax, Palette.Damage);
+            Ui.Bar(new Rect(barX + 34, r.y + 4, barW, 10), (float)a.Doom / Adventure.DoomMax, Palette.Hp, null, Adventure.DoomMax <= 12 ? Adventure.DoomMax : 0, true);
             Ui.Text(new Rect(barX + barW + 38, r.y, 50, r.height), $"{a.Doom}/{Adventure.DoomMax}", 11, Palette.Dim);
             if (Ui.Hit(new Rect(barX, r.y, barW + 80, r.height), "균열", true, "도움말")) ShowTip("rift");
             float ox = barX + barW + 84;
@@ -406,9 +406,12 @@ namespace Game.Client
             Ui.Panel(r);
             var inner = new Rect(r.x + 8, r.y + 6, r.width - 16, r.height - 12);
             float y = inner.y;
-            Ui.Image(new Rect(inner.x, y, 26, 26), PixelArt.Hero(hero.Class.Id, hero.Class.Color));
-            Ui.Text(new Rect(inner.x + 30, y, inner.width - 30, 26), Strings.Format("common.turn", hero.Name), 16, Palette.Gold, TextAnchor.MiddleLeft, true);
-            y += 30;
+            Ui.Plaque(new Rect(inner.x, y, 30, 30), Ui.Ring.Gold);
+            Ui.Image(new Rect(inner.x + 2, y + 2, 26, 26), PixelArt.Hero(hero.Class.Id, hero.Class.Color));
+            Ui.TextFit(new Rect(inner.x + 36, y, inner.width - 36, 30), Strings.Format("common.turn", hero.Name), 16, Palette.Gold, TextAnchor.MiddleLeft, true);
+            y += 33;
+            Ui.Fill(new Rect(inner.x, y - 1, inner.width, 1), Palette.GoldDark);
+            y += 3;
             float bh = Ui.Short ? 40 : 44;
             float half = (inner.width - 6) / 2;
 

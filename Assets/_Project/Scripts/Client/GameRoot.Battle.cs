@@ -757,28 +757,33 @@ namespace Game.Client
 
         void DrawTimeline(Rect r, Battle battle)
         {
-            Ui.Panel(r);
-            Ui.Text(new Rect(r.x + 6, r.y, 34, r.height), Strings.Get("battle.order"), 12, Palette.Dim);
+            Ui.Strip(r);
+            Ui.Text(new Rect(r.x + 8, r.y, 34, r.height), Strings.Get("battle.order"), 12, Palette.Gold, TextAnchor.MiddleLeft, true);
             float infoW = Ui.Width < 500 ? 96 : 150;
             var order = BattlePlaying ? new List<Unit>() : battle.Timeline(8);
-            float size = r.height - 8;
-            float x = r.x + 40;
+            float size = Mathf.Floor((r.height - 10) / 2) * 2;
+            float x = r.x + 44;
             for (int i = 0; i < order.Count && x + size < r.xMax - infoW; i++)
             {
                 var unit = order[i];
                 var cell = new Rect(x, r.y + 4, size, size);
-                Ui.Fill(cell, unit.IsHero ? Palette.WithAlpha(Palette.HpHero, 0.25f) : Palette.WithAlpha(Palette.Hp, 0.25f));
-                if (i == 0) Ui.Frame(cell, Palette.Gold, 2);
-                Ui.Image(cell, Sprite(unit));
-                x += size + 4;
+                Ui.Plaque(cell, i == 0 ? Ui.Ring.Gold : unit.IsHero ? Ui.Ring.Hero : Ui.Ring.Wine);
+                Ui.Image(new Rect(cell.x + 2, cell.y + 2, size - 4, size - 4), Sprite(unit));
+                if (i == 0) Ui.Mark(new Vector2(cell.center.x, cell.yMax + 2), "wedge");
+                x += size + (i == 0 ? 8 : 3);
             }
-            if (BattlePlaying) Ui.Text(new Rect(r.x + 40, r.y, r.width - 40 - infoW, r.height), "…", 14, Palette.Dim);
+            if (BattlePlaying) Ui.Text(new Rect(r.x + 44, r.y, r.width - 44 - infoW, r.height), "…", 14, Palette.Dim);
             var info = new Rect(r.xMax - infoW, r.y, infoW - 4, r.height);
             Ui.Image(new Rect(info.x, info.y + (r.height - 14) / 2, 14, 14), PixelArt.Icon("heart"));
-            Ui.Text(new Rect(info.x + 16, info.y, 40, r.height), _adventure.Hope.ToString(), 13, Palette.Ink);
+            Ui.Text(new Rect(info.x + 17, info.y, 40, r.height), _adventure.Hope.ToString(), 13, Palette.Ink, TextAnchor.MiddleLeft, true);
             Ui.Image(new Rect(info.x + 44, info.y + (r.height - 14) / 2, 14, 14), PixelArt.Icon("coin"));
-            Ui.Text(new Rect(info.x + 60, info.y, 50, r.height), _adventure.Gold.ToString(), 13, Palette.Ink);
-            if (infoW > 120) Ui.Text(new Rect(info.x + 90, info.y, 60, r.height), _adventure.BossBattle ? Strings.Get("battle.boss") : Strings.Format("common.day", _adventure.Day), 12, _adventure.BossBattle ? Palette.Damage : Palette.Dim, TextAnchor.MiddleRight);
+            Ui.Text(new Rect(info.x + 61, info.y, 50, r.height), _adventure.Gold.ToString(), 13, Palette.Gold, TextAnchor.MiddleLeft, true);
+            if (infoW > 120)
+            {
+                var tag = new Rect(info.xMax - 58, info.y + 5, 58, r.height - 10);
+                Ui.Plaque(tag, _adventure.BossBattle ? Ui.Ring.Wine : Ui.Ring.Stone);
+                Ui.TextFit(new Rect(tag.x + 3, tag.y, tag.width - 6, tag.height), _adventure.BossBattle ? Strings.Get("battle.boss") : Strings.Format("common.day", _adventure.Day), 11, _adventure.BossBattle ? Palette.DangerInk : Palette.Ink, TextAnchor.MiddleCenter, true);
+            }
         }
 
         // The unit's picture in its pose: the blow while lunging, the recoil while hit (Docs/WebDemo.md 도트 다듬기).
@@ -893,11 +898,12 @@ namespace Game.Client
                 if (!down && unit.Intent != null && !battle.Over) DrawIntent(new Rect(r.x, r.y, r.width, IntentH - 3), unit, battle);
                 r = new Rect(r.x, r.y + IntentH, r.width, r.height - IntentH);
             }
-            Ui.Fill(r, new Color(0.06f, 0.05f, 0.08f, down ? 0.4f : 0.62f));
-            if (targeted) Ui.Frame(r, Palette.Accent, 2);
-            else if (acting) Ui.Frame(r, Palette.Gold, 1.5f);
-            else if (targetable) Ui.Frame(r, Palette.WithAlpha(Palette.Accent, 0.55f), 1);
-            float inner = r.width - 6;
+            Ui.Plaque(r, acting ? Ui.Ring.Gold : unit.IsHero ? Ui.Ring.Hero : Ui.Ring.Enemy);
+            if (targeted) Ui.Brackets(r, Palette.Intent);
+            else if (targetable) Ui.Brackets(r, Palette.WithAlpha(Palette.Intent, 0.45f), 6, 1.5f);
+            if (acting) Ui.Mark(new Vector2(r.center.x, r.yMax + 1), "wedge");
+            float inner = r.width - 8;
+            var label = down ? Palette.WithAlpha(Palette.Dim, 0.8f) : Palette.Ink;
             if (Event.current.type == EventType.Repaint)
             {
                 string name = unit.Name;
@@ -908,14 +914,20 @@ namespace Game.Client
                     string shorter = $"{unit.Name} Lv{unit.Hero.Level}";
                     name = Ui.TextWidth(full, 11, true) <= inner ? full : Ui.TextWidth(shorter, 11, true) <= inner ? shorter : unit.Name;
                 }
-                Ui.TextFit(new Rect(r.x + 3, r.y + 1, inner, 15), name, 11, down ? Palette.Dim : Palette.Ink, TextAnchor.MiddleCenter, true);
+                Ui.TextFit(new Rect(r.x + 4, r.y + 2, inner, 14), name, 11, acting ? Palette.GoldLight : label, TextAnchor.MiddleCenter, true);
+                // A hero's resolve as diamonds at the right of the numbers when there is room for them.
+                int pips = unit.IsHero && !down && unit.Hero.MaxResolve <= 6 && inner >= 96 ? unit.Hero.MaxResolve : 0;
+                float pipsW = pips * 9;
                 string line = down ? Strings.Get("hero.down") : $"{hp}/{unit.MaxHp}";
-                if (unit.IsHero && !down) line += " · " + Strings.Format("hero.resolve", unit.Hero.Resolve) + (unit.Hero.Blessing + unit.Hero.Luck > 0 ? " · " + Strings.Format("battle.sure_plus", unit.Hero.Blessing + unit.Hero.Luck) : "");
+                if (unit.IsHero && !down && pips == 0) line += " · " + Strings.Format("hero.resolve", unit.Hero.Resolve);
+                if (unit.IsHero && !down && unit.Hero.Blessing + unit.Hero.Luck > 0) line += " · " + Strings.Format("battle.sure_plus", unit.Hero.Blessing + unit.Hero.Luck);
                 string statuses = StatusLine(unit, battle);
                 if (statuses.Length > 0) line += " · " + statuses;
-                Ui.TextFit(new Rect(r.x + 3, r.y + 24, inner, 14), line, 10, down ? Palette.Damage : Palette.Dim, TextAnchor.MiddleCenter);
+                var lineRect = new Rect(r.x + 5, r.y + 25, inner - 2 - (pips > 0 ? pipsW + 4 : 0), 13);
+                Ui.TextFit(lineRect, line, 10, down ? Palette.Damage : Palette.Dim, pips > 0 ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter);
+                if (pips > 0) Ui.Pips(new Vector2(r.xMax - 5 - pipsW, r.y + 31.5f), unit.Hero.Resolve, pips, true);
             }
-            Ui.Bar(new Rect(r.x + 4, r.y + 17, r.width - 8, 6), unit.MaxHp > 0 ? (float)hp / unit.MaxHp : 0, unit.IsHero ? Palette.HpHero : Palette.Hp);
+            Ui.HpBar(new Rect(r.x + 6, r.y + 17, r.width - 12, 7), hp, unit.MaxHp, unit.IsHero);
 
             if (targetable && Ui.Hit(place.Column, unit.Name, true, "대상")) _target = unit.Id;
             if (!unit.IsHero)
@@ -946,19 +958,20 @@ namespace Game.Client
             };
             string what = intent.Skill.Damages ? $"{intent.Skill.Name} → {whom}" : intent.Skill.Name;
             string dice = intent.Skill.Damages ? Strings.Format("battle.intent_dice", intent.Skill.Dice, intent.Skill.Power + (monster.Status.TryGetValue(StatusKind.Howl, out int howl) ? howl : 0)) : Strings.Get("battle.intent_buff");
-            Ui.Fill(r, new Color(0.25f, 0.12f, 0.08f, 0.88f));
-            Ui.Frame(r, Palette.WithAlpha(Palette.Intent, 0.7f), 1);
-            // A boss rule on this blow: a mark, a gold edge, and what it does on a long press.
+            // A boss rule on this blow: a gold edge, its mark, and what it does on a long press.
             string rule = RuleIcon(intent.Skill.Effect);
-            float inner = r.width - 6 - (rule != null ? 14 : 0);
+            Ui.Plaque(r, rule != null ? Ui.Ring.Gold : Ui.Ring.Wine);
+            bool sign = r.width >= 90;
+            if (sign) Ui.Mark(new Vector2(r.x + 12, r.center.y), "warn");
+            float left = sign ? 20 : 3;
+            float inner = r.width - left - 3 - (rule != null ? 14 : 0);
             if (Event.current.type == EventType.Repaint)
             {
-                Ui.TextFit(new Rect(r.x + 3, r.y, inner, r.height * 0.55f), what, 10.5f, Palette.Intent, TextAnchor.MiddleCenter, true, 8);
-                Ui.TextFit(new Rect(r.x + 3, r.y + r.height * 0.5f, inner, r.height * 0.5f), dice, 9.5f, Palette.Ink, TextAnchor.MiddleCenter, false, 8);
+                Ui.TextFit(new Rect(r.x + left, r.y + 1, inner, r.height * 0.52f), what, 10.5f, Palette.Gold, TextAnchor.MiddleCenter, true, 8);
+                Ui.TextFit(new Rect(r.x + left, r.y + r.height * 0.48f, inner, r.height * 0.5f), dice, 9.5f, Palette.Ink, TextAnchor.MiddleCenter, false, 8);
             }
             if (rule != null)
             {
-                Ui.Frame(r, Palette.Gold, 2);
                 Ui.Image(new Rect(r.xMax - 15, r.y + 1, 13, 13), PixelArt.Icon(rule));
                 Ui.Tip(r, Strings.Get("rule." + intent.Skill.Effect) + "\n" + intent.Skill.Text);
             }
@@ -1170,9 +1183,13 @@ namespace Game.Client
             var actor = battle.Current;
             var hero = actor.Hero;
             float y = inner.y;
-            Ui.Image(new Rect(inner.x, y, 26, 26), Sprite(actor));
-            Ui.Text(new Rect(inner.x + 30, y, inner.width - 126, 44), Strings.Format("common.turn", hero.Name), 16, Palette.Gold, TextAnchor.MiddleLeft, true);
+            var face = new Rect(inner.x, y + 4, 36, 36);
+            Ui.Plaque(face, Ui.Ring.Gold);
+            Ui.Image(new Rect(face.x + 2, face.y + 2, 32, 32), Sprite(actor));
+            Ui.TextFit(new Rect(inner.x + 44, y, inner.width - 140, 44), Strings.Format("common.turn", hero.Name), 17, Palette.Gold, TextAnchor.MiddleLeft, true);
             y += 46;
+            Ui.Fill(new Rect(inner.x, y - 1, inner.width, 1), Palette.GoldDark);
+            y += 3;
             DrawResources(new Rect(inner.x, y, inner.width, 16), hero);
             y += 18;
             string special = ClassLine(battle, actor);
@@ -1251,6 +1268,7 @@ namespace Game.Client
                 float rh = 34;
                 Ui.Text(new Rect(inner.x, y, 70, rh), Strings.Get("common.spend_resolve"), 12, Palette.Resolve, TextAnchor.MiddleLeft, true);
                 if (Ui.Button(new Rect(inner.x + 72, y, 44, rh), "−", 18, _resolve > 0, Look.Normal, null, KeyCode.Minus)) _resolve--;
+                Ui.Well(new Rect(inner.x + 119, y + 2, 52, rh - 4));
                 Ui.Text(new Rect(inner.x + 118, y, 54, rh), $"{_resolve}/{preview.ResolveRoom}", 14, Palette.Ink, TextAnchor.MiddleCenter, true);
                 if (Ui.Button(new Rect(inner.x + 174, y, 44, rh), "+", 18, _resolve < preview.ResolveRoom, Look.Normal, null, KeyCode.Equals)) _resolve++;
                 y += rh + 4;
@@ -1262,6 +1280,7 @@ namespace Game.Client
                 float rh = 34;
                 Ui.Text(new Rect(inner.x, y, 70, rh), Strings.Get("common.spend_resolve"), 12, Palette.Resolve, TextAnchor.MiddleLeft, true);
                 if (Ui.Button(new Rect(inner.x + 72, y, 44, rh), "−", 18, _resolve > 0, Look.Normal, null, KeyCode.Minus)) _resolve--;
+                Ui.Well(new Rect(inner.x + 119, y + 2, 52, rh - 4));
                 Ui.Text(new Rect(inner.x + 118, y, 54, rh), $"{_resolve}/{preview.ResolveRoom}", 14, Palette.Ink, TextAnchor.MiddleCenter, true);
                 if (Ui.Button(new Rect(inner.x + 174, y, 44, rh), "+", 18, _resolve < preview.ResolveRoom, Look.Normal, null, KeyCode.Equals)) _resolve++;
                 y += rh + 4;
@@ -1335,19 +1354,13 @@ namespace Game.Client
             float resolveW = Mathf.Max(30, Ui.TextWidth(resolve, 11, true) + 4);
             Ui.Text(new Rect(x, r.y, resolveW + 4, r.height), resolve, 11, Palette.Resolve, TextAnchor.MiddleLeft, true);
             x += resolveW;
-            for (int i = 0; i < hero.MaxResolve; i++)
-            {
-                var pip = new Rect(x + i * 13, r.y + 3, 10, 10);
-                Ui.Fill(pip, i < hero.Resolve ? Palette.Resolve : Palette.BarBack);
-                Ui.Frame(pip, Palette.Edge, 1);
-            }
-            x += hero.MaxResolve * 13 + 10;
+            x += Ui.Pips(new Vector2(x, r.center.y), hero.Resolve, hero.MaxResolve) + 10;
             string grit = Strings.Get("hero.grit_label");
             float gritW = Mathf.Max(30, Ui.TextWidth(grit, 11, true) + 4);
             Ui.Text(new Rect(x, r.y, gritW + 4, r.height), grit, 11, Palette.Grit, TextAnchor.MiddleLeft, true);
             x += gritW;
-            Ui.Bar(new Rect(x, r.y + 4, 50, 8), (float)hero.Grit / hero.GritCap, Palette.Grit);
-            Ui.Text(new Rect(x + 54, r.y, 40, r.height), $"{hero.Grit}/{hero.GritCap}", 10, Palette.Dim);
+            Ui.Bar(new Rect(x, r.y + 3, 54, 10), (float)hero.Grit / hero.GritCap, Palette.Grit, null, hero.GritCap <= 10 ? hero.GritCap : 0);
+            Ui.Text(new Rect(x + 58, r.y, 40, r.height), $"{hero.Grit}/{hero.GritCap}", 10, Palette.Dim);
         }
 
         void DrawSkillButton(Rect cell, Battle battle, Unit actor, string id, KeyCode key)
@@ -1375,14 +1388,17 @@ namespace Game.Client
             // A skill a boss took away says so, with its mark (Docs/Combat.md 보스의 고유 규칙).
             string blocked = battle.BlockedBy(actor, skill);
             if (wait > 0) detail = blocked != null ? Strings.Format("battle.blocked_" + blocked, wait) : Strings.Format("battle.cooldown", wait);
-            Ui.Face(cell, selected ? Look.Selected : Look.Normal, wait == 0);
+            var look = selected ? Look.Selected : Look.Normal;
+            Ui.Face(cell, look, wait == 0);
             if (blocked != null)
             {
                 Ui.Frame(cell, Palette.Damage, 2);
                 Ui.Image(new Rect(cell.x + 3, cell.y + 3, 14, 14), PixelArt.Icon(blocked == "seal" ? "lock" : "erase"));
             }
-            Ui.Text(new Rect(cell.x + 4, cell.y + 3, cell.width - 8, cell.height * 0.5f), skill.Name, 13, wait == 0 ? Palette.Ink : Palette.Dim, TextAnchor.MiddleCenter, true);
-            Ui.Text(new Rect(cell.x + 4, cell.y + cell.height * 0.5f, cell.width - 8, cell.height * 0.45f), detail, 10.5f, blocked != null ? Palette.Damage : wait == 0 ? Palette.Journal : Palette.Dim, TextAnchor.MiddleCenter);
+            float down = wait == 0 && Ui.Pressed(cell) ? 2 : 0;
+            float left = selected ? 10 : 4;
+            Ui.TextFit(new Rect(cell.x + left, cell.y + 3 + down, cell.width - left - 4, cell.height * 0.5f - 1), skill.Name, 13, Ui.LabelColor(look, wait == 0), TextAnchor.MiddleCenter, true);
+            Ui.TextFit(new Rect(cell.x + left, cell.y + cell.height * 0.5f + down - 1, cell.width - left - 4, cell.height * 0.45f), detail, 10.5f, blocked != null ? Palette.Damage : wait > 0 ? Palette.Dim : selected ? Palette.Gold : Palette.Journal, TextAnchor.MiddleCenter);
             if (Ui.Hit(cell, skill.Name, wait == 0, "기술", key)) Select(battle, id);
             Ui.Tip(cell, (blocked != null ? Strings.Get("battle.blocked_tip_" + blocked) + "\n" : "") + skill.Text + (skill.PerfectText.Length > 0 ? " " + skill.PerfectText + "." : ""));
         }
@@ -1400,24 +1416,30 @@ namespace Game.Client
                 + (skill != null && skill.Damages ? " · " + Strings.Format("battle.odds_miss", Percent(odds.None)) : "")
                 + " · " + Strings.Format("battle.odds_perfect", Percent(odds.Perfect));
             Ui.Text(new Rect(r.x, r.y + 15, r.width, 15), summary, 11, Palette.Ink);
-            float top = r.y + 34;
-            float height = r.height - 34 - 26;
-            if (height < 14) return;
+            // One row for each number of successes: the count, a bar as long as its chance, the chance, and what it
+            // gives (user choice 2026-11-11: bars across, they read on a narrow phone).
             int n = odds.Dice;
-            float cw = Mathf.Min(48, r.width / (n + 1));
-            float x0 = r.x + (r.width - cw * (n + 1)) / 2;
-            double max = odds.BySuccesses.Max();
-            for (int s = 0; s <= n; s++)
+            var well = new Rect(r.x, r.y + 34, r.width, r.height - 34);
+            float row = Mathf.Min(26, (well.height - 8) / (n + 1));
+            if (row < 12) return;
+            Ui.Well(well);
+            float countW = 34, percentW = 42, valueW = 40;
+            float barX = well.x + 8 + countW, barW = well.width - 16 - countW - percentW - valueW - 8;
+            double best = odds.BySuccesses.Max();
+            float size = row >= 20 ? 11.5f : 10;
+            for (int k = 0; k <= n; k++)
             {
-                double p = odds.BySuccesses[s];
-                float bh = max > 0 ? (float)(p / max) * height : 0;
-                var bar = new Rect(x0 + s * cw + 3, top + height - bh, cw - 6, bh);
-                Ui.Fill(new Rect(x0 + s * cw + 3, top, cw - 6, height), Palette.BarBack);
-                Ui.Fill(bar, s == n ? Palette.Gold : s == 0 ? Settings.Fail : Settings.Success);
-                // The chance over its bar, or inside the bar's top when the bar reaches the summary line above.
-                if (p >= 0.005) Ui.Text(new Rect(x0 + s * cw, Mathf.Max(top, top + height - bh - 14), cw, 14), Percent(p), 9, Palette.Ink, TextAnchor.MiddleCenter);
-                Ui.Text(new Rect(x0 + s * cw, top + height + 1, cw, 12), Strings.Format("battle.successes_n", s), 9, Palette.Dim, TextAnchor.MiddleCenter);
-                Ui.Text(new Rect(x0 + s * cw, top + height + 12, cw, 13), preview.ValueBySuccesses.Length > s ? preview.ValueBySuccesses[s].ToString() : "", 11, Palette.Ink, TextAnchor.MiddleCenter, true);
+                double p = odds.BySuccesses[k];
+                float y = well.y + 4 + k * row;
+                bool likeliest = p >= best - 1e-9 && p > 0;
+                Ui.Text(new Rect(well.x + 8, y, countW, row), Strings.Format("battle.successes_n", k), size, likeliest ? Palette.Ink : Palette.Dim, TextAnchor.MiddleLeft, true);
+                float bh = Mathf.Min(12, Mathf.Floor(row * 0.5f));
+                Ui.Bar(new Rect(barX, y + (row - bh) / 2, barW, bh), (float)p, k == n ? Palette.Gold : k == 0 ? Settings.Fail : Settings.Success, null, barW >= 80 ? 10 : 0);
+                Ui.Text(new Rect(barX + barW + 2, y, percentW, row), Percent(p), size, k == n ? Palette.Gold : likeliest ? Palette.Ink : Palette.Dim, TextAnchor.MiddleRight, true);
+                string value = preview.ValueBySuccesses.Length > k ? preview.ValueBySuccesses[k].ToString() : "";
+                var tag = new Rect(well.xMax - 8 - valueW, y + 2, valueW, row - 4);
+                Ui.Plaque(tag);
+                Ui.Text(tag, value, size, Palette.Ink, TextAnchor.MiddleCenter, true);
             }
         }
 
