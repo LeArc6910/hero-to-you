@@ -24,13 +24,14 @@ For the King 느낌의 탑뷰 2D 턴제 협동(1~3인) 모험 RPG다. Unity 6000
   - `Adventure/`: 한 판(장을 잇는 캠페인)의 진행(`Adventure`): 장과 이야기·결말·목표·장 사이 막간(`Adventure.cs`), 지도 채우기·안개·지도 차례·직업 지도 특기·하루와 균열(`.Map.cs`), 합류·피하기·보스·레벨업·상처(`.Battle.cs`), 사건·명성·발자취(`.Events.cs`), 마을·상점·소모품·장비(`.Town.cs`), 던전·의뢰·동료 대화·줄(`.Quests.cs`), 저장과 불러오기(`.Save.cs`, 명령 기록을 다시 돌린다), 판을 넘는 일지(`Journal`), 모험 봇(`AdventureBot`)
 - `Assets/_Project/Resources/Data`: 데이터 시트(CSV)와 지도(`Maps/*.txt`). 형식은 `Docs/Classes.md`, `Docs/Combat.md`, `Docs/Narrative.md`, `Docs/Map.md`. 클라이언트는 `Resources.Load`로 바로 읽는다. 시트를 새로 추가하면 `GameData.Files`에 넣는다.
 - `Assets/Tests/EditMode` (`Game.Core.Tests`): Core 테스트(NUnit). Unity Test Runner와 `dotnet test`가 같은 파일을 쓴다.
-- `Assets/_Project/Scripts/Client` (`Game.Client`): 화면과 입력만. 게임 규칙을 두지 않는다. UI는 IMGUI이고 크기는 `Ui`의 점 단위(`Ui.Width`, `Ui.Height`)로 잡는다. 줄이 바뀔 수 있는 한글은 `Ui.Wrap`. 설명은 `Ui.Tip`(마우스는 가리키기, 휴대폰은 길게 누르기), 처음 보는 화면의 도움말 카드는 `Tips`. 화면의 낱말은 `Strings`(`Resources/Data/Ui/strings.csv`, 한국어·영어)로 쓰고, 설정은 `Settings`(글자 크기, 진동, 언어). 이야기 장면 그림은 `Art/SceneArt.cs`. 그림은 도트다: 글자 줄로 찍은 그림이 `Resources/Data/Art/*.txt`(영웅, 몬스터, 아이콘, 화면, 장소·표지, 타격 효과; `!이름` 다음 줄들)에 있고 `Art/PixelArt`가 팔레트로 그린다, 효과음과 음악도 코드로 합성한다(`Art/SoundArt.cs`·`Sounds`, `Art/MusicArt.cs`·`Music`). 글꼴은 `Resources/Fonts`의 Noto Sans KR 부분집합. 화면은 `GameRoot`의 부분 파일(`.Menu`, `.Map`, `.Battle`, `.Story`, `.Town`)이고, 모험 명령은 `GameRoot.Act`로 줘서 받아들여지면 기기의 지금 슬롯에 저장한다(`SaveStore`: 슬롯 셋과 연습 판). 입력은 IMGUI 이벤트만 쓴다(마우스·탭 모두 클릭으로 들어온다). `Editor/`에는 프로젝트 설정과 씬을 코드로 만드는 메뉴(`Game > Set Up Project`)와 웹 빌드(`Game > Build Web Demo`).
+- `Assets/_Project/Scripts/Client` (`Game.Client`): 화면과 입력만. 게임 규칙을 두지 않는다. UI는 IMGUI이고 크기는 `Ui`의 점 단위(`Ui.Width`, `Ui.Height`)로 잡는다. 줄이 바뀔 수 있는 한글은 `Ui.Wrap`. 설명은 `Ui.Tip`(마우스는 가리키기, 휴대폰은 길게 누르기), 처음 보는 화면의 도움말 카드는 `Tips`. 화면의 낱말은 `Strings`(`Resources/Data/Ui/strings.csv`, 한국어·영어)로 쓰고, 설정은 `Settings`(글자 크기, 진동, 언어). 이야기 장면 그림은 `Art/SceneArt.cs`. 그림은 도트다: 글자 줄로 찍은 그림이 `Resources/Data/Art/*.txt`(영웅, 몬스터, 아이콘, 화면, 장소·표지, 타격 효과; `!이름` 다음 줄들)에 있고 `Art/PixelArt`가 팔레트로 그린다, 효과음·음악·환경음은 무료 공개 파일(`Resources/Audio/Sfx|Music|Ambience/<이름>.ogg`, 여러 판이면 `_1`, `_2`)을 먼저 쓰고 없으면 코드로 합성한다(`Sounds`의 `AudioFiles`, `Art/SoundArt.cs`, `Art/MusicArt.cs`·`Music`). UI 부품은 `UiKit`(어두운 돌과 금). 글꼴은 `Resources/Fonts`의 Noto Sans KR 부분집합. 화면은 `GameRoot`의 부분 파일(`.Menu`, `.Map`, `.Battle`, `.Story`, `.Town`)이고, 모험 명령은 `GameRoot.Act`로 줘서 받아들여지면 기기의 지금 슬롯에 저장한다(`SaveStore`: 슬롯 셋과 연습 판). 입력은 IMGUI 이벤트만 쓴다(마우스·탭 모두 클릭으로 들어온다). `Editor/`에는 프로젝트 설정과 씬을 코드로 만드는 메뉴(`Game > Set Up Project`)와 웹 빌드(`Game > Build Web Demo`).
 - `DevTools/`: Unity 없이 Core를 빌드·테스트·시뮬레이션하는 .NET 프로젝트. 소스는 `Assets/`에서 가져다 쓰므로 여기에 게임 코드를 두지 않는다.
   - `Game.Core`: Core만 컴파일한다. 경고도 에러로 친다
   - `Game.Core.Tests`: 테스트
   - `CoreSandbox`: 밸런스 시뮬레이션 콘솔(판정 분포, 봇 파티 전투·모험)
   - `UnityCompileCheck`: Unity 쪽 코드를 Unity 실제 엔진 DLL로 컴파일만 해 본다. asmdef마다 `Assemblies/`에 프로젝트가 하나씩 있다. 패키지 API를 쓰게 되면 `Stubs/<어셈블리 이름>/`에 같은 시그니처로 적는다. 웹 빌드용 확인은 웹 플레이어 DLL(`.unity/WebGL`)로 한다. 시험 코드는 Unity가 쓰는 NUnit(3.5 바탕)으로도 컴파일해 본다(`Assemblies/Game.Core.Tests`): `dotnet test`의 새 NUnit에만 있는 제약(예: 원소에 `Does.Not.Contain`)은 Unity 빌드를 깨뜨린다. 원소에는 `Has.Member`/`Has.No.Member`를 쓴다
   - `WebPlaytest`: 웹 데모를 헤드리스 Chromium으로 플레이하는 시험(`Docs/Playtest.md`)
+  - `ArtImport/import.py`: PNG·JPG(무료 공개 도트, 생성 AI 그림)를 팔레트 글자 줄 그림으로 바꾼다(`DevTools/ArtImport/README.md`)
   - `ArtPreview/preview.py`: `Resources/Data/Art/*.txt`의 도트 그림을 PNG 한 장으로 그린다(Unity 없이 그림 확인. `PixelArt`와 같이 팔레트로 그린다: 둘을 같이 고친다)
   - `SoundPreview`: `Client/Art/SoundArt.cs`의 효과음과 `MusicArt.cs`의 음악을 WAV로 쓰고 무음·클리핑을 검사한다
   - `Fonts`: 게임 글꼴 부분집합 만들기. `.cs`나 시트에 새 한글을 쓰면 다시 돌린다(없는 글자는 웹에서 빈칸으로 나온다)
@@ -81,6 +82,7 @@ GitHub Actions(`.github/workflows/core-tests.yml`)가 푸시마다 규칙 검사
 - 에디터에서 손으로 만드는 콘텐츠를 늘리지 않는다. 직업·몬스터·사건은 데이터, 씬과 설정은 에디터 스크립트로 만든다.
 - 그림은 도트(픽셀아트)다(사용자 결정, 2026-11-10). 그림 파일 없이 글자 줄 그림(`Resources/Data/Art/*.txt`)을 `Client/Art/PixelArt.cs`가 그린다. 색은 정해진 팔레트(`Resources/Data/Ui/palette.csv`, `Client/Art/GamePalette.cs`)에서만 쓴다: 직업·몬스터 색도 팔레트 색이고(시험이 본다), 명암은 색 띠에서 한 단계 옮긴다.
 - 보통 난이도는 기사·사냥꾼·성직자를 사람 같은 봇으로 다시 하기 없이 1000판 돌려 60% 안팎이다(사용자 결정, 2026-11-10). 콘텐츠를 더하면 다시 재서 맞춘다(`Docs/Design.md` 7.1).
+- 무료 공개 에셋을 써도 된다(사용자 결정, 2026-11-11): CC0을 먼저, CC-BY는 출처를 `Docs/Credits.md`와 게임 안 출처(`Resources/Data/Ui/credits.txt`, 설정 화면)에 적고 쓴다. SA·NC·ND·"개인용"은 쓰지 않는다. 그림은 `DevTools/ArtImport/import.py`로 팔레트 글자 줄 그림으로 바꿔 넣는다. 생성형 AI 결과물은 모델 조건이 상업 이용을 허락할 때만.
 - For the King은 느낌의 기준일 뿐이다. 그 게임의 이름, 인물, 그림, 사건 문장, 수치를 가져오지 않는다.
 - 사용자에게는 한국어로 말한다(사용자의 다른 프로젝트에서의 결정을 따른다). 작업 보고, 중간 안내, 마지막 요약까지 모두 한국어로 쓴다. 문서도 한국어로 쓴다.
 - 커밋 메시지는 영어로 쓴다. 첫 줄은 명령형 요약, 본문에는 무엇을 왜 바꿨는지 적는다.

@@ -1,0 +1,15 @@
+# The credits shown at the bottom of the settings screen (Docs/Credits.md has the full list with every file).
+# Lines for CC-BY sounds and music are required by their licences; keep them when the files stay.
+Music and sound: free assets from OpenGameArt.org, edited (cut, looped, normalized, re-encoded).
+"Epic Departure [v2]" (LOOP BOX #3) by Of Far Different Nature (fardifferent.carrd.co), CC-BY 4.0
+"Deadly Sea" by Alexandr Zhelanov (soundcloud.com/alexandr-zhelanov), CC-BY 4.0
+"Fantasy Music - The Wraiths of Winter" by HitCtrl, CC-BY 3.0
+"Fantasy Sound Effects Library" by Little Robot Sound Factory (www.littlerobotsoundfactory.com), CC-BY 3.0
+"Won! (Orchestral winning jingle)" by spuispuin, CC-BY 4.0
+"8 Heals and Buffs SFX" by leohpaz, CC-BY 4.0
+"JC Sounds - Fantasy SFX Pack Vol 1" by JC Sounds, CC-BY 4.0
+"Tolling Bell SFX" by Fun Gi Development, CC-BY 3.0
+"Body Hitting Ground" by dklon, CC-BY 3.0
+CC-BY licences: creativecommons.org/licenses/by/3.0 and /by/4.0
+With thanks for CC0 work: The Cynic Project / pixelsphere.org / cynicmusic.com, RandomMind, Kenney (kenney.nl), Emma_MA, nene, CleytonKauffman, Eponasoft, Ecrivain, artisticdude, rubberduck, qubodup, Independent.nu, lentikula, Fupi, Wuzzy, William Hector, themightyglider, Henrique Lazarini (7Soul1), Drummyfish, Dungeon Crawl Stone Soup tile artists.
+Font: Noto Sans KR (SIL Open Font License).

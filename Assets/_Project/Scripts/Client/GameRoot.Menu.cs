@@ -208,6 +208,11 @@ namespace Game.Client
         bool _settingsDragging;
         float _settingsLastY;
 
+        static string[] _credits;
+
+        static string[] Credits => _credits ??= (Resources.Load<TextAsset>("Data/Ui/credits")?.text ?? "")
+            .Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0 && l[0] != '#').ToArray();
+
         void DrawSettings()
         {
             float w = Mathf.Min(460, Ui.Width - 32);
@@ -255,6 +260,17 @@ namespace Game.Client
                 float nh = Ui.TextHeight(_settingsNote, 12, w);
                 Ui.Text(new Rect(0, y, w, nh), _settingsNote, 12, Palette.Journal, TextAnchor.UpperLeft, false, true);
                 y += nh + 4;
+            }
+            // Who made the free music, sounds and pictures the game uses (Data/Ui/credits.txt, Docs/Credits.md):
+            // the CC-BY ones must be named in the game.
+            y += 10;
+            Ui.Section(new Rect(0, y, w, 22), Strings.Get("settings.credits"), 13);
+            y += 26;
+            foreach (string line in Credits)
+            {
+                float lh = Ui.TextHeight(line, 10.5f, w);
+                Ui.Text(new Rect(0, y, w, lh), line, 10.5f, Palette.Dim, TextAnchor.UpperLeft, false, true);
+                y += lh + 3;
             }
             Ui.EndArea(_settingsScroll);
             _settingsHeight = y;

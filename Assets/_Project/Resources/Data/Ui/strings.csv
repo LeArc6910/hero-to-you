@@ -89,6 +89,7 @@ settings.colors_off,색약 표시: 끔,Color marks: off
 settings.motion_on,움직임: 보통,Motion: normal
 settings.motion_off,움직임: 줄임,Motion: reduced
 settings.report,버그 제보,Report a bug
+settings.credits,만든 이들과 출처,Credits
 party.hardcore_on,하드코어: 켬,Hardcore: on
 party.hardcore_off,하드코어: 끔,Hardcore: off
 party.hardcore_tip,희망 없이 쓰러진 영웅은 영영 떠난다. 마을에서 새 동료가 그 자리를 잇는다. 장 다시 하기가 없다.,A hero who falls with no hope left is gone for good; a new companion can take the place in town. No chapter retries.
