@@ -96,7 +96,13 @@ async function playSlice(game, wholeRun) {
   run.check(state.textSize !== 100, `글자 크기가 바뀐다 (${state.textSize}%)`);
   await game.shot('settings', '설정(글자 크기를 바꾼 뒤)');
   await game.press(/^언어/, '설정');
-  run.check((await game.state()).language === 'en' && (await game.allText()).includes('Settings'), '언어를 영어로 바꾸면 메뉴가 영어로 나온다');
+  // The new language shows from the next frame on: look for a moment.
+  let menuEnglish = false;
+  for (let i = 0; i < 10 && !menuEnglish; i++) {
+    menuEnglish = (await game.state()).language === 'en' && (await game.allText()).includes('Settings');
+    if (!menuEnglish) await game.wait(200);
+  }
+  run.check(menuEnglish, '언어를 영어로 바꾸면 메뉴가 영어로 나온다');
   await game.shot('settings-en', '설정을 영어로');
   await game.send(`language ko; textsize ${game.profile.textSize || 100}`);
   // The bug report window opens from the settings (no run yet, so it says so).
@@ -120,7 +126,7 @@ async function playSlice(game, wholeRun) {
   run.check(state && !state.storyAll, '이야기 글이 한 글자씩 나온다');
   await game.wait(1200);
   await game.shot('story', '프롤로그(장면 그림과 글이 나오는 중)');
-  if (await game.press('글', '이야기', { quiet: true })) run.check((await game.state()).storyAll, '글을 누르면 다 나온다');
+  if (await game.press('글', '이야기', { quiet: true })) run.check(!!(await game.until(s => s.storyAll, 2000)), '글을 누르면 다 나온다');
 
   // The map: roll, pick a hex, move.
   await game.press('계속');
