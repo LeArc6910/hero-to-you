@@ -59,3 +59,13 @@ scarabs,scarab scarab scarab scarab,sand ruins,1,4,붉은 모래가 들썩이더
 scarabs_big,scarab scarab scarab order_knight,sand ruins,2,4,풍뎅이 떼가 붉은 그림자를 따라 몰려온다.,"A swarm of scarabs comes on, following a red shade."
 forgotten,forgotten forgotten rift_spawn,rift ruins road,1,5,이름 없는 그림자 둘이 너희 이름을 부르며 다가온다.,"Two nameless shadows come closer, calling your names."
 forgotten_big,forgotten forgotten echo_shade,rift ruins,2,5,잊힌 자들이 무리 지어 온다. 메아리가 그 뒤를 따른다.,"The Forgotten come in a crowd, an echo trailing them."
+boars,ash_boar ash_boar goblin,forest plains swamp,1,1,잿더미를 뒤지던 멧돼지 둘이 고개를 든다. 콧김에 재가 날린다.,Two boars rooting in the ash raise their heads. Their snorts blow the ash about.
+boars_big,ash_boar ash_boar wolf wolf,forest plains,2,1,멧돼지들이 땅을 긁는다. 늑대 둘이 그 뒤를 따라온다.,The boars paw the ground. Two wolves follow behind them.
+witch,tide_witch drowned smuggler,shallows ruins road,1,2,물마녀가 노래를 부르자 익사자가 일어선다. 밀수꾼이 그 곁에서 칼을 뽑는다.,The tide witch sings and a drowned one rises. A smuggler draws a knife at her side.
+witch_big,tide_witch tide_witch crab gull,shallows sand,2,2,물마녀 둘이 잠긴 거리를 가로막는다. 껍데기 게가 그 앞을 지키고 갈매기가 머리 위를 돈다.,Two tide witches bar the drowned street. A shell crab guards them and a gull circles overhead.
+owls,frost_owl frost_owl frost_wolf,snow forest plains,1,3,눈보라 속에서 소리 없이 올빼미들이 내려온다. 서리 늑대가 그 아래를 맴돈다.,Owls drop out of the blizzard without a sound. A frost wolf circles beneath them.
+owls_big,frost_owl frost_owl frost_wolf snow_troll,snow plains,2,3,트롤의 어깨 위에 서리 올빼미 둘이 앉아 있다. 서리 늑대가 그 발치를 맴돈다.,Two frost owls perch on a troll's shoulders. A frost wolf circles at its feet.
+archers,tomb_archer tomb_archer tomb_guard,ruins sand road,1,4,왕릉의 벽 틈에서 해골 궁수들이 시위를 당긴다. 돌 병사가 앞을 막는다.,Skeleton archers draw their bows from the cracks in the tomb wall. A stone soldier blocks the way.
+archers_big,tomb_archer tomb_archer tomb_guard order_knight,ruins road,2,4,기억 기사가 손을 들자 왕릉 궁수들이 일제히 겨눈다.,"A Knight of Memory raises a hand, and the tomb archers take aim as one."
+hounds,rift_hound rift_hound void_eye,rift ruins plains,1,5,갈라진 땅에서 균열 사냥개들이 뛰쳐나온다. 공허의 눈이 사냥을 지켜본다.,Rift hounds bound out of the riven ground. An eye of the void watches the hunt.
+hounds_big,rift_hound rift_hound echo_shade,rift ruins road,2,5,사냥개들이 너희 냄새를 맡았다. 메아리가 그 뒤에서 사냥을 부추긴다.,The hounds have your scent. An echo urges the hunt on from behind.

@@ -240,5 +240,100 @@ namespace Game.Core.Tests
             Act(battle, "elem_frost");
             Assert.That(battle.Events.Count(e => e.Kind == BattleEventKind.Skip && e.Actor == monster.Id), Is.EqualTo(skips + 1), "얼어서 차례를 쉰다");
         }
+
+        // 2026-11-11 3차: 연금술사의 가방과 재료 거두기, 도박사의 판돈(결투·동전·위력·판 쓸기), 점성술사의 맞은 예언.
+        [Test]
+        public void TheAlchemistPacksReagentsForEveryFight()
+        {
+            var party = TestData.Party("alchemist");
+            party[0].Reagents = 0;
+            new Battle(party, new List<MonsterDef> { TestData.Dummy() }, 3, false, TestData.Data);
+            Assert.That(party[0].Reagents, Is.EqualTo(Battle.ReagentFloor));
+        }
+
+        [Test]
+        public void ABombThatFellsAFoeGivesAReagentBack()
+        {
+            var battle = new Battle(TestData.Party("alchemist"), new List<MonsterDef> { TestData.Dummy(1), TestData.Dummy(1), TestData.Dummy() }, 3, false, TestData.Data);
+            var alchemist = battle.Current;
+            int had = alchemist.Hero.Reagents;
+            Act(battle, "alch_bomb");
+            Assert.That(battle.Monsters.Count(m => m.Down), Is.GreaterThan(0));
+            Assert.That(alchemist.Hero.Reagents, Is.EqualTo(had), "재료 1을 쓰고 쓰러진 적에게서 1을 거둔다");
+        }
+
+        [Test]
+        public void TheGamblersCoinAndAFoesLostDiceGoIntoTheStake()
+        {
+            var battle = Solo("gambler", null, "knight");
+            while (battle.Current.Hero.Class.Id != "gambler") Act(battle, Hero.AttackId);
+            var gambler = battle.Current;
+            int stake = gambler.Stake;
+            Act(battle, "gamb_coin", battle.Heroes.First(h => h.Id != gambler.Id).Id);
+            Assert.That(gambler.Stake, Is.EqualTo(stake + 1), "동전도 판돈이 된다");
+
+            var sure = TestData.Dummy(500, 30);
+            sure.Accuracy = 95;
+            sure.Pattern = new List<MonsterSkillDef> { TestData.Data.MonsterSkills["gob_stab"] };
+            var duel = new Battle(TestData.Party("gambler"), new List<MonsterDef> { sure }, 5, false, TestData.Data);
+            var lone = duel.Current;
+            var monster = duel.Monsters.First();
+            bool fed = false;
+            for (int i = 0; i < 20 && !fed; i++)
+            {
+                lone.Stake = 0;
+                Assert.That(duel.Do(new BattleCommand(lone.Id, Hero.AttackId, monster.Id)), Is.Null);
+                var events = duel.Events.ToList();
+                for (int k = 0; k + 1 < events.Count; k++)
+                    if (events[k].Kind == BattleEventKind.Roll && events[k].Actor == monster.Id && events[k].Check.RolledFailures > 0 && events[k + 1].Kind == BattleEventKind.StatusOn && events[k + 1].Actor == lone.Id && events[k + 1].Amount > 0)
+                        fed = true;
+            }
+            Assert.That(fed, Is.True, "도박사를 노린 적의 실패한 주사위가 판돈이 된다");
+        }
+
+        [Test]
+        public void TheStakeRaisesAllInsPowerAndAFellingAllInCanGoAgain()
+        {
+            var battle = new Battle(TestData.Party("gambler"), new List<MonsterDef> { TestData.Dummy(1), TestData.Dummy() }, 3, false, TestData.Data);
+            var gambler = battle.Current;
+            var allIn = gambler.Hero.Skill("gamb_allin");
+            gambler.Stake = 3;
+            Assert.That(battle.PowerOf(gambler, allIn), Is.EqualTo(allIn.Power + 3 * Battle.StakePower));
+            Act(battle, "gamb_allin", battle.Monsters.First().Id);
+            Assert.That(battle.Monsters.First().Down, Is.True);
+            Assert.That(battle.Cooldown(gambler, allIn), Is.Zero, "판을 쓸면 올인을 바로 다시 건다");
+        }
+
+        [Test]
+        public void AKeptProphecyMarksTheFoeAndAForetoldBlowHitsSofter()
+        {
+            var weak = TestData.Dummy(500, 30);
+            weak.Accuracy = 30;
+            weak.Pattern = new List<MonsterSkillDef> { TestData.Data.MonsterSkills["gob_stab"] };
+            var battle = Solo("seer", weak);
+            var monster = battle.Monsters.First();
+            // Its first blow (maybe before the seer's first turn) is the foretold one.
+            for (int i = 0; i < 10 && !battle.Events.Any(e => e.Kind == BattleEventKind.Roll && e.Actor == monster.Id); i++) Act(battle, Hero.AttackId);
+            var blow = battle.Events.First(e => e.Kind == BattleEventKind.Roll && e.Actor == monster.Id);
+            Assert.That(blow.Check.Successes * 2, Is.LessThan(blow.Check.Dice));
+            Assert.That(monster.Has(StatusKind.Mark), Is.True, "빗나간 예언된 공격: 별의 표식");
+
+            var sure = TestData.Dummy(500, 30);
+            sure.Accuracy = 95;
+            sure.Pattern = new List<MonsterSkillDef> { TestData.Data.MonsterSkills["gob_stab"] };
+            var second = Solo("seer", sure);
+            var foe = second.Monsters.First();
+            var seer = second.Current;
+            for (int i = 0; i < 10 && !second.Events.Any(e => e.Kind == BattleEventKind.Roll && e.Actor == foe.Id); i++) Act(second, Hero.AttackId);
+            int at = second.Events.ToList().FindIndex(e => e.Kind == BattleEventKind.Roll && e.Actor == foe.Id);
+            var roll = second.Events[at];
+            var hit = second.Events.Skip(at).FirstOrDefault(e => e.Kind == BattleEventKind.Damage && e.Target == seer.Id);
+            if (roll.Check.Successes > 0)
+            {
+                var stab = TestData.Data.MonsterSkills["gob_stab"];
+                int soft = Dice.Value(Dice.Percent(stab.Power, Battle.ForetoldPowerPercent), stab.Floor, roll.Check.Successes, roll.Check.Dice);
+                Assert.That(hit.Amount, Is.EqualTo(soft - seer.Armor), "예언된 공격은 맞아도 약하다");
+            }
+        }
     }
 }

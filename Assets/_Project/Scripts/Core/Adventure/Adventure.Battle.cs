@@ -18,6 +18,7 @@ namespace Game.Core
         public const int GrownRiftPercent = 20;
         public const int BossRenown = 3;
         public const int BardSongPercent = 15;
+        public const int RemedyPercent = 10;
 
         // Where the battle about to start came from.
         public enum JoinKind
@@ -152,7 +153,7 @@ namespace Game.Core
             return null;
         }
 
-        public const int NormalHpPercent = 122;
+        public const int NormalHpPercent = 115;
 
         // A monster as the run made it (Docs/Map.md): the boss weaker for the quest site's words and without helpers
         // for the clue, stronger for a grown rift; every monster stronger on the hard road.
@@ -271,6 +272,15 @@ namespace Game.Core
                     Report.Add(Data.Line("adventure.reagents", hero.Name, hero.Reagents, hero.ReagentMax));
                 }
                 GainXp(hero, xp);
+            }
+            // The alchemist's field remedy (Docs/Classes.md 연금술사): a standing alchemist with reagents to spare above
+            // what the next fight packs spends one to ease every fighter.
+            var remedy = _fighters.FirstOrDefault(h => h.Class.Id == "alchemist" && !h.Down);
+            if (remedy != null && remedy.Reagents > Battle.ReagentFloor && _fighters.Any(h => !h.Down && h.Hp < h.MaxHp))
+            {
+                remedy.GainReagents(-1);
+                foreach (var hero in _fighters.Where(h => !h.Down && h.Hp < h.MaxHp))
+                    Report.Add(Data.Line("adventure.battle.remedy", HealLine(hero, Math.Max(1, hero.MaxHp * RemedyPercent / 100))));
             }
             switch (Kind)
             {

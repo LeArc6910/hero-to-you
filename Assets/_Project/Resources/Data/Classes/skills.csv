@@ -20,7 +20,7 @@ bard_discord,bard,불협화음,cha,2,6,25,magic,enemy,100,1,,weaken,crit150,,귀
 bard_courage,bard,용기의 노래,,0,0,0,support,self,60,1,,song_courage,,,노래가 이어지는 동안 모든 아군의 확률 +10.,Song of Courage,"While the song plays, every ally gets +10 chance."
 bard_rest,bard,안식의 노래,,0,0,0,support,self,60,1,,song_rest,,,노래가 이어지는 동안 아군이 차례마다 생명력 3 회복.,Song of Rest,"While the song plays, allies heal 3 life each turn."
 bard_encore,bard,앙코르,,0,0,0,support,other_ally,60,3,,encore,,,아군 하나가 바로 다음 차례를 얻는다.,Encore,One ally takes the very next turn.
-alch_bomb,alchemist,투척 폭탄,int,3,9,0,physical,all_enemies,110,1,,,crit150,reagent 1,재료 1. 모든 적에게 터진다.,Bomb Toss,1 reagent. Bursts over every enemy.
+alch_bomb,alchemist,투척 폭탄,int,3,9,0,physical,all_enemies,110,1,,pierce,crit150,reagent 1,재료 1. 모든 적에게 터진다. 폭발은 방어도를 꿰뚫는다.,Bomb Toss,1 reagent. Bursts over every enemy. The blast goes through armor.
 alch_acid,alchemist,산성 병,int,2,7,25,magic,enemy,100,1,,corrode,crit150,reagent 1,재료 1. 성공하면 부식(방어도 −2).,Acid Flask,"1 reagent. On a success, corrode (armor −2)."
 alch_brew,alchemist,즉석 물약,int,3,12,50,heal,ally,100,1,,,crit150,reagent 1,재료 1. 그 자리에서 물약을 섞어 먹인다.,Quick Brew,1 reagent. Mix a potion on the spot and give it to an ally.
 necro_drain,necromancer,생명 흡수,wil,3,9,25,magic,enemy,100,1,,lifesteal,crit150,,준 피해의 절반만큼 회복한다.,Life Drain,Heal half the damage dealt.

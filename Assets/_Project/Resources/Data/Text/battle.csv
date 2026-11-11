@@ -84,3 +84,7 @@ battle.error.no_such_item,그런 소모품은 없습니다: {0},No such consumab
 battle.error.none_left,{0:이} 없습니다.,No {0} left.
 battle.error.self_only,{0:은} 자신에게만 씁니다.,{0} can only be used on yourself.
 battle.error.boss_flee,보스에게서는 도망칠 수 없습니다.,There is no running from a boss.
+battle.reagents.packed,{0}: 싸움 전에 가방을 챙겼다. 재료 {1},{0}: packed the satchel before the fight. Reagents {1}
+battle.reagents.salvage,{0}: 쓰러진 적에게서 재료를 거뒀다. 재료 {1},{0}: salvaged reagents from the fallen. Reagents {1}
+battle.sweep,{0}: 판을 쓸었다! {1:을} 바로 다시 걸 수 있다,{0}: sweeps the table! {1} can be bet again at once
+battle.prophecy_kept,{0}: 예언이 맞았다. {1}에게 별의 표식,{0}: the prophecy came true. The stars mark {1}

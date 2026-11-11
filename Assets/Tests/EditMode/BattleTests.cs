@@ -380,5 +380,56 @@ namespace Game.Core.Tests
             }
             Assert.That(gained, Is.GreaterThan(0), "실패한 주사위가 끈기를 채워 결의가 된다");
         }
+
+        // 2026-11-11 3차: 새 몬스터의 표식(균열 사냥개)과 동료 치료(물마녀, 얼어붙은 원장).
+        static MonsterDef Using(string skill, int accuracy = 95, int speed = 30)
+        {
+            var monster = TestData.Dummy(500, speed);
+            monster.Accuracy = accuracy;
+            monster.Pattern = new List<MonsterSkillDef> { TestData.Data.MonsterSkills[skill] };
+            return monster;
+        }
+
+        [Test]
+        public void AHoundsScentMarksTheHeroAndItsNextBlowIsSure()
+        {
+            var battle = Duel(new[] { "knight" }, Using("hound_rend"));
+            var knight = battle.Current;
+            var hound = battle.Monsters.First();
+            for (int i = 0; i < 20 && !knight.Has(StatusKind.Mark); i++) Attack(battle);
+            Assert.That(knight.Has(StatusKind.Mark), Is.True, "물린 영웅에게 표식이 남는다");
+            int rolls = battle.Events.Count(e => e.Kind == BattleEventKind.Roll && e.Actor == hound.Id);
+            for (int i = 0; i < 20 && battle.Events.Count(e => e.Kind == BattleEventKind.Roll && e.Actor == hound.Id) == rolls; i++) Attack(battle);
+            var next = battle.Events.Where(e => e.Kind == BattleEventKind.Roll && e.Actor == hound.Id).Skip(rolls).First();
+            Assert.That(next.Check.Guaranteed, Is.GreaterThanOrEqualTo(1), "표식이 남은 영웅을 노린 공격은 확정 성공 +1");
+        }
+
+        [Test]
+        public void TheTideWitchMendsTheMostWoundedOnItsSide()
+        {
+            var witch = Using("witch_mend");
+            var battle = new Battle(TestData.Party("knight"), new List<MonsterDef> { witch, TestData.Dummy() }, 2, false, TestData.Data);
+            var hurt = battle.Monsters.Last();
+            hurt.Hp = 100;
+            var mender = battle.Monsters.First();
+            for (int i = 0; i < 20 && !battle.Events.Any(e => e.Kind == BattleEventKind.Heal && e.Actor == mender.Id); i++)
+            {
+                var knight = battle.Current;
+                Assert.That(battle.Do(new BattleCommand(knight.Id, Hero.AttackId, mender.Id)), Is.Null);
+            }
+            var heal = battle.Events.First(e => e.Kind == BattleEventKind.Heal && e.Actor == mender.Id);
+            Assert.That(heal.Target, Is.EqualTo(hurt.Id), "가장 많이 다친 동료");
+            Assert.That(heal.Amount, Is.EqualTo(500 * TestData.Data.MonsterSkills["witch_mend"].Power / 100));
+        }
+
+        [Test]
+        public void EveryBossHasAMoveOnlyItsSecondPhaseUses()
+        {
+            foreach (string id in new[] { "ash_warden", "bell_ringer", "frozen_abbess", "sern", "nameless" })
+            {
+                var boss = TestData.Data.Monsters[id];
+                Assert.That(boss.Pattern2.Select(s => s.Id).Except(boss.Pattern.Select(s => s.Id)), Is.Not.Empty, id);
+            }
+        }
     }
 }

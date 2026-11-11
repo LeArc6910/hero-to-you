@@ -485,6 +485,7 @@ namespace Game.Core
                     actor.Statuses[StatusKind.Howl] = 3;
                     Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Status = StatusKind.Howl, Text = Words.Line("battle.howl", actor.Name, skill.Name) });
                 }
+                else if (skill.Effect == "mend") Mend(actor, skill);
                 else
                 {
                     // A wind-up whose blow the next intent shows (the warden's 잿불 모으기).
@@ -512,11 +513,25 @@ namespace Game.Core
             ChooseIntent(actor);
         }
 
+        // A monster's mending (the tide witch, the abbess, Docs/Combat.md): the most wounded on its own side, itself
+        // included, gets back Power% of its max health. No roll; nothing comes back when nobody is hurt.
+        void Mend(Unit actor, MonsterSkillDef skill)
+        {
+            var hurt = _units.Where(u => !u.Down && u.Side == actor.Side && u.Hp < u.MaxHp).OrderByDescending(u => u.MaxHp - u.Hp).ThenBy(u => u.Id).FirstOrDefault();
+            Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Text = $"{actor.Name}: {skill.Name}!" });
+            if (hurt == null) return;
+            int before = hurt.Hp;
+            hurt.Hp = Math.Min(hurt.MaxHp, hurt.Hp + Math.Max(1, hurt.MaxHp * skill.Power / 100));
+            Emit(new BattleEvent { Kind = BattleEventKind.Heal, Actor = actor.Id, Target = hurt.Id, Amount = hurt.Hp - before, Text = Words.Line("battle.heal", hurt.Name, hurt.Hp - before) });
+        }
+
         // A monster's or summon's attack: one roll for the whole attack. A single target's agility lowers the chance;
         // an attack on everyone ignores it (Docs/Combat.md).
         void Strike(Unit actor, MonsterSkillDef skill, List<Unit> targets, int sure)
         {
             int chance = skill.Target == MonsterTarget.All ? actor.Accuracy : actor.Accuracy - targets[0].Evasion;
+            // A marked target (a rift hound's scent on a hero, the hunter's mark on a foe) gives every blow at it alone a sure success.
+            if (skill.Target != MonsterTarget.All && targets[0].Has(StatusKind.Mark)) sure++;
             // The gambler makes a duel a coin toss both ways: a blow at it alone hits at 50% at best (Docs/Classes.md 도박사).
             if (skill.Target != MonsterTarget.All && Is(targets[0], "gambler")) chance = Math.Min(chance, GamblerChance);
             if (actor.Statuses.TryGetValue(StatusKind.Foretold, out int foretold))
@@ -527,6 +542,15 @@ namespace Game.Core
             chance = Dice.ClampChance(chance);
             var check = Fate.Roll(skill.Dice, chance, sure);
             Emit(new BattleEvent { Kind = BattleEventKind.Roll, Actor = actor.Id, Target = skill.Target == MonsterTarget.All ? -1 : targets[0].Id, Skill = skill.Id, SkillName = skill.Name, Check = check, Perfect = check.Perfect, Text = RollLine(actor.Name, skill.Name, chance, check.Dice, sure, check.Successes, false) });
+            // The gambler's duel: the dice the foe loses at it go into the stake too (Docs/Classes.md 도박사).
+            if (skill.Target != MonsterTarget.All && Is(targets[0], "gambler") && !targets[0].Down) Stake(targets[0], check.RolledFailures);
+            // A prophecy kept (Docs/Classes.md 점성술사): a foretold blow that fails more dice than it wins leaves the foe under the
+            // stars' mark, for the whole party to strike.
+            if (foretold > 0 && actor.IsFoe && check.Successes * 2 < check.Dice && Heroes.FirstOrDefault(h => !h.Down && Is(h, "seer")) is Unit seer)
+            {
+                Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = seer.Id, Target = actor.Id, Text = Words.Line("battle.prophecy_kept", seer.Name, actor.Name) });
+                AddStatus(actor, StatusKind.Mark, MarkTurns);
+            }
 
             int power = skill.Power + actor.PowerBonus;
             if (actor.Statuses.TryGetValue(StatusKind.Howl, out int howl))
@@ -535,6 +559,8 @@ namespace Game.Core
                 actor.Statuses.Remove(StatusKind.Howl);
             }
             if (actor.Has(StatusKind.Weak)) power = Dice.Percent(power, WeakPercent);
+            // A foretold blow that lands anyway was seen coming: it hits softer (Docs/Classes.md 점성술사).
+            if (foretold > 0) power = Dice.Percent(power, ForetoldPowerPercent);
             int value = Dice.Value(power, skill.Floor, check.Successes, check.Dice);
 
             foreach (var target in targets)
@@ -552,6 +578,7 @@ namespace Game.Core
                 if (skill.Effect == "burn" && check.Successes > 0) AddStatus(target, StatusKind.Burn, BurnTurns);
                 if (skill.Effect == "chill" && check.Successes > 0) AddStatus(target, StatusKind.Chill, 1);
                 if (skill.Effect == "weaken" && check.Successes > 0) AddStatus(target, StatusKind.Weak, WeakTurns);
+                if (skill.Effect == "mark" && check.Successes > 0) AddStatus(target, StatusKind.Mark, MarkTurns);
             }
         }
 
@@ -733,7 +760,6 @@ namespace Game.Core
                 Emit(new BattleEvent { Kind = BattleEventKind.Roll, Actor = actor.Id, Target = target.Id, Skill = skill.Id, SkillName = skill.Name, Check = check, Perfect = check.Perfect, Text = RollLine(actor.Name, skill.Name, preview.Chance, check.Dice, check.Guaranteed, check.Successes, check.Perfect) });
                 int gained = hero.AddGrit(check.RolledFailures);
                 if (gained > 0) Emit(new BattleEvent { Kind = BattleEventKind.ResolveGained, Actor = actor.Id, Amount = gained, Note = "grit", Text = Words.Line("battle.grit", actor.Name, gained) });
-                TakeStake(actor, skill, check);
             }
             int successes = check?.Successes ?? 0;
             bool perfect = check != null && check.Perfect;
@@ -776,6 +802,8 @@ namespace Game.Core
                     else Support(actor, skill, target, check);
                     break;
             }
+            // The stake moves after the blow: All In is paid by the stake it was bet with.
+            if (check != null) TakeStake(actor, skill, check);
             if (skill.Element.Length > 0) actor.LastElement = skill.Element;
             if (!Is(actor, "mnemonist") && skill.Id != EchoId) _lastAllySkill = skill;
             AfterAction(actor, skill);
@@ -793,7 +821,7 @@ namespace Game.Core
             // A resonant frost freezes: the foe loses its next turn instead of only waiting longer (Docs/Classes.md 원소술사).
             var cold = skill.Element == "frost" && Resonates(actor, skill) ? StatusKind.Stun : StatusKind.Chill;
             var targets = skill.Target == SkillTarget.AllEnemies ? Monsters.Where(m => !m.Down).ToList() : new List<Unit> { target };
-            int total = 0;
+            int total = 0, felled = 0;
             foreach (var t in targets)
             {
                 int damage = Reduce(skill, value, t);
@@ -815,7 +843,9 @@ namespace Game.Core
                     if (skill.Effect == "snare" && check.Successes >= 2) AddStatus(t, StatusKind.Stun, 1);
                 }
                 if (check.Perfect && skill.Perfect == "stun") AddStatus(t, StatusKind.Stun, 1);
+                if (before > 0 && t.Down) felled++;
             }
+            Salvage(actor, skill, felled);
             AfterAttack(actor, skill, check, total, target);
         }
     }

@@ -25,13 +25,16 @@ namespace Game.Core
         public const int CourageBonus = 10;
         public const int RestHealBase = 3;
         public const int ForetellCut = 30;
+        public const int ForetoldPowerPercent = 70;
         public const int Foresight = 3;
         public const int WolfCallHeal = 8;
         public const int SkeletonHp = 20;
         public const int BoneWallArmor = 3;
         public const int StakeCap = 4;
+        public const int StakePower = 3;
         public const int GamblerChance = 50;
         public const int RiposteBase = 3;
+        public const int ReagentFloor = 2;
 
         // The skeleton grows with its master: +2 life a level, like the engineer's turret.
         static int SkeletonLife(Unit owner) => SkeletonHp + owner.Hero.Special("skeleton_hp") + 2 * (owner.Hero.Level - 1);
@@ -88,6 +91,13 @@ namespace Game.Core
                 Summon(unit, GameData.SkeletonId, SkeletonLife(unit), 0);
             }
             if (Is(unit, "monk")) unit.Ki = 1 + unit.Hero.Special("ki_start");
+            // The alchemist packs the satchel before every fight: never fewer than ReagentFloor reagents (Docs/Classes.md 연금술사).
+            if (Is(unit, "alchemist") && unit.Hero.Reagents < ReagentFloor)
+            {
+                int had = unit.Hero.Reagents;
+                unit.Hero.GainReagents(ReagentFloor - had);
+                Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = unit.Id, Target = unit.Id, Amount = unit.Hero.Reagents - had, Text = Words.Line("battle.reagents.packed", unit.Name, unit.Hero.Reagents) });
+            }
             if (Is(unit, "beastmaster")) Summon(unit, GameData.CompanionWolfId, WolfHp + 2 * (unit.Hero.Level - 1) + unit.Hero.Special("wolf_hp"), unit.Hero.Special("wolf_power"));
         }
 
@@ -176,7 +186,11 @@ namespace Game.Core
         public string BlockedBy(Unit unit, SkillDef skill) =>
             skill != null && Cooldown(unit, skill) > 0 && unit.Blocked.TryGetValue(skill.Id, out string why) ? why : null;
 
-        public int PowerOf(Unit actor, SkillDef skill) => skill.Effect == "finisher" ? skill.Power + ComboPower * actor.Combo : skill.Power;
+        public int PowerOf(Unit actor, SkillDef skill) =>
+            skill.Effect == "finisher" ? skill.Power + ComboPower * actor.Combo
+            // The gambler's stake raises the pot as well as the odds (Docs/Classes.md 도박사).
+            : CashesStake(actor, skill) ? skill.Power + StakePower * actor.Stake
+            : skill.Power;
 
         // Gambler (Docs/Classes.md 도박사): every die of its own fixed-chance rolls that fails goes into the stake, and
         // All In (the skill that backfires) turns the whole stake into sure successes. Losing raises the stakes.
@@ -188,13 +202,36 @@ namespace Game.Core
         {
             if (!Is(actor, "gambler") || skill.FixedChance <= 0) return;
             if (CashesStake(actor, skill)) actor.Stake = 0;
-            int gain = Math.Min(StakeMax(actor) - actor.Stake, check.RolledFailures);
+            Stake(actor, check.RolledFailures);
+        }
+
+        // Puts failed dice into the gambler's stake, up to its cap: its own, or a foe's at it in a duel.
+        void Stake(Unit gambler, int failures)
+        {
+            int gain = Math.Min(StakeMax(gambler) - gambler.Stake, failures);
             if (gain <= 0) return;
-            actor.Stake += gain;
-            Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Amount = gain, Text = Words.Line("battle.stake", actor.Name, gain, actor.Stake) });
+            gambler.Stake += gain;
+            Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = gambler.Id, Target = gambler.Id, Amount = gain, Text = Words.Line("battle.stake", gambler.Name, gain, gambler.Stake) });
+        }
+
+        // All In that fells its mark sweeps the table: it can be bet again at once (Docs/Classes.md 도박사).
+        void SweepTable(Unit actor, SkillDef skill, Unit target)
+        {
+            if (!CashesStake(actor, skill) || skill.Target != SkillTarget.Enemy || target == null || !target.Down || actor.Down) return;
+            if (!actor.AvailableAt.Remove(skill.Id)) return;
+            Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Text = Words.Line("battle.sweep", actor.Name, skill.Name) });
         }
 
         public int ComboMax(Unit actor) => ComboCap + (actor.IsHero ? actor.Hero.Special("combo_cap") : 0);
+
+        // Alchemist (Docs/Classes.md 연금술사): a bomb or a flask (a skill paid in reagents) that fells a foe gives one
+        // reagent back, picked from what fell.
+        void Salvage(Unit actor, SkillDef skill, int felled)
+        {
+            if (felled <= 0 || !Is(actor, "alchemist") || skill.CostKind != "reagent" || actor.Hero.Reagents >= actor.Hero.ReagentMax) return;
+            actor.Hero.GainReagents(1);
+            Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = actor.Id, Amount = 1, Text = Words.Line("battle.reagents.salvage", actor.Name, actor.Hero.Reagents) });
+        }
 
         int PotionOf(Unit actor) => Is(actor, "alchemist") ? PotionHeal * 3 / 2 : PotionHeal;
 
@@ -312,6 +349,8 @@ namespace Game.Core
                 case "lucky":
                     target.Hero.Luck += 2;
                     Emit(new BattleEvent { Kind = BattleEventKind.StatusOn, Actor = actor.Id, Target = target.Id, Amount = 2, Note = "lucky", Text = Words.Line("battle.lucky_coin", target.Name) });
+                    // The gambler's own coin goes on the table too: a stake for the next All In (Docs/Classes.md 도박사).
+                    if (Is(actor, "gambler")) Stake(actor, 1);
                     break;
                 case "hide":
                     actor.Statuses[StatusKind.Hidden] = 1;
@@ -421,6 +460,7 @@ namespace Game.Core
             }
             if (skill.Effect == "backfire" && check.Successes <= BackfireAtMost)
                 Hurt(actor, BackfireDamage, actor.Id, false, Words.Line("battle.cause.backfire"), leaveOne: true);
+            SweepTable(actor, skill, target);
             if (skill.Effect == "finisher") actor.Combo = 0;
             if (actor.Statuses.Remove(StatusKind.Hidden))
                 Emit(new BattleEvent { Kind = BattleEventKind.StatusOff, Target = actor.Id, Status = StatusKind.Hidden, Text = Words.Line("battle.unhide", actor.Name) });

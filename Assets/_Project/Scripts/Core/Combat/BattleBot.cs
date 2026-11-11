@@ -144,8 +144,9 @@ namespace Game.Core
                 var wall = Find("bonewall");
                 if (wall != null) return wall;
             }
-            // Foretell a crowd, or a boss (its wind-ups and storms are what a careful player answers, Docs/Combat.md 보스).
-            if ((enemies.Count >= 2 || enemies.Any(e => e.Monster.Boss)) && !enemies.Any(e => e.Has(StatusKind.Foretold)))
+            // Foretell a crowd, a boss (its wind-ups and storms are what a careful player answers, Docs/Combat.md 보스), or
+            // one heavy hitter: a foretold blow is both less likely and softer (Docs/Classes.md 점성술사).
+            if ((enemies.Count >= 2 || enemies.Any(e => e.Monster.Boss || Blow(e) >= 14)) && !enemies.Any(e => e.Has(StatusKind.Foretold)))
             {
                 var foretell = Find("foretell");
                 if (foretell != null) return foretell;
@@ -207,6 +208,8 @@ namespace Game.Core
                 }
                 // A blessing kept for oneself waits a turn; one given lands on someone already on the way.
                 if (target.Id == actor.Id) gain *= 0.7;
+                // The gambler's coin also goes into its stake (Docs/Classes.md 도박사): a sure success and more power for All In.
+                if (skill.Effect == "lucky" && hero.Class.Id == "gambler" && actor.Stake < battle.StakeMax(actor)) gain += Battle.StakePower;
                 if (gain > lifted)
                 {
                     lifted = gain;
@@ -274,6 +277,8 @@ namespace Game.Core
                 // All In waits for a stake (Docs/Classes.md 도박사).
                 if (preview.Skill.Effect == "backfire" && actor.Stake < 2 && !kills) score *= 0.5;
                 if (preview.Skill.CostKind == "reagent" && hero.Reagents <= 1) score *= 0.8;
+                // A bomb or flask that fells a foe pays a reagent back (Docs/Classes.md 연금술사): worth about a bomb's blow.
+                if (preview.Skill.CostKind == "reagent" && hero.Class.Id == "alchemist" && Fells(battle, preview, target, enemies)) score += 5;
                 if (score > bestScore)
                 {
                     bestScore = score;
@@ -290,6 +295,15 @@ namespace Game.Core
             int resolve = hero.Resolve >= 2 && dice >= 3 ? 1 : 0;
             if (dice >= 4 && hero.Resolve >= 3) resolve = 2;
             return WithResolve(battle, best, resolve);
+        }
+
+        // Whether the attack is more likely than not to fell a foe: the target, or for an attack on all, any of them
+        // (the expected blow is shared evenly).
+        static bool Fells(Battle battle, SkillPreview preview, Unit target, List<Unit> enemies)
+        {
+            if (preview.Skill.Target == SkillTarget.AllEnemies)
+                return enemies.Count > 0 && enemies.Any(e => e.Hp <= preview.Expected / enemies.Count);
+            return target != null && !target.Down && preview.Expected >= target.Hp;
         }
 
         // A monster's next blow at full strength: its intent's power, or for a wind-up the hardest blow it has.

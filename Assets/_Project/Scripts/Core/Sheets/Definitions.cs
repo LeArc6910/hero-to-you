@@ -159,7 +159,8 @@ namespace Game.Core
         public MonsterAim Aim { get; internal set; }
         public int Delay { get; internal set; }
 
-        // burn, howl or empty.
+        // burn, chill, weaken, howl, charge, mark (blows at the hero it hits get a sure success), mend (heals the most
+        // wounded on its side by Power% of its max health), a boss rule (Battle.BossRule) or empty.
         public string Effect { get; internal set; }
         public string Text { get; internal set; }
 
