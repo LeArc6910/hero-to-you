@@ -34,7 +34,7 @@ Useful options (see --help for all):
   --clean N             N passes removing lone pixels and one-pixel holes
   --tint LETTER         turn that letter's ramp into c/d/C (the class or monster colour and one step either side)
   --saturation F --contrast F --brightness F   adjust before snapping (1.0 = unchanged)
-  --preview out.png     the result at --scale (default 8) on the game's dark backdrop, the source beside it
+  --preview out.png     the result at --scale (default 8) on a grey checker, the source beside it
 
 Needs Python 3, Pillow and numpy (pip install pillow numpy). Run with python3 -I on downloaded files.
 """
@@ -49,6 +49,7 @@ from PIL import Image, ImageEnhance
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 PALETTE = ROOT / "Assets/_Project/Resources/Data/Ui/palette.csv"
 BACKDROP = (20, 18, 26, 255)  # preview.py's sheet colour
+CHECKER = ((74, 70, 84, 255), (88, 84, 98, 255))  # behind the preview, light enough to see the 'k' outline
 
 
 class Palette:
@@ -148,7 +149,10 @@ def downscale(img, ow, oh, how, pal, alpha_cut):
         idx = pal.snap(a[..., :3].reshape(-1, 3)).reshape(oh, ow)
         idx[a[..., 3] < alpha_cut] = -1
         return idx
-    # mode: the commonest snapped colour of each block; transparent when most of the block is.
+    # mode: the commonest snapped colour of each block; transparent when most of the block is. Growing a side first
+    # repeats source pixels (as nearest does), so every block has at least one.
+    if ow > img.width or oh > img.height:
+        img = img.resize((max(ow, img.width), max(oh, img.height)), Image.NEAREST)
     a = np.array(img, dtype=np.int64)
     h, w = a.shape[:2]
     ys = (np.arange(h) * oh) // h
@@ -262,7 +266,8 @@ def rows_of(grid, pal, tint):
 
 
 def render(rows, pal, tint, scale):
-    """The rows drawn as the game draws them (c/d/C in the tint colour), at `scale`, on the dark backdrop."""
+    """The rows drawn as the game draws them (c/d/C in the tint colour), at `scale`, on a grey checker (transparent
+    points show as the checker, so the 'k' outline stays visible)."""
     tones = {}
     if tint:
         t = pal.index[tint]
@@ -270,10 +275,11 @@ def render(rows, pal, tint, scale):
         pos = ramp.index(t)
         tones = {"c": ramp[pos], "d": ramp[max(0, pos - 1)], "C": ramp[min(len(ramp) - 1, pos + 1)]}
     h, w = len(rows), len(rows[0])
-    img = Image.new("RGBA", (w, h), BACKDROP)
+    img = Image.new("RGBA", (w, h))
     for y, row in enumerate(rows):
         for x, ch in enumerate(row):
             if ch == ".":
+                img.putpixel((x, y), CHECKER[(x + y) % 2])
                 continue
             i = tones[ch] if ch in tones else pal.index.get(ch)
             img.putpixel((x, y), tuple(int(v) for v in pal.rgb[i]) + (255,) if i is not None else (255, 0, 255, 255))
@@ -284,10 +290,10 @@ def convert(args, pal):
     img = Image.open(args.input)
     img.load()
     img = img.convert("RGBA")
-    source = img
     if args.crop:
         x, y, w, h = (int(v) for v in args.crop.split(","))
         img = img.crop((x, y, x + w, y + h))
+    source = img
     if args.bg != "none":
         img = remove_background(img, args.bg, args.bg_tol, args.bg_all)
     a = np.array(img)
