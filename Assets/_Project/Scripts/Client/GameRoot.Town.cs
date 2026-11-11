@@ -230,13 +230,13 @@ namespace Game.Client
                 var box = new Rect(0, y, w, 92 + extra);
                 Ui.Panel(box);
                 Ui.Image(new Rect(6, y + 6, 36, 36), PixelArt.Hero(hero.Class.Id, hero.Class.Color));
-                Ui.Text(new Rect(48, y + 4, w - 160, 18), Strings.Format("gear.hero", hero.Name, hero.Level, hero.Hp, hero.MaxHp, hero.ArmorValue, hero.MaxResolve) + (hero.Wounds > 0 ? " · " + Strings.Format("hero.wounds", hero.Wounds) : ""), 12.5f, Palette.Ink, TextAnchor.MiddleLeft, true);
+                Ui.TextFit(new Rect(48, y + 4, w - 172, 18), Strings.Format("gear.hero", hero.Name, hero.Level, hero.Hp, hero.MaxHp, hero.ArmorValue, hero.MaxResolve) + (hero.Wounds > 0 ? " · " + Strings.Format("hero.wounds", hero.Wounds) : ""), 12.5f, Palette.Ink, TextAnchor.MiddleLeft, true);
                 // Front or back row, a tap to switch (Docs/Combat.md 줄).
                 if (Ui.Button(new Rect(w - 106, y + 4, 100, 44), Strings.Get(hero.Back ? "row.back" : "row.front"), 13, true, hero.Back ? Look.Quiet : Look.Normal, hero.Name + " 줄"))
                     Act(() => a.SetRow(heroIndex, !hero.Back));
                 Ui.Tip(new Rect(w - 106, y + 4, 100, 44), Strings.Get("gear.row_tip"));
                 string stats = string.Join(" ", Enumerable.Range(0, Stats.Count).Select(i => $"{Stats.Name((Stat)i, Sheets)} {hero.Stat((Stat)i)}"));
-                Ui.Text(new Rect(48, y + 22, w - 160, 16), stats, 10.5f, Palette.Dim);
+                Ui.TextFit(new Rect(48, y + 22, w - 172, 16), stats, 10.5f, Palette.Dim);
                 Ui.Image(new Rect(48, y + 38, 16, 16), ItemPicture(hero.Weapon));
                 Ui.Text(new Rect(66, y + 38, w - 70, 16), Strings.Format("gear.weapon", hero.Weapon.Name, ItemLine(hero.Weapon)), 11, Palette.Journal);
                 float sy = y + 56;
